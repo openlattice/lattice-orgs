@@ -3,11 +3,13 @@
  */
 
 import { AuthSagas } from 'lattice-auth';
+import { OrganizationsApiSagas } from 'lattice-sagas';
 import { all, fork } from 'redux-saga/effects';
 
-import * as AppSagas from '../../containers/app/AppSagas';
 import * as EDMSagas from '../edm/EDMSagas';
 import * as RoutingSagas from '../router/RoutingSagas';
+import { AppSagas } from '../../containers/app';
+import { OrgsSagas } from '../../containers/orgs';
 
 export default function* sagas() :Generator<*, *, *> {
 
@@ -19,12 +21,19 @@ export default function* sagas() :Generator<*, *, *> {
     fork(AuthSagas.watchAuthExpired),
     fork(AuthSagas.watchLogout),
 
+    // "lattice-sagas" sagas
+    fork(OrganizationsApiSagas.getAllOrganizationsWatcher),
+    fork(OrganizationsApiSagas.getOrganizationWatcher),
+
     // AppSagas
     fork(AppSagas.initializeApplicationWatcher),
 
     // EDMSagas
     fork(EDMSagas.getEntityDataModelTypesWatcher),
     fork(EDMSagas.getEntitySetIdsWatcher),
+
+    // OrgsSagas
+    fork(OrgsSagas.switchOrganizationWatcher),
 
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),

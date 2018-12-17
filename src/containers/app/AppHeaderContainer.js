@@ -4,17 +4,18 @@
 
 import React, { Component } from 'react';
 
+import Select from 'react-select';
 import styled from 'styled-components';
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 import { AuthActionFactory } from 'lattice-auth';
 import { Button, Colors } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 
 import AppNavigationContainer from './AppNavigationContainer';
 import OpenLatticeLogo from '../../assets/images/logo_v2.png';
+import * as OrgsActions from '../orgs/OrgsActions';
 import * as Routes from '../../core/router/Routes';
 import {
   APP_CONTAINER_MAX_WIDTH,
@@ -22,8 +23,7 @@ import {
   APP_CONTENT_PADDING,
 } from '../../core/style/Sizes';
 
-const { logout } = AuthActionFactory;
-const { NEUTRALS, WHITE } = Colors;
+const { NEUTRALS, PURPLES, WHITE } = Colors;
 
 // TODO: this should come from lattice-ui-kit, maybe after the next release. current version v0.1.1
 const APP_HEADER_BORDER :string = '#e6e6eb';
@@ -99,10 +99,43 @@ const LogoutButton = styled(Button)`
   padding: 6px 29px;
 `;
 
+const orgSelectStyles = {
+  container: styles => ({
+    ...styles,
+    width: '200px',
+  }),
+  control: (styles, { isFocused, isSelected }) => ({
+    ...styles,
+    backgroundColor: (isFocused || isSelected) ? WHITE : NEUTRALS[8],
+    borderColor: (isFocused || isSelected) ? PURPLES[1] : styles.borderColor,
+    boxShadow: 'none',
+    color: NEUTRALS[1],
+    fontSize: '12px',
+    lineHeight: 'normal',
+    height: '30px',
+    minHeight: '30px',
+    ':hover': {
+      borderColor: (isFocused || isSelected) ? PURPLES[1] : styles.borderColor,
+    },
+  }),
+  menu: styles => ({ ...styles, width: '300px' }),
+  option: styles => ({
+    ...styles,
+    backgroundColor: WHITE,
+    color: NEUTRALS[0],
+    fontSize: '12px',
+    ':hover': {
+      backgroundColor: PURPLES[6],
+    },
+  }),
+};
+
 type Props = {
-  actions :{
-    logout :() => void;
-  };
+  isInitializingApplication :boolean;
+  logout :() => void;
+  organizations :List;
+  selectedOrganizationId :UUID;
+  switchOrganization :typeof OrgsActions.switchOrganization;
 };
 
 class AppHeaderContainer extends Component<Props> {
@@ -121,13 +154,50 @@ class AppHeaderContainer extends Component<Props> {
 
   renderRightSideContent = () => {
 
-    const { actions } = this.props;
+    const { logout } = this.props;
     return (
       <RightSideContentWrapper>
-        <LogoutButton onClick={actions.logout}>
+        { this.renderOrgSelect() }
+        <LogoutButton onClick={logout}>
           Log Out
         </LogoutButton>
       </RightSideContentWrapper>
+    );
+  }
+
+  // TODO: perhaps extract out into its own component?
+  renderOrgSelect = () => {
+
+    const {
+      isInitializingApplication,
+      organizations,
+      selectedOrganizationId,
+      switchOrganization,
+    } = this.props;
+
+    const organizationOptions = organizations
+      .map((organization :Map<*, *>) => ({
+        label: organization.get('title'),
+        value: organization.get('id'),
+      }))
+      .toJS();
+
+    const handleOnChange = ({ value: orgId }) => {
+      if (orgId !== selectedOrganizationId) {
+        switchOrganization(orgId);
+      }
+    };
+
+    return (
+      <Select
+          value={organizationOptions.find(option => option.value === selectedOrganizationId)}
+          isClearable={false}
+          isLoading={isInitializingApplication}
+          isMulti={false}
+          onChange={handleOnChange}
+          options={organizationOptions}
+          placeholder="Select..."
+          styles={orgSelectStyles} />
     );
   }
 
@@ -144,21 +214,16 @@ class AppHeaderContainer extends Component<Props> {
   }
 }
 
-function mapStateToProps(state :Map<*, *>) :Object {
-
-  return {
-    isInitializingApplication: state.getIn(['app', 'isInitializingApplication'], false),
-  };
-}
-
-function mapDispatchToProps(dispatch :Function) :Object {
-
-  return {
-    actions: bindActionCreators({ logout }, dispatch)
-  };
-}
+const mapStateToProps = (state :Map<*, *>) => ({
+  isInitializingApplication: state.getIn(['app', 'isInitializingApplication']),
+  organizations: state.getIn(['orgs', 'organizations']),
+  selectedOrganizationId: state.getIn(['orgs', 'selectedOrganizationId']),
+});
 
 // $FlowFixMe
 export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(AppHeaderContainer)
+  connect(mapStateToProps, {
+    logout: AuthActionFactory.logout,
+    switchOrganization: OrgsActions.switchOrganization,
+  })(AppHeaderContainer)
 );
