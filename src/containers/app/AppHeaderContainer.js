@@ -4,7 +4,6 @@
 
 import React, { Component } from 'react';
 
-// $FlowFixMe
 import Select from 'react-select';
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
