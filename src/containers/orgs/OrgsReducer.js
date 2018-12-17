@@ -8,14 +8,20 @@ import { matchPath } from 'react-router';
 import type { Match } from 'react-router';
 
 import * as Routes from '../../core/router/Routes';
-import { SWITCH_ORGANIZATION } from './OrgsActions';
+import { SWITCH_ORGANIZATION, getRelevantEntitySets } from './OrgsActions';
 import { getOrganizationId } from './OrgsUtils';
 
 const { getAllOrganizations } = OrganizationsApiActions;
 
+const ENTITY_SETS_INITIAL_STATE :Map<*, *> = fromJS({
+  appIdToEntitySetIdsMap: Map()
+});
+
 const INITIAL_STATE :Map<*, *> = fromJS({
   isFetchingAllOrganizations: false,
+  isFetchingRelevantEntitySets: false,
   organizations: List(),
+  relevantEntitySets: ENTITY_SETS_INITIAL_STATE,
   selectedOrganizationId: '',
 });
 
@@ -72,6 +78,23 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
           .set('organizations', Map())
           .set('selectedOrganizationId', ''),
         FINALLY: () => state.set('isFetchingAllTypes', false),
+      });
+    }
+
+    case getRelevantEntitySets.case(action.type): {
+      return getRelevantEntitySets.reducer(state, action, {
+        REQUEST: () => state
+          .set('isFetchingRelevantEntitySets', true)
+          .set('relevantEntitySets', ENTITY_SETS_INITIAL_STATE),
+        SUCCESS: () => {
+          const seqAction :SequenceAction = action;
+          const relevantEntitySets = {
+            appIdToEntitySetIdsMap: seqAction.value.appIdToEntitySetIdsMap
+          };
+          return state.set('relevantEntitySets', fromJS(relevantEntitySets));
+        },
+        FAILURE: () => state.set('relevantEntitySets', ENTITY_SETS_INITIAL_STATE),
+        FINALLY: () => state.set('isFetchingRelevantEntitySets', false),
       });
     }
 

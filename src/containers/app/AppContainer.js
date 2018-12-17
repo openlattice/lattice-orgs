@@ -50,6 +50,7 @@ const AppContentInnerWrapper = styled.div`
   max-width: ${APP_CONTAINER_MAX_WIDTH}px;
   padding: ${APP_CONTENT_PADDING}px;
   position: relative;
+  width: 100%;
 `;
 
 type Props = {
