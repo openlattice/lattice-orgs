@@ -2,7 +2,16 @@
  * @flow
  */
 
-export const ROOT :string = '/';
+const ROOT :string = '/';
 
-export const HOME :string = '/home';
-export const LOGIN :string = '/login';
+const LOGIN :string = '/login';
+const ORGS :string = '/orgs';
+
+const ORG :string = `${ORGS}/:id`;
+
+export {
+  LOGIN,
+  ORG,
+  ORGS,
+  ROOT,
+};

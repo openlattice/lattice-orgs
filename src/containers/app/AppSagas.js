@@ -2,6 +2,7 @@
  * @flow
  */
 
+import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
 import {
   all,
   call,
@@ -26,6 +27,9 @@ import {
 
 const LOG = new Logger('AppSagas');
 
+const { getAllOrganizations } = OrganizationsApiActions;
+const { getAllOrganizationsWorker } = OrganizationsApiSagas;
+
 /*
  *
  * AppActions.initializeApplication()
@@ -48,6 +52,7 @@ function* initializeApplicationWorker(action :SequenceAction) :Generator<*, *, *
       // TODO: we should have a saga that runs these on a schedule to refresh the data
       call(getEntitySetIdsWorker, getEntitySetIds()),
       call(getEntityDataModelTypesWorker, getEntityDataModelTypes()),
+      call(getAllOrganizationsWorker, getAllOrganizations()),
     ]);
 
     yield put(initializeApplication.success(action.id));

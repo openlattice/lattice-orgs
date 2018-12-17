@@ -7,9 +7,12 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Map } from 'immutable';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
 import AppHeaderContainer from './AppHeaderContainer';
+import OrgContainer from '../orgs/OrgContainer';
+import OrgsContainer from '../orgs/OrgsContainer';
 import Spinner from '../../components/spinner/Spinner';
 import * as AppActions from './AppActions';
 import * as Routes from '../../core/router/Routes';
@@ -73,10 +76,10 @@ class AppContainer extends Component<Props> {
 
     return (
       <Switch>
-        <Route exact strict path={Routes.HOME} />
-        <Route path="/tab1" render={() => null} />
-        <Route path="/tab2" render={() => null} />
-        <Redirect to={Routes.HOME} />
+        <Route exact strict path={Routes.ROOT} />
+        <Route path={Routes.ORG} component={OrgContainer} />
+        <Route path={Routes.ORGS} component={OrgsContainer} />
+        <Redirect to={Routes.ROOT} />
       </Switch>
     );
   }
@@ -101,4 +104,8 @@ const mapStateToProps = (state :Map<*, *>) => ({
 });
 
 // $FlowFixMe
-export default connect(mapStateToProps, { ...AppActions })(AppContainer);
+export default withRouter(
+  connect(mapStateToProps, {
+    initializeApplication: AppActions.initializeApplication,
+  })(AppContainer)
+);

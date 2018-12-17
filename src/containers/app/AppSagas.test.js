@@ -1,4 +1,5 @@
 import randomUUID from 'uuid/v4';
+import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
 import { all, call, put } from 'redux-saga/effects';
 
 import {
@@ -22,6 +23,9 @@ import {
   testShouldBeGeneratorFunction,
   testWatcherSagaShouldTakeEvery,
 } from '../../utils/testing/TestUtils';
+
+const { GET_ALL_ORGANIZATIONS } = OrganizationsApiActions;
+const { getAllOrganizationsWorker } = OrganizationsApiSagas;
 
 describe('AppSagas', () => {
 
@@ -65,6 +69,7 @@ describe('AppSagas', () => {
         all([
           call(getEntitySetIdsWorker, { id: expect.any(String), type: GET_ENTITY_SET_IDS, value: {} }),
           call(getEntityDataModelTypesWorker, { id: expect.any(String), type: GET_EDM_TYPES, value: {} }),
+          call(getAllOrganizationsWorker, { id: expect.any(String), type: GET_ALL_ORGANIZATIONS, value: {} }),
         ])
       );
 
