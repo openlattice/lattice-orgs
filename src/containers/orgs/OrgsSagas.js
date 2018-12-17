@@ -2,7 +2,12 @@
  * @flow
  */
 
-import { List, Map, Set, fromJS } from 'immutable';
+import {
+  List,
+  Map,
+  Set,
+  fromJS,
+} from 'immutable';
 import { AppApiActions, AppApiSagas } from 'lattice-sagas';
 import { push } from 'react-router-redux';
 import {

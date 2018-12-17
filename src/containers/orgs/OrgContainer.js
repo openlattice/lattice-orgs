@@ -36,7 +36,6 @@ type Props = {
   isFetchingRelevantEntitySets :boolean;
   organization :Map;
   relevantEntitySets :Map;
-  selectedOrganizationId :UUID;
 };
 
 class OrgContainer extends Component<Props> {
@@ -131,7 +130,6 @@ const mapStateToProps = (state :Map<*, *>) => {
 
   return {
     organization,
-    selectedOrganizationId,
     isFetchingAllOrganizations: state.getIn(['orgs', 'isFetchingAllOrganizations']),
     isFetchingRelevantEntitySets: state.getIn(['orgs', 'isFetchingRelevantEntitySets']),
     relevantEntitySets: state.getIn(['orgs', 'relevantEntitySets']),
