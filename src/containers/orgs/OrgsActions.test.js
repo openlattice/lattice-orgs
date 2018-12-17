@@ -8,7 +8,6 @@ const ACTION_TYPES = Set([
 ]).sort();
 
 const REQSEQ_NAMES = Set([
-  'switchOrganization',
 ]).sort();
 
 describe('OrgsActions', () => {
