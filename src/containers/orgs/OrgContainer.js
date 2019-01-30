@@ -79,8 +79,9 @@ class OrgContainer extends Component<Props> {
           <p key={entitySetId}>{entitySetId}</p>
         )
       ));
+      /* eslint-disable react/no-array-index-key */
       const wrapper = (
-        <RowWrapper>
+        <RowWrapper key={appId}>
           <AppWrapper>
             <p>App</p>
             <p>{appId}</p>
@@ -91,6 +92,7 @@ class OrgContainer extends Component<Props> {
           </EntitySetsWrapper>
         </RowWrapper>
       );
+      /* eslint-enable */
       appElements.push(wrapper);
     });
 
@@ -111,6 +113,8 @@ class OrgContainer extends Component<Props> {
         <Spinner />
       );
     }
+
+    console.log(organization.toJS());
 
     return (
       <>

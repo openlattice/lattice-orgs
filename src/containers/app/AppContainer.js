@@ -11,7 +11,7 @@ import { withRouter } from 'react-router';
 import { Redirect, Route, Switch } from 'react-router-dom';
 
 import AppHeaderContainer from './AppHeaderContainer';
-import OrgContainer from '../orgs/OrgContainer';
+import OrgOverviewContainer from '../orgs/components/OrgOverviewContainer';
 import OrgsContainer from '../orgs/OrgsContainer';
 import Spinner from '../../components/spinner/Spinner';
 import * as AppActions from './AppActions';
@@ -44,13 +44,13 @@ const AppContentOuterWrapper = styled.main`
 
 const AppContentInnerWrapper = styled.div`
   display: flex;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   flex-direction: column;
   justify-content: flex-start;
   max-width: ${APP_CONTAINER_MAX_WIDTH}px;
   padding: ${APP_CONTENT_PADDING}px;
   position: relative;
-  width: 100%;
+  width: ${APP_CONTAINER_WIDTH}px;
 `;
 
 type Props = {
@@ -78,7 +78,7 @@ class AppContainer extends Component<Props> {
     return (
       <Switch>
         <Route exact strict path={Routes.ROOT} />
-        <Route path={Routes.ORG} component={OrgContainer} />
+        <Route path={Routes.ORG} component={OrgOverviewContainer} />
         <Route path={Routes.ORGS} component={OrgsContainer} />
         <Redirect to={Routes.ROOT} />
       </Switch>

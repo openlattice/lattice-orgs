@@ -63,7 +63,8 @@ module.exports = (env) => {
   });
 
   const DEFINE_PLUGIN = new Webpack.DefinePlugin({
-    __AUTH0_CLIENT_ID__: JSON.stringify(env.production ? AUTH0_CLIENT_ID_PROD : AUTH0_CLIENT_ID_DEV),
+    // __AUTH0_CLIENT_ID__: JSON.stringify(env.production ? AUTH0_CLIENT_ID_PROD : AUTH0_CLIENT_ID_DEV),
+    __AUTH0_CLIENT_ID__: JSON.stringify(AUTH0_CLIENT_ID_PROD),
     __AUTH0_DOMAIN__: JSON.stringify(AUTH0_DOMAIN),
     __BASE_PATH__: JSON.stringify(BASE_PATH),
     __ENV_DEV__: JSON.stringify(!!env.development),
