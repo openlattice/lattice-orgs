@@ -42,7 +42,7 @@
     "polished": "^2.3.0",
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
-    "react-redux": "^5.1.0",
+    "react-redux": "^6.0.1",
     "react-router": "^4.3.0",
     "react-router-dom": "^4.3.0",
     "react-router-redux": "5.0.0-alpha.9",
