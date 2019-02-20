@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import Select from 'react-select';
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
-import { AuthActionFactory } from 'lattice-auth';
+import { AuthActions } from 'lattice-auth';
 import { Button, Colors } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
@@ -49,6 +49,7 @@ const AppHeaderInnerWrapper = styled.div`
 const LeftSideContentWrapper = styled.div`
   display: flex;
   flex: 0 0 auto;
+  height: 100%;
   justify-content: flex-start;
 `;
 
@@ -64,7 +65,6 @@ const LogoTitleWrapperLink = styled(Link)`
   display: flex;
   flex-direction: row;
   flex: 0 0 auto;
-  padding: 15px 0;
   text-decoration: none;
 
   &:focus {
@@ -77,6 +77,8 @@ const LogoTitleWrapperLink = styled(Link)`
   }
 `;
 
+// 2019-02-19 - Cannot call `styled.img.attrs` because undefined [1] is incompatible with string [2].
+// $FlowFixMe
 const AppLogoIcon = styled.img.attrs({
   alt: 'OpenLattice Logo Icon',
   src: OpenLatticeLogo,
@@ -96,12 +98,13 @@ const LogoutButton = styled(Button)`
   font-size: 12px;
   line-height: 16px;
   margin-left: 30px;
-  padding: 6px 29px;
+  width: 100px;
 `;
 
 const orgSelectStyles = {
   container: styles => ({
     ...styles,
+    margin: '15px 0',
     width: '200px',
   }),
   control: (styles, { isFocused, isSelected }) => ({
@@ -112,8 +115,6 @@ const orgSelectStyles = {
     color: NEUTRALS[1],
     fontSize: '12px',
     lineHeight: 'normal',
-    height: '30px',
-    minHeight: '30px',
     ':hover': {
       borderColor: (isFocused || isSelected) ? PURPLES[1] : styles.borderColor,
     },
@@ -223,7 +224,7 @@ const mapStateToProps = (state :Map<*, *>) => ({
 // $FlowFixMe
 export default withRouter(
   connect(mapStateToProps, {
-    logout: AuthActionFactory.logout,
+    logout: AuthActions.logout,
     switchOrganization: OrgsActions.switchOrganization,
   })(AppHeaderContainer)
 );

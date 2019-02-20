@@ -2,9 +2,9 @@
  * @flow
  */
 
+import { all, fork } from '@redux-saga/core/effects';
 import { AuthSagas } from 'lattice-auth';
 import { AppApiSagas, OrganizationsApiSagas } from 'lattice-sagas';
-import { all, fork } from 'redux-saga/effects';
 
 import * as EDMSagas from '../edm/EDMSagas';
 import * as RoutingSagas from '../router/RoutingSagas';

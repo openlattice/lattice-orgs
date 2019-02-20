@@ -3,19 +3,19 @@
  */
 
 import {
+  all,
+  call,
+  put,
+  takeEvery,
+} from '@redux-saga/core/effects';
+import { push } from 'connected-react-router';
+import {
   List,
   Map,
   Set,
   fromJS,
 } from 'immutable';
 import { AppApiActions, AppApiSagas } from 'lattice-sagas';
-import { push } from 'react-router-redux';
-import {
-  all,
-  call,
-  put,
-  takeEvery,
-} from 'redux-saga/effects';
 
 import Logger from '../../utils/Logger';
 import * as Routes from '../../core/router/Routes';
