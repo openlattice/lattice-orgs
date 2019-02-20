@@ -2,13 +2,13 @@
  * @flow
  */
 
-import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
 import {
   all,
   call,
   put,
   takeEvery,
-} from 'redux-saga/effects';
+} from '@redux-saga/core/effects';
+import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
 
 import Logger from '../../utils/Logger';
 import { ERR_ACTION_VALUE_NOT_DEFINED } from '../../utils/Errors';
