@@ -6,6 +6,7 @@ import { List, Map, fromJS } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { matchPath } from 'react-router';
 import type { Match } from 'react-router';
+import type { SequenceAction } from 'redux-reqseq';
 
 import * as Routes from '../../core/router/Routes';
 import { SWITCH_ORGANIZATION, getRelevantEntitySets } from './OrgsActions';

@@ -3,6 +3,7 @@
  */
 
 import { newRequestSequence } from 'redux-reqseq';
+import type { RequestSequence } from 'redux-reqseq';
 
 const GET_RELEVANT_ENTITY_SETS :'GET_RELEVANT_ENTITY_SETS' = 'GET_RELEVANT_ENTITY_SETS';
 const getRelevantEntitySets :RequestSequence = newRequestSequence(GET_RELEVANT_ENTITY_SETS);
