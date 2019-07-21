@@ -21,14 +21,11 @@ import {
   APP_CONTENT_PADDING,
 } from '../../core/style/Sizes';
 
-const { NEUTRALS, PURPLES, WHITE } = Colors;
-
-// TODO: this should come from lattice-ui-kit, maybe after the next release. current version v0.1.1
-const APP_HEADER_BORDER :string = '#e6e6eb';
+const { NEUTRALS, WHITE } = Colors;
 
 const AppHeaderOuterWrapper = styled.header`
   background-color: ${WHITE};
-  border-bottom: 1px solid ${APP_HEADER_BORDER};
+  border-bottom: 1px solid ${NEUTRALS[5]};
   display: flex;
   flex: 0 0 auto;
   justify-content: center;
