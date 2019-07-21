@@ -16,6 +16,7 @@ import {
   fromJS,
 } from 'immutable';
 import { AppApiActions, AppApiSagas } from 'lattice-sagas';
+import type { SequenceAction } from 'redux-reqseq';
 
 import Logger from '../../utils/Logger';
 import * as Routes from '../../core/router/Routes';
