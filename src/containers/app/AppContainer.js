@@ -7,9 +7,14 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { Map } from 'immutable';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
-import { Redirect, Route, Switch } from 'react-router-dom';
-import type { RequestSequence } from 'redux-reqseq';
+import {
+  Redirect,
+  Route,
+  Switch,
+  withRouter,
+} from 'react-router';
+import { RequestStates } from 'redux-reqseq';
+import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import AppHeaderContainer from './AppHeaderContainer';
 import OrgOverviewContainer from '../orgs/components/OrgOverviewContainer';
@@ -55,8 +60,8 @@ const AppContentInnerWrapper = styled.div`
 `;
 
 type Props = {
+  initAppRequestState :RequestState;
   initializeApplication :RequestSequence;
-  isInitializingApplication :boolean;
 };
 
 class AppContainer extends Component<Props> {
@@ -69,8 +74,8 @@ class AppContainer extends Component<Props> {
 
   renderAppContent = () => {
 
-    const { isInitializingApplication } = this.props;
-    if (isInitializingApplication) {
+    const { initAppRequestState } = this.props;
+    if (initAppRequestState === RequestStates.PENDING) {
       return (
         <Spinner />
       );
@@ -102,7 +107,7 @@ class AppContainer extends Component<Props> {
 }
 
 const mapStateToProps = (state :Map<*, *>) => ({
-  isInitializingApplication: state.getIn(['app', 'isInitializingApplication']),
+  initAppRequestState: state.getIn(['app', AppActions.INITIALIZE_APPLICATION, 'requestState']),
 });
 
 // $FlowFixMe

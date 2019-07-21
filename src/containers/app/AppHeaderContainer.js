@@ -4,18 +4,16 @@
 
 import React, { Component } from 'react';
 
-import Select from 'react-select';
 import styled from 'styled-components';
-import { List, Map } from 'immutable';
+import { Map } from 'immutable';
 import { AuthActions } from 'lattice-auth';
-import { Button, Colors } from 'lattice-ui-kit';
+import { Button, Colors, Input } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { Link } from 'react-router-dom';
 
-import AppNavigationContainer from './AppNavigationContainer';
 import OpenLatticeLogo from '../../assets/images/logo_v2.png';
-import * as OrgsActions from '../orgs/OrgsActions';
+import * as AppActions from './AppActions';
 import * as Routes from '../../core/router/Routes';
 import {
   APP_CONTAINER_MAX_WIDTH,
@@ -53,10 +51,17 @@ const LeftSideContentWrapper = styled.div`
   justify-content: flex-start;
 `;
 
+const CenterContentWrapper = styled.div`
+  display: flex;
+  flex: 1 0 auto;
+  height: 100%;
+  justify-content: center;
+`;
+
 const RightSideContentWrapper = styled.div`
   align-items: center;
   display: flex;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   justify-content: flex-end;
 `;
 
@@ -77,8 +82,6 @@ const LogoTitleWrapperLink = styled(Link)`
   }
 `;
 
-// 2019-02-19 - Cannot call `styled.img.attrs` because undefined [1] is incompatible with string [2].
-// $FlowFixMe
 const AppLogoIcon = styled.img.attrs({
   alt: 'OpenLattice Logo Icon',
   src: OpenLatticeLogo,
@@ -90,53 +93,39 @@ const AppTitle = styled.h1`
   color: ${NEUTRALS[0]};
   font-size: 14px;
   font-weight: 600;
-  line-height: normal;
   margin: 0 0 0 10px;
 `;
 
+// total button height
+// line-height + padding + border
+// 18 + 2*8px + 2*1px = 36px
 const LogoutButton = styled(Button)`
+  border: solid 1px ${NEUTRALS[4]};
   font-size: 12px;
-  line-height: 16px;
+  line-height: 18px;
   margin-left: 30px;
+  padding: 8px 16px;
   width: 100px;
 `;
 
-const orgSelectStyles = {
-  container: styles => ({
-    ...styles,
-    margin: '15px 0',
-    width: '200px',
-  }),
-  control: (styles, { isFocused, isSelected }) => ({
-    ...styles,
-    backgroundColor: (isFocused || isSelected) ? WHITE : NEUTRALS[8],
-    borderColor: (isFocused || isSelected) ? PURPLES[1] : styles.borderColor,
-    boxShadow: 'none',
-    color: NEUTRALS[1],
-    fontSize: '12px',
-    lineHeight: 'normal',
-    ':hover': {
-      borderColor: (isFocused || isSelected) ? PURPLES[1] : styles.borderColor,
-    },
-  }),
-  menu: styles => ({ ...styles, width: '300px' }),
-  option: styles => ({
-    ...styles,
-    backgroundColor: WHITE,
-    color: NEUTRALS[0],
-    fontSize: '12px',
-    ':hover': {
-      backgroundColor: PURPLES[6],
-    },
-  }),
-};
+const LogoutButtonWrapper = styled.div`
+  padding: 12px 0;
+`;
+
+const SearchInput = styled(Input)`
+  font-size: 12px;
+  line-height: 18px;
+  padding: 8px 16px;
+`;
+
+const SearchInputWrapper = styled.div`
+  flex: 1 0 auto;
+  max-width: 600px;
+  padding: 12px 0;
+`;
 
 type Props = {
-  isInitializingApplication :boolean;
   logout :() => void;
-  organizations :List;
-  selectedOrganizationId :UUID;
-  switchOrganization :typeof OrgsActions.switchOrganization;
 };
 
 class AppHeaderContainer extends Component<Props> {
@@ -149,7 +138,6 @@ class AppHeaderContainer extends Component<Props> {
           OpenLattice
         </AppTitle>
       </LogoTitleWrapperLink>
-      <AppNavigationContainer />
     </LeftSideContentWrapper>
   )
 
@@ -158,49 +146,20 @@ class AppHeaderContainer extends Component<Props> {
     const { logout } = this.props;
     return (
       <RightSideContentWrapper>
-        { this.renderOrgSelect() }
-        <LogoutButton onClick={logout}>
-          Log Out
-        </LogoutButton>
+        <LogoutButtonWrapper>
+          <LogoutButton onClick={logout}>Log Out</LogoutButton>
+        </LogoutButtonWrapper>
       </RightSideContentWrapper>
     );
   }
 
-  // TODO: perhaps extract out into its own component?
-  renderOrgSelect = () => {
-
-    const {
-      isInitializingApplication,
-      organizations,
-      selectedOrganizationId,
-      switchOrganization,
-    } = this.props;
-
-    const organizationOptions = organizations
-      .map((organization :Map<*, *>) => ({
-        label: organization.get('title'),
-        value: organization.get('id'),
-      }))
-      .toJS();
-
-    const handleOnChange = ({ value: orgId }) => {
-      if (orgId !== selectedOrganizationId) {
-        switchOrganization(orgId);
-      }
-    };
-
-    return (
-      <Select
-          value={organizationOptions.find(option => option.value === selectedOrganizationId)}
-          isClearable={false}
-          isLoading={isInitializingApplication}
-          isMulti={false}
-          onChange={handleOnChange}
-          options={organizationOptions}
-          placeholder="Select..."
-          styles={orgSelectStyles} />
-    );
-  }
+  renderSearch = () => (
+    <CenterContentWrapper>
+      <SearchInputWrapper>
+        <SearchInput />
+      </SearchInputWrapper>
+    </CenterContentWrapper>
+  )
 
   render() {
 
@@ -208,6 +167,7 @@ class AppHeaderContainer extends Component<Props> {
       <AppHeaderOuterWrapper>
         <AppHeaderInnerWrapper>
           { this.renderLeftSideContent() }
+          { this.renderSearch() }
           { this.renderRightSideContent() }
         </AppHeaderInnerWrapper>
       </AppHeaderOuterWrapper>
@@ -216,15 +176,12 @@ class AppHeaderContainer extends Component<Props> {
 }
 
 const mapStateToProps = (state :Map<*, *>) => ({
-  isInitializingApplication: state.getIn(['app', 'isInitializingApplication']),
-  organizations: state.getIn(['orgs', 'organizations']),
-  selectedOrganizationId: state.getIn(['orgs', 'selectedOrganizationId']),
+  initAppRequestState: state.getIn(['app', AppActions.INITIALIZE_APPLICATION, 'requestState']),
 });
 
 // $FlowFixMe
 export default withRouter(
   connect(mapStateToProps, {
     logout: AuthActions.logout,
-    switchOrganization: OrgsActions.switchOrganization,
   })(AppHeaderContainer)
 );
