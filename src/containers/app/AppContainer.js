@@ -9,6 +9,7 @@ import { Map } from 'immutable';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { Redirect, Route, Switch } from 'react-router-dom';
+import type { RequestSequence } from 'redux-reqseq';
 
 import AppHeaderContainer from './AppHeaderContainer';
 import OrgOverviewContainer from '../orgs/components/OrgOverviewContainer';

@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { List, Map, Set } from 'immutable';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
+import type { RequestSequence } from 'redux-reqseq';
 
 // import Logger from '../../utils/Logger';
 import Spinner from '../../components/spinner/Spinner';
