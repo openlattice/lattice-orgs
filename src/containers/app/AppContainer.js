@@ -6,15 +6,20 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
+import { Spinner } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
-import { Redirect, Route, Switch } from 'react-router-dom';
-import type { RequestSequence } from 'redux-reqseq';
+import {
+  Redirect,
+  Route,
+  Switch,
+  withRouter,
+} from 'react-router';
+import { RequestStates } from 'redux-reqseq';
+import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import AppHeaderContainer from './AppHeaderContainer';
 import OrgContainer from '../orgs/OrgContainer';
 import OrgsContainer from '../orgs/OrgsContainer';
-import Spinner from '../../components/spinner/Spinner';
 import * as AppActions from './AppActions';
 import * as Routes from '../../core/router/Routes';
 import {
@@ -45,18 +50,18 @@ const AppContentOuterWrapper = styled.main`
 
 const AppContentInnerWrapper = styled.div`
   display: flex;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   flex-direction: column;
   justify-content: flex-start;
   max-width: ${APP_CONTAINER_MAX_WIDTH}px;
   padding: ${APP_CONTENT_PADDING}px;
   position: relative;
-  width: 100%;
+  width: ${APP_CONTAINER_WIDTH}px;
 `;
 
 type Props = {
+  initAppRequestState :RequestState;
   initializeApplication :RequestSequence;
-  isInitializingApplication :boolean;
 };
 
 class AppContainer extends Component<Props> {
@@ -69,19 +74,18 @@ class AppContainer extends Component<Props> {
 
   renderAppContent = () => {
 
-    const { isInitializingApplication } = this.props;
-    if (isInitializingApplication) {
+    const { initAppRequestState } = this.props;
+    if (initAppRequestState === RequestStates.PENDING) {
       return (
-        <Spinner />
+        <Spinner size="2x" />
       );
     }
 
     return (
       <Switch>
-        <Route exact strict path={Routes.ROOT} />
         <Route path={Routes.ORG} component={OrgContainer} />
         <Route path={Routes.ORGS} component={OrgsContainer} />
-        <Redirect to={Routes.ROOT} />
+        <Redirect to={Routes.ORGS} />
       </Switch>
     );
   }
@@ -102,7 +106,7 @@ class AppContainer extends Component<Props> {
 }
 
 const mapStateToProps = (state :Map<*, *>) => ({
-  isInitializingApplication: state.getIn(['app', 'isInitializingApplication']),
+  initAppRequestState: state.getIn(['app', AppActions.INITIALIZE_APPLICATION, 'requestState']),
 });
 
 // $FlowFixMe

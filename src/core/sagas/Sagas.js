@@ -9,7 +9,6 @@ import { AppApiSagas, OrganizationsApiSagas } from 'lattice-sagas';
 import * as EDMSagas from '../edm/EDMSagas';
 import * as RoutingSagas from '../router/RoutingSagas';
 import { AppSagas } from '../../containers/app';
-import { OrgsSagas } from '../../containers/orgs';
 
 export default function* sagas() :Generator<*, *, *> {
 
@@ -32,10 +31,6 @@ export default function* sagas() :Generator<*, *, *> {
     // EDMSagas
     fork(EDMSagas.getEntityDataModelTypesWatcher),
     fork(EDMSagas.getEntitySetIdsWatcher),
-
-    // OrgsSagas
-    fork(OrgsSagas.getRelevantEntitySetsWatcher),
-    fork(OrgsSagas.switchOrganizationWatcher),
 
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),

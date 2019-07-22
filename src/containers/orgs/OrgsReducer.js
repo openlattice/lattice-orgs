@@ -4,98 +4,98 @@
 
 import { List, Map, fromJS } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import { matchPath } from 'react-router';
-import type { Match } from 'react-router';
+import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import * as Routes from '../../core/router/Routes';
-import { SWITCH_ORGANIZATION, getRelevantEntitySets } from './OrgsActions';
-import { getOrganizationId } from './OrgsUtils';
-
-const { getAllOrganizations } = OrganizationsApiActions;
-
-const ENTITY_SETS_INITIAL_STATE :Map<*, *> = fromJS({
-  appIdToEntitySetIdsMap: Map()
-});
+const {
+  GET_ALL_ORGANIZATIONS,
+  GET_ORGANIZATION,
+  getAllOrganizations,
+  getOrganization,
+} = OrganizationsApiActions;
 
 const INITIAL_STATE :Map<*, *> = fromJS({
-  isFetchingAllOrganizations: false,
-  isFetchingRelevantEntitySets: false,
-  organizations: List(),
-  relevantEntitySets: ENTITY_SETS_INITIAL_STATE,
-  selectedOrganizationId: '',
+  [GET_ALL_ORGANIZATIONS]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [GET_ORGANIZATION]: {
+    requestState: RequestStates.STANDBY,
+  },
+  orgs: Map(),
 });
 
 export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
 
-    case SWITCH_ORGANIZATION:
-      return state.set('selectedOrganizationId', action.orgId);
-
     case getAllOrganizations.case(action.type): {
+      const seqAction :SequenceAction = action;
       return getAllOrganizations.reducer(state, action, {
         REQUEST: () => state
-          .set('isFetchingAllTypes', true)
-          .set('selectedOrganizationId', ''),
+          .setIn([GET_ALL_ORGANIZATIONS, 'requestState'], RequestStates.PENDING)
+          .setIn([GET_ALL_ORGANIZATIONS, seqAction.id], seqAction),
         SUCCESS: () => {
 
-          const seqAction :SequenceAction = action;
-          const organizations :List = fromJS(seqAction.value);
+          const orgs :List = fromJS(seqAction.value);
+          const orgsMap :Map = Map().withMutations((map :Map) => {
+            orgs.forEach((org :Map) => map.set(org.get('id'), org));
+          });
 
+          // NOTE: this logic will need to be implemented at some point, keeping it around for future reference
           /*
            * choosing the selected organization requires checking 3 places, in order of priority:
            *   1. URL
-           *   2. localstorage
+           *   2. localStorage
            *   3. organizations data
            */
-          let selectedOrganizationId :string = '';
-          // by default, choose the first organization from the response data
-          if (organizations && !organizations.isEmpty()) {
-            selectedOrganizationId = organizations.getIn([0, 'id']);
-          }
-
-          // check localstorage for a previously stored organization id
-          const storedOrganizationId :?string = getOrganizationId();
-          if (storedOrganizationId) {
-            selectedOrganizationId = storedOrganizationId;
-          }
-
-          // URL trumps everything
-          const match :?Match = matchPath(window.location.hash.slice(1), { path: Routes.ORG });
-          if (match && match.params.id) {
-            const maybeOrgId :UUID = match.params.id;
-            const isRealOrganizationId :number = organizations.findIndex((org :Map) => org.get('id') === maybeOrgId);
-            if (isRealOrganizationId !== -1) {
-              selectedOrganizationId = maybeOrgId;
-            }
-          }
+          // let selectedOrganizationId :string = '';
+          // // by default, choose the first organization from the response data
+          // if (orgs && !orgs.isEmpty()) {
+          //   selectedOrganizationId = orgs.getIn([0, 'id']);
+          // }
+          //
+          // // check localStorage for a previously stored organization id
+          // const storedOrganizationId :?string = getOrganizationId();
+          // if (storedOrganizationId) {
+          //   selectedOrganizationId = storedOrganizationId;
+          // }
+          //
+          // // URL trumps everything
+          // const match :?Match = matchPath(window.location.hash.slice(1), { path: Routes.ORG });
+          // if (match && match.params.id) {
+          //   const maybeOrgId :UUID = match.params.id;
+          //   const isRealOrganizationId :number = orgs.findIndex((org :Map) => org.get('id') === maybeOrgId);
+          //   if (isRealOrganizationId !== -1) {
+          //     selectedOrganizationId = maybeOrgId;
+          //   }
+          // }
 
           return state
-            .set('organizations', fromJS(action.value))
-            .set('selectedOrganizationId', selectedOrganizationId);
+            .set('orgs', orgsMap)
+            .setIn([GET_ALL_ORGANIZATIONS, 'requestState'], RequestStates.SUCCESS);
         },
         FAILURE: () => state
-          .set('organizations', Map())
-          .set('selectedOrganizationId', ''),
-        FINALLY: () => state.set('isFetchingAllTypes', false),
+          .set('orgs', Map())
+          .setIn([GET_ALL_ORGANIZATIONS, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([GET_ALL_ORGANIZATIONS, seqAction.id]),
       });
     }
 
-    case getRelevantEntitySets.case(action.type): {
-      return getRelevantEntitySets.reducer(state, action, {
+    case getOrganization.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return getOrganization.reducer(state, action, {
         REQUEST: () => state
-          .set('isFetchingRelevantEntitySets', true)
-          .set('relevantEntitySets', ENTITY_SETS_INITIAL_STATE),
+          .setIn([GET_ORGANIZATION, 'requestState'], RequestStates.PENDING)
+          .setIn([GET_ORGANIZATION, seqAction.id], seqAction),
         SUCCESS: () => {
-          const seqAction :SequenceAction = action;
-          const relevantEntitySets = {
-            appIdToEntitySetIdsMap: seqAction.value.appIdToEntitySetIdsMap
-          };
-          return state.set('relevantEntitySets', fromJS(relevantEntitySets));
+          const org :Map = fromJS(seqAction.value);
+          const orgId :UUID = org.get('id');
+          return state
+            .setIn(['orgs', orgId], org)
+            .setIn([GET_ORGANIZATION, 'requestState'], RequestStates.FAILURE);
         },
-        FAILURE: () => state.set('relevantEntitySets', ENTITY_SETS_INITIAL_STATE),
-        FINALLY: () => state.set('isFetchingRelevantEntitySets', false),
+        FAILURE: () => state.setIn([GET_ORGANIZATION, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([GET_ORGANIZATION, seqAction.id]),
       });
     }
 

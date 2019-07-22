@@ -5,141 +5,84 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
-import { List, Map, Set } from 'immutable';
+import { Map } from 'immutable';
+import { OrganizationsApiActions } from 'lattice-sagas';
+import { Spinner } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router';
-import type { RequestSequence } from 'redux-reqseq';
+import { bindActionCreators } from 'redux';
+import { RequestStates } from 'redux-reqseq';
+import type { RequestSequence, RequestState } from 'redux-reqseq';
 
-// import Logger from '../../utils/Logger';
-import Spinner from '../../components/spinner/Spinner';
-import * as OrgsActions from './OrgsActions';
-
-// const LOG = new Logger('OrgContainer');
-
-const RowWrapper = styled.div`
-  display: flex;
-`;
-
-const AppWrapper = styled.div`
-  border: 1px solid #e1e1eb;
-  padding: 0 20px;
-`;
-
-const EntitySetsWrapper = styled.div`
-  border: 1px solid #e1e1eb;
-  border-left: none;
-  padding: 0 20px;
+const Title = styled.h1`
+  font-size: 28px;
+  font-weight: normal;
+  margin: 20px 0 40px 0;
+  padding: 0;
 `;
 
 type Props = {
-  getRelevantEntitySets :RequestSequence;
-  isFetchingAllOrganizations :boolean;
-  isFetchingRelevantEntitySets :boolean;
-  organization :Map;
-  relevantEntitySets :Map;
+  actions :{
+    getOrganization :RequestSequence;
+  };
+  getOrgRequestState :RequestState;
+  org :Map;
+  orgId :UUID;
 };
 
 class OrgContainer extends Component<Props> {
 
   componentDidMount() {
 
-    const { getRelevantEntitySets, organization } = this.props;
-    if (organization && !organization.isEmpty()) {
-      getRelevantEntitySets(organization);
+    const { actions, org, orgId } = this.props;
+    if (!org || org.isEmpty()) {
+      actions.getOrganization(orgId);
     }
   }
 
   componentDidUpdate(prevProps :Props) {
 
-    const { getRelevantEntitySets, organization } = this.props;
-    const { organization: prevOrganization } = prevProps;
-    if (organization && !organization.isEmpty() && !organization.equals(prevOrganization)) {
-      getRelevantEntitySets(organization);
+    const { actions, orgId } = this.props;
+    if (orgId !== prevProps.orgId) {
+      actions.getOrganization(orgId);
     }
-  }
-
-  renderEntitySets = () => {
-
-    const { isFetchingRelevantEntitySets, relevantEntitySets } = this.props;
-    if (isFetchingRelevantEntitySets || !relevantEntitySets) {
-      return null;
-    }
-
-    const appIdToEntitySetIdsMap :Map<UUID, Set<UUID>> = relevantEntitySets.get('appIdToEntitySetIdsMap');
-    if (!appIdToEntitySetIdsMap || appIdToEntitySetIdsMap.isEmpty()) {
-      return null;
-    }
-
-    const appElements = [];
-
-    appIdToEntitySetIdsMap.forEach((entitySetIds :Set<UUID>, appId :UUID) => {
-
-      const esElements = [];
-      entitySetIds.forEach((entitySetId :UUID) => (
-        esElements.push(
-          <p key={entitySetId}>{entitySetId}</p>
-        )
-      ));
-      const wrapper = (
-        <RowWrapper>
-          <AppWrapper>
-            <p>App</p>
-            <p>{appId}</p>
-          </AppWrapper>
-          <EntitySetsWrapper>
-            <p>EntitySets</p>
-            {esElements}
-          </EntitySetsWrapper>
-        </RowWrapper>
-      );
-      appElements.push(wrapper);
-    });
-
-    return (
-      <div>
-        <h4>Relevant EntitySets</h4>
-        {appElements}
-      </div>
-    );
   }
 
   render() {
 
-    const { isFetchingAllOrganizations, organization } = this.props;
+    const { getOrgRequestState, org } = this.props;
 
-    if (isFetchingAllOrganizations || !organization) {
+    if (getOrgRequestState === RequestStates.PENDING) {
       return (
-        <Spinner />
+        <Spinner size="2x" />
       );
     }
 
     return (
-      <>
-        <h2>{organization.get('title')}</h2>
-        <p>{organization.get('description')}</p>
-        {this.renderEntitySets()}
-      </>
+      <Title>{org.get('title')}</Title>
     );
   }
 }
 
-const mapStateToProps = (state :Map<*, *>) => {
+const mapStateToProps = (state :Map<*, *>, props) => {
 
-  const organizations :List = state.getIn(['orgs', 'organizations']);
-  const selectedOrganizationId :UUID = state.getIn(['orgs', 'selectedOrganizationId']);
-  const organization :Map = organizations.find((org :Map) => org.get('id') === selectedOrganizationId);
+  const {
+    params: {
+      id: orgId = null,
+    } = {},
+  } = props.match;
 
   return {
-    organization,
-    isFetchingAllOrganizations: state.getIn(['orgs', 'isFetchingAllOrganizations']),
-    isFetchingRelevantEntitySets: state.getIn(['orgs', 'isFetchingRelevantEntitySets']),
-    relevantEntitySets: state.getIn(['orgs', 'relevantEntitySets']),
+    orgId,
+    getOrgRequestState: state.getIn(['orgs', OrganizationsApiActions.GET_ORGANIZATION, 'requestState']),
+    org: state.getIn(['orgs', 'orgs', orgId], Map()),
   };
 };
 
+const mapDispatchToProps = (dispatch :Function) => ({
+  actions: bindActionCreators({
+    getOrganization: OrganizationsApiActions.getOrganization,
+  }, dispatch)
+});
+
 // $FlowFixMe
-export default withRouter(
-  connect(mapStateToProps, {
-    getRelevantEntitySets: OrgsActions.getRelevantEntitySets,
-  })(OrgContainer)
-);
+export default connect(mapStateToProps, mapDispatchToProps)(OrgContainer);
