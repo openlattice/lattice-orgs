@@ -11,7 +11,6 @@ import { withRouter } from 'react-router';
 // import Logger from '../../utils/Logger';
 import OrgDescriptionSectionContainer from './OrgDescriptionSectionContainer';
 import OrgTitleSectionContainer from './OrgTitleSectionContainer';
-import SimpleCard from '../../../components/cards/SimpleCard';
 import Spinner from '../../../components/spinner/Spinner';
 import * as OrgsActions from '../OrgsActions';
 
@@ -33,10 +32,10 @@ class OrgOverviewContainer extends Component<Props> {
     }
 
     return (
-      <SimpleCard>
+      <>
         <OrgTitleSectionContainer organization={organization} />
         <OrgDescriptionSectionContainer organization={organization} />
-      </SimpleCard>
+      </>
     );
     // { this.renderDomainsSection() }
     // { this.renderRolesSection() }

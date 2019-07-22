@@ -17,7 +17,6 @@ import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import AppHeaderContainer from './AppHeaderContainer';
-import OrgOverviewContainer from '../orgs/components/OrgOverviewContainer';
 import OrgsContainer from '../orgs/OrgsContainer';
 import Spinner from '../../components/spinner/Spinner';
 import * as AppActions from './AppActions';
@@ -83,10 +82,8 @@ class AppContainer extends Component<Props> {
 
     return (
       <Switch>
-        <Route exact strict path={Routes.ROOT} />
-        <Route path={Routes.ORG} component={OrgOverviewContainer} />
         <Route path={Routes.ORGS} component={OrgsContainer} />
-        <Redirect to={Routes.ROOT} />
+        <Redirect to={Routes.ORGS} />
       </Switch>
     );
   }
