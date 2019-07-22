@@ -100,7 +100,6 @@ const LogoutButton = styled(Button)`
   border: solid 1px ${NEUTRALS[4]};
   font-size: 12px;
   line-height: 18px;
-  margin-left: 30px;
   padding: 8px 16px;
   width: 100px;
 `;
@@ -118,6 +117,7 @@ const SearchInput = styled(Input)`
 const SearchInputWrapper = styled.div`
   flex: 1 0 auto;
   max-width: 600px;
+  margin: 0 30px;
   padding: 12px 0;
 `;
 
