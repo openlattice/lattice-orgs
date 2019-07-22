@@ -33,10 +33,6 @@ export default function* sagas() :Generator<*, *, *> {
     fork(EDMSagas.getEntityDataModelTypesWatcher),
     fork(EDMSagas.getEntitySetIdsWatcher),
 
-    // OrgsSagas
-    fork(OrgsSagas.getRelevantEntitySetsWatcher),
-    fork(OrgsSagas.switchOrganizationWatcher),
-
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),
     fork(RoutingSagas.goToRouteWatcher),

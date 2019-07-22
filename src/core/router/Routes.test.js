@@ -10,4 +10,12 @@ describe('routes', () => {
     expect(Routes.LOGIN).toEqual('/login');
   });
 
+  test('should export the correct ORGS path', () => {
+    expect(Routes.ORGS).toEqual('/orgs');
+  });
+
+  test('should export the correct ORG path', () => {
+    expect(Routes.ORG).toEqual('/orgs/:id');
+  });
+
 });
