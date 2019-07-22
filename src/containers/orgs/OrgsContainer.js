@@ -21,6 +21,10 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
+import * as Routes from '../../core/router/Routes';
+import * as RoutingActions from '../../core/router/RoutingActions';
+import type { GoToRoute } from '../../core/router/RoutingActions';
+
 // const LOG = new Logger('OrgsContainer');
 
 const { NEUTRALS } = Colors;
@@ -75,6 +79,7 @@ const OrgDescription = styled.p`
 type Props = {
   actions :{
     getAllOrganizations :RequestSequence;
+    goToRoute :GoToRoute;
   };
   getAllOrgsRequestState :RequestState;
   organizations :List<Map>;
@@ -87,8 +92,14 @@ class OrgsContainer extends Component<Props> {
     actions.getAllOrganizations();
   }
 
+  goToOrg = (org :Map) => {
+    const { actions } = this.props;
+    const orgId :UUID = org.get('id');
+    actions.goToRoute(Routes.ORG.replace(Routes.ID_PATH, orgId));
+  }
+
   renderOrgCard = (org :Map) => (
-    <Card>
+    <Card key={org.get('id')} onClick={() => this.goToOrg(org)}>
       <CardHeader padding="md">
         <OrgName>{org.get('title', '')}</OrgName>
       </CardHeader>
@@ -135,6 +146,7 @@ const mapStateToProps = (state :Map<*, *>) => ({
 const mapDispatchToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     getAllOrganizations: OrganizationsApiActions.getAllOrganizations,
+    goToRoute: RoutingActions.goToRoute,
   }, dispatch)
 });
 
