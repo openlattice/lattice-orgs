@@ -129,7 +129,7 @@ class OrgsContainer extends Component<Props> {
 
 const mapStateToProps = (state :Map<*, *>) => ({
   getAllOrgsRequestState: state.getIn(['orgs', OrganizationsApiActions.GET_ALL_ORGANIZATIONS, 'requestState']),
-  organizations: state.getIn(['orgs', 'organizations']),
+  organizations: state.getIn(['orgs', 'orgs']),
 });
 
 const mapDispatchToProps = (dispatch :Function) => ({
