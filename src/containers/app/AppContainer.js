@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
+import { Spinner } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import {
   Redirect,
@@ -18,7 +19,6 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import AppHeaderContainer from './AppHeaderContainer';
 import OrgsContainer from '../orgs/OrgsContainer';
-import Spinner from '../../components/spinner/Spinner';
 import * as AppActions from './AppActions';
 import * as Routes from '../../core/router/Routes';
 import {
@@ -76,7 +76,7 @@ class AppContainer extends Component<Props> {
     const { initAppRequestState } = this.props;
     if (initAppRequestState === RequestStates.PENDING) {
       return (
-        <Spinner />
+        <Spinner size="2x" />
       );
     }
 
