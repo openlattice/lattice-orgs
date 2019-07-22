@@ -4,13 +4,8 @@
 
 import { List, Map, fromJS } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import { matchPath } from 'react-router';
 import { RequestStates } from 'redux-reqseq';
-import type { Match } from 'react-router';
 import type { SequenceAction } from 'redux-reqseq';
-
-import * as Routes from '../../core/router/Routes';
-import { getOrganizationId } from './OrgsUtils';
 
 const {
   GET_ALL_ORGANIZATIONS,

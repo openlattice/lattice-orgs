@@ -13,10 +13,6 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
-import Logger from '../../utils/Logger';
-
-const LOG = new Logger('OrgContainer');
-
 const Title = styled.h1`
   font-size: 28px;
   font-weight: normal;

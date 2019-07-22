@@ -9,7 +9,6 @@ import { AppApiSagas, OrganizationsApiSagas } from 'lattice-sagas';
 import * as EDMSagas from '../edm/EDMSagas';
 import * as RoutingSagas from '../router/RoutingSagas';
 import { AppSagas } from '../../containers/app';
-import { OrgsSagas } from '../../containers/orgs';
 
 export default function* sagas() :Generator<*, *, *> {
 
