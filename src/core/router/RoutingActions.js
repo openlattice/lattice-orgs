@@ -7,8 +7,10 @@ import * as Routes from './Routes';
 declare type RoutingAction = {
   type :string;
   route :string;
-  state ? :Object;
+  state ?:Object;
 };
+
+declare type GoToRoute = (route :string, state ?:Object) => RoutingAction;
 
 const GO_TO_ROOT :'GO_TO_ROOT' = 'GO_TO_ROOT';
 function goToRoot() :RoutingAction {
@@ -20,7 +22,7 @@ function goToRoot() :RoutingAction {
 }
 
 const GO_TO_ROUTE :'GO_TO_ROUTE' = 'GO_TO_ROUTE';
-function goToRoute(route :string, state ? :Object = {}) :RoutingAction {
+function goToRoute(route :string, state ?:Object = {}) :RoutingAction {
   return {
     route,
     state,
@@ -47,5 +49,6 @@ export {
 };
 
 export type {
+  GoToRoute,
   RoutingAction,
 };
