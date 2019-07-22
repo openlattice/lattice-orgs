@@ -82,7 +82,7 @@ type Props = {
     goToRoute :GoToRoute;
   };
   getAllOrgsRequestState :RequestState;
-  organizations :List<Map>;
+  orgs :Map;
 };
 
 class OrgsContainer extends Component<Props> {
@@ -119,11 +119,11 @@ class OrgsContainer extends Component<Props> {
 
   render() {
 
-    const { getAllOrgsRequestState, organizations } = this.props;
+    const { getAllOrgsRequestState, orgs } = this.props;
 
     if (getAllOrgsRequestState === RequestStates.PENDING) {
       return (
-        <Spinner centered size="2x" />
+        <Spinner size="2x" />
       );
     }
 
@@ -131,7 +131,7 @@ class OrgsContainer extends Component<Props> {
       <>
         <Title>Organizations</Title>
         <CardGrid>
-          {organizations.map((org :Map) => this.renderOrgCard(org))}
+          {orgs.valueSeq().map((org :Map) => this.renderOrgCard(org))}
         </CardGrid>
       </>
     );
@@ -140,7 +140,7 @@ class OrgsContainer extends Component<Props> {
 
 const mapStateToProps = (state :Map<*, *>) => ({
   getAllOrgsRequestState: state.getIn(['orgs', OrganizationsApiActions.GET_ALL_ORGANIZATIONS, 'requestState']),
-  organizations: state.getIn(['orgs', 'orgs']),
+  orgs: state.getIn(['orgs', 'orgs']),
 });
 
 const mapDispatchToProps = (dispatch :Function) => ({
