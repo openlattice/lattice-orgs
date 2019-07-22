@@ -115,8 +115,6 @@ class OrgContainer extends Component<Props> {
       );
     }
 
-    console.log(organization.toJS());
-
     return (
       <>
         <h2>{organization.get('title')}</h2>
