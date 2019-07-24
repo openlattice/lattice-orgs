@@ -50,14 +50,14 @@ const GridItem = styled.div`
   word-break: break-word;
 `;
 
-const SegmentTitle = styled.h2`
+const SectionTitle = styled.h2`
   font-size: 22px;
   font-weight: 600;
   grid-column: 1 / span 2;
   margin: 0;
 `;
 
-const SectionTitle = styled.h4`
+const ItemTitle = styled.h4`
   color: ${NEUTRALS[1]};
   font-size: 14px;
 `;
@@ -161,28 +161,28 @@ class OrgContainer extends Component<Props> {
           <Divider />
           <Grid>
             <GridItem>
-              <SegmentTitle>Integration Account Details</SegmentTitle>
-              <SectionTitle>JDBC URL</SectionTitle>
+              <SectionTitle>Integration Account Details</SectionTitle>
+              <ItemTitle>JDBC URL</ItemTitle>
               <div>{jdbcURL}</div>
             </GridItem>
             <GridItem>
-              <SectionTitle>USER</SectionTitle>
+              <ItemTitle>USER</ItemTitle>
               <div>{user}</div>
             </GridItem>
             <GridItem>
-              <SectionTitle>CREDENTIAL</SectionTitle>
+              <ItemTitle>CREDENTIAL</ItemTitle>
               <div>...</div>
             </GridItem>
           </Grid>
           <Divider />
           <Grid>
             <GridItem>
-              <SegmentTitle>Domains</SegmentTitle>
+              <SectionTitle>Domains</SectionTitle>
               <div>Users from these domains will automatically be approved when requesting to join this organization.</div>
               <div>No domains</div>
             </GridItem>
             <GridItem>
-              <SegmentTitle>Trusted Organizations</SegmentTitle>
+              <SectionTitle>Trusted Organizations</SectionTitle>
               <div>Organizations listed here and all their members will be able to see this organization and all its roles.</div>
               <div>No trusted organizations</div>
             </GridItem>
@@ -197,9 +197,9 @@ class OrgContainer extends Component<Props> {
     return (
       <Card>
         <CardSegment vertical>
-          <CardSegmentGrid>
-            <SegmentTitle>Manage Permissions</SegmentTitle>
-          </CardSegmentGrid>
+          <Grid>
+            <SectionTitle>Manage Permissions</SectionTitle>
+          </Grid>
         </CardSegment>
       </Card>
     );
@@ -210,9 +210,9 @@ class OrgContainer extends Component<Props> {
     return (
       <Card>
         <CardSegment vertical>
-          <CardSegmentGrid>
-            <SegmentTitle>Entity Set</SegmentTitle>
-          </CardSegmentGrid>
+          <Grid>
+            <SectionTitle>Entity Set</SectionTitle>
+          </Grid>
         </CardSegment>
       </Card>
     );
