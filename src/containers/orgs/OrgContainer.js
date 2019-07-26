@@ -5,12 +5,16 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
+import { faPlus } from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
+  Button,
   Card,
   CardSegment,
   Colors,
+  Input,
   Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
@@ -72,6 +76,17 @@ const Tabs = styled.div`
   display: flex;
   justify-content: flex-start;
   margin: 30px 0 50px 0;
+`;
+
+const AddNewWrapper = styled.div`
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: 1fr auto;
+`;
+
+const AddButton = styled(Button)`
+  border-color: ${NEUTRALS[4]};
+  border-width: 1px;
 `;
 
 const ORG_NAV_LINK_ACTIVE :string = 'org-nav-link-active';
@@ -151,8 +166,8 @@ class OrgContainer extends Component<Props> {
 
     const { org } = this.props;
 
-    const jdbcURL = `jdbc:postgresql://atlas.openlattice.com:30001/org_${org.get('id', '').replace(/-/g, '')}`;
-    const user = `ol-internal|organization|${org.get('id')}`;
+    const jdbcURL = org.get('id', '').replace(/-/g, '');
+    const user = org.get('id');
 
     return (
       <Card>
@@ -178,13 +193,32 @@ class OrgContainer extends Component<Props> {
           <Grid>
             <GridItem>
               <SectionTitle>Domains</SectionTitle>
-              <div>Users from these domains will automatically be approved when requesting to join this organization.</div>
               <div>No domains</div>
             </GridItem>
             <GridItem>
               <SectionTitle>Trusted Organizations</SectionTitle>
-              <div>Organizations listed here and all their members will be able to see this organization and all its roles.</div>
               <div>No trusted organizations</div>
+            </GridItem>
+          </Grid>
+          <Divider />
+          <Grid>
+            <GridItem>
+              <SectionTitle>Roles</SectionTitle>
+              <AddNewWrapper>
+                <Input />
+                <AddButton>
+                  <FontAwesomeIcon icon={faPlus} />
+                </AddButton>
+              </AddNewWrapper>
+            </GridItem>
+            <GridItem>
+              <SectionTitle>Members</SectionTitle>
+              <AddNewWrapper>
+                <Input />
+                <AddButton>
+                  <FontAwesomeIcon icon={faPlus} />
+                </AddButton>
+              </AddNewWrapper>
             </GridItem>
           </Grid>
         </CardSegment>
