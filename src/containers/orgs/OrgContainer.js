@@ -61,6 +61,14 @@ const SectionTitle = styled.h2`
   margin: 0;
 `;
 
+const SectionSubTitle = styled.h2`
+  color: ${NEUTRALS[1]};
+  font-size: 16px;
+  font-weight: normal;
+  grid-column: 1 / span 2;
+  margin: 15px 0 30px 0;
+`;
+
 const ItemTitle = styled.h4`
   color: ${NEUTRALS[1]};
   font-size: 14px;
@@ -119,6 +127,14 @@ const OrgNavLink = styled(NavLink).attrs({
     border-bottom: 2px solid #674fef;
     color: #674fef;
   }
+`;
+
+const ROLES_SUB_TITLE = `
+You will be able to use the Roles below to manage permissions on Entity Sets that you own.
+`;
+
+const MEMBERS_SUB_TITLE = `
+Click on a member to view their roles. To add members to this organization, search for users in the system.
 `;
 
 type Props = {
@@ -204,6 +220,7 @@ class OrgContainer extends Component<Props> {
           <Grid>
             <GridItem>
               <SectionTitle>Roles</SectionTitle>
+              <SectionSubTitle>{ROLES_SUB_TITLE}</SectionSubTitle>
               <AddNewWrapper>
                 <Input />
                 <AddButton>
@@ -213,6 +230,7 @@ class OrgContainer extends Component<Props> {
             </GridItem>
             <GridItem>
               <SectionTitle>Members</SectionTitle>
+              <SectionSubTitle>{MEMBERS_SUB_TITLE}</SectionSubTitle>
               <AddNewWrapper>
                 <Input />
                 <AddButton>
