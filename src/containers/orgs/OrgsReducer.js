@@ -7,6 +7,8 @@ import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { RESET_REQUEST_STATE } from '../../core/redux/ReduxActions';
+
 const {
   GET_ALL_ORGANIZATIONS,
   GET_ORGANIZATION,
@@ -27,6 +29,14 @@ const INITIAL_STATE :Map<*, *> = fromJS({
 export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
+
+    case RESET_REQUEST_STATE: {
+      const { actionType } = action;
+      if (actionType && state.has(actionType)) {
+        return state.setIn([actionType, 'requestState'], RequestStates.STANDBY);
+      }
+      return state;
+    }
 
     case getAllOrganizations.case(action.type): {
       const seqAction :SequenceAction = action;
@@ -92,7 +102,7 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
           const orgId :UUID = org.get('id');
           return state
             .setIn(['orgs', orgId], org)
-            .setIn([GET_ORGANIZATION, 'requestState'], RequestStates.FAILURE);
+            .setIn([GET_ORGANIZATION, 'requestState'], RequestStates.SUCCESS);
         },
         FAILURE: () => state.setIn([GET_ORGANIZATION, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([GET_ORGANIZATION, seqAction.id]),

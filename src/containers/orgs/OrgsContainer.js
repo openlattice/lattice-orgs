@@ -22,12 +22,14 @@ import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as Routes from '../../core/router/Routes';
+import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import type { GoToRoute } from '../../core/router/RoutingActions';
 
 // const LOG = new Logger('OrgsContainer');
 
 const { NEUTRALS } = Colors;
+const { GET_ALL_ORGANIZATIONS } = OrganizationsApiActions;
 
 const Title = styled.h1`
   font-size: 28px;
@@ -80,9 +82,12 @@ type Props = {
   actions :{
     getAllOrganizations :RequestSequence;
     goToRoute :GoToRoute;
+    resetRequestState :(actionType :string) => void;
   };
-  getAllOrgsRequestState :RequestState;
   orgs :Map;
+  requestStates :{
+    [typeof GET_ALL_ORGANIZATIONS] :RequestState;
+  };
 };
 
 class OrgsContainer extends Component<Props> {
@@ -90,6 +95,21 @@ class OrgsContainer extends Component<Props> {
   componentDidMount() {
     const { actions } = this.props;
     actions.getAllOrganizations();
+  }
+
+  componentDidUpdate(props :Props) {
+
+    const { actions, requestStates } = this.props;
+    if (requestStates[GET_ALL_ORGANIZATIONS] === RequestStates.SUCCESS
+        && props.requestStates[GET_ALL_ORGANIZATIONS] === RequestStates.PENDING) {
+      actions.resetRequestState(OrganizationsApiActions.GET_ALL_ORGANIZATIONS);
+    }
+  }
+
+  componentWillUnmount() {
+
+    const { actions } = this.props;
+    actions.resetRequestState(OrganizationsApiActions.GET_ALL_ORGANIZATIONS);
   }
 
   goToOrg = (org :Map) => {
@@ -119,11 +139,11 @@ class OrgsContainer extends Component<Props> {
 
   render() {
 
-    const { getAllOrgsRequestState, orgs } = this.props;
+    const { orgs, requestStates } = this.props;
 
-    if (getAllOrgsRequestState === RequestStates.PENDING) {
+    if (requestStates[GET_ALL_ORGANIZATIONS] === RequestStates.PENDING) {
       return (
-        <Spinner size="2x" />
+        <Spinner size="3x" />
       );
     }
 
@@ -139,14 +159,17 @@ class OrgsContainer extends Component<Props> {
 }
 
 const mapStateToProps = (state :Map<*, *>) => ({
-  getAllOrgsRequestState: state.getIn(['orgs', OrganizationsApiActions.GET_ALL_ORGANIZATIONS, 'requestState']),
   orgs: state.getIn(['orgs', 'orgs']),
+  requestStates: {
+    [GET_ALL_ORGANIZATIONS]: state.getIn(['orgs', GET_ALL_ORGANIZATIONS, 'requestState']),
+  }
 });
 
 const mapDispatchToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     getAllOrganizations: OrganizationsApiActions.getAllOrganizations,
     goToRoute: RoutingActions.goToRoute,
+    resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)
 });
 
