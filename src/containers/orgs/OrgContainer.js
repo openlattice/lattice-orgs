@@ -85,9 +85,11 @@ const OrgDetailsCardSegment = styled(CardSegment)`
   }
 `;
 
-const SectionGrid = styled.section`
+const TwoColumnSectionGrid = styled.section`
   display: grid;
   grid-auto-rows: min-content;
+  grid-template-columns: 1fr 1fr;
+  grid-column-gap: 30px;
 
   > h1, h2 {
     font-size: 22px;
@@ -110,7 +112,7 @@ const SectionGrid = styled.section`
     color: ${NEUTRALS[1]};
     font-size: 16px;
     font-weight: normal;
-    margin: 24px 0 0 0;
+    margin: 32px 0 0 0;
   }
 `;
 
@@ -232,35 +234,24 @@ class OrgContainer extends Component<Props> {
   renderOrgDetails = () => {
 
     const { org } = this.props;
-
     return (
       <Card>
         <OrgDetailsCardSegment vertical>
           <OrgDescription>{org.get('description')}</OrgDescription>
           <hr />
-          <div>
-            {this.renderDomainsSection()}
-            <SectionGrid>
-              <h2>Trusted Organizations</h2>
-              <h4>{TRUSTED_ORGS_SUB_TITLE}</h4>
-              <i>No trusted organizations</i>
-            </SectionGrid>
-          </div>
+          {this.renderDomainsAndTrustedOrgsSection()}
           <hr />
-          <div>
-            {this.renderRolesSection()}
-            {this.renderMembersSection()}
-          </div>
+          {this.renderRolesAndMembersSection()}
         </OrgDetailsCardSegment>
       </Card>
     );
   }
 
-  renderDomainsSection = () => {
+  renderDomainsAndTrustedOrgsSection = () => {
 
     const { org } = this.props;
-    const emails = org.get('emails', List());
 
+    const emails = org.get('emails', List());
     const emailCardSegments = emails.map((email :string) => (
       <CompactCardSegment key={email}>
         <span>{email}</span>
@@ -269,31 +260,39 @@ class OrgContainer extends Component<Props> {
     ));
 
     return (
-      <SectionGrid>
+      <TwoColumnSectionGrid>
         <h2>Domains</h2>
+        <h2>Trusted Organizations</h2>
         <h4>{DOMAINS_SUB_TITLE}</h4>
+        <h4>{TRUSTED_ORGS_SUB_TITLE}</h4>
         <AddInputAddButtonRow>
           <Input placeholder="Add new domain" />
           {this.renderAddButton()}
         </AddInputAddButtonRow>
-        {
-          emailCardSegments.count() === 0
-            ? (
-              <i>No domains</i>
-            )
-            : (
-              <Card>{emailCardSegments}</Card>
-            )
-        }
-      </SectionGrid>
+        <div>
+          <i>No trusted organizations</i>
+        </div>
+        <div>
+          {
+            emailCardSegments.count() === 0
+              ? (
+                <i>No domains</i>
+              )
+              : (
+                <Card>{emailCardSegments}</Card>
+              )
+          }
+        </div>
+        <div />
+      </TwoColumnSectionGrid>
     );
   }
 
-  renderRolesSection = () => {
+  renderRolesAndMembersSection = () => {
 
     const { org } = this.props;
-    const roles = org.get('roles', List());
 
+    const roles = org.get('roles', List());
     const roleCardSegments = roles.map((role :Map) => (
       <CompactCardSegment key={role.get('id')}>
         <span>{role.get('id')}</span>
@@ -301,32 +300,7 @@ class OrgContainer extends Component<Props> {
       </CompactCardSegment>
     ));
 
-    return (
-      <SectionGrid>
-        <h2>Roles</h2>
-        <h4>{ROLES_SUB_TITLE}</h4>
-        <AddInputAddButtonRow>
-          <Input placeholder="Add new role" />
-          {this.renderAddButton()}
-        </AddInputAddButtonRow>
-        {
-          roleCardSegments.count() === 0
-            ? (
-              <i>No roles</i>
-            )
-            : (
-              <Card>{roleCardSegments}</Card>
-            )
-        }
-      </SectionGrid>
-    );
-  }
-
-  renderMembersSection = () => {
-
-    const { org } = this.props;
     const members = org.get('members', List());
-
     const memberCardSegments = members.map((member :Map) => (
       <CompactCardSegment key={member.get('id')}>
         <span>{member.get('id')}</span>
@@ -335,20 +309,39 @@ class OrgContainer extends Component<Props> {
     ));
 
     return (
-      <SectionGrid>
+      <TwoColumnSectionGrid>
+        <h2>Roles</h2>
         <h2>Members</h2>
+        <h4>{ROLES_SUB_TITLE}</h4>
         <h4>{MEMBERS_SUB_TITLE}</h4>
+        <AddInputAddButtonRow>
+          <Input placeholder="Add new role" />
+          {this.renderAddButton()}
+        </AddInputAddButtonRow>
         <SearchInput placeholder="Add new member (search by name)" />
-        {
-          memberCardSegments.count() === 0
-            ? (
-              <i>No members</i>
-            )
-            : (
-              <Card>{memberCardSegments}</Card>
-            )
-        }
-      </SectionGrid>
+        <div>
+          {
+            roleCardSegments.count() === 0
+              ? (
+                <i>No roles</i>
+              )
+              : (
+                <Card>{roleCardSegments}</Card>
+              )
+          }
+        </div>
+        <div>
+          {
+            memberCardSegments.count() === 0
+              ? (
+                <i>No members</i>
+              )
+              : (
+                <Card>{memberCardSegments}</Card>
+              )
+          }
+        </div>
+      </TwoColumnSectionGrid>
     );
   }
 
