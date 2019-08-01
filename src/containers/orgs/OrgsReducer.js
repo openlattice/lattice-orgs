@@ -10,17 +10,27 @@ import type { SequenceAction } from 'redux-reqseq';
 import { RESET_REQUEST_STATE } from '../../core/redux/ReduxActions';
 
 const {
+  ADD_AUTO_APPROVED_DOMAIN,
   GET_ALL_ORGANIZATIONS,
   GET_ORGANIZATION,
+  REMOVE_AUTO_APPROVED_DOMAIN,
+  addAutoApprovedDomain,
   getAllOrganizations,
   getOrganization,
+  removeAutoApprovedDomain,
 } = OrganizationsApiActions;
 
 const INITIAL_STATE :Map<*, *> = fromJS({
+  [ADD_AUTO_APPROVED_DOMAIN]: {
+    requestState: RequestStates.STANDBY,
+  },
   [GET_ALL_ORGANIZATIONS]: {
     requestState: RequestStates.STANDBY,
   },
   [GET_ORGANIZATION]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [REMOVE_AUTO_APPROVED_DOMAIN]: {
     requestState: RequestStates.STANDBY,
   },
   orgs: Map(),
@@ -36,6 +46,29 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
         return state.setIn([actionType, 'requestState'], RequestStates.STANDBY);
       }
       return state;
+    }
+
+    case addAutoApprovedDomain.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return addAutoApprovedDomain.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([ADD_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.PENDING)
+          .setIn([ADD_AUTO_APPROVED_DOMAIN, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([ADD_AUTO_APPROVED_DOMAIN, seqAction.id]);
+          if (storedSeqAction) {
+            const { domain, organizationId } = storedSeqAction.value;
+            const currentDomains :List<string> = state.getIn(['orgs', organizationId, 'emails'], List());
+            const updatedDomains :Set<string> = currentDomains.push(domain).toOrderedSet();
+            return state
+              .setIn(['orgs', organizationId, 'emails'], updatedDomains)
+              .setIn([ADD_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([ADD_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([ADD_AUTO_APPROVED_DOMAIN, seqAction.id]),
+      });
     }
 
     case getAllOrganizations.case(action.type): {
@@ -106,6 +139,29 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
         },
         FAILURE: () => state.setIn([GET_ORGANIZATION, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([GET_ORGANIZATION, seqAction.id]),
+      });
+    }
+
+    case removeAutoApprovedDomain.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return removeAutoApprovedDomain.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([REMOVE_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.PENDING)
+          .setIn([REMOVE_AUTO_APPROVED_DOMAIN, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([REMOVE_AUTO_APPROVED_DOMAIN, seqAction.id]);
+          if (storedSeqAction) {
+            const { domain, organizationId } = storedSeqAction.value;
+            const currentDomains :List<string> = state.getIn(['orgs', organizationId, 'emails'], List());
+            const updatedDomains :List<string> = currentDomains.filter(currentDomain => currentDomain !== domain);
+            return state
+              .setIn(['orgs', organizationId, 'emails'], updatedDomains)
+              .setIn([REMOVE_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([REMOVE_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([REMOVE_AUTO_APPROVED_DOMAIN, seqAction.id]),
       });
     }
 

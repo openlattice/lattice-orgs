@@ -4,6 +4,7 @@
 
 import React, { Component } from 'react';
 
+import isEmail from 'validator/lib/isEmail';
 import styled from 'styled-components';
 import { faMinus, faPlus } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -32,7 +33,11 @@ import { isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS } = Colors;
-const { GET_ORGANIZATION } = OrganizationsApiActions;
+const {
+  ADD_AUTO_APPROVED_DOMAIN,
+  GET_ORGANIZATION,
+  REMOVE_AUTO_APPROVED_DOMAIN,
+} = OrganizationsApiActions;
 
 const OrgTitle = styled.h1`
   font-size: 28px;
@@ -166,8 +171,10 @@ Click on a member to view their roles. To add members to this organization, sear
 
 type Props = {
   actions :{
+    addAutoApprovedDomain :RequestSequence;
     getOrganization :RequestSequence;
     goToRoot :GoToRoot;
+    removeAutoApprovedDomain :RequestSequence;
     resetRequestState :(actionType :string) => void;
   };
   org :Map;
@@ -177,7 +184,22 @@ type Props = {
   };
 };
 
-class OrgContainer extends Component<Props> {
+type State = {
+  domain :string;
+  isValidDomain :boolean;
+};
+
+class OrgContainer extends Component<Props, State> {
+
+  constructor(props :Props) {
+
+    super(props);
+
+    this.state = {
+      domain: '',
+      isValidDomain: true,
+    };
+  }
 
   componentDidMount() {
 
@@ -219,6 +241,41 @@ class OrgContainer extends Component<Props> {
     actions.resetRequestState(GET_ORGANIZATION);
   }
 
+  isValidDomain = (domain :string, org :Map) => {
+
+    const isValidDomain :boolean = isEmail(`test@${domain}`);
+    const isNewDomain :boolean = !org.get('emails', List()).includes(domain);
+    return isValidDomain && isNewDomain;
+  }
+
+  handleOnChangeDomain = (event :SyntheticInputEvent<HTMLInputElement>) => {
+
+    const domain :string = event.target.value || '';
+
+    // always set isValidDomain to true when typing
+    this.setState({ domain, isValidDomain: true });
+  }
+
+  handleOnClickAddDomain = () => {
+
+    const { actions, org } = this.props;
+    const { domain } = this.state;
+
+    if (this.isValidDomain(domain, org)) {
+      actions.addAutoApprovedDomain({ domain, organizationId: org.get('id') });
+    }
+    else {
+      // set isValidDomain to false only when the button was clicked
+      this.setState({ isValidDomain: false });
+    }
+  }
+
+  handleOnClickRemoveDomain = (domain :string) => {
+
+    const { actions, org } = this.props;
+    actions.removeAutoApprovedDomain({ domain, organizationId: org.get('id') });
+  }
+
   renderAddButton = (onClick :Function) => (
     <AddButton onClick={onClick}>
       <FontAwesomeIcon icon={faPlus} />
@@ -250,12 +307,15 @@ class OrgContainer extends Component<Props> {
   renderDomainsAndTrustedOrgsSection = () => {
 
     const { org } = this.props;
+    const { isValidDomain } = this.state;
 
-    const emails = org.get('emails', List());
-    const emailCardSegments = emails.map((email :string) => (
-      <CompactCardSegment key={email}>
-        <span>{email}</span>
-        {this.renderRemoveButton()}
+    const domains = org.get('emails', List());
+    const domainCardSegments = domains.map((emailDomain :string) => (
+      <CompactCardSegment key={emailDomain}>
+        <span>{emailDomain}</span>
+        {this.renderRemoveButton(() => {
+          this.handleOnClickRemoveDomain(emailDomain);
+        })}
       </CompactCardSegment>
     ));
 
@@ -266,20 +326,23 @@ class OrgContainer extends Component<Props> {
         <h4>{DOMAINS_SUB_TITLE}</h4>
         <h4>{TRUSTED_ORGS_SUB_TITLE}</h4>
         <AddInputAddButtonRow>
-          <Input placeholder="Add new domain" />
-          {this.renderAddButton()}
+          <Input
+              invalid={!isValidDomain}
+              placeholder="Add new domain"
+              onChange={this.handleOnChangeDomain} />
+          {this.renderAddButton(this.handleOnClickAddDomain)}
         </AddInputAddButtonRow>
         <div>
           <i>No trusted organizations</i>
         </div>
         <div>
           {
-            emailCardSegments.count() === 0
+            domainCardSegments.count() === 0
               ? (
                 <i>No domains</i>
               )
               : (
-                <Card>{emailCardSegments}</Card>
+                <Card>{domainCardSegments}</Card>
               )
           }
         </div>
@@ -413,15 +476,19 @@ const mapStateToProps = (state :Map<*, *>, props) => {
     orgId,
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
     requestStates: {
+      [ADD_AUTO_APPROVED_DOMAIN]: state.getIn(['orgs', ADD_AUTO_APPROVED_DOMAIN, 'requestState']),
       [GET_ORGANIZATION]: state.getIn(['orgs', GET_ORGANIZATION, 'requestState']),
+      [REMOVE_AUTO_APPROVED_DOMAIN]: state.getIn(['orgs', REMOVE_AUTO_APPROVED_DOMAIN, 'requestState']),
     },
   };
 };
 
 const mapDispatchToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
+    addAutoApprovedDomain: OrganizationsApiActions.addAutoApprovedDomain,
     getOrganization: OrganizationsApiActions.getOrganization,
     goToRoot: RoutingActions.goToRoot,
+    removeAutoApprovedDomain: OrganizationsApiActions.removeAutoApprovedDomain,
     resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)
 });

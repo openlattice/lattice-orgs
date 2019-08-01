@@ -41,6 +41,10 @@ const GlobalStyle = createGlobalStyle`
     width: 100%;
   }
 
+  input {
+    line-height: 1.5;
+  }
+
   * {
     box-sizing: border-box;
   }
