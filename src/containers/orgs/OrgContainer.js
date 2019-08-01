@@ -96,13 +96,13 @@ const TwoColumnSectionGrid = styled.section`
   grid-template-columns: 1fr 1fr;
   grid-column-gap: 30px;
 
-  > h1, h2 {
+  > h2 {
     font-size: 22px;
     font-weight: 600;
     margin: 0;
   }
 
-  > h3, h4 {
+  > h4 {
     color: ${NEUTRALS[1]};
     font-size: 16px;
     font-weight: normal;

@@ -19,13 +19,13 @@ const RemoveButton = styled(Button)`
     background-color: ${BG_2};
     border-color: ${BG_2};
     color: ${COLOR_2};
-  };
+  }
 
   :active {
     background-color: ${BG_3};
     border-color: ${BG_3};
     color: ${COLOR_3};
-  };
+  }
 `;
 
 export default RemoveButton;
