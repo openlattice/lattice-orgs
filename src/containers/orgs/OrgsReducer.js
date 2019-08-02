@@ -3,6 +3,7 @@
  */
 
 import { List, Map, fromJS } from 'immutable';
+import { Models } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
@@ -10,11 +11,20 @@ import type { SequenceAction } from 'redux-reqseq';
 import { RESET_REQUEST_STATE } from '../../core/redux/ReduxActions';
 
 const {
+  Role,
+  RoleBuilder,
+} = Models;
+
+const {
   ADD_AUTO_APPROVED_DOMAIN,
+  CREATE_ROLE,
+  DELETE_ROLE,
   GET_ALL_ORGANIZATIONS,
   GET_ORGANIZATION,
   REMOVE_AUTO_APPROVED_DOMAIN,
   addAutoApprovedDomain,
+  createRole,
+  deleteRole,
   getAllOrganizations,
   getOrganization,
   removeAutoApprovedDomain,
@@ -22,6 +32,12 @@ const {
 
 const INITIAL_STATE :Map<*, *> = fromJS({
   [ADD_AUTO_APPROVED_DOMAIN]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [CREATE_ROLE]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [DELETE_ROLE]: {
     requestState: RequestStates.STANDBY,
   },
   [GET_ALL_ORGANIZATIONS]: {
@@ -59,7 +75,7 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
           if (storedSeqAction) {
             const { domain, organizationId } = storedSeqAction.value;
             const currentDomains :List<string> = state.getIn(['orgs', organizationId, 'emails'], List());
-            const updatedDomains :Set<string> = currentDomains.push(domain).toOrderedSet();
+            const updatedDomains :Set<string> = currentDomains.push(domain);
             return state
               .setIn(['orgs', organizationId, 'emails'], updatedDomains)
               .setIn([ADD_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.SUCCESS);
@@ -68,6 +84,61 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
         },
         FAILURE: () => state.setIn([ADD_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([ADD_AUTO_APPROVED_DOMAIN, seqAction.id]),
+      });
+    }
+
+    case createRole.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return createRole.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([CREATE_ROLE, 'requestState'], RequestStates.PENDING)
+          .setIn([CREATE_ROLE, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([CREATE_ROLE, seqAction.id]);
+          if (storedSeqAction) {
+            const roleId :UUID = action.value;
+            const role :Role = storedSeqAction.value;
+            const newRole :Role = (new RoleBuilder())
+              .setDescription(role.description)
+              .setId(roleId)
+              .setOrganizationId(role.organizationId)
+              .setPrincipal(role.principal)
+              .setTitle(role.title)
+              .build();
+            const updatedRoles :List<Map> = state
+              .getIn(['orgs', role.organizationId, 'roles'], List())
+              .push(newRole.toImmutable());
+            return state
+              .setIn(['orgs', role.organizationId, 'roles'], updatedRoles)
+              .setIn([CREATE_ROLE, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([CREATE_ROLE, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([CREATE_ROLE, seqAction.id]),
+      });
+    }
+
+    case deleteRole.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return deleteRole.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([DELETE_ROLE, 'requestState'], RequestStates.PENDING)
+          .setIn([DELETE_ROLE, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([DELETE_ROLE, seqAction.id]);
+          if (storedSeqAction) {
+            const { organizationId, roleId } = storedSeqAction.value;
+            const currentRoles :List<Map> = state.getIn(['orgs', organizationId, 'roles'], List());
+            const updatedRoles :List<Map> = currentRoles.filter((role :Map) => role.get('id') !== roleId);
+            return state
+              .setIn(['orgs', organizationId, 'roles'], updatedRoles)
+              .setIn([DELETE_ROLE, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([DELETE_ROLE, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([DELETE_ROLE, seqAction.id]),
       });
     }
 
