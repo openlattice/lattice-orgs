@@ -4,11 +4,11 @@
 
 import React, { Component } from 'react';
 
-import isEmail from 'validator/lib/isEmail';
 import styled from 'styled-components';
 import { faMinus, faPlus } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
+import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   Card,
@@ -29,10 +29,21 @@ import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { AddButton, RemoveButton } from '../../components/buttons';
-import { isValidUUID } from '../../utils/ValidationUtils';
+import { isNonEmptyString } from '../../utils/LangUtils';
+import { isValidEmailDomain, isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS } = Colors;
+
+const {
+  Principal,
+  PrincipalBuilder,
+  Role,
+  RoleBuilder,
+} = Models;
+
+const { PrincipalTypes } = Types;
+
 const {
   ADD_AUTO_APPROVED_DOMAIN,
   GET_ORGANIZATION,
@@ -172,6 +183,8 @@ Click on a member to view their roles. To add members to this organization, sear
 type Props = {
   actions :{
     addAutoApprovedDomain :RequestSequence;
+    createRole :RequestSequence;
+    deleteRole :RequestSequence;
     getOrganization :RequestSequence;
     goToRoot :GoToRoot;
     removeAutoApprovedDomain :RequestSequence;
@@ -187,6 +200,8 @@ type Props = {
 type State = {
   domain :string;
   isValidDomain :boolean;
+  isValidRole :boolean;
+  roleTitle :string;
 };
 
 class OrgContainer extends Component<Props, State> {
@@ -198,6 +213,8 @@ class OrgContainer extends Component<Props, State> {
     this.state = {
       domain: '',
       isValidDomain: true,
+      isValidRole: true,
+      roleTitle: '',
     };
   }
 
@@ -241,13 +258,6 @@ class OrgContainer extends Component<Props, State> {
     actions.resetRequestState(GET_ORGANIZATION);
   }
 
-  isValidDomain = (domain :string, org :Map) => {
-
-    const isValidDomain :boolean = isEmail(`test@${domain}`);
-    const isNewDomain :boolean = !org.get('emails', List()).includes(domain);
-    return isValidDomain && isNewDomain;
-  }
-
   handleOnChangeDomain = (event :SyntheticInputEvent<HTMLInputElement>) => {
 
     const domain :string = event.target.value || '';
@@ -256,24 +266,91 @@ class OrgContainer extends Component<Props, State> {
     this.setState({ domain, isValidDomain: true });
   }
 
+  handleOnChangeRole = (event :SyntheticInputEvent<HTMLInputElement>) => {
+
+    const roleTitle :string = event.target.value || '';
+
+    // always set isValidRole to true when typing
+    this.setState({ roleTitle, isValidRole: true });
+  }
+
   handleOnClickAddDomain = () => {
 
     const { actions, org } = this.props;
     const { domain } = this.state;
 
-    if (this.isValidDomain(domain, org)) {
+    if (!isNonEmptyString(domain)) {
+      // set to false only when the button was clicked
+      this.setState({ isValidDomain: false });
+      return;
+    }
+
+    const isValidDomain :boolean = isValidEmailDomain(domain);
+    const isNewDomain :boolean = !org.get('emails', List()).includes(domain);
+
+    if (isValidDomain && isNewDomain) {
       actions.addAutoApprovedDomain({ domain, organizationId: org.get('id') });
     }
     else {
-      // set isValidDomain to false only when the button was clicked
+      // set to false only when the button was clicked
       this.setState({ isValidDomain: false });
+    }
+  }
+
+  handleOnClickAddRole = () => {
+
+    const { actions, org } = this.props;
+    const { roleTitle } = this.state;
+
+    if (!isNonEmptyString(roleTitle)) {
+      // set to false only when the button was clicked
+      this.setState({ isValidRole: false });
+      return;
+    }
+
+    const orgId = org.get('id');
+    const roleTitleClean = roleTitle.replace(/\W/g, '');
+
+    const principal :Principal = (new PrincipalBuilder())
+      .setType(PrincipalTypes.ROLE)
+      .setId(`${orgId}|${roleTitleClean}`)
+      .build();
+
+    const newRole :Role = (new RoleBuilder())
+      .setOrganizationId(orgId)
+      .setPrincipal(principal)
+      .setTitle(roleTitle)
+      .build();
+
+    const isNewRole :boolean = org.get('roles', List())
+      .filter((role :Map) => role.getIn(['principal', 'id']) === newRole.principal.id)
+      .isEmpty();
+
+    if (isNewRole) {
+      actions.createRole(newRole);
+    }
+    else {
+      // set isValidDomain to false only when the button was clicked
+      this.setState({ isValidRole: false });
     }
   }
 
   handleOnClickRemoveDomain = (domain :string) => {
 
     const { actions, org } = this.props;
-    actions.removeAutoApprovedDomain({ domain, organizationId: org.get('id') });
+    actions.removeAutoApprovedDomain({
+      domain,
+      organizationId: org.get('id'),
+    });
+  }
+
+  handleOnClickRemoveRole = (role :Map) => {
+
+    const { actions, org } = this.props;
+    actions.deleteRole({
+      organizationId: org.get('id'),
+      roleId: role.get('id'),
+    });
   }
 
   renderAddButton = (onClick :Function) => (
@@ -354,12 +431,15 @@ class OrgContainer extends Component<Props, State> {
   renderRolesAndMembersSection = () => {
 
     const { org } = this.props;
+    const { isValidRole } = this.state;
 
     const roles = org.get('roles', List());
     const roleCardSegments = roles.map((role :Map) => (
       <CompactCardSegment key={role.get('id')}>
-        <span>{role.get('id')}</span>
-        {this.renderRemoveButton()}
+        <span>{role.get('title')}</span>
+        {this.renderRemoveButton(() => {
+          this.handleOnClickRemoveRole(role);
+        })}
       </CompactCardSegment>
     ));
 
@@ -378,8 +458,11 @@ class OrgContainer extends Component<Props, State> {
         <h4>{ROLES_SUB_TITLE}</h4>
         <h4>{MEMBERS_SUB_TITLE}</h4>
         <AddInputAddButtonRow>
-          <Input placeholder="Add new role" />
-          {this.renderAddButton()}
+          <Input
+              invalid={!isValidRole}
+              placeholder="Add new role"
+              onChange={this.handleOnChangeRole} />
+          {this.renderAddButton(this.handleOnClickAddRole)}
         </AddInputAddButtonRow>
         <SearchInput placeholder="Add new member (search by name)" />
         <div>
@@ -486,6 +569,8 @@ const mapStateToProps = (state :Map<*, *>, props) => {
 const mapDispatchToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     addAutoApprovedDomain: OrganizationsApiActions.addAutoApprovedDomain,
+    createRole: OrganizationsApiActions.createRole,
+    deleteRole: OrganizationsApiActions.deleteRole,
     getOrganization: OrganizationsApiActions.getOrganization,
     goToRoot: RoutingActions.goToRoot,
     removeAutoApprovedDomain: OrganizationsApiActions.removeAutoApprovedDomain,
