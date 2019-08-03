@@ -337,7 +337,7 @@ class OrgContainer extends Component<Props, State> {
         </div>
         <div>
           {
-            domainCardSegments.count() === 0
+            domainCardSegments.isEmpty()
               ? (
                 <i>No domains</i>
               )
@@ -384,7 +384,7 @@ class OrgContainer extends Component<Props, State> {
         <SearchInput placeholder="Add new member (search by name)" />
         <div>
           {
-            roleCardSegments.count() === 0
+            roleCardSegments.isEmpty()
               ? (
                 <i>No roles</i>
               )
@@ -395,7 +395,7 @@ class OrgContainer extends Component<Props, State> {
         </div>
         <div>
           {
-            memberCardSegments.count() === 0
+            memberCardSegments.isEmpty()
               ? (
                 <i>No members</i>
               )

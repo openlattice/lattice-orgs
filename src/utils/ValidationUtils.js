@@ -2,6 +2,8 @@
  * @flow
  */
 
+import isEmail from 'validator/lib/isEmail';
+
 import { isNonEmptyArray } from './LangUtils';
 
 type ValidatorFn = (value :any) => boolean;
@@ -41,7 +43,13 @@ function isValidUUIDArray(uuids :any[]) :boolean {
   return validateNonEmptyArray(uuids, (id :any) => isValidUUID(id));
 }
 
+function isValidEmailDomain(value :any) :boolean {
+
+  return isEmail(`test@${value}`);
+}
+
 export {
+  isValidEmailDomain,
   isValidUUID,
   isValidUUIDArray,
   validateNonEmptyArray,
