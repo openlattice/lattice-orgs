@@ -11,6 +11,7 @@ import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
+  Button,
   Card,
   CardSegment,
   Colors,
@@ -28,7 +29,6 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
-import { AddButton, RemoveButton } from '../../components/buttons';
 import { isNonEmptyString } from '../../utils/LangUtils';
 import { isValidEmailDomain, isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
@@ -354,15 +354,15 @@ class OrgContainer extends Component<Props, State> {
   }
 
   renderAddButton = (onClick :Function) => (
-    <AddButton onClick={onClick}>
+    <Button mode="positive" onClick={onClick}>
       <FontAwesomeIcon icon={faPlus} />
-    </AddButton>
+    </Button>
   )
 
   renderRemoveButton = (onClick :Function) => (
-    <RemoveButton onClick={onClick}>
+    <Button mode="negative" onClick={onClick}>
       <FontAwesomeIcon icon={faMinus} />
-    </RemoveButton>
+    </Button>
   )
 
   renderOrgDetails = () => {
