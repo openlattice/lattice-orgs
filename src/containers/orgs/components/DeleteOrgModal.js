@@ -20,6 +20,8 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
+import * as ReduxActions from '../../../core/redux/ReduxActions';
+
 const { DELETE_ORGANIZATION } = OrganizationsApiActions;
 
 const DeleteButton = styled(Button)`
@@ -39,6 +41,7 @@ const MinWidth = styled.div`
 type Props = {
   actions :{
     deleteOrganization :RequestSequence;
+    resetRequestState :(actionType :string) => void;
   };
   org :Map;
   requestStates :{
@@ -62,6 +65,12 @@ class DeleteOrgModal extends Component<Props, State> {
       isValidConfirmation: true,
       isVisible: false,
     };
+  }
+
+  componentWillUnmount() {
+
+    const { actions } = this.props;
+    actions.resetRequestState(DELETE_ORGANIZATION);
   }
 
   handleOnChangeDeleteConfirmation = (event :SyntheticInputEvent<HTMLInputElement>) => {
@@ -181,6 +190,7 @@ const mapStateToProps = (state :Map) => ({
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     deleteOrganization: OrganizationsApiActions.deleteOrganization,
+    resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)
 });
 
