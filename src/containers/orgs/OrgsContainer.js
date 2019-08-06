@@ -86,7 +86,7 @@ type Props = {
   };
   orgs :Map;
   requestStates :{
-    [typeof GET_ALL_ORGANIZATIONS] :RequestState;
+    GET_ALL_ORGANIZATIONS :RequestState;
   };
 };
 
