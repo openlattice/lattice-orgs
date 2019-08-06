@@ -569,14 +569,17 @@ class OrgContainer extends Component<Props, State> {
     const { memberSearchQuery } = this.state;
 
     const members = org.get('members', List());
-    const memberCardSegments = members.map((member :Map) => (
-      <CompactCardSegment key={member.getIn(['profile', 'user_id'])}>
-        <span>{getUserProfileLabel(member)}</span>
-        {this.renderRemoveButton(() => {
-          this.handleOnClickRemoveMember(member.getIn(['profile', 'user_id']));
-        })}
-      </CompactCardSegment>
-    ));
+    const memberCardSegments = members.map((member :Map) => {
+      const memberId :string = member.getIn(['profile', 'user_id'], member.get('id'));
+      return (
+        <CompactCardSegment key={memberId}>
+          <span>{getUserProfileLabel(member)}</span>
+          {this.renderRemoveButton(() => {
+            this.handleOnClickRemoveMember(memberId);
+          })}
+        </CompactCardSegment>
+      );
+    });
 
     const shouldShowSpinner = isNonEmptyString(memberSearchQuery)
       && requestStates[SEARCH_MEMBERS_TO_ADD_TO_ORG] === RequestStates.PENDING;
