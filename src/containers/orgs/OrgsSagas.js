@@ -7,15 +7,12 @@ import {
   call,
   delay,
   put,
-  select,
   takeEvery,
   takeLatest,
 } from '@redux-saga/core/effects';
-import { push } from 'connected-react-router';
 import {
   List,
   Map,
-  Set,
   fromJS,
 } from 'immutable';
 import {
