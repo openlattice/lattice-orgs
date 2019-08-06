@@ -63,7 +63,7 @@ const AppContentInnerWrapper = styled.div`
 `;
 
 const Error = styled.div`
-  text-align:center;
+  text-align: center;
 `;
 
 type Props = {
