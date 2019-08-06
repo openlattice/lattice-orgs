@@ -26,6 +26,7 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
+import DeleteOrgModal from './components/DeleteOrgModal';
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
@@ -49,6 +50,7 @@ const { PrincipalTypes } = Types;
 const {
   ADD_AUTO_APPROVED_DOMAIN,
   ADD_MEMBER_TO_ORGANIZATION,
+  DELETE_ORGANIZATION,
   REMOVE_AUTO_APPROVED_DOMAIN,
 } = OrganizationsApiActions;
 
@@ -205,6 +207,7 @@ type Props = {
     addMemberToOrganization :RequestSequence;
     getOrganizationDetails :RequestSequence;
     createRole :RequestSequence;
+    deleteOrganization :RequestSequence;
     deleteRole :RequestSequence;
     goToRoot :GoToRoot;
     removeAutoApprovedDomain :RequestSequence;
@@ -218,6 +221,7 @@ type Props = {
   requestStates :{
     ADD_MEMBER_TO_ORGANIZATION :RequestState;
     GET_ORGANIZATION_DETAILS :RequestState;
+    DELETE_ORGANIZATION :RequestState;
     SEARCH_MEMBERS_TO_ADD_TO_ORG :RequestState;
   };
 };
@@ -279,6 +283,10 @@ class OrgContainer extends Component<Props, State> {
       if (requestStates[ADD_MEMBER_TO_ORGANIZATION] === RequestStates.SUCCESS
           && prevProps.requestStates[ADD_MEMBER_TO_ORGANIZATION] === RequestStates.PENDING) {
         actions.getOrganizationDetails(orgId);
+      }
+      if (requestStates[DELETE_ORGANIZATION] === RequestStates.SUCCESS
+          && prevProps.requestStates[DELETE_ORGANIZATION] === RequestStates.PENDING) {
+        actions.goToRoot();
       }
     }
   }
@@ -377,7 +385,6 @@ class OrgContainer extends Component<Props, State> {
     });
   }
 
-
   /*
    * role related handlers
    */
@@ -449,6 +456,7 @@ class OrgContainer extends Component<Props, State> {
   renderOrgDetails = () => {
 
     const { org } = this.props;
+
     return (
       <Card>
         <OrgDetailsCardSegment vertical>
@@ -463,6 +471,7 @@ class OrgContainer extends Component<Props, State> {
             {this.renderRolesSection()}
             {this.renderMembersSection()}
           </TwoColumnSectionGrid>
+          <DeleteOrgModal org={org} />
         </OrgDetailsCardSegment>
       </Card>
     );
@@ -694,6 +703,7 @@ const mapStateToProps = (state :Map<*, *>, props) => {
     requestStates: {
       [ADD_AUTO_APPROVED_DOMAIN]: state.getIn(['orgs', ADD_AUTO_APPROVED_DOMAIN, 'requestState']),
       [ADD_MEMBER_TO_ORGANIZATION]: state.getIn(['orgs', ADD_MEMBER_TO_ORGANIZATION, 'requestState']),
+      [DELETE_ORGANIZATION]: state.getIn(['orgs', DELETE_ORGANIZATION, 'requestState']),
       [GET_ORGANIZATION_DETAILS]: state.getIn(['orgs', GET_ORGANIZATION_DETAILS, 'requestState']),
       [REMOVE_AUTO_APPROVED_DOMAIN]: state.getIn(['orgs', REMOVE_AUTO_APPROVED_DOMAIN, 'requestState']),
       [SEARCH_MEMBERS_TO_ADD_TO_ORG]: state.getIn(['orgs', SEARCH_MEMBERS_TO_ADD_TO_ORG, 'requestState']),
@@ -707,6 +717,7 @@ const mapActionsToProps = (dispatch :Function) => ({
     addMemberToOrganization: OrganizationsApiActions.addMemberToOrganization,
     getOrganizationDetails: OrgsActions.getOrganizationDetails,
     createRole: OrganizationsApiActions.createRole,
+    deleteOrganization: OrganizationsApiActions.deleteOrganization,
     deleteRole: OrganizationsApiActions.deleteRole,
     goToRoot: RoutingActions.goToRoot,
     removeAutoApprovedDomain: OrganizationsApiActions.removeAutoApprovedDomain,
