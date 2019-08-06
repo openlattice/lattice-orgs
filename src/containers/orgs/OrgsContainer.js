@@ -86,7 +86,7 @@ type Props = {
   };
   orgs :Map;
   requestStates :{
-    [typeof GET_ALL_ORGANIZATIONS] :RequestState;
+    GET_ALL_ORGANIZATIONS :RequestState;
   };
 };
 
@@ -165,7 +165,7 @@ const mapStateToProps = (state :Map<*, *>) => ({
   }
 });
 
-const mapDispatchToProps = (dispatch :Function) => ({
+const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     getAllOrganizations: OrganizationsApiActions.getAllOrganizations,
     goToRoute: RoutingActions.goToRoute,
@@ -174,4 +174,4 @@ const mapDispatchToProps = (dispatch :Function) => ({
 });
 
 // $FlowFixMe
-export default connect(mapStateToProps, mapDispatchToProps)(OrgsContainer);
+export default connect(mapStateToProps, mapActionsToProps)(OrgsContainer);

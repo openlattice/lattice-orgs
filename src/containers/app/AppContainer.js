@@ -14,6 +14,7 @@ import {
   Switch,
   withRouter,
 } from 'react-router';
+import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
@@ -27,6 +28,8 @@ import {
   APP_CONTAINER_WIDTH,
   APP_CONTENT_PADDING
 } from '../../core/style/Sizes';
+
+const { INITIALIZE_APPLICATION } = AppActions;
 
 // TODO: this should come from lattice-ui-kit, maybe after the next release. current version v0.1.1
 const APP_CONTENT_BG :string = '#f8f8fb';
@@ -59,34 +62,51 @@ const AppContentInnerWrapper = styled.div`
   width: ${APP_CONTAINER_WIDTH}px;
 `;
 
+const Error = styled.div`
+  text-align: center;
+`;
+
 type Props = {
-  initAppRequestState :RequestState;
-  initializeApplication :RequestSequence;
+  actions :{
+    initializeApplication :RequestSequence;
+  };
+  requestStates :{
+    INITIALIZE_APPLICATION :RequestState;
+  };
 };
 
 class AppContainer extends Component<Props> {
 
   componentDidMount() {
 
-    const { initializeApplication } = this.props;
-    initializeApplication();
+    const { actions } = this.props;
+    actions.initializeApplication();
   }
 
   renderAppContent = () => {
 
-    const { initAppRequestState } = this.props;
-    if (initAppRequestState === RequestStates.PENDING) {
+    const { requestStates } = this.props;
+
+    if (requestStates[INITIALIZE_APPLICATION] === RequestStates.SUCCESS) {
       return (
-        <Spinner size="2x" />
+        <Switch>
+          <Route path={Routes.ORG} component={OrgContainer} />
+          <Route path={Routes.ORGS} component={OrgsContainer} />
+          <Redirect to={Routes.ORGS} />
+        </Switch>
+      );
+    }
+
+    if (requestStates[INITIALIZE_APPLICATION] === RequestStates.FAILURE) {
+      return (
+        <Error>
+          Sorry, something went wrong. Please try refreshing the page, or contact support.
+        </Error>
       );
     }
 
     return (
-      <Switch>
-        <Route path={Routes.ORG} component={OrgContainer} />
-        <Route path={Routes.ORGS} component={OrgsContainer} />
-        <Redirect to={Routes.ORGS} />
-      </Switch>
+      <Spinner size="2x" />
     );
   }
 
@@ -106,12 +126,18 @@ class AppContainer extends Component<Props> {
 }
 
 const mapStateToProps = (state :Map<*, *>) => ({
-  initAppRequestState: state.getIn(['app', AppActions.INITIALIZE_APPLICATION, 'requestState']),
+  requestStates: {
+    [INITIALIZE_APPLICATION]: state.getIn(['app', INITIALIZE_APPLICATION, 'requestState']),
+  }
+});
+
+const mapActionsToProps = (dispatch :Function) => ({
+  actions: bindActionCreators({
+    initializeApplication: AppActions.initializeApplication,
+  }, dispatch)
 });
 
 // $FlowFixMe
 export default withRouter(
-  connect(mapStateToProps, {
-    initializeApplication: AppActions.initializeApplication,
-  })(AppContainer)
+  connect(mapStateToProps, mapActionsToProps)(AppContainer)
 );

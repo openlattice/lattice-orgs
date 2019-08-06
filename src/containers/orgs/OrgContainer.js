@@ -5,12 +5,13 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
-import { faMinus, faPlus } from '@fortawesome/pro-regular-svg-icons';
+import { faMinus, faPlus, faSearch } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
+  Button,
   Card,
   CardSegment,
   Colors,
@@ -25,11 +26,12 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
+import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
-import { AddButton, RemoveButton } from '../../components/buttons';
 import { isNonEmptyString } from '../../utils/LangUtils';
+import { getUserProfileLabel } from '../../utils/PersonUtils';
 import { isValidEmailDomain, isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
@@ -46,9 +48,14 @@ const { PrincipalTypes } = Types;
 
 const {
   ADD_AUTO_APPROVED_DOMAIN,
-  GET_ORGANIZATION,
+  ADD_MEMBER_TO_ORGANIZATION,
   REMOVE_AUTO_APPROVED_DOMAIN,
 } = OrganizationsApiActions;
+
+const {
+  GET_ORGANIZATION_DETAILS,
+  SEARCH_MEMBERS_TO_ADD_TO_ORG,
+} = OrgsActions;
 
 const OrgTitle = styled.h1`
   font-size: 28px;
@@ -70,7 +77,7 @@ const Tabs = styled.div`
   margin: 30px 0 50px 0;
 `;
 
-const AddInputAddButtonRow = styled.div`
+const InputWithButtonWrapper = styled.div`
   display: grid;
   grid-gap: 5px;
   grid-template-columns: 1fr auto;
@@ -84,6 +91,12 @@ const CompactCardSegment = styled(CardSegment)`
   align-items: center;
   justify-content: space-between;
   padding: 3px 3px 3px 10px;
+
+  > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `;
 
 const OrgDetailsCardSegment = styled(CardSegment)`
@@ -103,9 +116,14 @@ const OrgDetailsCardSegment = styled(CardSegment)`
 
 const TwoColumnSectionGrid = styled.section`
   display: grid;
-  grid-auto-rows: min-content;
   grid-template-columns: 1fr 1fr;
   grid-column-gap: 30px;
+`;
+
+const SectionGrid = styled.section`
+  display: grid;
+  grid-auto-rows: min-content;
+  grid-template-columns: 1fr;
 
   > h2 {
     font-size: 22px;
@@ -122,6 +140,7 @@ const TwoColumnSectionGrid = styled.section`
 
   > div {
     margin: 32px 0 0 0;
+    overflow: hidden;
   }
 
   i {
@@ -183,17 +202,23 @@ Click on a member to view their roles. To add members to this organization, sear
 type Props = {
   actions :{
     addAutoApprovedDomain :RequestSequence;
+    addMemberToOrganization :RequestSequence;
+    getOrganizationDetails :RequestSequence;
     createRole :RequestSequence;
     deleteRole :RequestSequence;
-    getOrganization :RequestSequence;
     goToRoot :GoToRoot;
     removeAutoApprovedDomain :RequestSequence;
+    removeMemberFromOrganization :RequestSequence;
     resetRequestState :(actionType :string) => void;
+    searchMembersToAddToOrg :RequestSequence;
   };
+  memberSearchResults :Map;
   org :Map;
   orgId :UUID;
   requestStates :{
-    [typeof GET_ORGANIZATION] :RequestState;
+    ADD_MEMBER_TO_ORGANIZATION :RequestState;
+    GET_ORGANIZATION_DETAILS :RequestState;
+    SEARCH_MEMBERS_TO_ADD_TO_ORG :RequestState;
   };
 };
 
@@ -201,6 +226,7 @@ type State = {
   domain :string;
   isValidDomain :boolean;
   isValidRole :boolean;
+  memberSearchQuery :string;
   roleTitle :string;
 };
 
@@ -214,19 +240,20 @@ class OrgContainer extends Component<Props, State> {
       domain: '',
       isValidDomain: true,
       isValidRole: true,
+      memberSearchQuery: '',
       roleTitle: '',
     };
   }
 
   componentDidMount() {
 
-    const { actions, org, orgId } = this.props;
+    const { actions, orgId } = this.props;
 
     if (!isValidUUID(orgId)) {
       actions.goToRoot();
     }
-    else if (org.isEmpty()) {
-      actions.getOrganization(orgId);
+    else {
+      actions.getOrganizationDetails(orgId);
     }
   }
 
@@ -239,15 +266,19 @@ class OrgContainer extends Component<Props, State> {
     }
     else {
       if (orgId !== prevProps.orgId) {
-        actions.getOrganization(orgId);
+        actions.getOrganizationDetails(orgId);
       }
-      if (requestStates[GET_ORGANIZATION] === RequestStates.SUCCESS
-          && prevProps.requestStates[GET_ORGANIZATION] === RequestStates.PENDING) {
-        actions.resetRequestState(GET_ORGANIZATION);
+      if (requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.SUCCESS
+          && prevProps.requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.PENDING) {
+        actions.resetRequestState(GET_ORGANIZATION_DETAILS);
       }
-      else if (requestStates[GET_ORGANIZATION] === RequestStates.FAILURE
-          && prevProps.requestStates[GET_ORGANIZATION] === RequestStates.PENDING) {
+      else if (requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.FAILURE
+          && prevProps.requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.PENDING) {
         actions.goToRoot();
+      }
+      if (requestStates[ADD_MEMBER_TO_ORGANIZATION] === RequestStates.SUCCESS
+          && prevProps.requestStates[ADD_MEMBER_TO_ORGANIZATION] === RequestStates.PENDING) {
+        actions.getOrganizationDetails(orgId);
       }
     }
   }
@@ -255,8 +286,12 @@ class OrgContainer extends Component<Props, State> {
   componentWillUnmount() {
 
     const { actions } = this.props;
-    actions.resetRequestState(GET_ORGANIZATION);
+    actions.resetRequestState(GET_ORGANIZATION_DETAILS);
   }
+
+  /*
+   * domain related handlers
+   */
 
   handleOnChangeDomain = (event :SyntheticInputEvent<HTMLInputElement>) => {
 
@@ -264,14 +299,6 @@ class OrgContainer extends Component<Props, State> {
 
     // always set isValidDomain to true when typing
     this.setState({ domain, isValidDomain: true });
-  }
-
-  handleOnChangeRole = (event :SyntheticInputEvent<HTMLInputElement>) => {
-
-    const roleTitle :string = event.target.value || '';
-
-    // always set isValidRole to true when typing
-    this.setState({ roleTitle, isValidRole: true });
   }
 
   handleOnClickAddDomain = () => {
@@ -297,6 +324,72 @@ class OrgContainer extends Component<Props, State> {
     }
   }
 
+  handleOnClickRemoveDomain = (domain :string) => {
+
+    const { actions, org } = this.props;
+    actions.removeAutoApprovedDomain({
+      domain,
+      organizationId: org.get('id'),
+    });
+  }
+
+  /*
+   * member related handlers
+   */
+
+  handleOnChangeMemberSearch = (event :SyntheticInputEvent<HTMLInputElement>) => {
+
+    const { actions, org } = this.props;
+    const memberSearchQuery = event.target.value || '';
+    actions.searchMembersToAddToOrg({
+      organizationId: org.get('id'),
+      query: memberSearchQuery,
+    });
+    this.setState({ memberSearchQuery });
+  }
+
+  handleOnClickAddMember = (memberId :string) => {
+
+    const { actions, org } = this.props;
+    actions.addMemberToOrganization({
+      memberId,
+      organizationId: org.get('id'),
+    });
+  }
+
+  handleOnClickMemberSearch = () => {
+
+    const { actions, org } = this.props;
+    const { memberSearchQuery } = this.state;
+    actions.searchMembersToAddToOrg({
+      organizationId: org.get('id'),
+      query: memberSearchQuery,
+    });
+    this.setState({ memberSearchQuery });
+  }
+
+  handleOnClickRemoveMember = (memberId :string) => {
+
+    const { actions, org } = this.props;
+    actions.removeMemberFromOrganization({
+      memberId,
+      organizationId: org.get('id'),
+    });
+  }
+
+
+  /*
+   * role related handlers
+   */
+
+  handleOnChangeRole = (event :SyntheticInputEvent<HTMLInputElement>) => {
+
+    const roleTitle :string = event.target.value || '';
+
+    // always set isValidRole to true when typing
+    this.setState({ roleTitle, isValidRole: true });
+  }
+
   handleOnClickAddRole = () => {
 
     const { actions, org } = this.props;
@@ -308,16 +401,13 @@ class OrgContainer extends Component<Props, State> {
       return;
     }
 
-    const orgId = org.get('id');
-    const roleTitleClean = roleTitle.replace(/\W/g, '');
-
     const principal :Principal = (new PrincipalBuilder())
       .setType(PrincipalTypes.ROLE)
-      .setId(`${orgId}|${roleTitleClean}`)
+      .setId(`${org.get('id')}|${roleTitle.replace(/\W/g, '')}`)
       .build();
 
     const newRole :Role = (new RoleBuilder())
-      .setOrganizationId(orgId)
+      .setOrganizationId(org.get('id'))
       .setPrincipal(principal)
       .setTitle(roleTitle)
       .build();
@@ -335,15 +425,6 @@ class OrgContainer extends Component<Props, State> {
     }
   }
 
-  handleOnClickRemoveDomain = (domain :string) => {
-
-    const { actions, org } = this.props;
-    actions.removeAutoApprovedDomain({
-      domain,
-      organizationId: org.get('id'),
-    });
-  }
-
   handleOnClickRemoveRole = (role :Map) => {
 
     const { actions, org } = this.props;
@@ -354,15 +435,15 @@ class OrgContainer extends Component<Props, State> {
   }
 
   renderAddButton = (onClick :Function) => (
-    <AddButton onClick={onClick}>
+    <Button mode="positive" onClick={onClick}>
       <FontAwesomeIcon icon={faPlus} />
-    </AddButton>
+    </Button>
   )
 
   renderRemoveButton = (onClick :Function) => (
-    <RemoveButton onClick={onClick}>
+    <Button mode="negative" onClick={onClick}>
       <FontAwesomeIcon icon={faMinus} />
-    </RemoveButton>
+    </Button>
   )
 
   renderOrgDetails = () => {
@@ -373,15 +454,21 @@ class OrgContainer extends Component<Props, State> {
         <OrgDetailsCardSegment vertical>
           <OrgDescription>{org.get('description')}</OrgDescription>
           <hr />
-          {this.renderDomainsAndTrustedOrgsSection()}
+          <TwoColumnSectionGrid>
+            {this.renderDomainsSection()}
+            {this.renderTrustedOrgsSection()}
+          </TwoColumnSectionGrid>
           <hr />
-          {this.renderRolesAndMembersSection()}
+          <TwoColumnSectionGrid>
+            {this.renderRolesSection()}
+            {this.renderMembersSection()}
+          </TwoColumnSectionGrid>
         </OrgDetailsCardSegment>
       </Card>
     );
   }
 
-  renderDomainsAndTrustedOrgsSection = () => {
+  renderDomainsSection = () => {
 
     const { org } = this.props;
     const { isValidDomain } = this.state;
@@ -397,21 +484,16 @@ class OrgContainer extends Component<Props, State> {
     ));
 
     return (
-      <TwoColumnSectionGrid>
+      <SectionGrid>
         <h2>Domains</h2>
-        <h2>Trusted Organizations</h2>
         <h4>{DOMAINS_SUB_TITLE}</h4>
-        <h4>{TRUSTED_ORGS_SUB_TITLE}</h4>
-        <AddInputAddButtonRow>
+        <InputWithButtonWrapper>
           <Input
               invalid={!isValidDomain}
               placeholder="Add new domain"
               onChange={this.handleOnChangeDomain} />
           {this.renderAddButton(this.handleOnClickAddDomain)}
-        </AddInputAddButtonRow>
-        <div>
-          <i>No trusted organizations</i>
-        </div>
+        </InputWithButtonWrapper>
         <div>
           {
             domainCardSegments.isEmpty()
@@ -423,12 +505,24 @@ class OrgContainer extends Component<Props, State> {
               )
           }
         </div>
-        <div />
-      </TwoColumnSectionGrid>
+      </SectionGrid>
     );
   }
 
-  renderRolesAndMembersSection = () => {
+  renderTrustedOrgsSection = () => {
+
+    return (
+      <SectionGrid>
+        <h2>Trusted Organizations</h2>
+        <h4>{TRUSTED_ORGS_SUB_TITLE}</h4>
+        <div>
+          <i>No trusted organizations</i>
+        </div>
+      </SectionGrid>
+    );
+  }
+
+  renderRolesSection = () => {
 
     const { org } = this.props;
     const { isValidRole } = this.state;
@@ -443,28 +537,17 @@ class OrgContainer extends Component<Props, State> {
       </CompactCardSegment>
     ));
 
-    const members = org.get('members', List());
-    const memberCardSegments = members.map((member :Map) => (
-      <CompactCardSegment key={member.get('id')}>
-        <span>{member.get('id')}</span>
-        {this.renderRemoveButton()}
-      </CompactCardSegment>
-    ));
-
     return (
-      <TwoColumnSectionGrid>
+      <SectionGrid>
         <h2>Roles</h2>
-        <h2>Members</h2>
         <h4>{ROLES_SUB_TITLE}</h4>
-        <h4>{MEMBERS_SUB_TITLE}</h4>
-        <AddInputAddButtonRow>
+        <InputWithButtonWrapper>
           <Input
               invalid={!isValidRole}
-              placeholder="Add new role"
-              onChange={this.handleOnChangeRole} />
+              onChange={this.handleOnChangeRole}
+              placeholder="Add new role" />
           {this.renderAddButton(this.handleOnClickAddRole)}
-        </AddInputAddButtonRow>
-        <SearchInput placeholder="Add new member (search by name)" />
+        </InputWithButtonWrapper>
         <div>
           {
             roleCardSegments.isEmpty()
@@ -476,18 +559,67 @@ class OrgContainer extends Component<Props, State> {
               )
           }
         </div>
-        <div>
-          {
-            memberCardSegments.isEmpty()
-              ? (
-                <i>No members</i>
-              )
-              : (
-                <Card>{memberCardSegments}</Card>
-              )
-          }
-        </div>
-      </TwoColumnSectionGrid>
+      </SectionGrid>
+    );
+  }
+
+  renderMembersSection = () => {
+
+    const { org, memberSearchResults, requestStates } = this.props;
+    const { memberSearchQuery } = this.state;
+
+    const members = org.get('members', List());
+    const memberCardSegments = members.map((member :Map) => {
+      const memberId :string = member.getIn(['profile', 'user_id'], member.get('id'));
+      return (
+        <CompactCardSegment key={memberId}>
+          <span>{getUserProfileLabel(member)}</span>
+          {this.renderRemoveButton(() => {
+            this.handleOnClickRemoveMember(memberId);
+          })}
+        </CompactCardSegment>
+      );
+    });
+
+    const shouldShowSpinner = isNonEmptyString(memberSearchQuery)
+      && requestStates[SEARCH_MEMBERS_TO_ADD_TO_ORG] === RequestStates.PENDING;
+
+    const searchResultCardSegments = memberSearchResults.valueSeq().map((member :Map) => (
+      <CompactCardSegment key={member.get('user_id')}>
+        <span>{getUserProfileLabel(member)}</span>
+        {this.renderAddButton(() => {
+          this.handleOnClickAddMember(member.get('user_id'));
+        })}
+      </CompactCardSegment>
+    ));
+
+    return (
+      <SectionGrid>
+        <h2>Members</h2>
+        <h4>{MEMBERS_SUB_TITLE}</h4>
+        <InputWithButtonWrapper>
+          <SearchInput
+              onChange={this.handleOnChangeMemberSearch}
+              placeholder="Add new member (search by name)" />
+          <Button isLoading={shouldShowSpinner} onClick={this.handleOnClickMemberSearch}>
+            <FontAwesomeIcon icon={faSearch} />
+          </Button>
+        </InputWithButtonWrapper>
+        {
+          isNonEmptyString(memberSearchQuery) && !searchResultCardSegments.isEmpty() && (
+            <div>
+              <Card>{searchResultCardSegments}</Card>
+            </div>
+          )
+        }
+        {
+          !memberCardSegments.isEmpty() && (
+            <div>
+              <Card>{memberCardSegments}</Card>
+            </div>
+          )
+        }
+      </SectionGrid>
     );
   }
 
@@ -517,7 +649,7 @@ class OrgContainer extends Component<Props, State> {
 
     const { org, requestStates } = this.props;
 
-    if (requestStates[GET_ORGANIZATION] === RequestStates.PENDING) {
+    if (requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.PENDING && org.isEmpty()) {
       return (
         <Spinner size="2x" />
       );
@@ -557,26 +689,32 @@ const mapStateToProps = (state :Map<*, *>, props) => {
 
   return {
     orgId,
+    memberSearchResults: state.getIn(['orgs', 'memberSearchResults'], Map()),
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
     requestStates: {
       [ADD_AUTO_APPROVED_DOMAIN]: state.getIn(['orgs', ADD_AUTO_APPROVED_DOMAIN, 'requestState']),
-      [GET_ORGANIZATION]: state.getIn(['orgs', GET_ORGANIZATION, 'requestState']),
+      [ADD_MEMBER_TO_ORGANIZATION]: state.getIn(['orgs', ADD_MEMBER_TO_ORGANIZATION, 'requestState']),
+      [GET_ORGANIZATION_DETAILS]: state.getIn(['orgs', GET_ORGANIZATION_DETAILS, 'requestState']),
       [REMOVE_AUTO_APPROVED_DOMAIN]: state.getIn(['orgs', REMOVE_AUTO_APPROVED_DOMAIN, 'requestState']),
+      [SEARCH_MEMBERS_TO_ADD_TO_ORG]: state.getIn(['orgs', SEARCH_MEMBERS_TO_ADD_TO_ORG, 'requestState']),
     },
   };
 };
 
-const mapDispatchToProps = (dispatch :Function) => ({
+const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     addAutoApprovedDomain: OrganizationsApiActions.addAutoApprovedDomain,
+    addMemberToOrganization: OrganizationsApiActions.addMemberToOrganization,
+    getOrganizationDetails: OrgsActions.getOrganizationDetails,
     createRole: OrganizationsApiActions.createRole,
     deleteRole: OrganizationsApiActions.deleteRole,
-    getOrganization: OrganizationsApiActions.getOrganization,
     goToRoot: RoutingActions.goToRoot,
     removeAutoApprovedDomain: OrganizationsApiActions.removeAutoApprovedDomain,
+    removeMemberFromOrganization: OrganizationsApiActions.removeMemberFromOrganization,
     resetRequestState: ReduxActions.resetRequestState,
+    searchMembersToAddToOrg: OrgsActions.searchMembersToAddToOrg,
   }, dispatch)
 });
 
 // $FlowFixMe
-export default connect(mapStateToProps, mapDispatchToProps)(OrgContainer);
+export default connect(mapStateToProps, mapActionsToProps)(OrgContainer);
