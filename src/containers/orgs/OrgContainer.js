@@ -247,12 +247,12 @@ class OrgContainer extends Component<Props, State> {
 
   componentDidMount() {
 
-    const { actions, org, orgId } = this.props;
+    const { actions, orgId } = this.props;
 
     if (!isValidUUID(orgId)) {
       actions.goToRoot();
     }
-    else if (org.isEmpty()) {
+    else {
       actions.getOrganizationDetails(orgId);
     }
   }
@@ -603,22 +603,18 @@ class OrgContainer extends Component<Props, State> {
           </Button>
         </InputWithButtonWrapper>
         {
-          isNonEmptyString(memberSearchQuery) && !searchResultCardSegments.isEmpty()
-            ? (
-              <div>
-                <Card>{searchResultCardSegments}</Card>
-              </div>
-            )
-            : null
+          isNonEmptyString(memberSearchQuery) && !searchResultCardSegments.isEmpty() && (
+            <div>
+              <Card>{searchResultCardSegments}</Card>
+            </div>
+          )
         }
         {
-          !memberCardSegments.isEmpty()
-            ? (
-              <div>
-                <Card>{memberCardSegments}</Card>
-              </div>
-            )
-            : null
+          !memberCardSegments.isEmpty() && (
+            <div>
+              <Card>{memberCardSegments}</Card>
+            </div>
+          )
         }
       </SectionGrid>
     );

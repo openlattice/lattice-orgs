@@ -59,6 +59,10 @@ const AppContentInnerWrapper = styled.div`
   width: ${APP_CONTAINER_WIDTH}px;
 `;
 
+const Error = styled.div`
+  text-align:center;
+`;
+
 type Props = {
   initAppRequestState :RequestState;
   initializeApplication :RequestSequence;
@@ -75,18 +79,27 @@ class AppContainer extends Component<Props> {
   renderAppContent = () => {
 
     const { initAppRequestState } = this.props;
-    if (initAppRequestState === RequestStates.PENDING) {
+
+    if (initAppRequestState === RequestStates.SUCCESS) {
       return (
-        <Spinner size="2x" />
+        <Switch>
+          <Route path={Routes.ORG} component={OrgContainer} />
+          <Route path={Routes.ORGS} component={OrgsContainer} />
+          <Redirect to={Routes.ORGS} />
+        </Switch>
+      );
+    }
+
+    if (initAppRequestState === RequestStates.FAILURE) {
+      return (
+        <Error>
+          Sorry, something went wrong. Please try refreshing the page, or contact support.
+        </Error>
       );
     }
 
     return (
-      <Switch>
-        <Route path={Routes.ORG} component={OrgContainer} />
-        <Route path={Routes.ORGS} component={OrgsContainer} />
-        <Redirect to={Routes.ORGS} />
-      </Switch>
+      <Spinner size="2x" />
     );
   }
 
