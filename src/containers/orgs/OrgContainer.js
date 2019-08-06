@@ -698,7 +698,7 @@ const mapStateToProps = (state :Map<*, *>, props) => {
   };
 };
 
-const mapDispatchToProps = (dispatch :Function) => ({
+const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     addAutoApprovedDomain: OrganizationsApiActions.addAutoApprovedDomain,
     addMemberToOrganization: OrganizationsApiActions.addMemberToOrganization,
@@ -714,4 +714,4 @@ const mapDispatchToProps = (dispatch :Function) => ({
 });
 
 // $FlowFixMe
-export default connect(mapStateToProps, mapDispatchToProps)(OrgContainer);
+export default connect(mapStateToProps, mapActionsToProps)(OrgContainer);
