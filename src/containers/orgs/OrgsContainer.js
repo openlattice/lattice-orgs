@@ -78,6 +78,10 @@ const OrgDescription = styled.p`
   padding: 0;
 `;
 
+const Error = styled.div`
+  text-align: center;
+`;
+
 type Props = {
   actions :{
     getAllOrganizations :RequestSequence;
@@ -147,12 +151,32 @@ class OrgsContainer extends Component<Props> {
       );
     }
 
+    if (requestStates[GET_ALL_ORGANIZATIONS] === RequestStates.FAILURE) {
+      return (
+        <Error>
+          Sorry, something went wrong. Please try refreshing the page, or contact support.
+        </Error>
+      );
+    }
+
+    const orgCards = orgs.valueSeq().map(org => this.renderOrgCard(org));
+
     return (
       <>
         <Title>Organizations</Title>
-        <CardGrid>
-          {orgs.valueSeq().map((org :Map) => this.renderOrgCard(org))}
-        </CardGrid>
+        {
+          orgCards.isEmpty()
+            ? (
+              <Error>
+                Sorry, no organizations were found. Please try refreshing the page, or contact support.
+              </Error>
+            )
+            : (
+              <CardGrid>
+                {orgCards}
+              </CardGrid>
+            )
+        }
       </>
     );
   }
