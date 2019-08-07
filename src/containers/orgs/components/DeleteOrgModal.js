@@ -86,7 +86,7 @@ class DeleteOrgModal extends Component<Props, State> {
     const { actions, org } = this.props;
     const { deleteConfirmationText } = this.state;
 
-    if (deleteConfirmationText === 'delete') {
+    if (deleteConfirmationText === org.get('title')) {
       actions.deleteOrganization(org.get('id'));
       this.setState({ deleteConfirmationText: '' });
     }
@@ -110,11 +110,7 @@ class DeleteOrgModal extends Component<Props, State> {
     const { isValidConfirmation } = this.state;
     return (
       <>
-        <div>
-          <span>Please type</span>
-          <b> &quot;delete&quot; </b>
-          <span>to confirm.</span>
-        </div>
+        <span>To confirm, please type the organization name.</span>
         <Input invalid={!isValidConfirmation} onChange={this.handleOnChangeDeleteConfirmation} />
       </>
     );
