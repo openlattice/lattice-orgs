@@ -10,11 +10,7 @@ import {
   takeEvery,
   takeLatest,
 } from '@redux-saga/core/effects';
-import {
-  List,
-  Map,
-  fromJS,
-} from 'immutable';
+import { List, fromJS } from 'immutable';
 import {
   OrganizationsApiActions,
   OrganizationsApiSagas,
