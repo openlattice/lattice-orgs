@@ -143,7 +143,7 @@ class OrgsContainer extends Component<Props> {
 
     if (requestStates[GET_ALL_ORGANIZATIONS] === RequestStates.PENDING) {
       return (
-        <Spinner size="3x" />
+        <Spinner size="2x" />
       );
     }
 

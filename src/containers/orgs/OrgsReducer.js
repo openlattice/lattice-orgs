@@ -22,26 +22,26 @@ const {
 } = Models;
 
 const {
-  ADD_AUTO_APPROVED_DOMAIN,
-  ADD_MEMBER_TO_ORGANIZATION,
+  ADD_DOMAIN_TO_ORG,
+  ADD_MEMBER_TO_ORG,
   CREATE_ROLE,
   DELETE_ORGANIZATION,
   DELETE_ROLE,
   GET_ALL_ORGANIZATIONS,
-  REMOVE_AUTO_APPROVED_DOMAIN,
-  REMOVE_MEMBER_FROM_ORGANIZATION,
-  addAutoApprovedDomain,
+  REMOVE_DOMAIN_FROM_ORG,
+  REMOVE_MEMBER_FROM_ORG,
+  addDomainToOrganization,
   addMemberToOrganization,
   createRole,
   deleteOrganization,
   deleteRole,
   getAllOrganizations,
-  removeAutoApprovedDomain,
+  removeDomainFromOrganization,
   removeMemberFromOrganization,
 } = OrganizationsApiActions;
 
 const INITIAL_STATE :Map<*, *> = fromJS({
-  [ADD_AUTO_APPROVED_DOMAIN]: {
+  [ADD_DOMAIN_TO_ORG]: {
     requestState: RequestStates.STANDBY,
   },
   [CREATE_ROLE]: {
@@ -59,10 +59,10 @@ const INITIAL_STATE :Map<*, *> = fromJS({
   [GET_ORGANIZATION_DETAILS]: {
     requestState: RequestStates.STANDBY,
   },
-  [REMOVE_AUTO_APPROVED_DOMAIN]: {
+  [REMOVE_DOMAIN_FROM_ORG]: {
     requestState: RequestStates.STANDBY,
   },
-  [REMOVE_MEMBER_FROM_ORGANIZATION]: {
+  [REMOVE_MEMBER_FROM_ORG]: {
     requestState: RequestStates.STANDBY,
   },
   [SEARCH_MEMBERS_TO_ADD_TO_ORG]: {
@@ -84,26 +84,26 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
       return state;
     }
 
-    case addAutoApprovedDomain.case(action.type): {
+    case addDomainToOrganization.case(action.type): {
       const seqAction :SequenceAction = action;
-      return addAutoApprovedDomain.reducer(state, action, {
+      return addDomainToOrganization.reducer(state, action, {
         REQUEST: () => state
-          .setIn([ADD_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.PENDING)
-          .setIn([ADD_AUTO_APPROVED_DOMAIN, seqAction.id], seqAction),
+          .setIn([ADD_DOMAIN_TO_ORG, 'requestState'], RequestStates.PENDING)
+          .setIn([ADD_DOMAIN_TO_ORG, seqAction.id], seqAction),
         SUCCESS: () => {
-          const storedSeqAction :SequenceAction = state.getIn([ADD_AUTO_APPROVED_DOMAIN, seqAction.id]);
+          const storedSeqAction :SequenceAction = state.getIn([ADD_DOMAIN_TO_ORG, seqAction.id]);
           if (storedSeqAction) {
             const { domain, organizationId } = storedSeqAction.value;
             const currentDomains :List<string> = state.getIn(['orgs', organizationId, 'emails'], List());
             const updatedDomains :Set<string> = currentDomains.push(domain);
             return state
               .setIn(['orgs', organizationId, 'emails'], updatedDomains)
-              .setIn([ADD_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.SUCCESS);
+              .setIn([ADD_DOMAIN_TO_ORG, 'requestState'], RequestStates.SUCCESS);
           }
           return state;
         },
-        FAILURE: () => state.setIn([ADD_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.FAILURE),
-        FINALLY: () => state.deleteIn([ADD_AUTO_APPROVED_DOMAIN, seqAction.id]),
+        FAILURE: () => state.setIn([ADD_DOMAIN_TO_ORG, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([ADD_DOMAIN_TO_ORG, seqAction.id]),
       });
     }
 
@@ -111,20 +111,20 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
       const seqAction :SequenceAction = action;
       return addMemberToOrganization.reducer(state, action, {
         REQUEST: () => state
-          .setIn([ADD_MEMBER_TO_ORGANIZATION, 'requestState'], RequestStates.PENDING)
-          .setIn([ADD_MEMBER_TO_ORGANIZATION, seqAction.id], seqAction),
+          .setIn([ADD_MEMBER_TO_ORG, 'requestState'], RequestStates.PENDING)
+          .setIn([ADD_MEMBER_TO_ORG, seqAction.id], seqAction),
         SUCCESS: () => {
-          const storedSeqAction :SequenceAction = state.getIn([ADD_MEMBER_TO_ORGANIZATION, seqAction.id]);
+          const storedSeqAction :SequenceAction = state.getIn([ADD_MEMBER_TO_ORG, seqAction.id]);
           if (storedSeqAction) {
             const { memberId } = storedSeqAction.value;
             return state
               .deleteIn(['memberSearchResults', memberId])
-              .setIn([ADD_MEMBER_TO_ORGANIZATION, 'requestState'], RequestStates.SUCCESS);
+              .setIn([ADD_MEMBER_TO_ORG, 'requestState'], RequestStates.SUCCESS);
           }
           return state;
         },
-        FAILURE: () => state.setIn([ADD_MEMBER_TO_ORGANIZATION, 'requestState'], RequestStates.FAILURE),
-        FINALLY: () => state.deleteIn([ADD_MEMBER_TO_ORGANIZATION, seqAction.id]),
+        FAILURE: () => state.setIn([ADD_MEMBER_TO_ORG, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([ADD_MEMBER_TO_ORG, seqAction.id]),
       });
     }
 
@@ -264,10 +264,13 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
           .setIn([GET_ORGANIZATION_DETAILS, 'requestState'], RequestStates.PENDING)
           .setIn([GET_ORGANIZATION_DETAILS, seqAction.id], seqAction),
         SUCCESS: () => {
-          const org :Map = fromJS(seqAction.value);
+          const { integration, members, org } = seqAction.value;
           const orgId :UUID = org.get('id');
+          const updatedOrg :Map = org
+            .set('integration', integration)
+            .set('members', members);
           return state
-            .setIn(['orgs', orgId], org)
+            .setIn(['orgs', orgId], updatedOrg)
             .setIn([GET_ORGANIZATION_DETAILS, 'requestState'], RequestStates.SUCCESS);
         },
         FAILURE: () => state.setIn([GET_ORGANIZATION_DETAILS, 'requestState'], RequestStates.FAILURE),
@@ -275,26 +278,26 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
       });
     }
 
-    case removeAutoApprovedDomain.case(action.type): {
+    case removeDomainFromOrganization.case(action.type): {
       const seqAction :SequenceAction = action;
-      return removeAutoApprovedDomain.reducer(state, action, {
+      return removeDomainFromOrganization.reducer(state, action, {
         REQUEST: () => state
-          .setIn([REMOVE_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.PENDING)
-          .setIn([REMOVE_AUTO_APPROVED_DOMAIN, seqAction.id], seqAction),
+          .setIn([REMOVE_DOMAIN_FROM_ORG, 'requestState'], RequestStates.PENDING)
+          .setIn([REMOVE_DOMAIN_FROM_ORG, seqAction.id], seqAction),
         SUCCESS: () => {
-          const storedSeqAction :SequenceAction = state.getIn([REMOVE_AUTO_APPROVED_DOMAIN, seqAction.id]);
+          const storedSeqAction :SequenceAction = state.getIn([REMOVE_DOMAIN_FROM_ORG, seqAction.id]);
           if (storedSeqAction) {
             const { domain, organizationId } = storedSeqAction.value;
             const currentDomains :List<string> = state.getIn(['orgs', organizationId, 'emails'], List());
             const updatedDomains :List<string> = currentDomains.filter(currentDomain => currentDomain !== domain);
             return state
               .setIn(['orgs', organizationId, 'emails'], updatedDomains)
-              .setIn([REMOVE_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.SUCCESS);
+              .setIn([REMOVE_DOMAIN_FROM_ORG, 'requestState'], RequestStates.SUCCESS);
           }
           return state;
         },
-        FAILURE: () => state.setIn([REMOVE_AUTO_APPROVED_DOMAIN, 'requestState'], RequestStates.FAILURE),
-        FINALLY: () => state.deleteIn([REMOVE_AUTO_APPROVED_DOMAIN, seqAction.id]),
+        FAILURE: () => state.setIn([REMOVE_DOMAIN_FROM_ORG, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([REMOVE_DOMAIN_FROM_ORG, seqAction.id]),
       });
     }
 
@@ -302,22 +305,22 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
       const seqAction :SequenceAction = action;
       return removeMemberFromOrganization.reducer(state, action, {
         REQUEST: () => state
-          .setIn([REMOVE_MEMBER_FROM_ORGANIZATION, 'requestState'], RequestStates.PENDING)
-          .setIn([REMOVE_MEMBER_FROM_ORGANIZATION, seqAction.id], seqAction),
+          .setIn([REMOVE_MEMBER_FROM_ORG, 'requestState'], RequestStates.PENDING)
+          .setIn([REMOVE_MEMBER_FROM_ORG, seqAction.id], seqAction),
         SUCCESS: () => {
-          const storedSeqAction :SequenceAction = state.getIn([REMOVE_MEMBER_FROM_ORGANIZATION, seqAction.id]);
+          const storedSeqAction :SequenceAction = state.getIn([REMOVE_MEMBER_FROM_ORG, seqAction.id]);
           if (storedSeqAction) {
             const { memberId, organizationId } = storedSeqAction.value;
             const updatedMembers :List<Map> = state.getIn(['orgs', organizationId, 'members'])
               .filter((member :Map) => member.getIn(['profile', 'user_id']) !== memberId);
             return state
               .setIn(['orgs', organizationId, 'members'], updatedMembers)
-              .setIn([REMOVE_MEMBER_FROM_ORGANIZATION, 'requestState'], RequestStates.SUCCESS);
+              .setIn([REMOVE_MEMBER_FROM_ORG, 'requestState'], RequestStates.SUCCESS);
           }
           return state;
         },
-        FAILURE: () => state.setIn([REMOVE_MEMBER_FROM_ORGANIZATION, 'requestState'], RequestStates.FAILURE),
-        FINALLY: () => state.deleteIn([REMOVE_MEMBER_FROM_ORGANIZATION, seqAction.id]),
+        FAILURE: () => state.setIn([REMOVE_MEMBER_FROM_ORG, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([REMOVE_MEMBER_FROM_ORG, seqAction.id]),
       });
     }
 
