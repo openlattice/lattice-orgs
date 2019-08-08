@@ -5,7 +5,12 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
-import { faMinus, faPlus, faSearch } from '@fortawesome/pro-regular-svg-icons';
+import {
+  faCopy,
+  faMinus,
+  faPlus,
+  faSearch,
+} from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
@@ -27,6 +32,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import DeleteOrgModal from './components/DeleteOrgModal';
+import Logger from '../../utils/Logger';
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
@@ -35,6 +41,8 @@ import { isNonEmptyString } from '../../utils/LangUtils';
 import { getUserProfileLabel } from '../../utils/PersonUtils';
 import { isValidEmailDomain, isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
+
+const LOG :Logger = new Logger('OrgContainer');
 
 const { NEUTRALS } = Colors;
 
@@ -300,6 +308,17 @@ class OrgContainer extends Component<Props, State> {
     actions.resetRequestState(GET_ORGANIZATION_DETAILS);
   }
 
+  handleOnClickCopyCredential = () => {
+
+    const { org } = this.props;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(org.getIn(['integration', 'credential'], ''));
+    }
+    else {
+      LOG.error('cannot copy credentialm,navigator.clipboard is not available');
+    }
+  }
+
   /*
    * domain related handlers
    */
@@ -474,8 +493,15 @@ class OrgContainer extends Component<Props, State> {
             <h5>USER</h5>
             <pre>{org.getIn(['integration', 'user'], '')}</pre>
             <h5>CREDENTIAL</h5>
-            <pre>{org.getIn(['integration', 'credential'], '')}</pre>
           </SectionGrid>
+          <TwoColumnSectionGrid>
+            <InputWithButtonWrapper>
+              <Input disabled type="password" value="********************************" />
+              <Button onClick={this.handleOnClickCopyCredential}>
+                <FontAwesomeIcon icon={faCopy} />
+              </Button>
+            </InputWithButtonWrapper>
+          </TwoColumnSectionGrid>
           <CardSegmentInnerDivider />
           <TwoColumnSectionGrid>
             {this.renderDomainsSection()}
