@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   faCopy,
   faMinus,
@@ -109,23 +109,11 @@ const CompactCardSegment = styled(CardSegment)`
   }
 `;
 
-const CardSegmentInnerDivider = styled.hr`
-  background-color: ${NEUTRALS[4]};
-  border: none;
-  height: 1px;
-  margin: 48px 0;
-`;
-
-const TwoColumnSectionGrid = styled.section`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-column-gap: 30px;
-`;
-
 const SectionGrid = styled.section`
   display: grid;
   grid-auto-rows: min-content;
-  grid-template-columns: 1fr;
+  grid-column-gap: 30px;
+  grid-template-columns: ${({ columns }) => columns && css`repeat(${columns}, 1fr)`};
 
   > h2 {
     font-size: 22px;
@@ -485,9 +473,10 @@ class OrgContainer extends Component<Props, State> {
 
     return (
       <Card>
-        <CardSegment vertical>
+        <CardSegment noBleed>
           <OrgDescription>{org.get('description')}</OrgDescription>
-          <CardSegmentInnerDivider />
+        </CardSegment>
+        <CardSegment vertical>
           <SectionGrid>
             <h2>Integration Account Details</h2>
             <h5>JDBC URL</h5>
@@ -496,24 +485,26 @@ class OrgContainer extends Component<Props, State> {
             <pre>{org.getIn(['integration', 'user'], '')}</pre>
             <h5>CREDENTIAL</h5>
           </SectionGrid>
-          <TwoColumnSectionGrid>
+          <SectionGrid columns={2}>
             <InputWithButtonWrapper>
               <Input disabled type="password" value="********************************" />
               <Button onClick={this.handleOnClickCopyCredential}>
                 <FontAwesomeIcon icon={faCopy} />
               </Button>
             </InputWithButtonWrapper>
-          </TwoColumnSectionGrid>
-          <CardSegmentInnerDivider />
-          <TwoColumnSectionGrid>
+          </SectionGrid>
+        </CardSegment>
+        <CardSegment noBleed>
+          <SectionGrid columns={2}>
             {this.renderDomainsSection()}
             {this.renderTrustedOrgsSection()}
-          </TwoColumnSectionGrid>
-          <CardSegmentInnerDivider />
-          <TwoColumnSectionGrid>
+          </SectionGrid>
+        </CardSegment>
+        <CardSegment noBleed vertical>
+          <SectionGrid columns={2}>
             {this.renderRolesSection()}
             {this.renderMembersSection()}
-          </TwoColumnSectionGrid>
+          </SectionGrid>
           <DeleteOrgModal org={org} />
         </CardSegment>
       </Card>
