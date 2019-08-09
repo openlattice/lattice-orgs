@@ -476,7 +476,7 @@ class OrgContainer extends Component<Props, State> {
         <CardSegment noBleed>
           <OrgDescription>{org.get('description')}</OrgDescription>
         </CardSegment>
-        <CardSegment vertical>
+        <CardSegment noBleed vertical>
           <SectionGrid>
             <h2>Integration Account Details</h2>
             <h5>JDBC URL</h5>
