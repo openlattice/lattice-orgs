@@ -5,7 +5,12 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
-import { faMinus, faPlus, faSearch } from '@fortawesome/pro-regular-svg-icons';
+import {
+  faCopy,
+  faMinus,
+  faPlus,
+  faSearch,
+} from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
@@ -27,6 +32,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import DeleteOrgModal from './components/DeleteOrgModal';
+import Logger from '../../utils/Logger';
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
@@ -35,6 +41,8 @@ import { isNonEmptyString } from '../../utils/LangUtils';
 import { getUserProfileLabel } from '../../utils/PersonUtils';
 import { isValidEmailDomain, isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
+
+const LOG :Logger = new Logger('OrgContainer');
 
 const { NEUTRALS } = Colors;
 
@@ -48,10 +56,10 @@ const {
 const { PrincipalTypes } = Types;
 
 const {
-  ADD_AUTO_APPROVED_DOMAIN,
-  ADD_MEMBER_TO_ORGANIZATION,
+  ADD_DOMAIN_TO_ORG,
+  ADD_MEMBER_TO_ORG,
   DELETE_ORGANIZATION,
-  REMOVE_AUTO_APPROVED_DOMAIN,
+  REMOVE_DOMAIN_FROM_ORG,
 } = OrganizationsApiActions;
 
 const {
@@ -101,31 +109,11 @@ const CompactCardSegment = styled(CardSegment)`
   }
 `;
 
-const OrgDetailsCardSegment = styled(CardSegment)`
-  > div {
-    display: grid;
-    grid-gap: 30px;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  > hr {
-    background-color: ${NEUTRALS[4]};
-    border: none;
-    height: 1px;
-    margin: 48px 0;
-  }
-`;
-
-const TwoColumnSectionGrid = styled.section`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-column-gap: 30px;
-`;
-
 const SectionGrid = styled.section`
   display: grid;
   grid-auto-rows: min-content;
-  grid-template-columns: 1fr;
+  grid-column-gap: 30px;
+  grid-template-columns: repeat(${({ columns }) => columns}, 1fr);
 
   > h2 {
     font-size: 22px;
@@ -140,6 +128,13 @@ const SectionGrid = styled.section`
     margin: 16px 0 0 0;
   }
 
+  > h5 {
+    color: ${NEUTRALS[1]};
+    font-size: 14px;
+    font-weight: normal;
+    margin: 16px 0 0 0;
+  }
+
   > div {
     margin: 32px 0 0 0;
     overflow: hidden;
@@ -150,6 +145,10 @@ const SectionGrid = styled.section`
     font-size: 16px;
     font-weight: normal;
     margin: 32px 0 0 0;
+  }
+
+  pre {
+    margin: 0;
   }
 `;
 
@@ -203,14 +202,14 @@ Click on a member to view their roles. To add members to this organization, sear
 
 type Props = {
   actions :{
-    addAutoApprovedDomain :RequestSequence;
+    addDomainToOrganization :RequestSequence;
     addMemberToOrganization :RequestSequence;
     getOrganizationDetails :RequestSequence;
     createRole :RequestSequence;
     deleteOrganization :RequestSequence;
     deleteRole :RequestSequence;
     goToRoot :GoToRoot;
-    removeAutoApprovedDomain :RequestSequence;
+    removeDomainFromOrganization :RequestSequence;
     removeMemberFromOrganization :RequestSequence;
     resetRequestState :(actionType :string) => void;
     searchMembersToAddToOrg :RequestSequence;
@@ -219,7 +218,7 @@ type Props = {
   org :Map;
   orgId :UUID;
   requestStates :{
-    ADD_MEMBER_TO_ORGANIZATION :RequestState;
+    ADD_MEMBER_TO_ORG :RequestState;
     GET_ORGANIZATION_DETAILS :RequestState;
     DELETE_ORGANIZATION :RequestState;
     SEARCH_MEMBERS_TO_ADD_TO_ORG :RequestState;
@@ -280,8 +279,8 @@ class OrgContainer extends Component<Props, State> {
           && prevProps.requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.PENDING) {
         actions.goToRoot();
       }
-      if (requestStates[ADD_MEMBER_TO_ORGANIZATION] === RequestStates.SUCCESS
-          && prevProps.requestStates[ADD_MEMBER_TO_ORGANIZATION] === RequestStates.PENDING) {
+      if (requestStates[ADD_MEMBER_TO_ORG] === RequestStates.SUCCESS
+          && prevProps.requestStates[ADD_MEMBER_TO_ORG] === RequestStates.PENDING) {
         actions.getOrganizationDetails(orgId);
       }
       if (requestStates[DELETE_ORGANIZATION] === RequestStates.SUCCESS
@@ -295,6 +294,19 @@ class OrgContainer extends Component<Props, State> {
 
     const { actions } = this.props;
     actions.resetRequestState(GET_ORGANIZATION_DETAILS);
+  }
+
+  handleOnClickCopyCredential = () => {
+
+    const { org } = this.props;
+
+    // TODO: consider using https://github.com/zenorocha/clipboard.js
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(org.getIn(['integration', 'credential'], ''));
+    }
+    else {
+      LOG.error('cannot copy credentialm,navigator.clipboard is not available');
+    }
   }
 
   /*
@@ -324,7 +336,7 @@ class OrgContainer extends Component<Props, State> {
     const isNewDomain :boolean = !org.get('emails', List()).includes(domain);
 
     if (isValidDomain && isNewDomain) {
-      actions.addAutoApprovedDomain({ domain, organizationId: org.get('id') });
+      actions.addDomainToOrganization({ domain, organizationId: org.get('id') });
     }
     else {
       // set to false only when the button was clicked
@@ -335,7 +347,7 @@ class OrgContainer extends Component<Props, State> {
   handleOnClickRemoveDomain = (domain :string) => {
 
     const { actions, org } = this.props;
-    actions.removeAutoApprovedDomain({
+    actions.removeDomainFromOrganization({
       domain,
       organizationId: org.get('id'),
     });
@@ -457,22 +469,44 @@ class OrgContainer extends Component<Props, State> {
 
     const { org } = this.props;
 
+    const orgIdClean = org.get('id').replace(/-/g, '');
+
     return (
       <Card>
-        <OrgDetailsCardSegment vertical>
+        <CardSegment noBleed>
           <OrgDescription>{org.get('description')}</OrgDescription>
-          <hr />
-          <TwoColumnSectionGrid>
+        </CardSegment>
+        <CardSegment noBleed vertical>
+          <SectionGrid>
+            <h2>Integration Account Details</h2>
+            <h5>JDBC URL</h5>
+            <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
+            <h5>USER</h5>
+            <pre>{org.getIn(['integration', 'user'], '')}</pre>
+            <h5>CREDENTIAL</h5>
+          </SectionGrid>
+          <SectionGrid columns={2}>
+            <InputWithButtonWrapper>
+              <Input disabled type="password" value="********************************" />
+              <Button onClick={this.handleOnClickCopyCredential}>
+                <FontAwesomeIcon icon={faCopy} />
+              </Button>
+            </InputWithButtonWrapper>
+          </SectionGrid>
+        </CardSegment>
+        <CardSegment noBleed>
+          <SectionGrid columns={2}>
             {this.renderDomainsSection()}
             {this.renderTrustedOrgsSection()}
-          </TwoColumnSectionGrid>
-          <hr />
-          <TwoColumnSectionGrid>
+          </SectionGrid>
+        </CardSegment>
+        <CardSegment noBleed vertical>
+          <SectionGrid columns={2}>
             {this.renderRolesSection()}
             {this.renderMembersSection()}
-          </TwoColumnSectionGrid>
+          </SectionGrid>
           <DeleteOrgModal org={org} />
-        </OrgDetailsCardSegment>
+        </CardSegment>
       </Card>
     );
   }
@@ -499,7 +533,7 @@ class OrgContainer extends Component<Props, State> {
         <InputWithButtonWrapper>
           <Input
               invalid={!isValidDomain}
-              placeholder="Add new domain"
+              placeholder="Add a new domain"
               onChange={this.handleOnChangeDomain} />
           {this.renderAddButton(this.handleOnClickAddDomain)}
         </InputWithButtonWrapper>
@@ -554,7 +588,7 @@ class OrgContainer extends Component<Props, State> {
           <Input
               invalid={!isValidRole}
               onChange={this.handleOnChangeRole}
-              placeholder="Add new role" />
+              placeholder="Add a new role" />
           {this.renderAddButton(this.handleOnClickAddRole)}
         </InputWithButtonWrapper>
         <div>
@@ -609,7 +643,7 @@ class OrgContainer extends Component<Props, State> {
         <InputWithButtonWrapper>
           <SearchInput
               onChange={this.handleOnChangeMemberSearch}
-              placeholder="Add new member (search by name)" />
+              placeholder="Search for a member to add" />
           <Button isLoading={shouldShowSpinner} onClick={this.handleOnClickMemberSearch}>
             <FontAwesomeIcon icon={faSearch} />
           </Button>
@@ -658,7 +692,7 @@ class OrgContainer extends Component<Props, State> {
 
     const { org, requestStates } = this.props;
 
-    if (requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.PENDING && org.isEmpty()) {
+    if (requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.PENDING) {
       return (
         <Spinner size="2x" />
       );
@@ -701,11 +735,11 @@ const mapStateToProps = (state :Map<*, *>, props) => {
     memberSearchResults: state.getIn(['orgs', 'memberSearchResults'], Map()),
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
     requestStates: {
-      [ADD_AUTO_APPROVED_DOMAIN]: state.getIn(['orgs', ADD_AUTO_APPROVED_DOMAIN, 'requestState']),
-      [ADD_MEMBER_TO_ORGANIZATION]: state.getIn(['orgs', ADD_MEMBER_TO_ORGANIZATION, 'requestState']),
+      [ADD_DOMAIN_TO_ORG]: state.getIn(['orgs', ADD_DOMAIN_TO_ORG, 'requestState']),
+      [ADD_MEMBER_TO_ORG]: state.getIn(['orgs', ADD_MEMBER_TO_ORG, 'requestState']),
       [DELETE_ORGANIZATION]: state.getIn(['orgs', DELETE_ORGANIZATION, 'requestState']),
       [GET_ORGANIZATION_DETAILS]: state.getIn(['orgs', GET_ORGANIZATION_DETAILS, 'requestState']),
-      [REMOVE_AUTO_APPROVED_DOMAIN]: state.getIn(['orgs', REMOVE_AUTO_APPROVED_DOMAIN, 'requestState']),
+      [REMOVE_DOMAIN_FROM_ORG]: state.getIn(['orgs', REMOVE_DOMAIN_FROM_ORG, 'requestState']),
       [SEARCH_MEMBERS_TO_ADD_TO_ORG]: state.getIn(['orgs', SEARCH_MEMBERS_TO_ADD_TO_ORG, 'requestState']),
     },
   };
@@ -713,14 +747,14 @@ const mapStateToProps = (state :Map<*, *>, props) => {
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
-    addAutoApprovedDomain: OrganizationsApiActions.addAutoApprovedDomain,
+    addDomainToOrganization: OrganizationsApiActions.addDomainToOrganization,
     addMemberToOrganization: OrganizationsApiActions.addMemberToOrganization,
     getOrganizationDetails: OrgsActions.getOrganizationDetails,
     createRole: OrganizationsApiActions.createRole,
     deleteOrganization: OrganizationsApiActions.deleteOrganization,
     deleteRole: OrganizationsApiActions.deleteRole,
     goToRoot: RoutingActions.goToRoot,
-    removeAutoApprovedDomain: OrganizationsApiActions.removeAutoApprovedDomain,
+    removeDomainFromOrganization: OrganizationsApiActions.removeDomainFromOrganization,
     removeMemberFromOrganization: OrganizationsApiActions.removeMemberFromOrganization,
     resetRequestState: ReduxActions.resetRequestState,
     searchMembersToAddToOrg: OrgsActions.searchMembersToAddToOrg,
