@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import {
   faCopy,
   faMinus,
@@ -113,7 +113,7 @@ const SectionGrid = styled.section`
   display: grid;
   grid-auto-rows: min-content;
   grid-column-gap: 30px;
-  grid-template-columns: ${({ columns }) => columns && css`repeat(${columns}, 1fr)`};
+  grid-template-columns: repeat(${({ columns }) => columns}, 1fr);
 
   > h2 {
     font-size: 22px;
