@@ -311,6 +311,8 @@ class OrgContainer extends Component<Props, State> {
   handleOnClickCopyCredential = () => {
 
     const { org } = this.props;
+
+    // TODO: consider using https://github.com/zenorocha/clipboard.js
     if (navigator.clipboard) {
       navigator.clipboard.writeText(org.getIn(['integration', 'credential'], ''));
     }
@@ -540,7 +542,7 @@ class OrgContainer extends Component<Props, State> {
         <InputWithButtonWrapper>
           <Input
               invalid={!isValidDomain}
-              placeholder="Add new domain"
+              placeholder="Add a new domain"
               onChange={this.handleOnChangeDomain} />
           {this.renderAddButton(this.handleOnClickAddDomain)}
         </InputWithButtonWrapper>
@@ -595,7 +597,7 @@ class OrgContainer extends Component<Props, State> {
           <Input
               invalid={!isValidRole}
               onChange={this.handleOnChangeRole}
-              placeholder="Add new role" />
+              placeholder="Add a new role" />
           {this.renderAddButton(this.handleOnClickAddRole)}
         </InputWithButtonWrapper>
         <div>
@@ -650,7 +652,7 @@ class OrgContainer extends Component<Props, State> {
         <InputWithButtonWrapper>
           <SearchInput
               onChange={this.handleOnChangeMemberSearch}
-              placeholder="Add new member (search by name)" />
+              placeholder="Search for a member to add" />
           <Button isLoading={shouldShowSpinner} onClick={this.handleOnClickMemberSearch}>
             <FontAwesomeIcon icon={faSearch} />
           </Button>
