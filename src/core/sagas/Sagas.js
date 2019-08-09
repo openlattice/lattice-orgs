@@ -23,15 +23,16 @@ export default function* sagas() :Generator<*, *, *> {
 
     // "lattice-sagas" sagas
     fork(AppApiSagas.getAppConfigsWatcher),
-    fork(OrganizationsApiSagas.addAutoApprovedDomainWatcher),
+    fork(OrganizationsApiSagas.addDomainToOrganizationWatcher),
     fork(OrganizationsApiSagas.addMemberToOrganizationWatcher),
     fork(OrganizationsApiSagas.createRoleWatcher),
     fork(OrganizationsApiSagas.deleteOrganizationWatcher),
     fork(OrganizationsApiSagas.deleteRoleWatcher),
     fork(OrganizationsApiSagas.getAllOrganizationsWatcher),
     fork(OrganizationsApiSagas.getOrganizationWatcher),
+    fork(OrganizationsApiSagas.getOrganizationIntegrationAccountWatcher),
     fork(OrganizationsApiSagas.getOrganizationMembersWatcher),
-    fork(OrganizationsApiSagas.removeAutoApprovedDomainWatcher),
+    fork(OrganizationsApiSagas.removeDomainFromOrganizationWatcher),
     fork(OrganizationsApiSagas.removeMemberFromOrganizationWatcher),
     fork(PrincipalsApiSagas.searchAllUsersWatcher),
 

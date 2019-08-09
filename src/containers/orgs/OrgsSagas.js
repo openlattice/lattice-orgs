@@ -10,11 +10,7 @@ import {
   takeEvery,
   takeLatest,
 } from '@redux-saga/core/effects';
-import {
-  List,
-  Map,
-  fromJS,
-} from 'immutable';
+import { List, fromJS } from 'immutable';
 import {
   OrganizationsApiActions,
   OrganizationsApiSagas,
@@ -36,10 +32,12 @@ const LOG = new Logger('OrgsSagas');
 
 const {
   getOrganization,
+  getOrganizationIntegrationAccount,
   getOrganizationMembers,
 } = OrganizationsApiActions;
 const {
   getOrganizationWorker,
+  getOrganizationIntegrationAccountWorker,
   getOrganizationMembersWorker,
 } = OrganizationsApiSagas;
 const { searchAllUsers } = PrincipalsApiActions;
@@ -61,18 +59,21 @@ function* getOrganizationDetailsWorker(action :SequenceAction) :Generator<*, *, 
       throw new Error('organizationId must be a valid UUID');
     }
 
-    const [orgResponse, orgMembersResponse] = yield all([
+    const [orgResponse, orgIntegrationResponse, orgMembersResponse] = yield all([
       call(getOrganizationWorker, getOrganization(organizationId)),
+      call(getOrganizationIntegrationAccountWorker, getOrganizationIntegrationAccount(organizationId)),
       call(getOrganizationMembersWorker, getOrganizationMembers(organizationId)),
     ]);
+
     if (orgResponse.error) throw orgResponse.error;
+    if (orgIntegrationResponse.error) throw orgIntegrationResponse.error;
     if (orgMembersResponse.error) throw orgMembersResponse.error;
 
-    const org :Map = fromJS(orgResponse.data);
-    const orgMembers :List = fromJS(orgMembersResponse.data);
-    const orgWithMembers :Map = org.set('members', orgMembers);
-
-    yield put(getOrganizationDetails.success(action.id, orgWithMembers));
+    yield put(getOrganizationDetails.success(action.id, {
+      integration: fromJS(orgIntegrationResponse.data),
+      members: fromJS(orgMembersResponse.data),
+      org: fromJS(orgResponse.data),
+    }));
   }
   catch (error) {
     LOG.error('getOrganizationDetailsWorker()', error);
