@@ -289,7 +289,7 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
           if (storedSeqAction) {
             const { domain, organizationId } = storedSeqAction.value;
             const currentDomains :List<string> = state.getIn(['orgs', organizationId, 'emails'], List());
-            const updatedDomains :List<string> = currentDomains.filter(currentDomain => currentDomain !== domain);
+            const updatedDomains :List<string> = currentDomains.filter((currentDomain) => currentDomain !== domain);
             return state
               .setIn(['orgs', organizationId, 'emails'], updatedDomains)
               .setIn([REMOVE_DOMAIN_FROM_ORG, 'requestState'], RequestStates.SUCCESS);
