@@ -11,8 +11,10 @@ import type { SequenceAction } from 'redux-reqseq';
 import { RESET_REQUEST_STATE } from '../../core/redux/ReduxActions';
 import {
   GET_ORGANIZATION_DETAILS,
+  GET_ORGS_AND_PERMISSIONS,
   SEARCH_MEMBERS_TO_ADD_TO_ORG,
   getOrganizationDetails,
+  getOrgsAndPermissions,
   searchMembersToAddToOrg,
 } from './OrgsActions';
 
@@ -27,7 +29,6 @@ const {
   CREATE_ROLE,
   DELETE_ORGANIZATION,
   DELETE_ROLE,
-  GET_ALL_ORGANIZATIONS,
   REMOVE_DOMAIN_FROM_ORG,
   REMOVE_MEMBER_FROM_ORG,
   addDomainToOrganization,
@@ -35,7 +36,6 @@ const {
   createRole,
   deleteOrganization,
   deleteRole,
-  getAllOrganizations,
   removeDomainFromOrganization,
   removeMemberFromOrganization,
 } = OrganizationsApiActions;
@@ -53,7 +53,7 @@ const INITIAL_STATE :Map<*, *> = fromJS({
   [DELETE_ROLE]: {
     requestState: RequestStates.STANDBY,
   },
-  [GET_ALL_ORGANIZATIONS]: {
+  [GET_ORGS_AND_PERMISSIONS]: {
     requestState: RequestStates.STANDBY,
   },
   [GET_ORGANIZATION_DETAILS]: {
@@ -70,6 +70,7 @@ const INITIAL_STATE :Map<*, *> = fromJS({
   },
   memberSearchResults: Map(),
   orgs: Map(),
+  orgPermissions: Map(),
 });
 
 export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Object) {
@@ -204,18 +205,13 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
       });
     }
 
-    case getAllOrganizations.case(action.type): {
+    case getOrgsAndPermissions.case(action.type): {
       const seqAction :SequenceAction = action;
-      return getAllOrganizations.reducer(state, action, {
+      return getOrgsAndPermissions.reducer(state, action, {
         REQUEST: () => state
-          .setIn([GET_ALL_ORGANIZATIONS, 'requestState'], RequestStates.PENDING)
-          .setIn([GET_ALL_ORGANIZATIONS, seqAction.id], seqAction),
+          .setIn([GET_ORGS_AND_PERMISSIONS, 'requestState'], RequestStates.PENDING)
+          .setIn([GET_ORGS_AND_PERMISSIONS, seqAction.id], seqAction),
         SUCCESS: () => {
-
-          const orgs :List = fromJS(seqAction.value);
-          const orgsMap :Map = Map().withMutations((map :Map) => {
-            orgs.forEach((org :Map) => map.set(org.get('id'), org));
-          });
 
           // NOTE: this logic will need to be implemented at some point, keeping it around for future reference
           /*
@@ -247,13 +243,15 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
           // }
 
           return state
-            .set('orgs', orgsMap)
-            .setIn([GET_ALL_ORGANIZATIONS, 'requestState'], RequestStates.SUCCESS);
+            .set('orgs', seqAction.value.orgsMap)
+            .set('orgPermissions', seqAction.value.orgPermissionsMap)
+            .setIn([GET_ORGS_AND_PERMISSIONS, 'requestState'], RequestStates.SUCCESS);
         },
         FAILURE: () => state
           .set('orgs', Map())
-          .setIn([GET_ALL_ORGANIZATIONS, 'requestState'], RequestStates.FAILURE),
-        FINALLY: () => state.deleteIn([GET_ALL_ORGANIZATIONS, seqAction.id]),
+          .set('orgPermissions', Map())
+          .setIn([GET_ORGS_AND_PERMISSIONS, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([GET_ORGS_AND_PERMISSIONS, seqAction.id]),
       });
     }
 
