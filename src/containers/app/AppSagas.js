@@ -22,7 +22,7 @@ function* initializeApplicationWorker(action :SequenceAction) :Generator<*, *, *
 
   try {
     yield put(initializeApplication.request(action.id));
-    // yield call(getOrgsAndPermissionsWorker, getOrgsAndPermissions());
+    yield call(getOrgsAndPermissionsWorker, getOrgsAndPermissions());
     yield put(initializeApplication.success(action.id));
   }
   catch (error) {
