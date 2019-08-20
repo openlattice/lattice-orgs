@@ -475,19 +475,8 @@ class OrgContainer extends Component<Props, State> {
           <OrgDescription>{org.get('description')}</OrgDescription>
         </CardSegment>
         {this.renderIntegrationSegment()}
-        <CardSegment noBleed>
-          <SectionGrid columns={2}>
-            {this.renderDomainsSection()}
-            {this.renderTrustedOrgsSection()}
-          </SectionGrid>
-        </CardSegment>
-        <CardSegment noBleed vertical>
-          <SectionGrid columns={2}>
-            {this.renderRolesSection()}
-            {this.renderMembersSection()}
-          </SectionGrid>
-          <DeleteOrgModal org={org} />
-        </CardSegment>
+        {this.renderDomainsAndTrustedOrgsSegment()}
+        {this.renderRolesAndMembersSegment()}
       </Card>
     );
   }
@@ -524,6 +513,15 @@ class OrgContainer extends Component<Props, State> {
       </CardSegment>
     );
   }
+
+  renderDomainsAndTrustedOrgsSegment = () => (
+    <CardSegment noBleed>
+      <SectionGrid columns={2}>
+        {this.renderDomainsSection()}
+        {this.renderTrustedOrgsSection()}
+      </SectionGrid>
+    </CardSegment>
+  )
 
   renderDomainsSection = () => {
 
@@ -576,6 +574,21 @@ class OrgContainer extends Component<Props, State> {
           <i>No trusted organizations</i>
         </div>
       </SectionGrid>
+    );
+  }
+
+  renderRolesAndMembersSegment = () => {
+
+    const { org } = this.props;
+
+    return (
+      <CardSegment noBleed vertical>
+        <SectionGrid columns={2}>
+          {this.renderRolesSection()}
+          {this.renderMembersSection()}
+        </SectionGrid>
+        <DeleteOrgModal org={org} />
+      </CardSegment>
     );
   }
 
