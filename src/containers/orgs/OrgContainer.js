@@ -469,31 +469,12 @@ class OrgContainer extends Component<Props, State> {
 
     const { org } = this.props;
 
-    const orgIdClean = org.get('id').replace(/-/g, '');
-
     return (
       <Card>
         <CardSegment noBleed>
           <OrgDescription>{org.get('description')}</OrgDescription>
         </CardSegment>
-        <CardSegment noBleed vertical>
-          <SectionGrid>
-            <h2>Integration Account Details</h2>
-            <h5>JDBC URL</h5>
-            <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
-            <h5>USER</h5>
-            <pre>{org.getIn(['integration', 'user'], '')}</pre>
-            <h5>CREDENTIAL</h5>
-          </SectionGrid>
-          <SectionGrid columns={2}>
-            <InputWithButtonWrapper>
-              <Input disabled type="password" value="********************************" />
-              <Button onClick={this.handleOnClickCopyCredential}>
-                <FontAwesomeIcon icon={faCopy} />
-              </Button>
-            </InputWithButtonWrapper>
-          </SectionGrid>
-        </CardSegment>
+        {this.renderIntegrationSegment()}
         <CardSegment noBleed>
           <SectionGrid columns={2}>
             {this.renderDomainsSection()}
@@ -508,6 +489,39 @@ class OrgContainer extends Component<Props, State> {
           <DeleteOrgModal org={org} />
         </CardSegment>
       </Card>
+    );
+  }
+
+  renderIntegrationSegment = () => {
+
+    const { org } = this.props;
+
+    const integration :Map = org.get('integration', Map());
+    if (integration.isEmpty()) {
+      return null;
+    }
+
+    const orgIdClean = org.get('id').replace(/-/g, '');
+
+    return (
+      <CardSegment noBleed vertical>
+        <SectionGrid>
+          <h2>Integration Account Details</h2>
+          <h5>JDBC URL</h5>
+          <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
+          <h5>USER</h5>
+          <pre>{org.getIn(['integration', 'user'], '')}</pre>
+          <h5>CREDENTIAL</h5>
+        </SectionGrid>
+        <SectionGrid columns={2}>
+          <InputWithButtonWrapper>
+            <Input disabled type="password" value="********************************" />
+            <Button onClick={this.handleOnClickCopyCredential}>
+              <FontAwesomeIcon icon={faCopy} />
+            </Button>
+          </InputWithButtonWrapper>
+        </SectionGrid>
+      </CardSegment>
     );
   }
 
