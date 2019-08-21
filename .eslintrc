@@ -142,6 +142,8 @@
         "forbidDefaultForRequired": false,
       }
     ],
-    "react/sort-comp": "off"
+    "react/sort-comp": "off",
+    "react/state-in-constructor": ["warn", "always"],
+    "react/static-property-placement": ["error", "static public field"]
   }
 }

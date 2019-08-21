@@ -53,7 +53,10 @@ const {
   RoleBuilder,
 } = Models;
 
-const { PrincipalTypes } = Types;
+const {
+  PermissionTypes,
+  PrincipalTypes,
+} = Types;
 
 const {
   ADD_DOMAIN_TO_ORG,
@@ -100,6 +103,7 @@ const InputWithButtonWrapper = styled.div`
 const CompactCardSegment = styled(CardSegment)`
   align-items: center;
   justify-content: space-between;
+  min-height: 48px;
   padding: 3px 3px 3px 10px;
 
   > span {
@@ -111,6 +115,7 @@ const CompactCardSegment = styled(CardSegment)`
 
 const SectionGrid = styled.section`
   display: grid;
+  flex: 1;
   grid-auto-rows: min-content;
   grid-column-gap: 30px;
   grid-template-columns: repeat(${({ columns }) => columns}, 1fr);
@@ -214,13 +219,16 @@ type Props = {
     resetRequestState :(actionType :string) => void;
     searchMembersToAddToOrg :RequestSequence;
   };
+  isOwner :boolean;
   memberSearchResults :Map;
   org :Map;
   orgId :UUID;
   requestStates :{
+    ADD_DOMAIN_TO_ORG :RequestState;
     ADD_MEMBER_TO_ORG :RequestState;
-    GET_ORGANIZATION_DETAILS :RequestState;
     DELETE_ORGANIZATION :RequestState;
+    GET_ORGANIZATION_DETAILS :RequestState;
+    REMOVE_DOMAIN_FROM_ORG :RequestState;
     SEARCH_MEMBERS_TO_ADD_TO_ORG :RequestState;
   };
 };
@@ -298,14 +306,16 @@ class OrgContainer extends Component<Props, State> {
 
   handleOnClickCopyCredential = () => {
 
-    const { org } = this.props;
+    const { isOwner, org } = this.props;
 
-    // TODO: consider using https://github.com/zenorocha/clipboard.js
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(org.getIn(['integration', 'credential'], ''));
-    }
-    else {
-      LOG.error('cannot copy credentialm,navigator.clipboard is not available');
+    if (isOwner) {
+      // TODO: consider using https://github.com/zenorocha/clipboard.js
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(org.getIn(['integration', 'credential'], ''));
+      }
+      else {
+        LOG.error('cannot copy credential, navigator.clipboard is not available');
+      }
     }
   }
 
@@ -315,42 +325,50 @@ class OrgContainer extends Component<Props, State> {
 
   handleOnChangeDomain = (event :SyntheticInputEvent<HTMLInputElement>) => {
 
-    const domain :string = event.target.value || '';
+    const { isOwner } = this.props;
 
-    // always set isValidDomain to true when typing
-    this.setState({ domain, isValidDomain: true });
+    if (isOwner) {
+      const domain :string = event.target.value || '';
+      // always set isValidDomain to true when typing
+      this.setState({ domain, isValidDomain: true });
+    }
   }
 
   handleOnClickAddDomain = () => {
 
-    const { actions, org } = this.props;
+    const { actions, isOwner, org } = this.props;
     const { domain } = this.state;
 
-    if (!isNonEmptyString(domain)) {
-      // set to false only when the button was clicked
-      this.setState({ isValidDomain: false });
-      return;
-    }
+    if (isOwner) {
+      if (!isNonEmptyString(domain)) {
+        // set to false only when the button was clicked
+        this.setState({ isValidDomain: false });
+        return;
+      }
 
-    const isValidDomain :boolean = isValidEmailDomain(domain);
-    const isNewDomain :boolean = !org.get('emails', List()).includes(domain);
+      const isValidDomain :boolean = isValidEmailDomain(domain);
+      const isNewDomain :boolean = !org.get('emails', List()).includes(domain);
 
-    if (isValidDomain && isNewDomain) {
-      actions.addDomainToOrganization({ domain, organizationId: org.get('id') });
-    }
-    else {
-      // set to false only when the button was clicked
-      this.setState({ isValidDomain: false });
+      if (isValidDomain && isNewDomain) {
+        actions.addDomainToOrganization({ domain, organizationId: org.get('id') });
+      }
+      else {
+        // set to false only when the button was clicked
+        this.setState({ isValidDomain: false });
+      }
     }
   }
 
   handleOnClickRemoveDomain = (domain :string) => {
 
-    const { actions, org } = this.props;
-    actions.removeDomainFromOrganization({
-      domain,
-      organizationId: org.get('id'),
-    });
+    const { actions, isOwner, org } = this.props;
+
+    if (isOwner) {
+      actions.removeDomainFromOrganization({
+        domain,
+        organizationId: org.get('id'),
+      });
+    }
   }
 
   /*
@@ -359,42 +377,54 @@ class OrgContainer extends Component<Props, State> {
 
   handleOnChangeMemberSearch = (event :SyntheticInputEvent<HTMLInputElement>) => {
 
-    const { actions, org } = this.props;
+    const { actions, isOwner, org } = this.props;
     const memberSearchQuery = event.target.value || '';
-    actions.searchMembersToAddToOrg({
-      organizationId: org.get('id'),
-      query: memberSearchQuery,
-    });
-    this.setState({ memberSearchQuery });
+
+    if (isOwner) {
+      actions.searchMembersToAddToOrg({
+        organizationId: org.get('id'),
+        query: memberSearchQuery,
+      });
+      this.setState({ memberSearchQuery });
+    }
   }
 
   handleOnClickAddMember = (memberId :string) => {
 
-    const { actions, org } = this.props;
-    actions.addMemberToOrganization({
-      memberId,
-      organizationId: org.get('id'),
-    });
+    const { actions, isOwner, org } = this.props;
+
+    if (isOwner) {
+      actions.addMemberToOrganization({
+        memberId,
+        organizationId: org.get('id'),
+      });
+    }
   }
 
   handleOnClickMemberSearch = () => {
 
-    const { actions, org } = this.props;
+    const { actions, isOwner, org } = this.props;
     const { memberSearchQuery } = this.state;
-    actions.searchMembersToAddToOrg({
-      organizationId: org.get('id'),
-      query: memberSearchQuery,
-    });
-    this.setState({ memberSearchQuery });
+
+    if (isOwner) {
+      actions.searchMembersToAddToOrg({
+        organizationId: org.get('id'),
+        query: memberSearchQuery,
+      });
+      this.setState({ memberSearchQuery });
+    }
   }
 
   handleOnClickRemoveMember = (memberId :string) => {
 
-    const { actions, org } = this.props;
-    actions.removeMemberFromOrganization({
-      memberId,
-      organizationId: org.get('id'),
-    });
+    const { actions, isOwner, org } = this.props;
+
+    if (isOwner) {
+      actions.removeMemberFromOrganization({
+        memberId,
+        organizationId: org.get('id'),
+      });
+    }
   }
 
   /*
@@ -403,54 +433,62 @@ class OrgContainer extends Component<Props, State> {
 
   handleOnChangeRole = (event :SyntheticInputEvent<HTMLInputElement>) => {
 
+    const { isOwner } = this.props;
     const roleTitle :string = event.target.value || '';
 
-    // always set isValidRole to true when typing
-    this.setState({ roleTitle, isValidRole: true });
+    if (isOwner) {
+      // always set isValidRole to true when typing
+      this.setState({ roleTitle, isValidRole: true });
+    }
   }
 
   handleOnClickAddRole = () => {
 
-    const { actions, org } = this.props;
+    const { actions, isOwner, org } = this.props;
     const { roleTitle } = this.state;
 
-    if (!isNonEmptyString(roleTitle)) {
-      // set to false only when the button was clicked
-      this.setState({ isValidRole: false });
-      return;
-    }
+    if (isOwner) {
+      if (!isNonEmptyString(roleTitle)) {
+        // set to false only when the button was clicked
+        this.setState({ isValidRole: false });
+        return;
+      }
 
-    const principal :Principal = (new PrincipalBuilder())
-      .setType(PrincipalTypes.ROLE)
-      .setId(`${org.get('id')}|${roleTitle.replace(/\W/g, '')}`)
-      .build();
+      const principal :Principal = (new PrincipalBuilder())
+        .setType(PrincipalTypes.ROLE)
+        .setId(`${org.get('id')}|${roleTitle.replace(/\W/g, '')}`)
+        .build();
 
-    const newRole :Role = (new RoleBuilder())
-      .setOrganizationId(org.get('id'))
-      .setPrincipal(principal)
-      .setTitle(roleTitle)
-      .build();
+      const newRole :Role = (new RoleBuilder())
+        .setOrganizationId(org.get('id'))
+        .setPrincipal(principal)
+        .setTitle(roleTitle)
+        .build();
 
-    const isNewRole :boolean = org.get('roles', List())
-      .filter((role :Map) => role.getIn(['principal', 'id']) === newRole.principal.id)
-      .isEmpty();
+      const isNewRole :boolean = org.get('roles', List())
+        .filter((role :Map) => role.getIn(['principal', 'id']) === newRole.principal.id)
+        .isEmpty();
 
-    if (isNewRole) {
-      actions.createRole(newRole);
-    }
-    else {
-      // set isValidDomain to false only when the button was clicked
-      this.setState({ isValidRole: false });
+      if (isNewRole) {
+        actions.createRole(newRole);
+      }
+      else {
+        // set isValidDomain to false only when the button was clicked
+        this.setState({ isValidRole: false });
+      }
     }
   }
 
   handleOnClickRemoveRole = (role :Map) => {
 
-    const { actions, org } = this.props;
-    actions.deleteRole({
-      organizationId: org.get('id'),
-      roleId: role.get('id'),
-    });
+    const { actions, isOwner, org } = this.props;
+
+    if (isOwner) {
+      actions.deleteRole({
+        organizationId: org.get('id'),
+        roleId: role.get('id'),
+      });
+    }
   }
 
   renderAddButton = (onClick :Function) => (
@@ -469,74 +507,101 @@ class OrgContainer extends Component<Props, State> {
 
     const { org } = this.props;
 
-    const orgIdClean = org.get('id').replace(/-/g, '');
-
     return (
       <Card>
         <CardSegment noBleed>
           <OrgDescription>{org.get('description')}</OrgDescription>
         </CardSegment>
-        <CardSegment noBleed vertical>
-          <SectionGrid>
-            <h2>Integration Account Details</h2>
-            <h5>JDBC URL</h5>
-            <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
-            <h5>USER</h5>
-            <pre>{org.getIn(['integration', 'user'], '')}</pre>
-            <h5>CREDENTIAL</h5>
-          </SectionGrid>
-          <SectionGrid columns={2}>
-            <InputWithButtonWrapper>
-              <Input disabled type="password" value="********************************" />
-              <Button onClick={this.handleOnClickCopyCredential}>
-                <FontAwesomeIcon icon={faCopy} />
-              </Button>
-            </InputWithButtonWrapper>
-          </SectionGrid>
-        </CardSegment>
-        <CardSegment noBleed>
-          <SectionGrid columns={2}>
-            {this.renderDomainsSection()}
-            {this.renderTrustedOrgsSection()}
-          </SectionGrid>
-        </CardSegment>
-        <CardSegment noBleed vertical>
-          <SectionGrid columns={2}>
-            {this.renderRolesSection()}
-            {this.renderMembersSection()}
-          </SectionGrid>
-          <DeleteOrgModal org={org} />
-        </CardSegment>
+        {this.renderIntegrationSegment()}
+        {this.renderDomainsAndTrustedOrgsSegment()}
+        {this.renderRolesAndMembersSegment()}
       </Card>
     );
   }
 
+  renderIntegrationSegment = () => {
+
+    const { isOwner, org } = this.props;
+    if (!isOwner) {
+      return null;
+    }
+
+    const integration :Map = org.get('integration', Map());
+    if (integration.isEmpty()) {
+      return null;
+    }
+
+    const orgIdClean = org.get('id').replace(/-/g, '');
+
+    return (
+      <CardSegment noBleed vertical>
+        <SectionGrid>
+          <h2>Integration Account Details</h2>
+          <h5>JDBC URL</h5>
+          <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
+          <h5>USER</h5>
+          <pre>{org.getIn(['integration', 'user'], '')}</pre>
+          <h5>CREDENTIAL</h5>
+        </SectionGrid>
+        <SectionGrid columns={2}>
+          <InputWithButtonWrapper>
+            <Input disabled type="password" value="********************************" />
+            <Button onClick={this.handleOnClickCopyCredential}>
+              <FontAwesomeIcon icon={faCopy} />
+            </Button>
+          </InputWithButtonWrapper>
+        </SectionGrid>
+      </CardSegment>
+    );
+  }
+
+  renderDomainsAndTrustedOrgsSegment = () => (
+    <CardSegment noBleed>
+      <SectionGrid columns={2}>
+        {this.renderDomainsSection()}
+        {this.renderTrustedOrgsSection()}
+      </SectionGrid>
+    </CardSegment>
+  )
+
   renderDomainsSection = () => {
 
-    const { org } = this.props;
+    const { isOwner, org } = this.props;
     const { isValidDomain } = this.state;
 
     const domains = org.get('emails', List());
     const domainCardSegments = domains.map((emailDomain :string) => (
       <CompactCardSegment key={emailDomain}>
         <span>{emailDomain}</span>
-        {this.renderRemoveButton(() => {
-          this.handleOnClickRemoveDomain(emailDomain);
-        })}
+        {
+          isOwner && (
+            this.renderRemoveButton(() => {
+              this.handleOnClickRemoveDomain(emailDomain);
+            })
+          )
+        }
       </CompactCardSegment>
     ));
 
     return (
       <SectionGrid>
         <h2>Domains</h2>
-        <h4>{DOMAINS_SUB_TITLE}</h4>
-        <InputWithButtonWrapper>
-          <Input
-              invalid={!isValidDomain}
-              placeholder="Add a new domain"
-              onChange={this.handleOnChangeDomain} />
-          {this.renderAddButton(this.handleOnClickAddDomain)}
-        </InputWithButtonWrapper>
+        {
+          isOwner && (
+            <h4>{DOMAINS_SUB_TITLE}</h4>
+          )
+        }
+        {
+          isOwner && (
+            <InputWithButtonWrapper>
+              <Input
+                  invalid={!isValidDomain}
+                  placeholder="Add a new domain"
+                  onChange={this.handleOnChangeDomain} />
+              {this.renderAddButton(this.handleOnClickAddDomain)}
+            </InputWithButtonWrapper>
+          )
+        }
         <div>
           {
             domainCardSegments.isEmpty()
@@ -554,10 +619,16 @@ class OrgContainer extends Component<Props, State> {
 
   renderTrustedOrgsSection = () => {
 
+    const { isOwner } = this.props;
+
     return (
       <SectionGrid>
         <h2>Trusted Organizations</h2>
-        <h4>{TRUSTED_ORGS_SUB_TITLE}</h4>
+        {
+          isOwner && (
+            <h4>{TRUSTED_ORGS_SUB_TITLE}</h4>
+          )
+        }
         <div>
           <i>No trusted organizations</i>
         </div>
@@ -565,32 +636,63 @@ class OrgContainer extends Component<Props, State> {
     );
   }
 
+  renderRolesAndMembersSegment = () => {
+
+    const { isOwner, org } = this.props;
+
+    return (
+      <CardSegment noBleed vertical>
+        <SectionGrid columns={2}>
+          {this.renderRolesSection()}
+          {this.renderMembersSection()}
+        </SectionGrid>
+        {
+          isOwner && (
+            <DeleteOrgModal org={org} />
+          )
+        }
+      </CardSegment>
+    );
+  }
+
   renderRolesSection = () => {
 
-    const { org } = this.props;
+    const { isOwner, org } = this.props;
     const { isValidRole } = this.state;
 
     const roles = org.get('roles', List());
     const roleCardSegments = roles.map((role :Map) => (
       <CompactCardSegment key={role.get('id')}>
         <span>{role.get('title')}</span>
-        {this.renderRemoveButton(() => {
-          this.handleOnClickRemoveRole(role);
-        })}
+        {
+          isOwner && (
+            this.renderRemoveButton(() => {
+              this.handleOnClickRemoveRole(role);
+            })
+          )
+        }
       </CompactCardSegment>
     ));
 
     return (
       <SectionGrid>
         <h2>Roles</h2>
-        <h4>{ROLES_SUB_TITLE}</h4>
-        <InputWithButtonWrapper>
-          <Input
-              invalid={!isValidRole}
-              onChange={this.handleOnChangeRole}
-              placeholder="Add a new role" />
-          {this.renderAddButton(this.handleOnClickAddRole)}
-        </InputWithButtonWrapper>
+        {
+          isOwner && (
+            <h4>{ROLES_SUB_TITLE}</h4>
+          )
+        }
+        {
+          isOwner && (
+            <InputWithButtonWrapper>
+              <Input
+                  invalid={!isValidRole}
+                  onChange={this.handleOnChangeRole}
+                  placeholder="Add a new role" />
+              {this.renderAddButton(this.handleOnClickAddRole)}
+            </InputWithButtonWrapper>
+          )
+        }
         <div>
           {
             roleCardSegments.isEmpty()
@@ -608,7 +710,12 @@ class OrgContainer extends Component<Props, State> {
 
   renderMembersSection = () => {
 
-    const { org, memberSearchResults, requestStates } = this.props;
+    const {
+      isOwner,
+      org,
+      memberSearchResults,
+      requestStates,
+    } = this.props;
     const { memberSearchQuery } = this.state;
 
     const members = org.get('members', List());
@@ -617,9 +724,13 @@ class OrgContainer extends Component<Props, State> {
       return (
         <CompactCardSegment key={memberId}>
           <span>{getUserProfileLabel(member)}</span>
-          {this.renderRemoveButton(() => {
-            this.handleOnClickRemoveMember(memberId);
-          })}
+          {
+            isOwner && (
+              this.renderRemoveButton(() => {
+                this.handleOnClickRemoveMember(memberId);
+              })
+            )
+          }
         </CompactCardSegment>
       );
     });
@@ -639,17 +750,25 @@ class OrgContainer extends Component<Props, State> {
     return (
       <SectionGrid>
         <h2>Members</h2>
-        <h4>{MEMBERS_SUB_TITLE}</h4>
-        <InputWithButtonWrapper>
-          <SearchInput
-              onChange={this.handleOnChangeMemberSearch}
-              placeholder="Search for a member to add" />
-          <Button isLoading={shouldShowSpinner} onClick={this.handleOnClickMemberSearch}>
-            <FontAwesomeIcon icon={faSearch} />
-          </Button>
-        </InputWithButtonWrapper>
         {
-          isNonEmptyString(memberSearchQuery) && !searchResultCardSegments.isEmpty() && (
+          isOwner && (
+            <h4>{MEMBERS_SUB_TITLE}</h4>
+          )
+        }
+        {
+          isOwner && (
+            <InputWithButtonWrapper>
+              <SearchInput
+                  onChange={this.handleOnChangeMemberSearch}
+                  placeholder="Search for a member to add" />
+              <Button isLoading={shouldShowSpinner} onClick={this.handleOnClickMemberSearch}>
+                <FontAwesomeIcon icon={faSearch} />
+              </Button>
+            </InputWithButtonWrapper>
+          )
+        }
+        {
+          isOwner && isNonEmptyString(memberSearchQuery) && !searchResultCardSegments.isEmpty() && (
             <div>
               <Card>{searchResultCardSegments}</Card>
             </div>
@@ -732,6 +851,7 @@ const mapStateToProps = (state :Map<*, *>, props) => {
 
   return {
     orgId,
+    isOwner: state.getIn(['orgs', 'orgPermissions', orgId, PermissionTypes.OWNER], false),
     memberSearchResults: state.getIn(['orgs', 'memberSearchResults'], Map()),
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
     requestStates: {
