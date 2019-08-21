@@ -151,7 +151,7 @@ class OrgsContainer extends Component<Props> {
       );
     }
 
-    if (requestStates[GET_ALL_ORGANIZATIONS] === RequestStates.FAILURE) {
+    if (requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.FAILURE) {
       return (
         <Error>
           Sorry, something went wrong. Please try refreshing the page, or contact support.
@@ -159,7 +159,7 @@ class OrgsContainer extends Component<Props> {
       );
     }
 
-    const orgCards = orgs.valueSeq().map(org => this.renderOrgCard(org));
+    const orgCards = orgs.valueSeq().map((org) => this.renderOrgCard(org));
 
     return (
       <>
