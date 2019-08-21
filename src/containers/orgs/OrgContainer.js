@@ -115,6 +115,7 @@ const CompactCardSegment = styled(CardSegment)`
 
 const SectionGrid = styled.section`
   display: grid;
+  flex: 1;
   grid-auto-rows: min-content;
   grid-column-gap: 30px;
   grid-template-columns: repeat(${({ columns }) => columns}, 1fr);
@@ -637,7 +638,7 @@ class OrgContainer extends Component<Props, State> {
 
   renderRolesAndMembersSegment = () => {
 
-    const { org } = this.props;
+    const { isOwner, org } = this.props;
 
     return (
       <CardSegment noBleed vertical>
@@ -645,7 +646,11 @@ class OrgContainer extends Component<Props, State> {
           {this.renderRolesSection()}
           {this.renderMembersSection()}
         </SectionGrid>
-        <DeleteOrgModal org={org} />
+        {
+          isOwner && (
+            <DeleteOrgModal org={org} />
+          )
+        }
       </CardSegment>
     );
   }
