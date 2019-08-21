@@ -45,6 +45,7 @@ export default function* sagas() :Generator<*, *, *> {
 
     // OrgsSagas
     fork(OrgsSagas.getOrganizationDetailsWatcher),
+    fork(OrgsSagas.getOrgsAndPermissionsWatcher),
     fork(OrgsSagas.searchMembersToAddToOrgWatcher),
 
     // RoutingSagas

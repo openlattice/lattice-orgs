@@ -8,7 +8,6 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/pro-solid-svg-icons';
 import { List, Map } from 'immutable';
-import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   Card,
   CardHeader,
@@ -21,6 +20,7 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
+import * as OrgsActions from './OrgsActions';
 import * as Routes from '../../core/router/Routes';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
@@ -29,7 +29,7 @@ import type { GoToRoute } from '../../core/router/RoutingActions';
 // const LOG = new Logger('OrgsContainer');
 
 const { NEUTRALS } = Colors;
-const { GET_ALL_ORGANIZATIONS } = OrganizationsApiActions;
+const { GET_ORGS_AND_PERMISSIONS } = OrgsActions;
 
 const Title = styled.h1`
   font-size: 28px;
@@ -80,13 +80,13 @@ const OrgDescription = styled.p`
 
 type Props = {
   actions :{
-    getAllOrganizations :RequestSequence;
+    getOrgsAndPermissions :RequestSequence;
     goToRoute :GoToRoute;
     resetRequestState :(actionType :string) => void;
   };
   orgs :Map;
   requestStates :{
-    GET_ALL_ORGANIZATIONS :RequestState;
+    GET_ORGS_AND_PERMISSIONS :RequestState;
   };
 };
 
@@ -94,22 +94,22 @@ class OrgsContainer extends Component<Props> {
 
   componentDidMount() {
     const { actions } = this.props;
-    actions.getAllOrganizations();
+    actions.getOrgsAndPermissions();
   }
 
   componentDidUpdate(props :Props) {
 
     const { actions, requestStates } = this.props;
-    if (requestStates[GET_ALL_ORGANIZATIONS] === RequestStates.SUCCESS
-        && props.requestStates[GET_ALL_ORGANIZATIONS] === RequestStates.PENDING) {
-      actions.resetRequestState(OrganizationsApiActions.GET_ALL_ORGANIZATIONS);
+    if (requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.SUCCESS
+        && props.requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.PENDING) {
+      actions.resetRequestState(OrgsActions.GET_ORGS_AND_PERMISSIONS);
     }
   }
 
   componentWillUnmount() {
 
     const { actions } = this.props;
-    actions.resetRequestState(OrganizationsApiActions.GET_ALL_ORGANIZATIONS);
+    actions.resetRequestState(OrgsActions.GET_ORGS_AND_PERMISSIONS);
   }
 
   goToOrg = (org :Map) => {
@@ -141,7 +141,7 @@ class OrgsContainer extends Component<Props> {
 
     const { orgs, requestStates } = this.props;
 
-    if (requestStates[GET_ALL_ORGANIZATIONS] === RequestStates.PENDING) {
+    if (requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.PENDING) {
       return (
         <Spinner size="2x" />
       );
@@ -161,13 +161,13 @@ class OrgsContainer extends Component<Props> {
 const mapStateToProps = (state :Map<*, *>) => ({
   orgs: state.getIn(['orgs', 'orgs']),
   requestStates: {
-    [GET_ALL_ORGANIZATIONS]: state.getIn(['orgs', GET_ALL_ORGANIZATIONS, 'requestState']),
+    [GET_ORGS_AND_PERMISSIONS]: state.getIn(['orgs', GET_ORGS_AND_PERMISSIONS, 'requestState']),
   }
 });
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
-    getAllOrganizations: OrganizationsApiActions.getAllOrganizations,
+    getOrgsAndPermissions: OrgsActions.getOrgsAndPermissions,
     goToRoute: RoutingActions.goToRoute,
     resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)

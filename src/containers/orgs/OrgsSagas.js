@@ -10,8 +10,11 @@ import {
   takeEvery,
   takeLatest,
 } from '@redux-saga/core/effects';
-import { List, fromJS } from 'immutable';
+import { List, Map, fromJS } from 'immutable';
+import { Models, Types } from 'lattice';
 import {
+  AuthorizationsApiActions,
+  AuthorizationsApiSagas,
   OrganizationsApiActions,
   OrganizationsApiSagas,
   PrincipalsApiActions,
@@ -23,25 +26,93 @@ import Logger from '../../utils/Logger';
 import { isValidUUID } from '../../utils/ValidationUtils';
 import {
   GET_ORGANIZATION_DETAILS,
+  GET_ORGS_AND_PERMISSIONS,
   SEARCH_MEMBERS_TO_ADD_TO_ORG,
   getOrganizationDetails,
+  getOrgsAndPermissions,
   searchMembersToAddToOrg,
 } from './OrgsActions';
 
 const LOG = new Logger('OrgsSagas');
 
+const { AccessCheck, AccessCheckBuilder } = Models;
+const { PermissionTypes } = Types;
+
+const { getAuthorizations } = AuthorizationsApiActions;
+const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 const {
+  getAllOrganizations,
   getOrganization,
   getOrganizationIntegrationAccount,
   getOrganizationMembers,
 } = OrganizationsApiActions;
 const {
+  getAllOrganizationsWorker,
   getOrganizationWorker,
   getOrganizationIntegrationAccountWorker,
   getOrganizationMembersWorker,
 } = OrganizationsApiSagas;
 const { searchAllUsers } = PrincipalsApiActions;
 const { searchAllUsersWorker } = PrincipalsApiSagas;
+
+/*
+ *
+ * OrgsActions.getOrgsAndPermissions
+ *
+ */
+
+function* getOrgsAndPermissionsWorker(action :SequenceAction) :Generator<*, *, *> {
+
+  try {
+    yield put(getOrgsAndPermissions.request(action.id, action.value));
+
+    let response = yield call(getAllOrganizationsWorker, getAllOrganizations());
+    if (response.error) throw response.error;
+
+    const orgs :List = fromJS(response.data);
+    const orgsMap :Map = Map().withMutations((map :Map) => {
+      orgs.forEach((org :Map) => map.set(org.get('id'), org));
+    });
+    const accessChecks :AccessCheck[] = orgs.map((org :Map) => (
+      (new AccessCheckBuilder())
+        .setAclKey([org.get('id')])
+        .setPermissions([PermissionTypes.OWNER])
+        .build()
+    )).toJS();
+
+    response = yield call(getAuthorizationsWorker, getAuthorizations(accessChecks));
+    if (response.error) throw response.error;
+
+    const authorizations :List = fromJS(response.data);
+    const orgPermissionsMap :Map = Map().withMutations((map :Map) => {
+      authorizations.forEach((authorization :Map) => {
+        map.set(
+          authorization.getIn(['aclKey', 0], ''),
+          authorization.get('permissions', Map()),
+        );
+      });
+    });
+
+    if (orgsMap.count() !== orgPermissionsMap.count()) {
+      throw new Error('organizations and permissions size mismatch');
+    }
+
+    yield put(getOrgsAndPermissions.success(action.id, { orgsMap, orgPermissionsMap }));
+  }
+  catch (error) {
+    LOG.error('getOrgsAndPermissionsWorker()', error);
+    yield put(getOrgsAndPermissions.failure(action.id));
+  }
+  finally {
+    yield put(getOrgsAndPermissions.finally(action.id));
+  }
+}
+
+function* getOrgsAndPermissionsWatcher() :Generator<*, *, *> {
+
+  yield takeEvery(GET_ORGS_AND_PERMISSIONS, getOrgsAndPermissionsWorker);
+}
+
 
 /*
  *
@@ -65,12 +136,13 @@ function* getOrganizationDetailsWorker(action :SequenceAction) :Generator<*, *, 
       call(getOrganizationMembersWorker, getOrganizationMembers(organizationId)),
     ]);
 
+    // NOTE: the integration account details request will fail if the user is not an owner of the org, but we should
+    // still render the organization page, just without the integration account details section
     if (orgResponse.error) throw orgResponse.error;
-    if (orgIntegrationResponse.error) throw orgIntegrationResponse.error;
     if (orgMembersResponse.error) throw orgMembersResponse.error;
 
     yield put(getOrganizationDetails.success(action.id, {
-      integration: fromJS(orgIntegrationResponse.data),
+      integration: fromJS(orgIntegrationResponse.data || []),
       members: fromJS(orgMembersResponse.data),
       org: fromJS(orgResponse.data),
     }));
@@ -197,6 +269,8 @@ function* searchMembersToAddToOrgWatcher() :Generator<*, *, *> {
 export {
   getOrganizationDetailsWatcher,
   getOrganizationDetailsWorker,
+  getOrgsAndPermissionsWatcher,
+  getOrgsAndPermissionsWorker,
   searchMembersToAddToOrgWatcher,
   searchMembersToAddToOrgWorker,
 };
