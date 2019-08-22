@@ -262,11 +262,17 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
           .setIn([GET_ORGANIZATION_DETAILS, 'requestState'], RequestStates.PENDING)
           .setIn([GET_ORGANIZATION_DETAILS, seqAction.id], seqAction),
         SUCCESS: () => {
-          const { integration, members, org } = seqAction.value;
+          const {
+            integration,
+            members,
+            org,
+            trustedOrgIds,
+          } = seqAction.value;
           const orgId :UUID = org.get('id');
           const updatedOrg :Map = org
             .set('integration', integration)
-            .set('members', members);
+            .set('members', members)
+            .set('trustedOrgIds', trustedOrgIds);
           return state
             .setIn(['orgs', orgId], updatedOrg)
             .setIn([GET_ORGANIZATION_DETAILS, 'requestState'], RequestStates.SUCCESS);
