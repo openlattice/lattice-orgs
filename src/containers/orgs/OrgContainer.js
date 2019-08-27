@@ -108,6 +108,7 @@ const CompactCardSegment = styled(CardSegment)`
 
   > span {
     overflow: hidden;
+    padding-right: 10px;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -115,10 +116,16 @@ const CompactCardSegment = styled(CardSegment)`
 
 const SectionGrid = styled.section`
   display: grid;
-  flex: 1;
   grid-auto-rows: min-content;
-  grid-column-gap: 30px;
-  grid-template-columns: repeat(${({ columns }) => columns}, 1fr);
+  ${({ columns }) => {
+    if (columns > 0) {
+      return css`
+        grid-column-gap: 30px;
+        grid-template-columns: repeat(${columns}, 1fr);
+      `;
+    }
+    return null;
+  }}
 
   > h2 {
     font-size: 22px;
@@ -142,7 +149,19 @@ const SectionGrid = styled.section`
 
   > div {
     margin: 32px 0 0 0;
-    overflow: hidden;
+    /*
+     * !!! IMPORTANT !!!
+     *
+     * https://www.w3.org/TR/css-flexbox-1/
+     *   | By default, flex items won’t shrink below their minimum content size (the length of the longest word or
+     *   | fixed-size element). To change this, set the min-width or min-height property.
+     *
+     * https://dfmcphee.com/flex-items-and-min-width-0/
+     * https://css-tricks.com/flexbox-truncated-text/
+     *
+     * !!! IMPORTANT !!!
+     */
+    min-width: 0; /* setting min-width fixes the text truncation issue */
   }
 
   i {
