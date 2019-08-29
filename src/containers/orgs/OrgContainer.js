@@ -123,6 +123,7 @@ const SectionItem = styled.div`
 
 const SectionGrid = styled.section`
   display: grid;
+  flex: 1;
   grid-auto-rows: min-content;
   ${({ columns }) => {
     if (columns > 0) {
