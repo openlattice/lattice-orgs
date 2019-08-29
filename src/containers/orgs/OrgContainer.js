@@ -111,6 +111,16 @@ const CompactCardSegment = styled(CardSegment)`
   }
 `;
 
+const SectionItem = styled.div`
+  position: relative;
+  ${({ marginTop }) => {
+    const finalMarginTop = (marginTop >= 0) ? marginTop : 32;
+    return css`
+      margin: ${finalMarginTop}px 0 0 0;
+    `;
+  }}
+`;
+
 const SectionGrid = styled.section`
   display: grid;
   grid-auto-rows: min-content;
@@ -144,10 +154,18 @@ const SectionGrid = styled.section`
     margin: 16px 0 0 0;
   }
 
-  > div {
+  i {
+    color: ${NEUTRALS[1]};
+    font-size: 16px;
+    font-weight: normal;
     margin: 32px 0 0 0;
-    position: relative;
+  }
 
+  pre {
+    margin: 0;
+  }
+
+  ${SectionItem} {
     /*
      * !!! IMPORTANT !!!
      *
@@ -161,17 +179,6 @@ const SectionGrid = styled.section`
      * !!! IMPORTANT !!!
      */
     min-width: 0; /* setting min-width fixes the text truncation issue */
-  }
-
-  i {
-    color: ${NEUTRALS[1]};
-    font-size: 16px;
-    font-weight: normal;
-    margin: 32px 0 0 0;
-  }
-
-  pre {
-    margin: 0;
   }
 `;
 
@@ -680,12 +687,14 @@ class OrgContainer extends Component<Props, State> {
           <h5>CREDENTIAL</h5>
         </SectionGrid>
         <SectionGrid columns={2}>
-          <ActionControlWithButton>
-            <Input disabled type="password" value="********************************" />
-            <Button onClick={this.handleOnClickCopyCredential}>
-              <FontAwesomeIcon icon={faCopy} />
-            </Button>
-          </ActionControlWithButton>
+          <SectionItem marginTop={4}>
+            <ActionControlWithButton>
+              <Input disabled type="password" value="********************************" />
+              <Button onClick={this.handleOnClickCopyCredential}>
+                <FontAwesomeIcon icon={faCopy} />
+              </Button>
+            </ActionControlWithButton>
+          </SectionItem>
         </SectionGrid>
       </CardSegment>
     );
@@ -727,21 +736,23 @@ class OrgContainer extends Component<Props, State> {
         }
         {
           isOwner && (
-            <ActionControlWithButton>
-              <Input
-                  invalid={!isValidDomain}
-                  placeholder="Add a new domain"
-                  onChange={this.handleOnChangeDomain} />
-              {
-                this.renderAddButton(
-                  this.handleOnClickAddDomain,
-                  requestStates[ADD_DOMAIN_TO_ORG] === RequestStates.PENDING
-                )
-              }
-            </ActionControlWithButton>
+            <SectionItem>
+              <ActionControlWithButton>
+                <Input
+                    invalid={!isValidDomain}
+                    placeholder="Add a new domain"
+                    onChange={this.handleOnChangeDomain} />
+                {
+                  this.renderAddButton(
+                    this.handleOnClickAddDomain,
+                    requestStates[ADD_DOMAIN_TO_ORG] === RequestStates.PENDING
+                  )
+                }
+              </ActionControlWithButton>
+            </SectionItem>
           )
         }
-        <div>
+        <SectionItem>
           {
             domainCardSegments.isEmpty()
               ? (
@@ -756,7 +767,7 @@ class OrgContainer extends Component<Props, State> {
               this.renderSpinnerOverlayCard()
             )
           }
-        </div>
+        </SectionItem>
       </SectionGrid>
     );
   }
@@ -803,24 +814,26 @@ class OrgContainer extends Component<Props, State> {
         }
         {
           isOwner && (
-            <SelectControlWithButton>
-              <Select
-                  isClearable
-                  isLoading={requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING}
-                  options={notYetTrustedOrgs}
-                  onChange={this.handleOnChangeTrustedOrg}
-                  placeholder="Select an organization to trust"
-                  value={orgToTrustSelectedOption} />
-              {
-                this.renderAddButton(
-                  this.handleOnClickGrantTrustToOrg,
-                  requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING
-                )
-              }
-            </SelectControlWithButton>
+            <SectionItem>
+              <SelectControlWithButton>
+                <Select
+                    isClearable
+                    isLoading={requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING}
+                    options={notYetTrustedOrgs}
+                    onChange={this.handleOnChangeTrustedOrg}
+                    placeholder="Select an organization to trust"
+                    value={orgToTrustSelectedOption} />
+                {
+                  this.renderAddButton(
+                    this.handleOnClickGrantTrustToOrg,
+                    requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING
+                  )
+                }
+              </SelectControlWithButton>
+            </SectionItem>
           )
         }
-        <div>
+        <SectionItem>
           {
             orgCardSegments.isEmpty()
               ? (
@@ -835,7 +848,7 @@ class OrgContainer extends Component<Props, State> {
               this.renderSpinnerOverlayCard()
             )
           }
-        </div>
+        </SectionItem>
       </SectionGrid>
     );
   }
@@ -886,21 +899,23 @@ class OrgContainer extends Component<Props, State> {
         }
         {
           isOwner && (
-            <ActionControlWithButton>
-              <Input
-                  invalid={!isValidRole}
-                  onChange={this.handleOnChangeRole}
-                  placeholder="Add a new role" />
-              {
-                this.renderAddButton(
-                  this.handleOnClickAddRole,
-                  requestStates[CREATE_ROLE] === RequestStates.PENDING
-                )
-              }
-            </ActionControlWithButton>
+            <SectionItem>
+              <ActionControlWithButton>
+                <Input
+                    invalid={!isValidRole}
+                    onChange={this.handleOnChangeRole}
+                    placeholder="Add a new role" />
+                {
+                  this.renderAddButton(
+                    this.handleOnClickAddRole,
+                    requestStates[CREATE_ROLE] === RequestStates.PENDING
+                  )
+                }
+              </ActionControlWithButton>
+            </SectionItem>
           )
         }
-        <div>
+        <SectionItem>
           {
             roleCardSegments.isEmpty()
               ? (
@@ -915,7 +930,7 @@ class OrgContainer extends Component<Props, State> {
               this.renderSpinnerOverlayCard()
             )
           }
-        </div>
+        </SectionItem>
       </SectionGrid>
     );
   }
@@ -974,24 +989,26 @@ class OrgContainer extends Component<Props, State> {
         }
         {
           isOwner && (
-            <ActionControlWithButton>
-              <SearchInput
-                  onChange={this.handleOnChangeMemberSearch}
-                  placeholder="Search for a member to add" />
-              <Button isLoading={shouldShowSpinner} onClick={this.handleOnClickMemberSearch}>
-                <FontAwesomeIcon icon={faSearch} />
-              </Button>
-            </ActionControlWithButton>
+            <SectionItem>
+              <ActionControlWithButton>
+                <SearchInput
+                    onChange={this.handleOnChangeMemberSearch}
+                    placeholder="Search for a member to add" />
+                <Button isLoading={shouldShowSpinner} onClick={this.handleOnClickMemberSearch}>
+                  <FontAwesomeIcon icon={faSearch} />
+                </Button>
+              </ActionControlWithButton>
+            </SectionItem>
           )
         }
         {
           isOwner && isNonEmptyString(memberSearchQuery) && !searchResultCardSegments.isEmpty() && (
-            <div>
+            <SectionItem>
               <Card>{searchResultCardSegments}</Card>
-            </div>
+            </SectionItem>
           )
         }
-        <div>
+        <SectionItem>
           {
             memberCardSegments.isEmpty()
               ? (
@@ -1006,7 +1023,7 @@ class OrgContainer extends Component<Props, State> {
               this.renderSpinnerOverlayCard()
             )
           }
-        </div>
+        </SectionItem>
       </SectionGrid>
     );
   }
