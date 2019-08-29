@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import {
   faCopy,
   faMinus,
@@ -22,6 +22,7 @@ import {
   Colors,
   Input,
   SearchInput,
+  Select,
   Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
@@ -29,6 +30,7 @@ import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
+import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import DeleteOrgModal from './components/DeleteOrgModal';
@@ -61,8 +63,13 @@ const {
 const {
   ADD_DOMAIN_TO_ORG,
   ADD_MEMBER_TO_ORG,
+  CREATE_ROLE,
   DELETE_ORGANIZATION,
+  DELETE_ROLE,
+  GRANT_TRUST_TO_ORG,
   REMOVE_DOMAIN_FROM_ORG,
+  REMOVE_MEMBER_FROM_ORG,
+  REVOKE_TRUST_FROM_ORG,
 } = OrganizationsApiActions;
 
 const {
@@ -90,16 +97,6 @@ const Tabs = styled.div`
   margin: 30px 0 50px 0;
 `;
 
-const InputWithButtonWrapper = styled.div`
-  display: grid;
-  grid-gap: 5px;
-  grid-template-columns: 1fr auto;
-
-  > button {
-    margin-right: 4px;
-  }
-`;
-
 const CompactCardSegment = styled(CardSegment)`
   align-items: center;
   justify-content: space-between;
@@ -108,17 +105,35 @@ const CompactCardSegment = styled(CardSegment)`
 
   > span {
     overflow: hidden;
+    padding-right: 10px;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+`;
+
+const SectionItem = styled.div`
+  position: relative;
+  ${({ marginTop }) => {
+    const finalMarginTop = (marginTop >= 0) ? marginTop : 32;
+    return css`
+      margin: ${finalMarginTop}px 0 0 0;
+    `;
+  }}
 `;
 
 const SectionGrid = styled.section`
   display: grid;
   flex: 1;
   grid-auto-rows: min-content;
-  grid-column-gap: 30px;
-  grid-template-columns: repeat(${({ columns }) => columns}, 1fr);
+  ${({ columns }) => {
+    if (columns > 0) {
+      return css`
+        grid-column-gap: 30px;
+        grid-template-columns: repeat(${columns}, 1fr);
+      `;
+    }
+    return null;
+  }}
 
   > h2 {
     font-size: 22px;
@@ -140,11 +155,6 @@ const SectionGrid = styled.section`
     margin: 16px 0 0 0;
   }
 
-  > div {
-    margin: 32px 0 0 0;
-    overflow: hidden;
-  }
-
   i {
     color: ${NEUTRALS[1]};
     font-size: 16px;
@@ -154,6 +164,51 @@ const SectionGrid = styled.section`
 
   pre {
     margin: 0;
+  }
+
+  ${SectionItem} {
+    /*
+     * !!! IMPORTANT !!!
+     *
+     * https://www.w3.org/TR/css-flexbox-1/
+     *   | By default, flex items won’t shrink below their minimum content size (the length of the longest word or
+     *   | fixed-size element). To change this, set the min-width or min-height property.
+     *
+     * https://dfmcphee.com/flex-items-and-min-width-0/
+     * https://css-tricks.com/flexbox-truncated-text/
+     *
+     * !!! IMPORTANT !!!
+     */
+    min-width: 0; /* setting min-width fixes the text truncation issue */
+  }
+`;
+
+const SpinnerOverlayCard = styled(Card)`
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  width: 100%;
+`;
+
+const ActionControlWithButton = styled.div`
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: 1fr auto;
+
+  > button {
+    margin-right: 4px;
+  }
+`;
+
+const SelectControlWithButton = styled(ActionControlWithButton)`
+  > div {
+    display: flex;
+
+    > div {
+      flex: 1;
+    }
   }
 `;
 
@@ -214,23 +269,32 @@ type Props = {
     deleteOrganization :RequestSequence;
     deleteRole :RequestSequence;
     goToRoot :GoToRoot;
+    grantTrustToOrganization :RequestSequence;
     removeDomainFromOrganization :RequestSequence;
     removeMemberFromOrganization :RequestSequence;
     resetRequestState :(actionType :string) => void;
+    revokeTrustFromOrganization :RequestSequence;
     searchMembersToAddToOrg :RequestSequence;
   };
   isOwner :boolean;
+  match :Match;
   memberSearchResults :Map;
   org :Map;
-  orgId :UUID;
+  orgs :Map;
   requestStates :{
     ADD_DOMAIN_TO_ORG :RequestState;
     ADD_MEMBER_TO_ORG :RequestState;
+    CREATE_ROLE :RequestState;
     DELETE_ORGANIZATION :RequestState;
+    DELETE_ROLE :RequestState;
     GET_ORGANIZATION_DETAILS :RequestState;
+    GRANT_TRUST_TO_ORG :RequestState;
     REMOVE_DOMAIN_FROM_ORG :RequestState;
+    REMOVE_MEMBER_FROM_ORG :RequestState;
+    REVOKE_TRUST_FROM_ORG :RequestState;
     SEARCH_MEMBERS_TO_ADD_TO_ORG :RequestState;
   };
+  trustedOrgs :Map;
 };
 
 type State = {
@@ -239,6 +303,10 @@ type State = {
   isValidRole :boolean;
   memberSearchQuery :string;
   roleTitle :string;
+  orgToTrustSelectedOption :?{
+    label :string;
+    value :UUID;
+  };
 };
 
 class OrgContainer extends Component<Props, State> {
@@ -253,12 +321,14 @@ class OrgContainer extends Component<Props, State> {
       isValidRole: true,
       memberSearchQuery: '',
       roleTitle: '',
+      orgToTrustSelectedOption: null,
     };
   }
 
   componentDidMount() {
 
-    const { actions, orgId } = this.props;
+    const { actions, match } = this.props;
+    const { params: { id: orgId = null } = {} } = match;
 
     if (!isValidUUID(orgId)) {
       actions.goToRoot();
@@ -270,13 +340,15 @@ class OrgContainer extends Component<Props, State> {
 
   componentDidUpdate(prevProps :Props) {
 
-    const { actions, orgId, requestStates } = this.props;
+    const { actions, match, requestStates } = this.props;
+    const { params: { id: orgId = null } = {} } = match;
+    const { params: { id: prevOrgId = null } = {} } = prevProps.match;
 
     if (!isValidUUID(orgId)) {
       actions.goToRoot();
     }
     else {
-      if (orgId !== prevProps.orgId) {
+      if (orgId !== prevOrgId) {
         actions.getOrganizationDetails(orgId);
       }
       if (requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.SUCCESS
@@ -294,6 +366,10 @@ class OrgContainer extends Component<Props, State> {
       if (requestStates[DELETE_ORGANIZATION] === RequestStates.SUCCESS
           && prevProps.requestStates[DELETE_ORGANIZATION] === RequestStates.PENDING) {
         actions.goToRoot();
+      }
+      if (requestStates[GRANT_TRUST_TO_ORG] === RequestStates.SUCCESS
+          && prevProps.requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING) {
+        this.setState({ orgToTrustSelectedOption: null });
       }
     }
   }
@@ -491,16 +567,84 @@ class OrgContainer extends Component<Props, State> {
     }
   }
 
-  renderAddButton = (onClick :Function) => (
-    <Button mode="positive" onClick={onClick}>
+  /*
+   * trusted orgs related handlers
+   */
+
+  handleOnChangeTrustedOrg = (rsOption :?Object, actionMeta :Object = {}) => {
+
+    const { isOwner } = this.props;
+
+    if (isOwner) {
+      if (rsOption) {
+        this.setState({ orgToTrustSelectedOption: rsOption });
+      }
+      else if (actionMeta.action === 'clear') {
+        this.setState({ orgToTrustSelectedOption: null });
+      }
+    }
+  }
+
+  handleOnClickGrantTrustToOrg = () => {
+
+    const {
+      actions,
+      isOwner,
+      org,
+      orgs,
+      trustedOrgs,
+    } = this.props;
+    const { orgToTrustSelectedOption } = this.state;
+
+    if (isOwner && orgToTrustSelectedOption) {
+
+      const thisOrgId :UUID = org.get('id');
+      const selectedOrgId :UUID = orgToTrustSelectedOption.value;
+      const selectedOrg :Map = orgs
+        .filter((o :Map, id :UUID) => !trustedOrgs.has(id) && id !== thisOrgId)
+        .get(selectedOrgId, Map());
+
+      actions.grantTrustToOrganization({
+        // required for the request
+        organizationId: thisOrgId,
+        principalId: selectedOrg.getIn(['principal', 'id']),
+        // only needed locally for redux
+        trustedOrgId: selectedOrgId,
+      });
+    }
+  }
+
+  handleOnClickRevokeTrustFromOrg = (trustedOrg :Map) => {
+
+    const { actions, isOwner, org } = this.props;
+
+    if (isOwner) {
+      actions.revokeTrustFromOrganization({
+        // required for the request
+        organizationId: org.get('id'),
+        principalId: trustedOrg.getIn(['principal', 'id']),
+        // only needed locally for redux
+        trustedOrgId: trustedOrg.get('id'),
+      });
+    }
+  }
+
+  renderAddButton = (onClick :Function, isPending :boolean = false) => (
+    <Button isLoading={isPending} mode="positive" onClick={onClick}>
       <FontAwesomeIcon icon={faPlus} />
     </Button>
   )
 
-  renderRemoveButton = (onClick :Function) => (
-    <Button mode="negative" onClick={onClick}>
+  renderRemoveButton = (onClick :Function, isPending :boolean = false) => (
+    <Button isLoading={isPending} mode="negative" onClick={onClick}>
       <FontAwesomeIcon icon={faMinus} />
     </Button>
+  )
+
+  renderSpinnerOverlayCard = () => (
+    <SpinnerOverlayCard>
+      <Spinner size="2x" />
+    </SpinnerOverlayCard>
   )
 
   renderOrgDetails = () => {
@@ -544,19 +688,21 @@ class OrgContainer extends Component<Props, State> {
           <h5>CREDENTIAL</h5>
         </SectionGrid>
         <SectionGrid columns={2}>
-          <InputWithButtonWrapper>
-            <Input disabled type="password" value="********************************" />
-            <Button onClick={this.handleOnClickCopyCredential}>
-              <FontAwesomeIcon icon={faCopy} />
-            </Button>
-          </InputWithButtonWrapper>
+          <SectionItem marginTop={4}>
+            <ActionControlWithButton>
+              <Input disabled type="password" value="********************************" />
+              <Button onClick={this.handleOnClickCopyCredential}>
+                <FontAwesomeIcon icon={faCopy} />
+              </Button>
+            </ActionControlWithButton>
+          </SectionItem>
         </SectionGrid>
       </CardSegment>
     );
   }
 
   renderDomainsAndTrustedOrgsSegment = () => (
-    <CardSegment noBleed>
+    <CardSegment noBleed vertical>
       <SectionGrid columns={2}>
         {this.renderDomainsSection()}
         {this.renderTrustedOrgsSection()}
@@ -566,18 +712,16 @@ class OrgContainer extends Component<Props, State> {
 
   renderDomainsSection = () => {
 
-    const { isOwner, org } = this.props;
+    const { isOwner, org, requestStates } = this.props;
     const { isValidDomain } = this.state;
 
     const domains = org.get('emails', List());
     const domainCardSegments = domains.map((emailDomain :string) => (
       <CompactCardSegment key={emailDomain}>
-        <span>{emailDomain}</span>
+        <span title={emailDomain}>{emailDomain}</span>
         {
           isOwner && (
-            this.renderRemoveButton(() => {
-              this.handleOnClickRemoveDomain(emailDomain);
-            })
+            this.renderRemoveButton(() => this.handleOnClickRemoveDomain(emailDomain))
           )
         }
       </CompactCardSegment>
@@ -593,16 +737,23 @@ class OrgContainer extends Component<Props, State> {
         }
         {
           isOwner && (
-            <InputWithButtonWrapper>
-              <Input
-                  invalid={!isValidDomain}
-                  placeholder="Add a new domain"
-                  onChange={this.handleOnChangeDomain} />
-              {this.renderAddButton(this.handleOnClickAddDomain)}
-            </InputWithButtonWrapper>
+            <SectionItem>
+              <ActionControlWithButton>
+                <Input
+                    invalid={!isValidDomain}
+                    placeholder="Add a new domain"
+                    onChange={this.handleOnChangeDomain} />
+                {
+                  this.renderAddButton(
+                    this.handleOnClickAddDomain,
+                    requestStates[ADD_DOMAIN_TO_ORG] === RequestStates.PENDING
+                  )
+                }
+              </ActionControlWithButton>
+            </SectionItem>
           )
         }
-        <div>
+        <SectionItem>
           {
             domainCardSegments.isEmpty()
               ? (
@@ -612,14 +763,47 @@ class OrgContainer extends Component<Props, State> {
                 <Card>{domainCardSegments}</Card>
               )
           }
-        </div>
+          {
+            !domainCardSegments.isEmpty() && requestStates[REMOVE_DOMAIN_FROM_ORG] === RequestStates.PENDING && (
+              this.renderSpinnerOverlayCard()
+            )
+          }
+        </SectionItem>
       </SectionGrid>
     );
   }
 
   renderTrustedOrgsSection = () => {
 
-    const { isOwner } = this.props;
+    const {
+      isOwner,
+      org,
+      orgs,
+      requestStates,
+      trustedOrgs,
+    } = this.props;
+    const { orgToTrustSelectedOption } = this.state;
+
+    const thisOrgId :UUID = org.get('id');
+    const notYetTrustedOrgs :Object[] = orgs
+      .filter((o :Map, id :UUID) => !trustedOrgs.has(id) && id !== thisOrgId)
+      .valueSeq()
+      .map((o :Map) => ({
+        label: o.get('title'),
+        value: o.get('id'),
+      }))
+      .toJS();
+
+    const orgCardSegments = trustedOrgs.valueSeq().map((trustedOrg :Map) => (
+      <CompactCardSegment key={trustedOrg.get('id')}>
+        <span title={trustedOrg.get('title')}>{trustedOrg.get('title')}</span>
+        {
+          isOwner && (
+            this.renderRemoveButton(() => this.handleOnClickRevokeTrustFromOrg(trustedOrg))
+          )
+        }
+      </CompactCardSegment>
+    ));
 
     return (
       <SectionGrid>
@@ -629,9 +813,43 @@ class OrgContainer extends Component<Props, State> {
             <h4>{TRUSTED_ORGS_SUB_TITLE}</h4>
           )
         }
-        <div>
-          <i>No trusted organizations</i>
-        </div>
+        {
+          isOwner && (
+            <SectionItem>
+              <SelectControlWithButton>
+                <Select
+                    isClearable
+                    isLoading={requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING}
+                    options={notYetTrustedOrgs}
+                    onChange={this.handleOnChangeTrustedOrg}
+                    placeholder="Select an organization to trust"
+                    value={orgToTrustSelectedOption} />
+                {
+                  this.renderAddButton(
+                    this.handleOnClickGrantTrustToOrg,
+                    requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING
+                  )
+                }
+              </SelectControlWithButton>
+            </SectionItem>
+          )
+        }
+        <SectionItem>
+          {
+            orgCardSegments.isEmpty()
+              ? (
+                <i>No trusted organizations</i>
+              )
+              : (
+                <Card>{orgCardSegments}</Card>
+              )
+          }
+          {
+            !orgCardSegments.isEmpty() && requestStates[REVOKE_TRUST_FROM_ORG] === RequestStates.PENDING && (
+              this.renderSpinnerOverlayCard()
+            )
+          }
+        </SectionItem>
       </SectionGrid>
     );
   }
@@ -657,18 +875,16 @@ class OrgContainer extends Component<Props, State> {
 
   renderRolesSection = () => {
 
-    const { isOwner, org } = this.props;
+    const { isOwner, org, requestStates } = this.props;
     const { isValidRole } = this.state;
 
     const roles = org.get('roles', List());
     const roleCardSegments = roles.map((role :Map) => (
       <CompactCardSegment key={role.get('id')}>
-        <span>{role.get('title')}</span>
+        <span title={role.get('title')}>{role.get('title')}</span>
         {
           isOwner && (
-            this.renderRemoveButton(() => {
-              this.handleOnClickRemoveRole(role);
-            })
+            this.renderRemoveButton(() => this.handleOnClickRemoveRole(role))
           )
         }
       </CompactCardSegment>
@@ -684,16 +900,23 @@ class OrgContainer extends Component<Props, State> {
         }
         {
           isOwner && (
-            <InputWithButtonWrapper>
-              <Input
-                  invalid={!isValidRole}
-                  onChange={this.handleOnChangeRole}
-                  placeholder="Add a new role" />
-              {this.renderAddButton(this.handleOnClickAddRole)}
-            </InputWithButtonWrapper>
+            <SectionItem>
+              <ActionControlWithButton>
+                <Input
+                    invalid={!isValidRole}
+                    onChange={this.handleOnChangeRole}
+                    placeholder="Add a new role" />
+                {
+                  this.renderAddButton(
+                    this.handleOnClickAddRole,
+                    requestStates[CREATE_ROLE] === RequestStates.PENDING
+                  )
+                }
+              </ActionControlWithButton>
+            </SectionItem>
           )
         }
-        <div>
+        <SectionItem>
           {
             roleCardSegments.isEmpty()
               ? (
@@ -703,7 +926,12 @@ class OrgContainer extends Component<Props, State> {
                 <Card>{roleCardSegments}</Card>
               )
           }
-        </div>
+          {
+            !roleCardSegments.isEmpty() && requestStates[DELETE_ROLE] === RequestStates.PENDING && (
+              this.renderSpinnerOverlayCard()
+            )
+          }
+        </SectionItem>
       </SectionGrid>
     );
   }
@@ -720,15 +948,14 @@ class OrgContainer extends Component<Props, State> {
 
     const members = org.get('members', List());
     const memberCardSegments = members.map((member :Map) => {
+      const userProfileLabel :string = getUserProfileLabel(member);
       const memberId :string = member.getIn(['profile', 'user_id'], member.get('id'));
       return (
-        <CompactCardSegment key={memberId}>
-          <span>{getUserProfileLabel(member)}</span>
+        <CompactCardSegment key={memberId || userProfileLabel}>
+          <span title={userProfileLabel}>{userProfileLabel}</span>
           {
             isOwner && (
-              this.renderRemoveButton(() => {
-                this.handleOnClickRemoveMember(memberId);
-              })
+              this.renderRemoveButton(() => this.handleOnClickRemoveMember(memberId))
             )
           }
         </CompactCardSegment>
@@ -738,14 +965,20 @@ class OrgContainer extends Component<Props, State> {
     const shouldShowSpinner = isNonEmptyString(memberSearchQuery)
       && requestStates[SEARCH_MEMBERS_TO_ADD_TO_ORG] === RequestStates.PENDING;
 
-    const searchResultCardSegments = memberSearchResults.valueSeq().map((member :Map) => (
-      <CompactCardSegment key={member.get('user_id')}>
-        <span>{getUserProfileLabel(member)}</span>
-        {this.renderAddButton(() => {
-          this.handleOnClickAddMember(member.get('user_id'));
-        })}
-      </CompactCardSegment>
-    ));
+    const searchResultCardSegments = memberSearchResults.valueSeq().map((member :Map) => {
+      const userProfileLabel :string = getUserProfileLabel(member);
+      return (
+        <CompactCardSegment key={member.get('user_id')}>
+          <span title={userProfileLabel}>{userProfileLabel}</span>
+          {
+            this.renderAddButton(
+              () => this.handleOnClickAddMember(member.get('user_id')),
+              requestStates[ADD_MEMBER_TO_ORG] === RequestStates.PENDING
+            )
+          }
+        </CompactCardSegment>
+      );
+    });
 
     return (
       <SectionGrid>
@@ -757,30 +990,41 @@ class OrgContainer extends Component<Props, State> {
         }
         {
           isOwner && (
-            <InputWithButtonWrapper>
-              <SearchInput
-                  onChange={this.handleOnChangeMemberSearch}
-                  placeholder="Search for a member to add" />
-              <Button isLoading={shouldShowSpinner} onClick={this.handleOnClickMemberSearch}>
-                <FontAwesomeIcon icon={faSearch} />
-              </Button>
-            </InputWithButtonWrapper>
+            <SectionItem>
+              <ActionControlWithButton>
+                <SearchInput
+                    onChange={this.handleOnChangeMemberSearch}
+                    placeholder="Search for a member to add" />
+                <Button isLoading={shouldShowSpinner} onClick={this.handleOnClickMemberSearch}>
+                  <FontAwesomeIcon icon={faSearch} />
+                </Button>
+              </ActionControlWithButton>
+            </SectionItem>
           )
         }
         {
           isOwner && isNonEmptyString(memberSearchQuery) && !searchResultCardSegments.isEmpty() && (
-            <div>
+            <SectionItem>
               <Card>{searchResultCardSegments}</Card>
-            </div>
+            </SectionItem>
           )
         }
-        {
-          !memberCardSegments.isEmpty() && (
-            <div>
-              <Card>{memberCardSegments}</Card>
-            </div>
-          )
-        }
+        <SectionItem>
+          {
+            memberCardSegments.isEmpty()
+              ? (
+                <i>No members</i>
+              )
+              : (
+                <Card>{memberCardSegments}</Card>
+              )
+          }
+          {
+            !memberCardSegments.isEmpty() && requestStates[REMOVE_MEMBER_FROM_ORG] === RequestStates.PENDING && (
+              this.renderSpinnerOverlayCard()
+            )
+          }
+        </SectionItem>
       </SectionGrid>
     );
   }
@@ -849,17 +1093,28 @@ const mapStateToProps = (state :Map<*, *>, props) => {
     } = {},
   } = props.match;
 
+  const orgs :Map = state.getIn(['orgs', 'orgs'], Map());
+  const org :Map = orgs.get(orgId, Map());
+  const trustedOrgIds :List = org.get('trustedOrgIds', List());
+  const trustedOrgs :Map = orgs.filter((anOrg :Map) => trustedOrgIds.includes(anOrg.get('id')));
+
   return {
-    orgId,
+    org,
+    orgs,
+    trustedOrgs,
     isOwner: state.getIn(['orgs', 'orgPermissions', orgId, PermissionTypes.OWNER], false),
     memberSearchResults: state.getIn(['orgs', 'memberSearchResults'], Map()),
-    org: state.getIn(['orgs', 'orgs', orgId], Map()),
     requestStates: {
       [ADD_DOMAIN_TO_ORG]: state.getIn(['orgs', ADD_DOMAIN_TO_ORG, 'requestState']),
       [ADD_MEMBER_TO_ORG]: state.getIn(['orgs', ADD_MEMBER_TO_ORG, 'requestState']),
+      [CREATE_ROLE]: state.getIn(['orgs', CREATE_ROLE, 'requestState']),
       [DELETE_ORGANIZATION]: state.getIn(['orgs', DELETE_ORGANIZATION, 'requestState']),
+      [DELETE_ROLE]: state.getIn(['orgs', DELETE_ROLE, 'requestState']),
       [GET_ORGANIZATION_DETAILS]: state.getIn(['orgs', GET_ORGANIZATION_DETAILS, 'requestState']),
+      [GRANT_TRUST_TO_ORG]: state.getIn(['orgs', GRANT_TRUST_TO_ORG, 'requestState']),
       [REMOVE_DOMAIN_FROM_ORG]: state.getIn(['orgs', REMOVE_DOMAIN_FROM_ORG, 'requestState']),
+      [REMOVE_MEMBER_FROM_ORG]: state.getIn(['orgs', REMOVE_MEMBER_FROM_ORG, 'requestState']),
+      [REVOKE_TRUST_FROM_ORG]: state.getIn(['orgs', REVOKE_TRUST_FROM_ORG, 'requestState']),
       [SEARCH_MEMBERS_TO_ADD_TO_ORG]: state.getIn(['orgs', SEARCH_MEMBERS_TO_ADD_TO_ORG, 'requestState']),
     },
   };
@@ -870,6 +1125,7 @@ const mapActionsToProps = (dispatch :Function) => ({
     addDomainToOrganization: OrganizationsApiActions.addDomainToOrganization,
     addMemberToOrganization: OrganizationsApiActions.addMemberToOrganization,
     getOrganizationDetails: OrgsActions.getOrganizationDetails,
+    grantTrustToOrganization: OrganizationsApiActions.grantTrustToOrganization,
     createRole: OrganizationsApiActions.createRole,
     deleteOrganization: OrganizationsApiActions.deleteOrganization,
     deleteRole: OrganizationsApiActions.deleteRole,
@@ -877,6 +1133,7 @@ const mapActionsToProps = (dispatch :Function) => ({
     removeDomainFromOrganization: OrganizationsApiActions.removeDomainFromOrganization,
     removeMemberFromOrganization: OrganizationsApiActions.removeMemberFromOrganization,
     resetRequestState: ReduxActions.resetRequestState,
+    revokeTrustFromOrganization: OrganizationsApiActions.revokeTrustFromOrganization,
     searchMembersToAddToOrg: OrgsActions.searchMembersToAddToOrg,
   }, dispatch)
 });

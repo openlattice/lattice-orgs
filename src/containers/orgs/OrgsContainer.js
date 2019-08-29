@@ -20,6 +20,7 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
+import { isNonEmptyString } from '../../utils/LangUtils';
 import * as OrgsActions from './OrgsActions';
 import * as Routes from '../../core/router/Routes';
 import * as ReduxActions from '../../core/redux/ReduxActions';
@@ -53,6 +54,7 @@ const OrgName = styled.h2`
 
 const OrgSegment = styled.div`
   display: grid;
+  grid-auto-rows: min-content;
   grid-gap: 15px;
   grid-template-columns: 1fr;
 `;
@@ -76,6 +78,10 @@ const OrgDescription = styled.p`
   font-weight: normal;
   margin: 0;
   padding: 0;
+`;
+
+const Error = styled.div`
+  text-align: center;
 `;
 
 type Props = {
@@ -118,24 +124,31 @@ class OrgsContainer extends Component<Props> {
     actions.goToRoute(Routes.ORG.replace(Routes.ID_PATH, orgId));
   }
 
-  renderOrgCard = (org :Map) => (
-    <Card key={org.get('id')} onClick={() => this.goToOrg(org)}>
-      <CardHeader padding="md">
-        <OrgName>{org.get('title', '')}</OrgName>
-      </CardHeader>
-      <CardSegment>
-        <OrgSegment>
-          <OrgMetaWrapper>
-            <UserIcon />
-            <span>{org.get('members', List()).count()}</span>
-          </OrgMetaWrapper>
-          <OrgDescription>
-            {org.get('description', '')}
-          </OrgDescription>
-        </OrgSegment>
-      </CardSegment>
-    </Card>
-  )
+  renderOrgCard = (org :Map) => {
+
+    const description :string = org.get('description', '');
+
+    return (
+      <Card key={org.get('id')} onClick={() => this.goToOrg(org)}>
+        <CardHeader padding="md">
+          <OrgName>{org.get('title', '')}</OrgName>
+        </CardHeader>
+        <CardSegment>
+          <OrgSegment>
+            <OrgMetaWrapper>
+              <UserIcon />
+              <span>{org.get('members', List()).count()}</span>
+            </OrgMetaWrapper>
+            {
+              isNonEmptyString(description) && (
+                <OrgDescription>{description}</OrgDescription>
+              )
+            }
+          </OrgSegment>
+        </CardSegment>
+      </Card>
+    );
+  }
 
   render() {
 
@@ -147,12 +160,32 @@ class OrgsContainer extends Component<Props> {
       );
     }
 
+    if (requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.FAILURE) {
+      return (
+        <Error>
+          Sorry, something went wrong. Please try refreshing the page, or contact support.
+        </Error>
+      );
+    }
+
+    const orgCards = orgs.valueSeq().map((org) => this.renderOrgCard(org));
+
     return (
       <>
         <Title>Organizations</Title>
-        <CardGrid>
-          {orgs.valueSeq().map((org :Map) => this.renderOrgCard(org))}
-        </CardGrid>
+        {
+          orgCards.isEmpty()
+            ? (
+              <Error>
+                Sorry, no organizations were found. Please try refreshing the page, or contact support.
+              </Error>
+            )
+            : (
+              <CardGrid>
+                {orgCards}
+              </CardGrid>
+            )
+        }
       </>
     );
   }

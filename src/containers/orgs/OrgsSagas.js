@@ -17,6 +17,8 @@ import {
   AuthorizationsApiSagas,
   OrganizationsApiActions,
   OrganizationsApiSagas,
+  PermissionsApiActions,
+  PermissionsApiSagas,
   PrincipalsApiActions,
   PrincipalsApiSagas,
 } from 'lattice-sagas';
@@ -35,8 +37,13 @@ import {
 
 const LOG = new Logger('OrgsSagas');
 
-const { AccessCheck, AccessCheckBuilder } = Models;
-const { PermissionTypes } = Types;
+const {
+  AccessCheck,
+  AccessCheckBuilder,
+  Principal,
+  PrincipalBuilder,
+} = Models;
+const { PermissionTypes, PrincipalTypes } = Types;
 
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
@@ -52,8 +59,10 @@ const {
   getOrganizationIntegrationAccountWorker,
   getOrganizationMembersWorker,
 } = OrganizationsApiSagas;
-const { searchAllUsers } = PrincipalsApiActions;
-const { searchAllUsersWorker } = PrincipalsApiSagas;
+const { getAcl } = PermissionsApiActions;
+const { getAclWorker } = PermissionsApiSagas;
+const { getSecurablePrincipal, searchAllUsers } = PrincipalsApiActions;
+const { getSecurablePrincipalWorker, searchAllUsersWorker } = PrincipalsApiSagas;
 
 /*
  *
@@ -113,7 +122,6 @@ function* getOrgsAndPermissionsWatcher() :Generator<*, *, *> {
   yield takeEvery(GET_ORGS_AND_PERMISSIONS, getOrgsAndPermissionsWorker);
 }
 
-
 /*
  *
  * OrgsActions.getOrganizationDetails
@@ -130,10 +138,16 @@ function* getOrganizationDetailsWorker(action :SequenceAction) :Generator<*, *, 
       throw new Error('organizationId must be a valid UUID');
     }
 
-    const [orgResponse, orgIntegrationResponse, orgMembersResponse] = yield all([
+    const [
+      orgResponse,
+      orgIntegrationResponse,
+      orgMembersResponse,
+      orgAclResponse,
+    ] = yield all([
       call(getOrganizationWorker, getOrganization(organizationId)),
       call(getOrganizationIntegrationAccountWorker, getOrganizationIntegrationAccount(organizationId)),
       call(getOrganizationMembersWorker, getOrganizationMembers(organizationId)),
+      call(getAclWorker, getAcl([organizationId])),
     ]);
 
     // NOTE: the integration account details request will fail if the user is not an owner of the org, but we should
@@ -141,10 +155,36 @@ function* getOrganizationDetailsWorker(action :SequenceAction) :Generator<*, *, 
     if (orgResponse.error) throw orgResponse.error;
     if (orgMembersResponse.error) throw orgMembersResponse.error;
 
+    const principals :Principal[] = fromJS(orgAclResponse.data || {})
+      .get('aces', List())
+      .filter((ace :Map) => (
+        ace.getIn(['principal', 'type'], '') === PrincipalTypes.ORGANIZATION
+        && ace.getIn(['permissions'], List()).includes(PermissionTypes.READ)
+      ))
+      .map((ace :Map) => (
+        (new PrincipalBuilder())
+          .setId(ace.getIn(['principal', 'id']))
+          .setType(ace.getIn(['principal', 'type']))
+          .build()
+      ))
+      .toJS();
+
+    const securablePrincipalResponses :Object[] = yield all(
+      principals.map(
+        (principal :Principal) => call(getSecurablePrincipalWorker, getSecurablePrincipal(principal))
+      )
+    );
+
+    const trustedOrgIds :UUID[] = securablePrincipalResponses
+      .filter((response :Object) => !response.error)
+      .map((response :Object) => response.data)
+      .map((securablePrincipal :Object) => securablePrincipal.id);
+
     yield put(getOrganizationDetails.success(action.id, {
       integration: fromJS(orgIntegrationResponse.data || []),
       members: fromJS(orgMembersResponse.data),
       org: fromJS(orgResponse.data),
+      trustedOrgIds: fromJS(trustedOrgIds),
     }));
   }
   catch (error) {

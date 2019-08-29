@@ -31,9 +31,12 @@ export default function* sagas() :Generator<*, *, *> {
     fork(OrganizationsApiSagas.getAllOrganizationsWatcher),
     fork(OrganizationsApiSagas.getOrganizationWatcher),
     fork(OrganizationsApiSagas.getOrganizationIntegrationAccountWatcher),
+    fork(OrganizationsApiSagas.grantTrustToOrganizationWatcher),
     fork(OrganizationsApiSagas.getOrganizationMembersWatcher),
     fork(OrganizationsApiSagas.removeDomainFromOrganizationWatcher),
     fork(OrganizationsApiSagas.removeMemberFromOrganizationWatcher),
+    fork(OrganizationsApiSagas.revokeTrustFromOrganizationWatcher),
+    fork(PrincipalsApiSagas.getSecurablePrincipalWatcher),
     fork(PrincipalsApiSagas.searchAllUsersWatcher),
 
     // AppSagas
