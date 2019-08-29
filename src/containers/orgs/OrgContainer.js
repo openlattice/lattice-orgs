@@ -702,7 +702,7 @@ class OrgContainer extends Component<Props, State> {
   }
 
   renderDomainsAndTrustedOrgsSegment = () => (
-    <CardSegment noBleed>
+    <CardSegment noBleed vertical>
       <SectionGrid columns={2}>
         {this.renderDomainsSection()}
         {this.renderTrustedOrgsSection()}
