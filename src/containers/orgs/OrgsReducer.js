@@ -29,15 +29,19 @@ const {
   CREATE_ROLE,
   DELETE_ORGANIZATION,
   DELETE_ROLE,
+  GRANT_TRUST_TO_ORG,
   REMOVE_DOMAIN_FROM_ORG,
   REMOVE_MEMBER_FROM_ORG,
+  REVOKE_TRUST_FROM_ORG,
   addDomainToOrganization,
   addMemberToOrganization,
   createRole,
   deleteOrganization,
   deleteRole,
+  grantTrustToOrganization,
   removeDomainFromOrganization,
   removeMemberFromOrganization,
+  revokeTrustFromOrganization,
 } = OrganizationsApiActions;
 
 const INITIAL_STATE :Map<*, *> = fromJS({
@@ -59,10 +63,16 @@ const INITIAL_STATE :Map<*, *> = fromJS({
   [GET_ORGANIZATION_DETAILS]: {
     requestState: RequestStates.STANDBY,
   },
+  [GRANT_TRUST_TO_ORG]: {
+    requestState: RequestStates.STANDBY,
+  },
   [REMOVE_DOMAIN_FROM_ORG]: {
     requestState: RequestStates.STANDBY,
   },
   [REMOVE_MEMBER_FROM_ORG]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [REVOKE_TRUST_FROM_ORG]: {
     requestState: RequestStates.STANDBY,
   },
   [SEARCH_MEMBERS_TO_ADD_TO_ORG]: {
@@ -282,6 +292,29 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
       });
     }
 
+    case grantTrustToOrganization.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return grantTrustToOrganization.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([GRANT_TRUST_TO_ORG, 'requestState'], RequestStates.PENDING)
+          .setIn([GRANT_TRUST_TO_ORG, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([GRANT_TRUST_TO_ORG, seqAction.id]);
+          if (storedSeqAction) {
+            const { organizationId, trustedOrgId } = storedSeqAction.value;
+            const currentTrusted :List<UUID> = state.getIn(['orgs', organizationId, 'trustedOrgIds'], List());
+            const updatedTrusted :List<UUID> = currentTrusted.push(trustedOrgId);
+            return state
+              .setIn(['orgs', organizationId, 'trustedOrgIds'], updatedTrusted)
+              .setIn([GRANT_TRUST_TO_ORG, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([GRANT_TRUST_TO_ORG, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([GRANT_TRUST_TO_ORG, seqAction.id]),
+      });
+    }
+
     case removeDomainFromOrganization.case(action.type): {
       const seqAction :SequenceAction = action;
       return removeDomainFromOrganization.reducer(state, action, {
@@ -325,6 +358,29 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
         },
         FAILURE: () => state.setIn([REMOVE_MEMBER_FROM_ORG, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([REMOVE_MEMBER_FROM_ORG, seqAction.id]),
+      });
+    }
+
+    case revokeTrustFromOrganization.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return revokeTrustFromOrganization.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([REVOKE_TRUST_FROM_ORG, 'requestState'], RequestStates.PENDING)
+          .setIn([REVOKE_TRUST_FROM_ORG, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([REVOKE_TRUST_FROM_ORG, seqAction.id]);
+          if (storedSeqAction) {
+            const { organizationId, trustedOrgId } = storedSeqAction.value;
+            const updatedTrusted :List<UUID> = state.getIn(['orgs', organizationId, 'trustedOrgIds'], List())
+              .filter((orgId :UUID) => orgId !== trustedOrgId);
+            return state
+              .setIn(['orgs', organizationId, 'trustedOrgIds'], updatedTrusted)
+              .setIn([REVOKE_TRUST_FROM_ORG, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([REVOKE_TRUST_FROM_ORG, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([REVOKE_TRUST_FROM_ORG, seqAction.id]),
       });
     }
 

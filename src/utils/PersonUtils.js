@@ -12,9 +12,8 @@ function getUserProfileLabel(user :any) :string {
     return '';
   }
 
-  // https://auth0.com/docs/api/authentication#user-profile
   const auth0UserProfile = get(user, 'profile', user);
-  const userId :string = get(auth0UserProfile, 'user_id', '');
+  let userId :string = get(auth0UserProfile, 'user_id', '');
   const nickname :string = get(auth0UserProfile, 'nickname', '');
   const username :string = get(auth0UserProfile, 'username', '');
   const email :string = get(auth0UserProfile, 'email', '');
@@ -35,6 +34,15 @@ function getUserProfileLabel(user :any) :string {
     else if (userId.startsWith('google')) {
       label = `${label} - Google`;
     }
+  }
+  else {
+    // handling various possible values that "user" can be:
+    //   com.openlattice.organization.OrganizationMember
+    //   com.openlattice.authorization.Principal
+    let userPrincipal = get(user, 'principal', user);
+    userPrincipal = get(userPrincipal, 'principal', userPrincipal);
+    userId = get(userPrincipal, 'id', '');
+    label = `${userId}`;
   }
 
   return label;
