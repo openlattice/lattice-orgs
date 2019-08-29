@@ -97,25 +97,6 @@ const Tabs = styled.div`
   margin: 30px 0 50px 0;
 `;
 
-const ActionControlWithButton = styled.div`
-  display: grid;
-  grid-gap: 5px;
-  grid-template-columns: 1fr auto;
-
-  > button {
-    margin-right: 4px;
-  }
-`;
-
-const SelectControlWithButton = styled(ActionControlWithButton)`
-  > div {
-    display: flex;
-    > div {
-      flex: 1;
-    }
-  }
-`;
-
 const CompactCardSegment = styled(CardSegment)`
   align-items: center;
   justify-content: space-between;
@@ -165,6 +146,8 @@ const SectionGrid = styled.section`
 
   > div {
     margin: 32px 0 0 0;
+    position: relative;
+
     /*
      * !!! IMPORTANT !!!
      *
@@ -178,7 +161,6 @@ const SectionGrid = styled.section`
      * !!! IMPORTANT !!!
      */
     min-width: 0; /* setting min-width fixes the text truncation issue */
-    position: relative;
   }
 
   i {
@@ -200,6 +182,26 @@ const SpinnerOverlayCard = styled(Card)`
   position: absolute;
   top: 0;
   width: 100%;
+`;
+
+const ActionControlWithButton = styled.div`
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: 1fr auto;
+
+  > button {
+    margin-right: 4px;
+  }
+`;
+
+const SelectControlWithButton = styled(ActionControlWithButton)`
+  > div {
+    display: flex;
+
+    > div {
+      flex: 1;
+    }
+  }
 `;
 
 const ORG_NAV_LINK_ACTIVE :string = 'org-nav-link-active';
