@@ -31,6 +31,7 @@ import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import DeleteOrgModal from './components/DeleteOrgModal';
+import OrgDomainsSection from './components/OrgDomainsSection';
 import OrgMembersSection from './components/OrgMembersSection';
 import OrgRolesSection from './components/OrgRolesSection';
 import Logger from '../../utils/Logger';
@@ -39,7 +40,7 @@ import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { isNonEmptyString } from '../../utils/LangUtils';
-import { isValidEmailDomain, isValidUUID } from '../../utils/ValidationUtils';
+import { isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const LOG :Logger = new Logger('OrgContainer');
@@ -47,20 +48,14 @@ const LOG :Logger = new Logger('OrgContainer');
 const { NEUTRALS } = Colors;
 
 const {
-  ADD_DOMAIN_TO_ORG,
   ADD_MEMBER_TO_ORG,
-  CREATE_ROLE,
   DELETE_ORGANIZATION,
-  DELETE_ROLE,
   GRANT_TRUST_TO_ORG,
-  REMOVE_DOMAIN_FROM_ORG,
-  REMOVE_MEMBER_FROM_ORG,
   REVOKE_TRUST_FROM_ORG,
 } = OrganizationsApiActions;
 
 const {
   GET_ORGANIZATION_DETAILS,
-  SEARCH_MEMBERS_TO_ADD_TO_ORG,
 } = OrgsActions;
 
 const OrgTitle = styled.h1`
@@ -230,54 +225,34 @@ const OrgNavLink = styled(NavLink).attrs({
   }
 `;
 
-const DOMAINS_SUB_TITLE = `
-Users from these domains will automatically be approved when requesting to join this organization.
-`;
-
 const TRUSTED_ORGS_SUB_TITLE = `
 Organizations listed here and all their members will be able to see this organization and all its roles.
 `;
 
 type Props = {
   actions :{
-    addDomainToOrganization :RequestSequence;
-    addMemberToOrganization :RequestSequence;
     getOrganizationDetails :RequestSequence;
-    createRole :RequestSequence;
     deleteOrganization :RequestSequence;
-    deleteRole :RequestSequence;
     goToRoot :GoToRoot;
     grantTrustToOrganization :RequestSequence;
-    removeDomainFromOrganization :RequestSequence;
-    removeMemberFromOrganization :RequestSequence;
     resetRequestState :(actionType :string) => void;
     revokeTrustFromOrganization :RequestSequence;
-    searchMembersToAddToOrg :RequestSequence;
   };
   isOwner :boolean;
   match :Match;
   org :Map;
   orgs :Map;
   requestStates :{
-    ADD_DOMAIN_TO_ORG :RequestState;
     ADD_MEMBER_TO_ORG :RequestState;
-    CREATE_ROLE :RequestState;
     DELETE_ORGANIZATION :RequestState;
-    DELETE_ROLE :RequestState;
     GET_ORGANIZATION_DETAILS :RequestState;
     GRANT_TRUST_TO_ORG :RequestState;
-    REMOVE_DOMAIN_FROM_ORG :RequestState;
-    REMOVE_MEMBER_FROM_ORG :RequestState;
     REVOKE_TRUST_FROM_ORG :RequestState;
-    SEARCH_MEMBERS_TO_ADD_TO_ORG :RequestState;
   };
   trustedOrgs :Map;
 };
 
 type State = {
-  domain :string;
-  isValidDomain :boolean;
-  memberSearchQuery :string;
   orgToTrustSelectedOption :?{
     label :string;
     value :UUID;
@@ -291,9 +266,6 @@ class OrgContainer extends Component<Props, State> {
     super(props);
 
     this.state = {
-      domain: '',
-      isValidDomain: true,
-      memberSearchQuery: '',
       orgToTrustSelectedOption: null,
     };
   }
@@ -365,114 +337,6 @@ class OrgContainer extends Component<Props, State> {
       else {
         LOG.error('cannot copy credential, navigator.clipboard is not available');
       }
-    }
-  }
-
-  /*
-   * domain related handlers
-   */
-
-  handleOnChangeDomain = (event :SyntheticInputEvent<HTMLInputElement>) => {
-
-    const { isOwner } = this.props;
-
-    if (isOwner) {
-      const domain :string = event.target.value || '';
-      // always set isValidDomain to true when typing
-      this.setState({ domain, isValidDomain: true });
-    }
-  }
-
-  handleOnClickAddDomain = () => {
-
-    const { actions, isOwner, org } = this.props;
-    const { domain } = this.state;
-
-    if (isOwner) {
-      if (!isNonEmptyString(domain)) {
-        // set to false only when the button was clicked
-        this.setState({ isValidDomain: false });
-        return;
-      }
-
-      const isValidDomain :boolean = isValidEmailDomain(domain);
-      const isNewDomain :boolean = !org.get('emails', List()).includes(domain);
-
-      if (isValidDomain && isNewDomain) {
-        actions.addDomainToOrganization({ domain, organizationId: org.get('id') });
-      }
-      else {
-        // set to false only when the button was clicked
-        this.setState({ isValidDomain: false });
-      }
-    }
-  }
-
-  handleOnClickRemoveDomain = (domain :string) => {
-
-    const { actions, isOwner, org } = this.props;
-
-    if (isOwner) {
-      actions.removeDomainFromOrganization({
-        domain,
-        organizationId: org.get('id'),
-      });
-    }
-  }
-
-  /*
-   * member related handlers
-   */
-
-  handleOnChangeMemberSearch = (event :SyntheticInputEvent<HTMLInputElement>) => {
-
-    const { actions, isOwner, org } = this.props;
-    const memberSearchQuery = event.target.value || '';
-
-    if (isOwner) {
-      actions.searchMembersToAddToOrg({
-        organizationId: org.get('id'),
-        query: memberSearchQuery,
-      });
-      this.setState({ memberSearchQuery });
-    }
-  }
-
-  handleOnClickAddMember = (memberId :string) => {
-
-    const { actions, isOwner, org } = this.props;
-
-    if (isOwner) {
-      actions.addMemberToOrganization({
-        memberId,
-        organizationId: org.get('id'),
-      });
-    }
-  }
-
-  handleOnClickMemberSearch = () => {
-
-    const { actions, isOwner, org } = this.props;
-    const { memberSearchQuery } = this.state;
-
-    if (isOwner) {
-      actions.searchMembersToAddToOrg({
-        organizationId: org.get('id'),
-        query: memberSearchQuery,
-      });
-      // this.setState({ memberSearchQuery });
-    }
-  }
-
-  handleOnClickRemoveMember = (memberId :string) => {
-
-    const { actions, isOwner, org } = this.props;
-
-    if (isOwner) {
-      actions.removeMemberFromOrganization({
-        memberId,
-        organizationId: org.get('id'),
-      });
     }
   }
 
@@ -615,75 +479,17 @@ class OrgContainer extends Component<Props, State> {
     );
   }
 
-  renderDomainsAndTrustedOrgsSegment = () => (
-    <CardSegment noBleed vertical>
-      <SectionGrid columns={2}>
-        {this.renderDomainsSection()}
-        {this.renderTrustedOrgsSection()}
-      </SectionGrid>
-    </CardSegment>
-  )
+  renderDomainsAndTrustedOrgsSegment = () => {
 
-  renderDomainsSection = () => {
-
-    const { isOwner, org, requestStates } = this.props;
-    const { isValidDomain } = this.state;
-
-    const domains = org.get('emails', List());
-    const domainCardSegments = domains.map((emailDomain :string) => (
-      <CompactCardSegment key={emailDomain}>
-        <span title={emailDomain}>{emailDomain}</span>
-        {
-          isOwner && (
-            this.renderRemoveButton(() => this.handleOnClickRemoveDomain(emailDomain))
-          )
-        }
-      </CompactCardSegment>
-    ));
+    const { isOwner, org } = this.props;
 
     return (
-      <SectionGrid>
-        <h2>Domains</h2>
-        {
-          isOwner && (
-            <h4>{DOMAINS_SUB_TITLE}</h4>
-          )
-        }
-        {
-          isOwner && (
-            <SectionItem>
-              <ActionControlWithButton>
-                <Input
-                    invalid={!isValidDomain}
-                    placeholder="Add a new domain"
-                    onChange={this.handleOnChangeDomain} />
-                {
-                  this.renderAddButton(
-                    this.handleOnClickAddDomain,
-                    requestStates[ADD_DOMAIN_TO_ORG] === RequestStates.PENDING
-                  )
-                }
-              </ActionControlWithButton>
-            </SectionItem>
-          )
-        }
-        <SectionItem>
-          {
-            domainCardSegments.isEmpty()
-              ? (
-                <i>No domains</i>
-              )
-              : (
-                <Card>{domainCardSegments}</Card>
-              )
-          }
-          {
-            !domainCardSegments.isEmpty() && requestStates[REMOVE_DOMAIN_FROM_ORG] === RequestStates.PENDING && (
-              this.renderSpinnerOverlayCard()
-            )
-          }
-        </SectionItem>
-      </SectionGrid>
+      <CardSegment noBleed vertical>
+        <SectionGrid columns={2}>
+          <OrgDomainsSection isOwner={isOwner} org={org} />
+          {this.renderTrustedOrgsSection()}
+        </SectionGrid>
+      </CardSegment>
     );
   }
 
@@ -862,36 +668,23 @@ const mapStateToProps = (state :Map<*, *>, props) => {
     trustedOrgs,
     isOwner: state.hasIn(['orgs', 'isOwnerOfOrgIds', orgId], false),
     requestStates: {
-      [ADD_DOMAIN_TO_ORG]: state.getIn(['orgs', ADD_DOMAIN_TO_ORG, 'requestState']),
       [ADD_MEMBER_TO_ORG]: state.getIn(['orgs', ADD_MEMBER_TO_ORG, 'requestState']),
-      [CREATE_ROLE]: state.getIn(['orgs', CREATE_ROLE, 'requestState']),
       [DELETE_ORGANIZATION]: state.getIn(['orgs', DELETE_ORGANIZATION, 'requestState']),
-      [DELETE_ROLE]: state.getIn(['orgs', DELETE_ROLE, 'requestState']),
       [GET_ORGANIZATION_DETAILS]: state.getIn(['orgs', GET_ORGANIZATION_DETAILS, 'requestState']),
       [GRANT_TRUST_TO_ORG]: state.getIn(['orgs', GRANT_TRUST_TO_ORG, 'requestState']),
-      [REMOVE_DOMAIN_FROM_ORG]: state.getIn(['orgs', REMOVE_DOMAIN_FROM_ORG, 'requestState']),
-      [REMOVE_MEMBER_FROM_ORG]: state.getIn(['orgs', REMOVE_MEMBER_FROM_ORG, 'requestState']),
       [REVOKE_TRUST_FROM_ORG]: state.getIn(['orgs', REVOKE_TRUST_FROM_ORG, 'requestState']),
-      [SEARCH_MEMBERS_TO_ADD_TO_ORG]: state.getIn(['orgs', SEARCH_MEMBERS_TO_ADD_TO_ORG, 'requestState']),
     },
   };
 };
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
-    addDomainToOrganization: OrganizationsApiActions.addDomainToOrganization,
-    addMemberToOrganization: OrganizationsApiActions.addMemberToOrganization,
     getOrganizationDetails: OrgsActions.getOrganizationDetails,
     grantTrustToOrganization: OrganizationsApiActions.grantTrustToOrganization,
-    createRole: OrganizationsApiActions.createRole,
     deleteOrganization: OrganizationsApiActions.deleteOrganization,
-    deleteRole: OrganizationsApiActions.deleteRole,
     goToRoot: RoutingActions.goToRoot,
-    removeDomainFromOrganization: OrganizationsApiActions.removeDomainFromOrganization,
-    removeMemberFromOrganization: OrganizationsApiActions.removeMemberFromOrganization,
     resetRequestState: ReduxActions.resetRequestState,
     revokeTrustFromOrganization: OrganizationsApiActions.revokeTrustFromOrganization,
-    searchMembersToAddToOrg: OrgsActions.searchMembersToAddToOrg,
   }, dispatch)
 });
 
