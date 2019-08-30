@@ -4,19 +4,13 @@
 
 import React, { Component } from 'react';
 
-import styled, { css } from 'styled-components';
-import {
-  faCopy,
-} from '@fortawesome/pro-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import styled from 'styled-components';
 import { Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
-  Button,
   Card,
   CardSegment,
   Colors,
-  Input,
   Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
@@ -28,11 +22,12 @@ import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import DeleteOrgModal from './components/DeleteOrgModal';
+import OrgDetailSectionGrid from './components/styled/OrgDetailSectionGrid';
 import OrgDomainsSection from './components/OrgDomainsSection';
+import OrgIntegrationSection from './components/OrgIntegrationSection';
 import OrgMembersSection from './components/OrgMembersSection';
 import OrgRolesSection from './components/OrgRolesSection';
 import OrgTrustedOrgsSection from './components/OrgTrustedOrgsSection';
-import Logger from '../../utils/Logger';
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
@@ -40,8 +35,6 @@ import * as RoutingActions from '../../core/router/RoutingActions';
 import { isNonEmptyString } from '../../utils/LangUtils';
 import { isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
-
-const LOG :Logger = new Logger('OrgContainer');
 
 const { NEUTRALS } = Colors;
 
@@ -74,93 +67,7 @@ const Tabs = styled.div`
   margin: 30px 0 50px 0;
 `;
 
-const SectionItem = styled.div`
-  position: relative;
-  ${({ marginTop }) => {
-    const finalMarginTop = (marginTop >= 0) ? marginTop : 32;
-    return css`
-      margin: ${finalMarginTop}px 0 0 0;
-    `;
-  }}
-`;
-
-const SectionGrid = styled.section`
-  display: grid;
-  flex: 1;
-  grid-auto-rows: min-content;
-  ${({ columns }) => {
-    if (columns > 0) {
-      return css`
-        grid-column-gap: 30px;
-        grid-template-columns: repeat(${columns}, 1fr);
-      `;
-    }
-    return null;
-  }}
-
-  > h2 {
-    font-size: 22px;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  > h4 {
-    color: ${NEUTRALS[1]};
-    font-size: 16px;
-    font-weight: normal;
-    margin: 16px 0 0 0;
-  }
-
-  > h5 {
-    color: ${NEUTRALS[1]};
-    font-size: 14px;
-    font-weight: normal;
-    margin: 16px 0 0 0;
-  }
-
-  i {
-    color: ${NEUTRALS[1]};
-    font-size: 16px;
-    font-weight: normal;
-    margin: 32px 0 0 0;
-  }
-
-  pre {
-    margin: 0;
-  }
-
-  ${SectionItem} {
-    /*
-     * !!! IMPORTANT !!!
-     *
-     * https://www.w3.org/TR/css-flexbox-1/
-     *   | By default, flex items won’t shrink below their minimum content size (the length of the longest word or
-     *   | fixed-size element). To change this, set the min-width or min-height property.
-     *
-     * https://dfmcphee.com/flex-items-and-min-width-0/
-     * https://css-tricks.com/flexbox-truncated-text/
-     *
-     * !!! IMPORTANT !!!
-     */
-    min-width: 0; /* setting min-width fixes the text truncation issue */
-  }
-`;
-
-const ActionControlWithButton = styled.div`
-  display: grid;
-  grid-gap: 5px;
-  grid-template-columns: 1fr auto;
-
-  > button {
-    margin-right: 4px;
-  }
-`;
-
-const ORG_NAV_LINK_ACTIVE :string = 'org-nav-link-active';
-
-const OrgNavLink = styled(NavLink).attrs({
-  activeClassName: ORG_NAV_LINK_ACTIVE
-})`
+const OrgNavLink = styled(NavLink)`
   align-items: center;
   border-bottom: 2px solid transparent;
   color: ${NEUTRALS[1]};
@@ -182,7 +89,7 @@ const OrgNavLink = styled(NavLink).attrs({
     text-decoration: none;
   }
 
-  &.${ORG_NAV_LINK_ACTIVE} {
+  &.active {
     border-bottom: 2px solid #674fef;
     color: #674fef;
   }
@@ -258,21 +165,6 @@ class OrgContainer extends Component<Props> {
     actions.resetRequestState(GET_ORGANIZATION_DETAILS);
   }
 
-  handleOnClickCopyCredential = () => {
-
-    const { isOwner, org } = this.props;
-
-    if (isOwner) {
-      // TODO: consider using https://github.com/zenorocha/clipboard.js
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(org.getIn(['integration', 'credential'], ''));
-      }
-      else {
-        LOG.error('cannot copy credential, navigator.clipboard is not available');
-      }
-    }
-  }
-
   renderOrgDetails = () => {
 
     const { org } = this.props;
@@ -306,28 +198,9 @@ class OrgContainer extends Component<Props> {
       return null;
     }
 
-    const orgIdClean = org.get('id').replace(/-/g, '');
-
     return (
       <CardSegment noBleed vertical>
-        <SectionGrid>
-          <h2>Integration Account Details</h2>
-          <h5>JDBC URL</h5>
-          <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
-          <h5>USER</h5>
-          <pre>{org.getIn(['integration', 'user'], '')}</pre>
-          <h5>CREDENTIAL</h5>
-        </SectionGrid>
-        <SectionGrid columns={2}>
-          <SectionItem marginTop={4}>
-            <ActionControlWithButton>
-              <Input disabled type="password" value="********************************" />
-              <Button onClick={this.handleOnClickCopyCredential}>
-                <FontAwesomeIcon icon={faCopy} />
-              </Button>
-            </ActionControlWithButton>
-          </SectionItem>
-        </SectionGrid>
+        <OrgIntegrationSection isOwner={isOwner} org={org} />
       </CardSegment>
     );
   }
@@ -338,10 +211,10 @@ class OrgContainer extends Component<Props> {
 
     return (
       <CardSegment noBleed vertical>
-        <SectionGrid columns={2}>
+        <OrgDetailSectionGrid columns={2}>
           <OrgDomainsSection isOwner={isOwner} org={org} />
           <OrgTrustedOrgsSection isOwner={isOwner} org={org} />
-        </SectionGrid>
+        </OrgDetailSectionGrid>
       </CardSegment>
     );
   }
@@ -352,10 +225,10 @@ class OrgContainer extends Component<Props> {
 
     return (
       <CardSegment noBleed vertical>
-        <SectionGrid columns={2}>
+        <OrgDetailSectionGrid columns={2}>
           <OrgRolesSection isOwner={isOwner} org={org} />
           <OrgMembersSection isOwner={isOwner} org={org} />
-        </SectionGrid>
+        </OrgDetailSectionGrid>
         {
           isOwner && (
             <DeleteOrgModal org={org} />
