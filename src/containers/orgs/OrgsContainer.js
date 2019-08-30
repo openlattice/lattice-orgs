@@ -3,11 +3,12 @@
  */
 
 import React, { Component } from 'react';
+import type { Element } from 'react';
 
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/pro-solid-svg-icons';
-import { List, Map } from 'immutable';
+import { List, Map, Set } from 'immutable';
 import {
   Card,
   CardHeader,
@@ -35,14 +36,35 @@ const { GET_ORGS_AND_PERMISSIONS } = OrgsActions;
 const Title = styled.h1`
   font-size: 28px;
   font-weight: normal;
-  margin: 20px 0 40px 0;
+  margin: 20px 0 0 0;
   padding: 0;
+`;
+
+const OrgCount = styled.span`
+  color: #674fef;
+  font-weight: normal;
+`;
+
+const OrgCollectionSection = styled.section`
+  > h2 {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 48px 0 24px 0;
+
+    ${OrgCount} {
+      margin: 0 0 0 8px;
+    }
+  }
 `;
 
 const CardGrid = styled.div`
   display: grid;
   grid-gap: 30px;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr; /* the goal is to have 2 equal-width columns */
+
+  ${Card} {
+    min-width: 0; /* setting min-width ensures cards do not overflow the grid column */
+  }
 `;
 
 const OrgName = styled.h2`
@@ -77,7 +99,10 @@ const OrgDescription = styled.p`
   font-size: 14px;
   font-weight: normal;
   margin: 0;
+  overflow: hidden;
+  overflow-wrap: break-word;
   padding: 0;
+  text-overflow: ellipsis;
 `;
 
 const Error = styled.div`
@@ -90,7 +115,9 @@ type Props = {
     goToRoute :GoToRoute;
     resetRequestState :(actionType :string) => void;
   };
-  orgs :Map;
+  isMemberOfOrgIds :Set<UUID>;
+  isOwnerOfOrgIds :Set<UUID>;
+  orgs :Map<UUID, Map>;
   requestStates :{
     GET_ORGS_AND_PERMISSIONS :RequestState;
   };
@@ -126,7 +153,14 @@ class OrgsContainer extends Component<Props> {
 
   renderOrgCard = (org :Map) => {
 
-    const description :string = org.get('description', '');
+    let description :string = org.get('description', '');
+
+    // TODO: refactor as a utility function
+    if (description.length > 100) {
+      let spaceIndex = description.indexOf(' ', 98);
+      if (spaceIndex === -1) spaceIndex = 100;
+      description = `${description.substr(0, spaceIndex)}...`;
+    }
 
     return (
       <Card key={org.get('id')} onClick={() => this.goToOrg(org)}>
@@ -150,9 +184,31 @@ class OrgsContainer extends Component<Props> {
     );
   }
 
+  renderOrgCollectionSection = (title :string, orgCards :Element<any>[]) => {
+
+    if (orgCards.length === 0) {
+      return null;
+    }
+
+    return (
+      <OrgCollectionSection>
+        <h2>
+          <span>{title}</span>
+          <OrgCount>{orgCards.length}</OrgCount>
+        </h2>
+        <CardGrid>{orgCards}</CardGrid>
+      </OrgCollectionSection>
+    );
+  }
+
   render() {
 
-    const { orgs, requestStates } = this.props;
+    const {
+      isMemberOfOrgIds,
+      isOwnerOfOrgIds,
+      orgs,
+      requestStates,
+    } = this.props;
 
     if (requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.PENDING) {
       return (
@@ -168,30 +224,44 @@ class OrgsContainer extends Component<Props> {
       );
     }
 
-    const orgCards = orgs.valueSeq().map((org) => this.renderOrgCard(org));
+    const ownerOrgCards :Element<any>[] = [];
+    const memberOrgCards :Element<any>[] = [];
+    const publicOrgCards :Element<any>[] = [];
+
+    orgs.forEach((org :Map, orgId :UUID) => {
+      const orgCard :Element<any> = this.renderOrgCard(org);
+      if (isOwnerOfOrgIds.has(orgId)) {
+        ownerOrgCards.push(orgCard);
+      }
+      else if (isMemberOfOrgIds.has(orgId)) {
+        memberOrgCards.push(orgCard);
+      }
+      else {
+        publicOrgCards.push(orgCard);
+      }
+    });
 
     return (
       <>
         <Title>Organizations</Title>
         {
-          orgCards.isEmpty()
-            ? (
-              <Error>
-                Sorry, no organizations were found. Please try refreshing the page, or contact support.
-              </Error>
-            )
-            : (
-              <CardGrid>
-                {orgCards}
-              </CardGrid>
-            )
+          orgs.isEmpty() && (
+            <Error>
+              Sorry, no organizations were found. Please try refreshing the page, or contact support.
+            </Error>
+          )
         }
+        {this.renderOrgCollectionSection('Owner', ownerOrgCards)}
+        {this.renderOrgCollectionSection('Member', memberOrgCards)}
+        {this.renderOrgCollectionSection('Public', publicOrgCards)}
       </>
     );
   }
 }
 
 const mapStateToProps = (state :Map<*, *>) => ({
+  isMemberOfOrgIds: state.getIn(['orgs', 'isMemberOfOrgIds'], Set()),
+  isOwnerOfOrgIds: state.getIn(['orgs', 'isOwnerOfOrgIds'], Set()),
   orgs: state.getIn(['orgs', 'orgs']),
   requestStates: {
     [GET_ORGS_AND_PERMISSIONS]: state.getIn(['orgs', GET_ORGS_AND_PERMISSIONS, 'requestState']),

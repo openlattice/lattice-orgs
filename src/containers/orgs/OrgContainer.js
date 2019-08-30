@@ -56,7 +56,6 @@ const {
 } = Models;
 
 const {
-  PermissionTypes,
   PrincipalTypes,
 } = Types;
 
@@ -650,12 +649,17 @@ class OrgContainer extends Component<Props, State> {
   renderOrgDetails = () => {
 
     const { org } = this.props;
+    const description :string = org.get('description', '');
 
     return (
       <Card>
-        <CardSegment noBleed>
-          <OrgDescription>{org.get('description')}</OrgDescription>
-        </CardSegment>
+        {
+          isNonEmptyString(description) && (
+            <CardSegment noBleed>
+              <OrgDescription>{description}</OrgDescription>
+            </CardSegment>
+          )
+        }
         {this.renderIntegrationSegment()}
         {this.renderDomainsAndTrustedOrgsSegment()}
         {this.renderRolesAndMembersSegment()}
@@ -1102,7 +1106,7 @@ const mapStateToProps = (state :Map<*, *>, props) => {
     org,
     orgs,
     trustedOrgs,
-    isOwner: state.getIn(['orgs', 'orgPermissions', orgId, PermissionTypes.OWNER], false),
+    isOwner: state.hasIn(['orgs', 'isOwnerOfOrgIds', orgId], false),
     memberSearchResults: state.getIn(['orgs', 'memberSearchResults'], Map()),
     requestStates: {
       [ADD_DOMAIN_TO_ORG]: state.getIn(['orgs', ADD_DOMAIN_TO_ORG, 'requestState']),
