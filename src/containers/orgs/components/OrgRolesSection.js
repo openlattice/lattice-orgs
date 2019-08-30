@@ -9,12 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import {
-  Button,
-  Card,
-  Input,
-  Spinner,
-} from 'lattice-ui-kit';
+import { Button, Card, Input } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
@@ -59,7 +54,7 @@ type Props = {
   requestStates :{
     CREATE_ROLE :RequestState;
     DELETE_ROLE :RequestState;
-  }
+  };
 };
 
 type State = {
@@ -193,9 +188,7 @@ class OrgRolesSection extends Component<Props, State> {
           }
           {
             !roleCardSegments.isEmpty() && requestStates[DELETE_ROLE] === RequestStates.PENDING && (
-              <SpinnerOverlayCard>
-                <Spinner size="2x" />
-              </SpinnerOverlayCard>
+              <SpinnerOverlayCard />
             )
           }
         </OrgDetailSectionGridItem>

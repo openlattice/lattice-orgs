@@ -1,8 +1,9 @@
+import React from 'react';
 import styled from 'styled-components';
 
-import { Card } from 'lattice-ui-kit';
+import { Card, Spinner } from 'lattice-ui-kit';
 
-const SpinnerOverlayCard = styled(Card)`
+const OverlayCard = styled(Card)`
   display: flex;
   height: 100%;
   justify-content: center;
@@ -10,5 +11,11 @@ const SpinnerOverlayCard = styled(Card)`
   top: 0;
   width: 100%;
 `;
+
+const SpinnerOverlayCard = () => (
+  <OverlayCard>
+    <Spinner size="2x" />
+  </OverlayCard>
+);
 
 export default SpinnerOverlayCard;

@@ -9,7 +9,6 @@ import {
   faCopy,
   faMinus,
   faPlus,
-  faSearch,
 } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
@@ -20,7 +19,6 @@ import {
   CardSegment,
   Colors,
   Input,
-  SearchInput,
   Select,
   Spinner,
 } from 'lattice-ui-kit';
@@ -33,6 +31,7 @@ import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import DeleteOrgModal from './components/DeleteOrgModal';
+import OrgMembersSection from './components/OrgMembersSection';
 import OrgRolesSection from './components/OrgRolesSection';
 import Logger from '../../utils/Logger';
 import * as OrgsActions from './OrgsActions';
@@ -40,7 +39,6 @@ import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { isNonEmptyString } from '../../utils/LangUtils';
-import { getUserProfileLabel } from '../../utils/PersonUtils';
 import { isValidEmailDomain, isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
@@ -240,10 +238,6 @@ const TRUSTED_ORGS_SUB_TITLE = `
 Organizations listed here and all their members will be able to see this organization and all its roles.
 `;
 
-const MEMBERS_SUB_TITLE = `
-Click on a member to view their roles. To add members to this organization, search for users in the system.
-`;
-
 type Props = {
   actions :{
     addDomainToOrganization :RequestSequence;
@@ -262,7 +256,6 @@ type Props = {
   };
   isOwner :boolean;
   match :Match;
-  memberSearchResults :Map;
   org :Map;
   orgs :Map;
   requestStates :{
@@ -467,7 +460,7 @@ class OrgContainer extends Component<Props, State> {
         organizationId: org.get('id'),
         query: memberSearchQuery,
       });
-      this.setState({ memberSearchQuery });
+      // this.setState({ memberSearchQuery });
     }
   }
 
@@ -783,7 +776,7 @@ class OrgContainer extends Component<Props, State> {
       <CardSegment noBleed vertical>
         <SectionGrid columns={2}>
           <OrgRolesSection isOwner={isOwner} org={org} />
-          {this.renderMembersSection()}
+          <OrgMembersSection isOwner={isOwner} org={org} />
         </SectionGrid>
         {
           isOwner && (
@@ -791,99 +784,6 @@ class OrgContainer extends Component<Props, State> {
           )
         }
       </CardSegment>
-    );
-  }
-
-  renderMembersSection = () => {
-
-    const {
-      isOwner,
-      org,
-      memberSearchResults,
-      requestStates,
-    } = this.props;
-    const { memberSearchQuery } = this.state;
-
-    const members = org.get('members', List());
-    const memberCardSegments = members.map((member :Map) => {
-      const userProfileLabel :string = getUserProfileLabel(member);
-      const memberId :string = member.getIn(['profile', 'user_id'], member.get('id'));
-      return (
-        <CompactCardSegment key={memberId || userProfileLabel}>
-          <span title={userProfileLabel}>{userProfileLabel}</span>
-          {
-            isOwner && (
-              this.renderRemoveButton(() => this.handleOnClickRemoveMember(memberId))
-            )
-          }
-        </CompactCardSegment>
-      );
-    });
-
-    const shouldShowSpinner = isNonEmptyString(memberSearchQuery)
-      && requestStates[SEARCH_MEMBERS_TO_ADD_TO_ORG] === RequestStates.PENDING;
-
-    const searchResultCardSegments = memberSearchResults.valueSeq().map((member :Map) => {
-      const userProfileLabel :string = getUserProfileLabel(member);
-      return (
-        <CompactCardSegment key={member.get('user_id')}>
-          <span title={userProfileLabel}>{userProfileLabel}</span>
-          {
-            this.renderAddButton(
-              () => this.handleOnClickAddMember(member.get('user_id')),
-              requestStates[ADD_MEMBER_TO_ORG] === RequestStates.PENDING
-            )
-          }
-        </CompactCardSegment>
-      );
-    });
-
-    return (
-      <SectionGrid>
-        <h2>Members</h2>
-        {
-          isOwner && (
-            <h4>{MEMBERS_SUB_TITLE}</h4>
-          )
-        }
-        {
-          isOwner && (
-            <SectionItem>
-              <ActionControlWithButton>
-                <SearchInput
-                    onChange={this.handleOnChangeMemberSearch}
-                    placeholder="Search for a member to add" />
-                <Button isLoading={shouldShowSpinner} onClick={this.handleOnClickMemberSearch}>
-                  <FontAwesomeIcon icon={faSearch} />
-                </Button>
-              </ActionControlWithButton>
-            </SectionItem>
-          )
-        }
-        {
-          isOwner && isNonEmptyString(memberSearchQuery) && !searchResultCardSegments.isEmpty() && (
-            <SectionItem>
-              <Card>{searchResultCardSegments}</Card>
-            </SectionItem>
-          )
-        }
-        <SectionItem>
-          {
-            memberCardSegments.isEmpty()
-              ? (
-                <i>No members</i>
-              )
-              : (
-                <Card>{memberCardSegments}</Card>
-              )
-          }
-          {
-            !memberCardSegments.isEmpty() && requestStates[REMOVE_MEMBER_FROM_ORG] === RequestStates.PENDING && (
-              this.renderSpinnerOverlayCard()
-            )
-          }
-        </SectionItem>
-      </SectionGrid>
     );
   }
 
@@ -961,7 +861,6 @@ const mapStateToProps = (state :Map<*, *>, props) => {
     orgs,
     trustedOrgs,
     isOwner: state.hasIn(['orgs', 'isOwnerOfOrgIds', orgId], false),
-    memberSearchResults: state.getIn(['orgs', 'memberSearchResults'], Map()),
     requestStates: {
       [ADD_DOMAIN_TO_ORG]: state.getIn(['orgs', ADD_DOMAIN_TO_ORG, 'requestState']),
       [ADD_MEMBER_TO_ORG]: state.getIn(['orgs', ADD_MEMBER_TO_ORG, 'requestState']),
