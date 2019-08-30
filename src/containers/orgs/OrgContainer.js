@@ -7,11 +7,9 @@ import React, { Component } from 'react';
 import styled, { css } from 'styled-components';
 import {
   faCopy,
-  faMinus,
-  faPlus,
 } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List, Map } from 'immutable';
+import { Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   Button,
@@ -19,7 +17,6 @@ import {
   CardSegment,
   Colors,
   Input,
-  Select,
   Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
@@ -34,6 +31,7 @@ import DeleteOrgModal from './components/DeleteOrgModal';
 import OrgDomainsSection from './components/OrgDomainsSection';
 import OrgMembersSection from './components/OrgMembersSection';
 import OrgRolesSection from './components/OrgRolesSection';
+import OrgTrustedOrgsSection from './components/OrgTrustedOrgsSection';
 import Logger from '../../utils/Logger';
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
@@ -50,8 +48,6 @@ const { NEUTRALS } = Colors;
 const {
   ADD_MEMBER_TO_ORG,
   DELETE_ORGANIZATION,
-  GRANT_TRUST_TO_ORG,
-  REVOKE_TRUST_FROM_ORG,
 } = OrganizationsApiActions;
 
 const {
@@ -76,20 +72,6 @@ const Tabs = styled.div`
   display: flex;
   justify-content: flex-start;
   margin: 30px 0 50px 0;
-`;
-
-const CompactCardSegment = styled(CardSegment)`
-  align-items: center;
-  justify-content: space-between;
-  min-height: 48px;
-  padding: 3px 3px 3px 10px;
-
-  > span {
-    overflow: hidden;
-    padding-right: 10px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
 `;
 
 const SectionItem = styled.div`
@@ -164,15 +146,6 @@ const SectionGrid = styled.section`
   }
 `;
 
-const SpinnerOverlayCard = styled(Card)`
-  display: flex;
-  height: 100%;
-  justify-content: center;
-  position: absolute;
-  top: 0;
-  width: 100%;
-`;
-
 const ActionControlWithButton = styled.div`
   display: grid;
   grid-gap: 5px;
@@ -180,16 +153,6 @@ const ActionControlWithButton = styled.div`
 
   > button {
     margin-right: 4px;
-  }
-`;
-
-const SelectControlWithButton = styled(ActionControlWithButton)`
-  > div {
-    display: flex;
-
-    > div {
-      flex: 1;
-    }
   }
 `;
 
@@ -225,50 +188,24 @@ const OrgNavLink = styled(NavLink).attrs({
   }
 `;
 
-const TRUSTED_ORGS_SUB_TITLE = `
-Organizations listed here and all their members will be able to see this organization and all its roles.
-`;
-
 type Props = {
   actions :{
     getOrganizationDetails :RequestSequence;
     deleteOrganization :RequestSequence;
     goToRoot :GoToRoot;
-    grantTrustToOrganization :RequestSequence;
     resetRequestState :(actionType :string) => void;
-    revokeTrustFromOrganization :RequestSequence;
   };
   isOwner :boolean;
   match :Match;
   org :Map;
-  orgs :Map;
   requestStates :{
     ADD_MEMBER_TO_ORG :RequestState;
     DELETE_ORGANIZATION :RequestState;
     GET_ORGANIZATION_DETAILS :RequestState;
-    GRANT_TRUST_TO_ORG :RequestState;
-    REVOKE_TRUST_FROM_ORG :RequestState;
-  };
-  trustedOrgs :Map;
-};
-
-type State = {
-  orgToTrustSelectedOption :?{
-    label :string;
-    value :UUID;
   };
 };
 
-class OrgContainer extends Component<Props, State> {
-
-  constructor(props :Props) {
-
-    super(props);
-
-    this.state = {
-      orgToTrustSelectedOption: null,
-    };
-  }
+class OrgContainer extends Component<Props> {
 
   componentDidMount() {
 
@@ -312,10 +249,6 @@ class OrgContainer extends Component<Props, State> {
           && prevProps.requestStates[DELETE_ORGANIZATION] === RequestStates.PENDING) {
         actions.goToRoot();
       }
-      if (requestStates[GRANT_TRUST_TO_ORG] === RequestStates.SUCCESS
-          && prevProps.requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING) {
-        this.setState({ orgToTrustSelectedOption: null });
-      }
     }
   }
 
@@ -339,86 +272,6 @@ class OrgContainer extends Component<Props, State> {
       }
     }
   }
-
-  /*
-   * trusted orgs related handlers
-   */
-
-  handleOnChangeTrustedOrg = (rsOption :?Object, actionMeta :Object = {}) => {
-
-    const { isOwner } = this.props;
-
-    if (isOwner) {
-      if (rsOption) {
-        this.setState({ orgToTrustSelectedOption: rsOption });
-      }
-      else if (actionMeta.action === 'clear') {
-        this.setState({ orgToTrustSelectedOption: null });
-      }
-    }
-  }
-
-  handleOnClickGrantTrustToOrg = () => {
-
-    const {
-      actions,
-      isOwner,
-      org,
-      orgs,
-      trustedOrgs,
-    } = this.props;
-    const { orgToTrustSelectedOption } = this.state;
-
-    if (isOwner && orgToTrustSelectedOption) {
-
-      const thisOrgId :UUID = org.get('id');
-      const selectedOrgId :UUID = orgToTrustSelectedOption.value;
-      const selectedOrg :Map = orgs
-        .filter((o :Map, id :UUID) => !trustedOrgs.has(id) && id !== thisOrgId)
-        .get(selectedOrgId, Map());
-
-      actions.grantTrustToOrganization({
-        // required for the request
-        organizationId: thisOrgId,
-        principalId: selectedOrg.getIn(['principal', 'id']),
-        // only needed locally for redux
-        trustedOrgId: selectedOrgId,
-      });
-    }
-  }
-
-  handleOnClickRevokeTrustFromOrg = (trustedOrg :Map) => {
-
-    const { actions, isOwner, org } = this.props;
-
-    if (isOwner) {
-      actions.revokeTrustFromOrganization({
-        // required for the request
-        organizationId: org.get('id'),
-        principalId: trustedOrg.getIn(['principal', 'id']),
-        // only needed locally for redux
-        trustedOrgId: trustedOrg.get('id'),
-      });
-    }
-  }
-
-  renderAddButton = (onClick :Function, isPending :boolean = false) => (
-    <Button isLoading={isPending} mode="positive" onClick={onClick}>
-      <FontAwesomeIcon icon={faPlus} />
-    </Button>
-  )
-
-  renderRemoveButton = (onClick :Function, isPending :boolean = false) => (
-    <Button isLoading={isPending} mode="negative" onClick={onClick}>
-      <FontAwesomeIcon icon={faMinus} />
-    </Button>
-  )
-
-  renderSpinnerOverlayCard = () => (
-    <SpinnerOverlayCard>
-      <Spinner size="2x" />
-    </SpinnerOverlayCard>
-  )
 
   renderOrgDetails = () => {
 
@@ -487,90 +340,9 @@ class OrgContainer extends Component<Props, State> {
       <CardSegment noBleed vertical>
         <SectionGrid columns={2}>
           <OrgDomainsSection isOwner={isOwner} org={org} />
-          {this.renderTrustedOrgsSection()}
+          <OrgTrustedOrgsSection isOwner={isOwner} org={org} />
         </SectionGrid>
       </CardSegment>
-    );
-  }
-
-  renderTrustedOrgsSection = () => {
-
-    const {
-      isOwner,
-      org,
-      orgs,
-      requestStates,
-      trustedOrgs,
-    } = this.props;
-    const { orgToTrustSelectedOption } = this.state;
-
-    const thisOrgId :UUID = org.get('id');
-    const notYetTrustedOrgs :Object[] = orgs
-      .filter((o :Map, id :UUID) => !trustedOrgs.has(id) && id !== thisOrgId)
-      .valueSeq()
-      .map((o :Map) => ({
-        label: o.get('title'),
-        value: o.get('id'),
-      }))
-      .toJS();
-
-    const orgCardSegments = trustedOrgs.valueSeq().map((trustedOrg :Map) => (
-      <CompactCardSegment key={trustedOrg.get('id')}>
-        <span title={trustedOrg.get('title')}>{trustedOrg.get('title')}</span>
-        {
-          isOwner && (
-            this.renderRemoveButton(() => this.handleOnClickRevokeTrustFromOrg(trustedOrg))
-          )
-        }
-      </CompactCardSegment>
-    ));
-
-    return (
-      <SectionGrid>
-        <h2>Trusted Organizations</h2>
-        {
-          isOwner && (
-            <h4>{TRUSTED_ORGS_SUB_TITLE}</h4>
-          )
-        }
-        {
-          isOwner && (
-            <SectionItem>
-              <SelectControlWithButton>
-                <Select
-                    isClearable
-                    isLoading={requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING}
-                    options={notYetTrustedOrgs}
-                    onChange={this.handleOnChangeTrustedOrg}
-                    placeholder="Select an organization to trust"
-                    value={orgToTrustSelectedOption} />
-                {
-                  this.renderAddButton(
-                    this.handleOnClickGrantTrustToOrg,
-                    requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING
-                  )
-                }
-              </SelectControlWithButton>
-            </SectionItem>
-          )
-        }
-        <SectionItem>
-          {
-            orgCardSegments.isEmpty()
-              ? (
-                <i>No trusted organizations</i>
-              )
-              : (
-                <Card>{orgCardSegments}</Card>
-              )
-          }
-          {
-            !orgCardSegments.isEmpty() && requestStates[REVOKE_TRUST_FROM_ORG] === RequestStates.PENDING && (
-              this.renderSpinnerOverlayCard()
-            )
-          }
-        </SectionItem>
-      </SectionGrid>
     );
   }
 
@@ -657,22 +429,14 @@ const mapStateToProps = (state :Map<*, *>, props) => {
     } = {},
   } = props.match;
 
-  const orgs :Map = state.getIn(['orgs', 'orgs'], Map());
-  const org :Map = orgs.get(orgId, Map());
-  const trustedOrgIds :List = org.get('trustedOrgIds', List());
-  const trustedOrgs :Map = orgs.filter((anOrg :Map) => trustedOrgIds.includes(anOrg.get('id')));
-
   return {
-    org,
-    orgs,
-    trustedOrgs,
     isOwner: state.hasIn(['orgs', 'isOwnerOfOrgIds', orgId], false),
+    org: state.getIn(['orgs', 'orgs', orgId], Map()),
+    orgs: state.getIn(['orgs', 'orgs'], Map()),
     requestStates: {
       [ADD_MEMBER_TO_ORG]: state.getIn(['orgs', ADD_MEMBER_TO_ORG, 'requestState']),
       [DELETE_ORGANIZATION]: state.getIn(['orgs', DELETE_ORGANIZATION, 'requestState']),
       [GET_ORGANIZATION_DETAILS]: state.getIn(['orgs', GET_ORGANIZATION_DETAILS, 'requestState']),
-      [GRANT_TRUST_TO_ORG]: state.getIn(['orgs', GRANT_TRUST_TO_ORG, 'requestState']),
-      [REVOKE_TRUST_FROM_ORG]: state.getIn(['orgs', REVOKE_TRUST_FROM_ORG, 'requestState']),
     },
   };
 };
@@ -680,11 +444,9 @@ const mapStateToProps = (state :Map<*, *>, props) => {
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     getOrganizationDetails: OrgsActions.getOrganizationDetails,
-    grantTrustToOrganization: OrganizationsApiActions.grantTrustToOrganization,
     deleteOrganization: OrganizationsApiActions.deleteOrganization,
     goToRoot: RoutingActions.goToRoot,
     resetRequestState: ReduxActions.resetRequestState,
-    revokeTrustFromOrganization: OrganizationsApiActions.revokeTrustFromOrganization,
   }, dispatch)
 });
 
