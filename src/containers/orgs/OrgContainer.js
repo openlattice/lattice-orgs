@@ -13,7 +13,6 @@ import {
 } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
-import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   Button,
@@ -34,6 +33,7 @@ import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import DeleteOrgModal from './components/DeleteOrgModal';
+import OrgRolesSection from './components/OrgRolesSection';
 import Logger from '../../utils/Logger';
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
@@ -47,17 +47,6 @@ import type { GoToRoot } from '../../core/router/RoutingActions';
 const LOG :Logger = new Logger('OrgContainer');
 
 const { NEUTRALS } = Colors;
-
-const {
-  Principal,
-  PrincipalBuilder,
-  Role,
-  RoleBuilder,
-} = Models;
-
-const {
-  PrincipalTypes,
-} = Types;
 
 const {
   ADD_DOMAIN_TO_ORG,
@@ -251,10 +240,6 @@ const TRUSTED_ORGS_SUB_TITLE = `
 Organizations listed here and all their members will be able to see this organization and all its roles.
 `;
 
-const ROLES_SUB_TITLE = `
-You will be able to use the Roles below to manage permissions on Entity Sets that you own.
-`;
-
 const MEMBERS_SUB_TITLE = `
 Click on a member to view their roles. To add members to this organization, search for users in the system.
 `;
@@ -299,9 +284,7 @@ type Props = {
 type State = {
   domain :string;
   isValidDomain :boolean;
-  isValidRole :boolean;
   memberSearchQuery :string;
-  roleTitle :string;
   orgToTrustSelectedOption :?{
     label :string;
     value :UUID;
@@ -317,9 +300,7 @@ class OrgContainer extends Component<Props, State> {
     this.state = {
       domain: '',
       isValidDomain: true,
-      isValidRole: true,
       memberSearchQuery: '',
-      roleTitle: '',
       orgToTrustSelectedOption: null,
     };
   }
@@ -498,70 +479,6 @@ class OrgContainer extends Component<Props, State> {
       actions.removeMemberFromOrganization({
         memberId,
         organizationId: org.get('id'),
-      });
-    }
-  }
-
-  /*
-   * role related handlers
-   */
-
-  handleOnChangeRole = (event :SyntheticInputEvent<HTMLInputElement>) => {
-
-    const { isOwner } = this.props;
-    const roleTitle :string = event.target.value || '';
-
-    if (isOwner) {
-      // always set isValidRole to true when typing
-      this.setState({ roleTitle, isValidRole: true });
-    }
-  }
-
-  handleOnClickAddRole = () => {
-
-    const { actions, isOwner, org } = this.props;
-    const { roleTitle } = this.state;
-
-    if (isOwner) {
-      if (!isNonEmptyString(roleTitle)) {
-        // set to false only when the button was clicked
-        this.setState({ isValidRole: false });
-        return;
-      }
-
-      const principal :Principal = (new PrincipalBuilder())
-        .setType(PrincipalTypes.ROLE)
-        .setId(`${org.get('id')}|${roleTitle.replace(/\W/g, '')}`)
-        .build();
-
-      const newRole :Role = (new RoleBuilder())
-        .setOrganizationId(org.get('id'))
-        .setPrincipal(principal)
-        .setTitle(roleTitle)
-        .build();
-
-      const isNewRole :boolean = org.get('roles', List())
-        .filter((role :Map) => role.getIn(['principal', 'id']) === newRole.principal.id)
-        .isEmpty();
-
-      if (isNewRole) {
-        actions.createRole(newRole);
-      }
-      else {
-        // set isValidDomain to false only when the button was clicked
-        this.setState({ isValidRole: false });
-      }
-    }
-  }
-
-  handleOnClickRemoveRole = (role :Map) => {
-
-    const { actions, isOwner, org } = this.props;
-
-    if (isOwner) {
-      actions.deleteRole({
-        organizationId: org.get('id'),
-        roleId: role.get('id'),
       });
     }
   }
@@ -865,7 +782,7 @@ class OrgContainer extends Component<Props, State> {
     return (
       <CardSegment noBleed vertical>
         <SectionGrid columns={2}>
-          {this.renderRolesSection()}
+          <OrgRolesSection isOwner={isOwner} org={org} />
           {this.renderMembersSection()}
         </SectionGrid>
         {
@@ -874,69 +791,6 @@ class OrgContainer extends Component<Props, State> {
           )
         }
       </CardSegment>
-    );
-  }
-
-  renderRolesSection = () => {
-
-    const { isOwner, org, requestStates } = this.props;
-    const { isValidRole } = this.state;
-
-    const roles = org.get('roles', List());
-    const roleCardSegments = roles.map((role :Map) => (
-      <CompactCardSegment key={role.get('id')}>
-        <span title={role.get('title')}>{role.get('title')}</span>
-        {
-          isOwner && (
-            this.renderRemoveButton(() => this.handleOnClickRemoveRole(role))
-          )
-        }
-      </CompactCardSegment>
-    ));
-
-    return (
-      <SectionGrid>
-        <h2>Roles</h2>
-        {
-          isOwner && (
-            <h4>{ROLES_SUB_TITLE}</h4>
-          )
-        }
-        {
-          isOwner && (
-            <SectionItem>
-              <ActionControlWithButton>
-                <Input
-                    invalid={!isValidRole}
-                    onChange={this.handleOnChangeRole}
-                    placeholder="Add a new role" />
-                {
-                  this.renderAddButton(
-                    this.handleOnClickAddRole,
-                    requestStates[CREATE_ROLE] === RequestStates.PENDING
-                  )
-                }
-              </ActionControlWithButton>
-            </SectionItem>
-          )
-        }
-        <SectionItem>
-          {
-            roleCardSegments.isEmpty()
-              ? (
-                <i>No roles</i>
-              )
-              : (
-                <Card>{roleCardSegments}</Card>
-              )
-          }
-          {
-            !roleCardSegments.isEmpty() && requestStates[DELETE_ROLE] === RequestStates.PENDING && (
-              this.renderSpinnerOverlayCard()
-            )
-          }
-        </SectionItem>
-      </SectionGrid>
     );
   }
 
