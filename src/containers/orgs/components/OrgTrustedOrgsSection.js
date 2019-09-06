@@ -4,11 +4,14 @@
 
 import React, { Component } from 'react';
 
-import { faMinus, faPlus } from '@fortawesome/pro-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import { Button, Card, Select } from 'lattice-ui-kit';
+import {
+  Card,
+  MinusButton,
+  PlusButton,
+  Select,
+} from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
@@ -153,9 +156,7 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
         <span title={trustedOrg.get('title')}>{trustedOrg.get('title')}</span>
         {
           isOwner && (
-            <Button mode="negative" onClick={() => this.handleOnClickRevokeTrustFromOrg(trustedOrg)}>
-              <FontAwesomeIcon icon={faMinus} />
-            </Button>
+            <MinusButton mode="negative" onClick={() => this.handleOnClickRevokeTrustFromOrg(trustedOrg)} />
           )
         }
       </CompactCardSegment>
@@ -180,14 +181,10 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
                     onChange={this.handleOnChangeTrustedOrg}
                     placeholder="Select an organization to trust"
                     value={selectedOption} />
-                {
-                  <Button
-                      isLoading={requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING}
-                      mode="positive"
-                      onClick={this.handleOnClickGrantTrustToOrg}>
-                    <FontAwesomeIcon icon={faPlus} />
-                  </Button>
-                }
+                <PlusButton
+                    isLoading={requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING}
+                    mode="positive"
+                    onClick={this.handleOnClickGrantTrustToOrg} />
               </SelectControlWithButton>
             </OrgDetailSectionGridItem>
           )

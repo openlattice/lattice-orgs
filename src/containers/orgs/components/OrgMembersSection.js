@@ -4,11 +4,15 @@
 
 import React, { Component } from 'react';
 
-import { faMinus, faPlus, faSearch } from '@fortawesome/pro-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import { Button, Card, SearchInput } from 'lattice-ui-kit';
+import {
+  Card,
+  MinusButton,
+  PlusButton,
+  SearchButton,
+  SearchInput,
+} from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
@@ -134,9 +138,7 @@ class OrgMembersSection extends Component<Props, State> {
           <span title={userProfileLabel}>{userProfileLabel}</span>
           {
             isOwner && (
-              <Button mode="negative" onClick={() => this.handleOnClickRemoveMember(memberId)}>
-                <FontAwesomeIcon icon={faMinus} />
-              </Button>
+              <MinusButton mode="negative" onClick={() => this.handleOnClickRemoveMember(memberId)} />
             )
           }
         </CompactCardSegment>
@@ -148,14 +150,10 @@ class OrgMembersSection extends Component<Props, State> {
       return (
         <CompactCardSegment key={member.get('user_id')}>
           <span title={userProfileLabel}>{userProfileLabel}</span>
-          {
-            <Button
-                isLoading={requestStates[ADD_MEMBER_TO_ORG] === RequestStates.PENDING}
-                mode="positive"
-                onClick={() => this.handleOnClickAddMember(member.get('user_id'))}>
-              <FontAwesomeIcon icon={faPlus} />
-            </Button>
-          }
+          <PlusButton
+              isLoading={requestStates[ADD_MEMBER_TO_ORG] === RequestStates.PENDING}
+              mode="positive"
+              onClick={() => this.handleOnClickAddMember(member.get('user_id'))} />
         </CompactCardSegment>
       );
     });
@@ -175,11 +173,9 @@ class OrgMembersSection extends Component<Props, State> {
                 <SearchInput
                     onChange={this.handleOnChangeMemberSearch}
                     placeholder="Search for a member to add" />
-                <Button
+                <SearchButton
                     isLoading={requestStates[SEARCH_MEMBERS_TO_ADD_TO_ORG] === RequestStates.PENDING}
-                    onClick={this.handleOnClickSearch}>
-                  <FontAwesomeIcon icon={faSearch} />
-                </Button>
+                    onClick={this.handleOnClickSearch} />
               </ActionControlWithButton>
             </OrgDetailSectionGridItem>
           )

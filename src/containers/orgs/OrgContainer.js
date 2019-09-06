@@ -167,13 +167,13 @@ class OrgContainer extends Component<Props> {
 
   renderOrgDetails = () => {
 
-    const { org } = this.props;
+    const { isOwner, org } = this.props;
     const description :string = org.get('description', '');
 
     return (
       <Card>
         {
-          isNonEmptyString(description) && (
+          (isOwner || isNonEmptyString(description)) && (
             <CardSegment noBleed>
               <OrgDescription>{description}</OrgDescription>
             </CardSegment>

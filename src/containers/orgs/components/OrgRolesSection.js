@@ -4,12 +4,15 @@
 
 import React, { Component } from 'react';
 
-import { faMinus, faPlus } from '@fortawesome/pro-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import { Button, Card, Input } from 'lattice-ui-kit';
+import {
+  Card,
+  Input,
+  MinusButton,
+  PlusButton,
+} from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
@@ -111,7 +114,7 @@ class OrgRolesSection extends Component<Props, State> {
         actions.createRole(newRole);
       }
       else {
-        // set isValidDomain to false only when the button was clicked
+        // set isValidRole to false only when the button was clicked
         this.setState({ isValidRole: false });
       }
     }
@@ -140,9 +143,7 @@ class OrgRolesSection extends Component<Props, State> {
         <span title={role.get('title')}>{role.get('title')}</span>
         {
           isOwner && (
-            <Button mode="negative" onClick={() => this.handleOnClickRemoveRole(role)}>
-              <FontAwesomeIcon icon={faMinus} />
-            </Button>
+            <MinusButton mode="negative" onClick={() => this.handleOnClickRemoveRole(role)} />
           )
         }
       </CompactCardSegment>
@@ -164,14 +165,10 @@ class OrgRolesSection extends Component<Props, State> {
                     invalid={!isValidRole}
                     onChange={this.handleOnChangeRole}
                     placeholder="Add a new role" />
-                {
-                  <Button
-                      isLoading={requestStates[CREATE_ROLE] === RequestStates.PENDING}
-                      mode="positive"
-                      onClick={this.handleOnClickAddRole}>
-                    <FontAwesomeIcon icon={faPlus} />
-                  </Button>
-                }
+                <PlusButton
+                    isLoading={requestStates[CREATE_ROLE] === RequestStates.PENDING}
+                    mode="positive"
+                    onClick={this.handleOnClickAddRole} />
               </ActionControlWithButton>
             </OrgDetailSectionGridItem>
           )

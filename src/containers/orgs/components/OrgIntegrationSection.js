@@ -4,10 +4,8 @@
 
 import React, { Component } from 'react';
 
-import { faCopy } from '@fortawesome/pro-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map } from 'immutable';
-import { Button, Input } from 'lattice-ui-kit';
+import { CopyButton, Input } from 'lattice-ui-kit';
 
 import ActionControlWithButton from './styled/ActionControlWithButton';
 import OrgDetailSectionGrid from './styled/OrgDetailSectionGrid';
@@ -51,9 +49,7 @@ class OrgIntegrationSection extends Component<Props> {
           <OrgDetailSectionGridItem marginTop={4}>
             <ActionControlWithButton>
               <Input disabled type="password" value="********************************" />
-              <Button onClick={this.handleOnClickCopyCredential}>
-                <FontAwesomeIcon icon={faCopy} />
-              </Button>
+              <CopyButton onClick={this.handleOnClickCopyCredential} />
             </ActionControlWithButton>
           </OrgDetailSectionGridItem>
         </OrgDetailSectionGrid>

@@ -4,11 +4,14 @@
 
 import React, { Component } from 'react';
 
-import { faMinus, faPlus } from '@fortawesome/pro-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import { Button, Card, Input } from 'lattice-ui-kit';
+import {
+  Card,
+  Input,
+  MinusButton,
+  PlusButton,
+} from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
@@ -117,9 +120,7 @@ class OrgDomainsSection extends Component<Props, State> {
         <span title={emailDomain}>{emailDomain}</span>
         {
           isOwner && (
-            <Button mode="negative" onClick={() => this.handleOnClickRemoveDomain(emailDomain)}>
-              <FontAwesomeIcon icon={faMinus} />
-            </Button>
+            <MinusButton mode="negative" onClick={() => this.handleOnClickRemoveDomain(emailDomain)} />
           )
         }
       </CompactCardSegment>
@@ -141,14 +142,10 @@ class OrgDomainsSection extends Component<Props, State> {
                     invalid={!isValidDomain}
                     placeholder="Add a new domain"
                     onChange={this.handleOnChangeDomain} />
-                {
-                  <Button
-                      isLoading={requestStates[ADD_DOMAIN_TO_ORG] === RequestStates.PENDING}
-                      mode="positive"
-                      onClick={this.handleOnClickAddDomain}>
-                    <FontAwesomeIcon icon={faPlus} />
-                  </Button>
-                }
+                <PlusButton
+                    isLoading={requestStates[ADD_DOMAIN_TO_ORG] === RequestStates.PENDING}
+                    mode="positive"
+                    onClick={this.handleOnClickAddDomain} />
               </ActionControlWithButton>
             </OrgDetailSectionGridItem>
           )
