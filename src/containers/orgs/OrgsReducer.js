@@ -41,6 +41,7 @@ const {
   REMOVE_DOMAIN_FROM_ORG,
   REMOVE_MEMBER_FROM_ORG,
   REVOKE_TRUST_FROM_ORG,
+  UPDATE_ORG_DESCRIPTION,
   addDomainToOrganization,
   addMemberToOrganization,
   createRole,
@@ -50,6 +51,7 @@ const {
   removeDomainFromOrganization,
   removeMemberFromOrganization,
   revokeTrustFromOrganization,
+  updateOrganizationDescription,
 } = OrganizationsApiActions;
 
 const INITIAL_STATE :Map<*, *> = fromJS({
@@ -84,6 +86,9 @@ const INITIAL_STATE :Map<*, *> = fromJS({
     requestState: RequestStates.STANDBY,
   },
   [SEARCH_MEMBERS_TO_ADD_TO_ORG]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [UPDATE_ORG_DESCRIPTION]: {
     requestState: RequestStates.STANDBY,
   },
   isMemberOfOrgIds: Set(),
@@ -443,6 +448,27 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
         },
         FAILURE: () => state.setIn([SEARCH_MEMBERS_TO_ADD_TO_ORG, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([SEARCH_MEMBERS_TO_ADD_TO_ORG, seqAction.id]),
+      });
+    }
+
+    case updateOrganizationDescription.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return updateOrganizationDescription.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([UPDATE_ORG_DESCRIPTION, 'requestState'], RequestStates.PENDING)
+          .setIn([UPDATE_ORG_DESCRIPTION, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([UPDATE_ORG_DESCRIPTION, seqAction.id]);
+          if (storedSeqAction) {
+            const { description, organizationId } = storedSeqAction.value;
+            return state
+              .setIn(['orgs', organizationId, 'description'], description)
+              .setIn([UPDATE_ORG_DESCRIPTION, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([UPDATE_ORG_DESCRIPTION, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([UPDATE_ORG_DESCRIPTION, seqAction.id]),
       });
     }
 

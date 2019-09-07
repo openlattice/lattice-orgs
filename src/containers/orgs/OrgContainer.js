@@ -23,6 +23,7 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import DeleteOrgModal from './components/DeleteOrgModal';
 import OrgDetailSectionGrid from './components/styled/OrgDetailSectionGrid';
+import OrgDescriptionSection from './components/OrgDescriptionSection';
 import OrgDomainsSection from './components/OrgDomainsSection';
 import OrgIntegrationSection from './components/OrgIntegrationSection';
 import OrgMembersSection from './components/OrgMembersSection';
@@ -51,13 +52,6 @@ const OrgTitle = styled.h1`
   font-size: 28px;
   font-weight: normal;
   margin: 20px 0 0 0;
-  padding: 0;
-`;
-
-const OrgDescription = styled.h3`
-  font-size: 20px;
-  font-weight: normal;
-  margin: 0;
   padding: 0;
 `;
 
@@ -93,6 +87,10 @@ const OrgNavLink = styled(NavLink)`
     border-bottom: 2px solid #674fef;
     color: #674fef;
   }
+`;
+
+const OrgDescriptionSegment = styled(CardSegment)`
+  justify-content: space-between;
 `;
 
 type Props = {
@@ -167,22 +165,29 @@ class OrgContainer extends Component<Props> {
 
   renderOrgDetails = () => {
 
-    const { isOwner, org } = this.props;
-    const description :string = org.get('description', '');
-
     return (
       <Card>
-        {
-          (isOwner || isNonEmptyString(description)) && (
-            <CardSegment noBleed>
-              <OrgDescription>{description}</OrgDescription>
-            </CardSegment>
-          )
-        }
+        {this.renderOrgDescriptionSegment()}
         {this.renderIntegrationSegment()}
         {this.renderDomainsAndTrustedOrgsSegment()}
         {this.renderRolesAndMembersSegment()}
       </Card>
+    );
+  }
+
+  renderOrgDescriptionSegment = () => {
+
+    const { isOwner, org } = this.props;
+    const description :string = org.get('description', '');
+
+    if (!isOwner && !isNonEmptyString(description)) {
+      return null;
+    }
+
+    return (
+      <OrgDescriptionSegment noBleed>
+        <OrgDescriptionSection isOwner={isOwner} org={org} />
+      </OrgDescriptionSegment>
     );
   }
 
