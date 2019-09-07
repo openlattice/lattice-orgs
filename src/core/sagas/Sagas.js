@@ -37,6 +37,7 @@ export default function* sagas() :Generator<*, *, *> {
     fork(OrganizationsApiSagas.removeMemberFromOrganizationWatcher),
     fork(OrganizationsApiSagas.revokeTrustFromOrganizationWatcher),
     fork(OrganizationsApiSagas.updateOrganizationDescriptionWatcher),
+    fork(OrganizationsApiSagas.updateOrganizationTitleWatcher),
     fork(PrincipalsApiSagas.getSecurablePrincipalWatcher),
     fork(PrincipalsApiSagas.searchAllUsersWatcher),
 

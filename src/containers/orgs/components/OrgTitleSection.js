@@ -8,26 +8,20 @@ import styled from 'styled-components';
 import { Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { Form } from 'lattice-fabricate';
-import { Colors, EditButton } from 'lattice-ui-kit';
+import { EditButton } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as ReduxActions from '../../../core/redux/ReduxActions';
-import { isNonEmptyString } from '../../../utils/LangUtils';
 
-const { NEUTRALS } = Colors;
-const { UPDATE_ORG_DESCRIPTION } = OrganizationsApiActions;
-
-const EditButtonAligned = styled(EditButton)`
-  align-self: flex-start;
-`;
+const { UPDATE_ORG_TITLE } = OrganizationsApiActions;
 
 const dataSchema = {
   properties: {
-    description: {
-      title: 'Edit organization\'s description',
+    title: {
+      title: 'Edit organization\'s title',
       type: 'string',
     },
   },
@@ -36,17 +30,27 @@ const dataSchema = {
 };
 
 export const uiSchema = {
-  description: {
+  title: {
     classNames: 'column-span-12',
     'ui:widget': 'textarea',
   },
 };
 
-const OrgDescriptionHeader = styled.h3`
-  font-size: 20px;
+const OrgTitleWrapper = styled.div`
+  align-items: center;
+  display: flex;
+  margin: 20px 0 0 0;
+
+  > button {
+    margin-left: 16px;
+  }
+`;
+
+const OrgTitleHeader = styled.h1`
+  font-size: 28px;
   font-weight: normal;
   margin: 0;
-  updateOrganizationDescription: 0;
+  padding: 0;
 `;
 
 const FormMinusMargin = styled(Form)`
@@ -54,27 +58,21 @@ const FormMinusMargin = styled(Form)`
   margin: -30px;
 `;
 
-const NoDescription = styled.i`
-  color: ${NEUTRALS[1]};
-  font-size: 16px;
-  font-weight: normal;
-`;
-
 type Props = {
   actions :{
     resetRequestState :(actionType :string) => void;
-    updateOrganizationDescription :RequestSequence;
+    updateOrganizationTitle :RequestSequence;
   };
   isOwner :boolean;
   org :Map;
   requestStates :{
-    UPDATE_ORG_DESCRIPTION :RequestState;
+    UPDATE_ORG_TITLE :RequestState;
   };
 };
 
 type State = {
   data :{
-    description :string;
+    title :string;
   };
   isEditing :boolean;
 };
@@ -87,7 +85,7 @@ class OrgDescriptionSection extends Component<Props, State> {
 
     this.state = {
       data: {
-        description: props.org.get('description', ''),
+        title: props.org.get('title', ''),
       },
       isEditing: false,
     };
@@ -97,8 +95,8 @@ class OrgDescriptionSection extends Component<Props, State> {
 
     const { requestStates } = this.props;
 
-    if (requestStates[UPDATE_ORG_DESCRIPTION] === RequestStates.SUCCESS
-        && prevProps.requestStates[UPDATE_ORG_DESCRIPTION] === RequestStates.PENDING) {
+    if (requestStates[UPDATE_ORG_TITLE] === RequestStates.SUCCESS
+        && prevProps.requestStates[UPDATE_ORG_TITLE] === RequestStates.PENDING) {
       this.resetState();
     }
   }
@@ -109,7 +107,7 @@ class OrgDescriptionSection extends Component<Props, State> {
 
     this.setState({
       data: {
-        description: org.get('description', ''),
+        title: org.get('title', ''),
       },
       isEditing: false,
     });
@@ -119,7 +117,7 @@ class OrgDescriptionSection extends Component<Props, State> {
 
     this.setState({
       data: {
-        description: formData.description || '',
+        title: formData.title || '',
       },
     });
   }
@@ -133,9 +131,14 @@ class OrgDescriptionSection extends Component<Props, State> {
   handleOnClickSubmit = ({ formData } :Object) => {
 
     const { actions, isOwner, org } = this.props;
-    if (isOwner) {
-      actions.updateOrganizationDescription({
-        description: formData.description,
+    const currentTitle :string = org.get('title');
+
+    if (currentTitle === formData.title) {
+      this.resetState();
+    }
+    else if (isOwner) {
+      actions.updateOrganizationTitle({
+        title: formData.title,
         organizationId: org.get('id'),
       });
     }
@@ -145,13 +148,13 @@ class OrgDescriptionSection extends Component<Props, State> {
 
     const { isOwner, org, requestStates } = this.props;
     const { data, isEditing } = this.state;
-    const description :string = org.get('description', '');
+    const title :string = org.get('title');
 
     if (isOwner && isEditing) {
       return (
         <FormMinusMargin
             formData={data}
-            isSubmitting={requestStates[UPDATE_ORG_DESCRIPTION] === RequestStates.PENDING}
+            isSubmitting={requestStates[UPDATE_ORG_TITLE] === RequestStates.PENDING}
             onChange={this.handleOnChange}
             onDiscard={this.resetState}
             onSubmit={this.handleOnClickSubmit}
@@ -160,34 +163,28 @@ class OrgDescriptionSection extends Component<Props, State> {
       );
     }
 
-    if (isOwner) {
-      return (
-        <>
-          {
-            isNonEmptyString(description)
-              ? <OrgDescriptionHeader>{description}</OrgDescriptionHeader>
-              : <NoDescription>No description</NoDescription>
-          }
-          <EditButtonAligned onClick={this.handleOnClickEdit} />
-        </>
-      );
-    }
-
     return (
-      <OrgDescriptionHeader>{description}</OrgDescriptionHeader>
+      <OrgTitleWrapper>
+        <OrgTitleHeader>{title}</OrgTitleHeader>
+        {
+          isOwner && (
+            <EditButton onClick={this.handleOnClickEdit} />
+          )
+        }
+      </OrgTitleWrapper>
     );
   }
 }
 
 const mapStateToProps = (state :Map<*, *>) => ({
   requestStates: {
-    [UPDATE_ORG_DESCRIPTION]: state.getIn(['orgs', UPDATE_ORG_DESCRIPTION, 'requestState']),
+    [UPDATE_ORG_TITLE]: state.getIn(['orgs', UPDATE_ORG_TITLE, 'requestState']),
   },
 });
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
-    updateOrganizationDescription: OrganizationsApiActions.updateOrganizationDescription,
+    updateOrganizationTitle: OrganizationsApiActions.updateOrganizationTitle,
     resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)
 });

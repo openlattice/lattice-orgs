@@ -11,6 +11,7 @@ import {
   Card,
   CardSegment,
   Colors,
+  EditButton,
   Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
@@ -28,6 +29,7 @@ import OrgDomainsSection from './components/OrgDomainsSection';
 import OrgIntegrationSection from './components/OrgIntegrationSection';
 import OrgMembersSection from './components/OrgMembersSection';
 import OrgRolesSection from './components/OrgRolesSection';
+import OrgTitleSection from './components/OrgTitleSection';
 import OrgTrustedOrgsSection from './components/OrgTrustedOrgsSection';
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
@@ -47,13 +49,6 @@ const {
 const {
   GET_ORGANIZATION_DETAILS,
 } = OrgsActions;
-
-const OrgTitle = styled.h1`
-  font-size: 28px;
-  font-weight: normal;
-  margin: 20px 0 0 0;
-  padding: 0;
-`;
 
 const Tabs = styled.div`
   display: flex;
@@ -267,7 +262,7 @@ class OrgContainer extends Component<Props> {
 
   render() {
 
-    const { org, requestStates } = this.props;
+    const { isOwner, org, requestStates } = this.props;
 
     if (requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.PENDING) {
       return (
@@ -277,7 +272,7 @@ class OrgContainer extends Component<Props> {
 
     return (
       <>
-        <OrgTitle>{org.get('title')}</OrgTitle>
+        <OrgTitleSection isOwner={isOwner} org={org} />
         <Tabs>
           <OrgNavLink exact to={Routes.ORG.replace(Routes.ID_PATH, org.get('id'))}>
             Organization Details

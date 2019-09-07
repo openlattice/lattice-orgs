@@ -42,6 +42,7 @@ const {
   REMOVE_MEMBER_FROM_ORG,
   REVOKE_TRUST_FROM_ORG,
   UPDATE_ORG_DESCRIPTION,
+  UPDATE_ORG_TITLE,
   addDomainToOrganization,
   addMemberToOrganization,
   createRole,
@@ -52,6 +53,7 @@ const {
   removeMemberFromOrganization,
   revokeTrustFromOrganization,
   updateOrganizationDescription,
+  updateOrganizationTitle,
 } = OrganizationsApiActions;
 
 const INITIAL_STATE :Map<*, *> = fromJS({
@@ -89,6 +91,9 @@ const INITIAL_STATE :Map<*, *> = fromJS({
     requestState: RequestStates.STANDBY,
   },
   [UPDATE_ORG_DESCRIPTION]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [UPDATE_ORG_TITLE]: {
     requestState: RequestStates.STANDBY,
   },
   isMemberOfOrgIds: Set(),
@@ -469,6 +474,27 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
         },
         FAILURE: () => state.setIn([UPDATE_ORG_DESCRIPTION, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([UPDATE_ORG_DESCRIPTION, seqAction.id]),
+      });
+    }
+
+    case updateOrganizationTitle.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return updateOrganizationTitle.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([UPDATE_ORG_TITLE, 'requestState'], RequestStates.PENDING)
+          .setIn([UPDATE_ORG_TITLE, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([UPDATE_ORG_TITLE, seqAction.id]);
+          if (storedSeqAction) {
+            const { title, organizationId } = storedSeqAction.value;
+            return state
+              .setIn(['orgs', organizationId, 'title'], title)
+              .setIn([UPDATE_ORG_TITLE, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([UPDATE_ORG_TITLE, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([UPDATE_ORG_TITLE, seqAction.id]),
       });
     }
 
