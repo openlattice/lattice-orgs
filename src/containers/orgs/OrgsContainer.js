@@ -50,10 +50,10 @@ const OrgCollectionSection = styled.section`
     font-size: 22px;
     font-weight: 500;
     margin: 48px 0 24px 0;
+  }
 
-    ${OrgCount} {
-      margin: 0 0 0 8px;
-    }
+  ${OrgCount} {
+    margin: 0 0 0 8px;
   }
 `;
 

@@ -11,7 +11,6 @@ import {
   Card,
   CardSegment,
   Colors,
-  EditButton,
   Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
