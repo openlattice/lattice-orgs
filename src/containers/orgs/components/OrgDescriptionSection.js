@@ -46,7 +46,7 @@ const OrgDescriptionHeader = styled.h3`
   font-size: 20px;
   font-weight: normal;
   margin: 0;
-  updateOrganizationDescription: 0;
+  padding: 0;
 `;
 
 const FormMinusMargin = styled(Form)`
