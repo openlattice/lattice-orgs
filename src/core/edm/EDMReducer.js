@@ -8,7 +8,6 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import {
   getEntityDataModelTypes,
-  getEntitySetIds,
 } from './EDMActions';
 
 // TODO: use models
@@ -56,15 +55,6 @@ export default function edmReducer(state :Map<*, *> = INITIAL_STATE, action :Obj
         },
         FAILURE: () => state.set('typesFqnToIdMap', Map()).set('typesById', Map()),
         FINALLY: () => state.set('isFetchingAllTypes', false),
-      });
-    }
-
-    case getEntitySetIds.case(action.type): {
-      return getEntitySetIds.reducer(state, action, {
-        REQUEST: () => state.set('isFetchingAllEntitySetIds', true),
-        SUCCESS: () => state.set('entitySetIdsByName', fromJS(action.value)),
-        FAILURE: () => state.set('entitySetIdsByName', Map()),
-        FINALLY: () => state.set('isFetchingAllEntitySetIds', false),
       });
     }
 
