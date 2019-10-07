@@ -8,11 +8,11 @@ import styled from 'styled-components';
 import { faListAlt } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
-import { Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   Card,
   CardSegment,
+  CheckboxSelect,
   Colors,
   Spinner,
 } from 'lattice-ui-kit';
@@ -27,8 +27,7 @@ import * as RoutingActions from '../../core/router/RoutingActions';
 import { isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
-const { NEUTRALS } = Colors;
-const { EntitySetFlagTypes } = Types;
+const { NEUTRALS, PURPLES } = Colors;
 
 const {
   GET_ORGANIZATION_ENTITY_SETS,
@@ -38,12 +37,47 @@ const SUB_TITLE = `
 These entity sets belong to this organization, and can be materialized by anyone with materialize permissions.
 `;
 
-const H3 = styled.h3`
+const AUDIT_OPTION = { label: 'Audit', value: 'AUDIT' };
+const EXTERNAL_OPTION = { label: 'External', value: 'EXTERNAL' };
+const INTERNAL_OPTION = { label: 'Internal', value: 'INTERNAL' };
+const MATERIALIZED_OPTION = { label: 'Materialized', value: 'MATERIALIZED' };
+
+const ES_SELECT_OPTIONS = [
+  INTERNAL_OPTION,
+  EXTERNAL_OPTION,
+  MATERIALIZED_OPTION,
+  AUDIT_OPTION,
+];
+
+const EntitySetTitle = styled.h3`
   font-size: 22px;
   font-weight: 600;
+  margin: 0 0 16px 0;
+`;
+
+const EntitySetSubTitle = styled.p`
   margin: 0;
 `;
 
+const EntitySetType = styled.h3`
+  color: ${({ isActive }) => (isActive ? PURPLES[1] : NEUTRALS[1])};
+  cursor: pointer;
+  flex: 1 0 auto;
+  font-size: 18px;
+  font-weight: normal;
+  margin: 20px 30px 20px 0;
+
+  &:hover {
+    color: ${({ isActive }) => (isActive ? PURPLES[1] : NEUTRALS[0])};
+  }
+`;
+
+const EntitySetSelectionWrapper = styled.div`
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 30px;
+`;
 
 const CardGrid = styled.div`
   display: grid;
@@ -69,7 +103,7 @@ const IconWrapper = styled.div`
 `;
 
 const EntitySetInfoWrapper = styled.div`
-  padding: 10px;
+  padding: 16px;
 
   > h4 {
     color: ${NEUTRALS[0]};
@@ -106,8 +140,8 @@ type Props = {
 };
 
 type State = {
+  entitySetFilters :Object[];
   showAssociationEntitySets :boolean;
-  showAuditEntitySets :boolean;
 };
 
 class OrgEntitySetsContainer extends Component<Props, State> {
@@ -116,8 +150,8 @@ class OrgEntitySetsContainer extends Component<Props, State> {
 
     super(props);
     this.state = {
+      entitySetFilters: [INTERNAL_OPTION],
       showAssociationEntitySets: false,
-      showAuditEntitySets: false,
     };
   }
 
@@ -149,10 +183,70 @@ class OrgEntitySetsContainer extends Component<Props, State> {
   //
   // }
 
+  handleOnChangeSelect = (options :?Object[]) => {
+
+    this.setState({ entitySetFilters: options || [] });
+  }
+
+  selectAssociationEntitySets = () => {
+
+    this.setState({ showAssociationEntitySets: true });
+  }
+
+  selectRegularEntitySets = () => {
+
+    this.setState({ showAssociationEntitySets: false });
+  }
+
+  filterEntitySets = () => {
+
+    const { orgEntitySets } = this.props;
+    const { entitySetFilters, showAssociationEntitySets } = this.state;
+
+    return orgEntitySets
+      .keySeq()
+      .map((entitySetId :UUID) => {
+        const { entitySets, entitySetsIndexMap } = this.props;
+        const entitySetIndex = entitySetsIndexMap.get(entitySetId);
+        return entitySets.get(entitySetIndex, Map());
+      })
+      .filter((entitySet :Map) => {
+
+        const orgEntitySetFlags :List = orgEntitySets.get(entitySet.get('id'), List());
+        const entitySetFlags :List = entitySet.get('flags', List());
+
+        let filtersMatchEntitySet :boolean = false;
+        if (orgEntitySetFlags.includes('INTERNAL') && entitySetFilters.includes(INTERNAL_OPTION)) {
+          filtersMatchEntitySet = true;
+        }
+        else if (orgEntitySetFlags.includes('EXTERNAL') && entitySetFilters.includes(EXTERNAL_OPTION)) {
+          filtersMatchEntitySet = true;
+        }
+        else if (orgEntitySetFlags.includes('MATERIALIZED') && entitySetFilters.includes(MATERIALIZED_OPTION)) {
+          filtersMatchEntitySet = true;
+        }
+
+        const isAuditEntitySet :boolean = entitySetFlags.includes('AUDIT');
+        if (isAuditEntitySet && !entitySetFilters.includes(AUDIT_OPTION)) {
+          return false;
+        }
+
+        const isAssociationEntitySet :boolean = entitySetFlags.includes('ASSOCIATION');
+        if (isAssociationEntitySet && showAssociationEntitySets && filtersMatchEntitySet) {
+          return true;
+        }
+        if (!isAssociationEntitySet && !showAssociationEntitySets && filtersMatchEntitySet) {
+          return true;
+        }
+
+        return false;
+      });
+  }
+
   render() {
 
-    const { orgEntitySets, requestStates } = this.props;
-    const { showAssociationEntitySets, showAuditEntitySets } = this.state;
+    const { requestStates } = this.props;
+    const { entitySetFilters, showAssociationEntitySets } = this.state;
 
     if (requestStates[GET_ORGANIZATION_ENTITY_SETS] === RequestStates.PENDING) {
       return (
@@ -168,40 +262,46 @@ class OrgEntitySetsContainer extends Component<Props, State> {
       );
     }
 
+    const filteredEntitySets :List = this.filterEntitySets();
+
     return (
       <Card>
         <CardSegment noBleed vertical>
-          <H3>Entity Sets</H3>
-          <p>{SUB_TITLE}</p>
+          <EntitySetTitle>Entity Sets</EntitySetTitle>
+          <EntitySetSubTitle>{SUB_TITLE}</EntitySetSubTitle>
         </CardSegment>
         <CardSegment vertical>
+          <EntitySetSelectionWrapper>
+            <EntitySetType
+                isActive={!showAssociationEntitySets}
+                onClick={this.selectRegularEntitySets}>
+              Regular Entity Sets
+            </EntitySetType>
+            <EntitySetType
+                isActive={showAssociationEntitySets}
+                onClick={this.selectAssociationEntitySets}>
+              Association Entity Sets
+            </EntitySetType>
+            <CheckboxSelect
+                defaultValue={entitySetFilters}
+                options={ES_SELECT_OPTIONS}
+                onChange={this.handleOnChangeSelect} />
+          </EntitySetSelectionWrapper>
           <CardGrid>
             {
-              orgEntitySets.keySeq().map((entitySetId :UUID) => {
-                const { entitySets, entitySetsIndexMap } = this.props;
-                const entitySetIndex = entitySetsIndexMap.get(entitySetId);
-                const entitySet = entitySets.get(entitySetIndex, Map());
-                const entitySetFlags = entitySet.get('flags', List());
-                if (!showAuditEntitySets && entitySetFlags.includes(EntitySetFlagTypes.AUDIT)) {
-                  return null;
-                }
-                if (!showAssociationEntitySets && entitySetFlags.includes(EntitySetFlagTypes.ASSOCIATION)) {
-                  return null;
-                }
-                return (
-                  <Card key={entitySetId}>
-                    <CardSegment padding="0">
-                      <IconWrapper>
-                        <FontAwesomeIcon icon={faListAlt} />
-                      </IconWrapper>
-                      <EntitySetInfoWrapper>
-                        <h4>{entitySet.get('title', entitySetId)}</h4>
-                        <span>{entitySet.get('name', '')}</span>
-                      </EntitySetInfoWrapper>
-                    </CardSegment>
-                  </Card>
-                );
-              })
+              filteredEntitySets.map((entitySet :Map) => (
+                <Card key={entitySet.get('id')}>
+                  <CardSegment padding="0">
+                    <IconWrapper>
+                      <FontAwesomeIcon icon={faListAlt} />
+                    </IconWrapper>
+                    <EntitySetInfoWrapper>
+                      <h4>{entitySet.get('title', entitySet.get('id'))}</h4>
+                      <span>{entitySet.get('name', '')}</span>
+                    </EntitySetInfoWrapper>
+                  </CardSegment>
+                </Card>
+              ))
             }
           </CardGrid>
         </CardSegment>
