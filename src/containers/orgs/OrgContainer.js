@@ -25,6 +25,7 @@ import DeleteOrgModal from './components/DeleteOrgModal';
 import OrgDetailSectionGrid from './components/styled/OrgDetailSectionGrid';
 import OrgDescriptionSection from './components/OrgDescriptionSection';
 import OrgDomainsSection from './components/OrgDomainsSection';
+import OrgEntitySetsContainer from './OrgEntitySetsContainer';
 import OrgIntegrationSection from './components/OrgIntegrationSection';
 import OrgMembersSection from './components/OrgMembersSection';
 import OrgRolesSection from './components/OrgRolesSection';
@@ -285,7 +286,7 @@ class OrgContainer extends Component<Props> {
         </Tabs>
         <Switch>
           <Route path={Routes.ORG_PERMISSIONS} render={this.renderPermissions} />
-          <Route path={Routes.ORG_ENTITY_SETS} render={this.renderEntitySets} />
+          <Route path={Routes.ORG_ENTITY_SETS} component={OrgEntitySetsContainer} />
           <Route render={this.renderOrgDetails} />
         </Switch>
       </>
@@ -293,7 +294,7 @@ class OrgContainer extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state :Map<*, *>, props) => {
+const mapStateToProps = (state :Map, props) => {
 
   const {
     params: {

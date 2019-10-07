@@ -8,12 +8,14 @@ import { combineReducers } from 'redux-immutable';
 
 import { AppReducer } from '../../containers/app';
 import { OrgsReducer } from '../../containers/orgs';
+import { EDMReducer } from '../edm';
 
 export default function reduxReducer(routerHistory :any) {
 
   return combineReducers({
     app: AppReducer,
     auth: AuthReducer,
+    edm: EDMReducer,
     orgs: OrgsReducer,
     router: connectRouter(routerHistory),
   });
