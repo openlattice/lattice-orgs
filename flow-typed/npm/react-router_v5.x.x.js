@@ -1,5 +1,5 @@
-// flow-typed signature: acc5dc484cf1c2c8e5ed444ee98a9513
-// flow-typed version: ad8465c97a/react-router_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: 5b69b8c8c400edb1196c52b7caa9c279
+// flow-typed version: 0fc30f59a5/react-router_v5.x.x/flow_>=v0.104.x
 
 declare module "react-router" {
   // NOTE: many of these are re-exported by react-router-dom and
@@ -140,4 +140,18 @@ declare module "react-router" {
   ): null | Match;
   
   declare export function generatePath(pattern?: string, params?: {...}): string;
+
+  declare export default {
+    StaticRouter: typeof StaticRouter,
+    MemoryRouter: typeof MemoryRouter,
+    Router: typeof Router,
+    Prompt: typeof Prompt,
+    Redirect: typeof Redirect,
+    Route: typeof Route,
+    Switch: typeof Switch,
+    withRouter: typeof withRouter,
+    matchPath: typeof matchPath,
+    generatePath: typeof generatePath,
+    ...
+  };
 }

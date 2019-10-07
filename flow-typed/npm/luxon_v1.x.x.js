@@ -1,5 +1,5 @@
-// flow-typed signature: 2de9936dd55cdd92e168c400377a68e6
-// flow-typed version: c6154227d1/luxon_v1.x.x/flow_>=v0.104.x
+// flow-typed signature: cb630f593a241651a4fb74c62926fc5f
+// flow-typed version: 58abe292d3/luxon_v1.x.x/flow_>=v0.104.x
 
 // @flow
 
@@ -546,7 +546,7 @@ declare module "luxon" {
     |}): string;
     toString(): string;
     toUTC(offset?: number, options?: SetZoneOptions): DateTime;
-    until(other: DateTime): Duration;
+    until(other: DateTime): Interval;
     valueOf(): number;
   }
 }
