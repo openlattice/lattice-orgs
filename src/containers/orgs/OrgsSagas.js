@@ -78,35 +78,36 @@ function* getOrgsAndPermissionsWorker(action :SequenceAction) :Generator<*, *, *
     let response = yield call(getAllOrganizationsWorker, getAllOrganizations());
     if (response.error) throw response.error;
 
-    const orgs :List = fromJS(response.data);
-    const orgsMap :Map = Map().withMutations((map :Map) => {
-      orgs.forEach((org :Map) => map.set(org.get('id'), org));
+    const organizations :Map<UUID, Map> = Map().withMutations((map :Map) => {
+      fromJS(response.data).forEach((org :Map) => map.set(org.get('id'), org));
     });
-    const accessChecks :AccessCheck[] = orgs.map((org :Map) => (
-      (new AccessCheckBuilder())
-        .setAclKey([org.get('id')])
-        .setPermissions([PermissionTypes.OWNER])
-        .build()
-    )).toJS();
+
+    const accessChecks :AccessCheck[] = organizations.valueSeq()
+      .map((org :Map) => (
+        (new AccessCheckBuilder())
+          .setAclKey([org.get('id')])
+          .setPermissions([PermissionTypes.OWNER])
+          .build()
+      ))
+      .toJS();
 
     response = yield call(getAuthorizationsWorker, getAuthorizations(accessChecks));
     if (response.error) throw response.error;
 
-    const authorizations :List = fromJS(response.data);
-    const orgPermissionsMap :Map = Map().withMutations((map :Map) => {
-      authorizations.forEach((authorization :Map) => {
+    const permissions :Map<UUID, Map> = Map().withMutations((map :Map) => {
+      fromJS(response.data).forEach((authorization :Map) => {
         map.set(
-          authorization.getIn(['aclKey', 0], ''),
+          authorization.getIn(['aclKey', 0], ''), // organization id
           authorization.get('permissions', Map()),
         );
       });
     });
 
-    if (orgsMap.count() !== orgPermissionsMap.count()) {
+    if (organizations.count() !== permissions.count()) {
       throw new Error('organizations and permissions size mismatch');
     }
 
-    yield put(getOrgsAndPermissions.success(action.id, { orgsMap, orgPermissionsMap }));
+    yield put(getOrgsAndPermissions.success(action.id, { organizations, permissions }));
   }
   catch (error) {
     LOG.error('getOrgsAndPermissionsWorker()', error);

@@ -5,12 +5,12 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
-import { faTrashAlt } from '@fortawesome/pro-solid-svg-icons';
+import { faTrashAlt } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
-  Button,
+  IconButton,
   Input,
   Modal,
   Spinner,
@@ -24,19 +24,19 @@ import * as ReduxActions from '../../../core/redux/ReduxActions';
 
 const { DELETE_ORGANIZATION } = OrganizationsApiActions;
 
-const DeleteButton = styled(Button)`
+const DeleteOrgButton = styled(IconButton)`
   align-self: center;
   margin: 80px 0 50px 0;
   width: 300px;
-
-  svg {
-    margin-right: 8px;
-  }
 `;
 
 const MinWidth = styled.div`
   min-width: 500px;
 `;
+
+const TrashIcon = (
+  <FontAwesomeIcon icon={faTrashAlt} />
+);
 
 type Props = {
   actions :{
@@ -97,7 +97,11 @@ class DeleteOrgModal extends Component<Props, State> {
 
   close = () => {
 
-    this.setState({ isVisible: false });
+    this.setState({
+      deleteConfirmationText: '',
+      isValidConfirmation: true,
+      isVisible: false,
+    });
   }
 
   open = () => {
@@ -156,10 +160,9 @@ class DeleteOrgModal extends Component<Props, State> {
 
     return (
       <>
-        <DeleteButton mode="negative" onClick={this.open}>
-          <FontAwesomeIcon icon={faTrashAlt} />
+        <DeleteOrgButton icon={TrashIcon} mode="negative" onClick={this.open}>
           <span>Delete Organization</span>
-        </DeleteButton>
+        </DeleteOrgButton>
         <Modal
             isVisible={isVisible}
             onClickPrimary={this.close}
