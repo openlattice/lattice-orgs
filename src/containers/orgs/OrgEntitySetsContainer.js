@@ -99,7 +99,7 @@ const IconWrapper = styled.div`
   font-size: 17px;
   justify-content: center;
   min-height: 88px;
-  width: 65px
+  width: 65px;
 `;
 
 const EntitySetInfoWrapper = styled.div`
