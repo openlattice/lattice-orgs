@@ -146,8 +146,10 @@ export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object
                 .setContacts(es.contacts)
                 .setDescription(es.description)
                 .setEntityTypeId(es.entityTypeId)
+                // $FlowFixMe
                 .setFlags(es.flags)
                 .setId(es.id)
+                // $FlowFixMe
                 .setLinkedEntitySets(es.linkedEntitySets)
                 .setName(es.name)
                 .setOrganizationId(es.organizationId)
