@@ -2,18 +2,18 @@
  * @flow
  */
 
-const ROOT :string = '/';
+const ID_PARAM :':id' = ':id';
 
+const ROOT :string = '/';
 const LOGIN :string = '/login';
 const ORGS :string = '/orgs';
 
-const ID_PATH :':id' = ':id';
-const ORG :string = `${ORGS}/${ID_PATH}`;
-const ORG_PERMISSIONS :string = `${ORGS}/${ID_PATH}/permissions`;
-const ORG_ENTITY_SETS :string = `${ORGS}/${ID_PATH}/entitysets`;
+const ORG :string = `${ORGS}/${ID_PARAM}`;
+const ORG_PERMISSIONS :string = `${ORGS}/${ID_PARAM}/permissions`;
+const ORG_ENTITY_SETS :string = `${ORGS}/${ID_PARAM}/entitysets`;
 
 export {
-  ID_PATH,
+  ID_PARAM,
   LOGIN,
   ORG,
   ORGS,

@@ -148,7 +148,7 @@ class OrgsContainer extends Component<Props> {
   goToOrg = (org :Map) => {
     const { actions } = this.props;
     const orgId :UUID = org.get('id');
-    actions.goToRoute(Routes.ORG.replace(Routes.ID_PATH, orgId));
+    actions.goToRoute(Routes.ORG.replace(Routes.ID_PARAM, orgId));
   }
 
   renderOrgCard = (org :Map) => {

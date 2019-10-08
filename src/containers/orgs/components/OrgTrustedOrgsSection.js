@@ -17,12 +17,14 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
-import CompactCardSegment from './styled/CompactCardSegment';
-import OrgDetailSectionGrid from './styled/OrgDetailSectionGrid';
-import OrgDetailSectionGridItem from './styled/OrgDetailSectionGridItem';
-import SelectControlWithButton from './styled/SelectControlWithButton';
-import SpinnerOverlayCard from './styled/SpinnerOverlayCard';
 import * as ReduxActions from '../../../core/redux/ReduxActions';
+import {
+  CompactCardSegment,
+  OrgDetailSectionGrid,
+  OrgDetailSectionGridItem,
+  SelectControlWithButton,
+  SpinnerOverlayCard,
+} from './styled';
 
 const {
   GRANT_TRUST_TO_ORG,
@@ -58,8 +60,13 @@ type State = {
 
 class OrgTrustedOrgsSection extends Component<Props, State> {
 
-  state = {
-    selectedOption: null,
+  constructor(props :Props) {
+
+    super(props);
+
+    this.state = {
+      selectedOption: null,
+    };
   }
 
   componentDidUpdate(prevProps :Props) {
