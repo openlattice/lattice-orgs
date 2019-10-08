@@ -18,12 +18,14 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
-import ActionControlWithButton from './styled/ActionControlWithButton';
-import CompactCardSegment from './styled/CompactCardSegment';
-import OrgDetailSectionGrid from './styled/OrgDetailSectionGrid';
-import OrgDetailSectionGridItem from './styled/OrgDetailSectionGridItem';
-import SpinnerOverlayCard from './styled/SpinnerOverlayCard';
 import * as ReduxActions from '../../../core/redux/ReduxActions';
+import {
+  ActionControlWithButton,
+  CompactCardSegment,
+  OrgDetailSectionGrid,
+  OrgDetailSectionGridItem,
+  SpinnerOverlayCard,
+} from './styled';
 import { isNonEmptyString } from '../../../utils/LangUtils';
 
 const {

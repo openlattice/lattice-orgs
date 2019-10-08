@@ -6,7 +6,6 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
-import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   Card,
   CardSegment,
@@ -21,30 +20,18 @@ import { RequestStates } from 'redux-reqseq';
 import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
-import DeleteOrgModal from './components/DeleteOrgModal';
-import OrgDetailSectionGrid from './components/styled/OrgDetailSectionGrid';
-import OrgDescriptionSection from './components/OrgDescriptionSection';
-import OrgDomainsSection from './components/OrgDomainsSection';
+import OrgDetailsContainer from './OrgDetailsContainer';
 import OrgEntitySetsContainer from './OrgEntitySetsContainer';
-import OrgIntegrationSection from './components/OrgIntegrationSection';
-import OrgMembersSection from './components/OrgMembersSection';
-import OrgRolesSection from './components/OrgRolesSection';
-import OrgTitleSection from './components/OrgTitleSection';
-import OrgTrustedOrgsSection from './components/OrgTrustedOrgsSection';
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
-import { isNonEmptyString } from '../../utils/LangUtils';
+import { OrgTitleSection } from './components';
+import { getIdFromMatch } from '../../core/router/RouterUtils';
 import { isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS } = Colors;
-
-const {
-  ADD_MEMBER_TO_ORG,
-  DELETE_ORGANIZATION,
-} = OrganizationsApiActions;
 
 const {
   GET_ORGANIZATION_DETAILS,
@@ -84,14 +71,9 @@ const OrgNavLink = styled(NavLink)`
   }
 `;
 
-const OrgDescriptionSegment = styled(CardSegment)`
-  justify-content: space-between;
-`;
-
 type Props = {
   actions :{
     getOrganizationDetails :RequestSequence;
-    deleteOrganization :RequestSequence;
     goToRoot :GoToRoot;
     resetRequestState :(actionType :string) => void;
   };
@@ -99,8 +81,6 @@ type Props = {
   match :Match;
   org :Map;
   requestStates :{
-    ADD_MEMBER_TO_ORG :RequestState;
-    DELETE_ORGANIZATION :RequestState;
     GET_ORGANIZATION_DETAILS :RequestState;
   };
 };
@@ -110,7 +90,7 @@ class OrgContainer extends Component<Props> {
   componentDidMount() {
 
     const { actions, match } = this.props;
-    const { params: { id: orgId = null } = {} } = match;
+    const orgId :?UUID = getIdFromMatch(match);
 
     if (!isValidUUID(orgId)) {
       actions.goToRoot();
@@ -123,8 +103,8 @@ class OrgContainer extends Component<Props> {
   componentDidUpdate(prevProps :Props) {
 
     const { actions, match, requestStates } = this.props;
-    const { params: { id: orgId = null } = {} } = match;
-    const { params: { id: prevOrgId = null } = {} } = prevProps.match;
+    const orgId :?UUID = getIdFromMatch(match);
+    const prevOrgId :?UUID = getIdFromMatch(prevProps.match);
 
     if (!isValidUUID(orgId)) {
       actions.goToRoot();
@@ -133,20 +113,12 @@ class OrgContainer extends Component<Props> {
       if (orgId !== prevOrgId) {
         actions.getOrganizationDetails(orgId);
       }
-      if (requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.SUCCESS
-          && prevProps.requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.PENDING) {
+      if (prevProps.requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.PENDING
+          && requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.SUCCESS) {
         actions.resetRequestState(GET_ORGANIZATION_DETAILS);
       }
-      else if (requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.FAILURE
-          && prevProps.requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.PENDING) {
-        actions.goToRoot();
-      }
-      if (requestStates[ADD_MEMBER_TO_ORG] === RequestStates.SUCCESS
-          && prevProps.requestStates[ADD_MEMBER_TO_ORG] === RequestStates.PENDING) {
-        actions.getOrganizationDetails(orgId);
-      }
-      if (requestStates[DELETE_ORGANIZATION] === RequestStates.SUCCESS
-          && prevProps.requestStates[DELETE_ORGANIZATION] === RequestStates.PENDING) {
+      else if (prevProps.requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.PENDING
+          && requestStates[GET_ORGANIZATION_DETAILS] === RequestStates.FAILURE) {
         actions.goToRoot();
       }
     }
@@ -158,103 +130,12 @@ class OrgContainer extends Component<Props> {
     actions.resetRequestState(GET_ORGANIZATION_DETAILS);
   }
 
-  renderOrgDetails = () => {
-
-    return (
-      <Card>
-        {this.renderOrgDescriptionSegment()}
-        {this.renderIntegrationSegment()}
-        {this.renderDomainsAndTrustedOrgsSegment()}
-        {this.renderRolesAndMembersSegment()}
-      </Card>
-    );
-  }
-
-  renderOrgDescriptionSegment = () => {
-
-    const { isOwner, org } = this.props;
-    const description :string = org.get('description', '');
-
-    if (!isOwner && !isNonEmptyString(description)) {
-      return null;
-    }
-
-    return (
-      <OrgDescriptionSegment noBleed>
-        <OrgDescriptionSection isOwner={isOwner} org={org} />
-      </OrgDescriptionSegment>
-    );
-  }
-
-  renderIntegrationSegment = () => {
-
-    const { isOwner, org } = this.props;
-    if (!isOwner) {
-      return null;
-    }
-
-    const integration :Map = org.get('integration', Map());
-    if (integration.isEmpty()) {
-      return null;
-    }
-
-    return (
-      <CardSegment noBleed vertical>
-        <OrgIntegrationSection isOwner={isOwner} org={org} />
-      </CardSegment>
-    );
-  }
-
-  renderDomainsAndTrustedOrgsSegment = () => {
-
-    const { isOwner, org } = this.props;
-
-    return (
-      <CardSegment noBleed vertical>
-        <OrgDetailSectionGrid columns={2}>
-          <OrgDomainsSection isOwner={isOwner} org={org} />
-          <OrgTrustedOrgsSection isOwner={isOwner} org={org} />
-        </OrgDetailSectionGrid>
-      </CardSegment>
-    );
-  }
-
-  renderRolesAndMembersSegment = () => {
-
-    const { isOwner, org } = this.props;
-
-    return (
-      <CardSegment noBleed vertical>
-        <OrgDetailSectionGrid columns={2}>
-          <OrgRolesSection isOwner={isOwner} org={org} />
-          <OrgMembersSection isOwner={isOwner} org={org} />
-        </OrgDetailSectionGrid>
-        {
-          isOwner && (
-            <DeleteOrgModal org={org} />
-          )
-        }
-      </CardSegment>
-    );
-  }
-
   renderPermissions = () => {
 
     return (
       <Card>
         <CardSegment vertical>
           Manage Permissions
-        </CardSegment>
-      </Card>
-    );
-  }
-
-  renderEntitySets = () => {
-
-    return (
-      <Card>
-        <CardSegment vertical>
-          Entity Set
         </CardSegment>
       </Card>
     );
@@ -274,20 +155,20 @@ class OrgContainer extends Component<Props> {
       <>
         <OrgTitleSection isOwner={isOwner} org={org} />
         <Tabs>
-          <OrgNavLink exact to={Routes.ORG.replace(Routes.ID_PATH, org.get('id'))}>
+          <OrgNavLink exact to={Routes.ORG.replace(Routes.ID_PARAM, org.get('id'))}>
             Organization Details
           </OrgNavLink>
-          <OrgNavLink exact to={Routes.ORG_PERMISSIONS.replace(Routes.ID_PATH, org.get('id'))}>
+          <OrgNavLink exact to={Routes.ORG_PERMISSIONS.replace(Routes.ID_PARAM, org.get('id'))}>
             Permissions
           </OrgNavLink>
-          <OrgNavLink exact to={Routes.ORG_ENTITY_SETS.replace(Routes.ID_PATH, org.get('id'))}>
+          <OrgNavLink exact to={Routes.ORG_ENTITY_SETS.replace(Routes.ID_PARAM, org.get('id'))}>
             Entity Sets
           </OrgNavLink>
         </Tabs>
         <Switch>
           <Route path={Routes.ORG_PERMISSIONS} render={this.renderPermissions} />
           <Route path={Routes.ORG_ENTITY_SETS} component={OrgEntitySetsContainer} />
-          <Route render={this.renderOrgDetails} />
+          <Route path={Routes.ORG} component={OrgDetailsContainer} />
         </Switch>
       </>
     );
@@ -296,19 +177,13 @@ class OrgContainer extends Component<Props> {
 
 const mapStateToProps = (state :Map, props) => {
 
-  const {
-    params: {
-      id: orgId = null,
-    } = {},
-  } = props.match;
+  const orgId :?UUID = getIdFromMatch(props.match);
 
   return {
     isOwner: state.hasIn(['orgs', 'isOwnerOfOrgIds', orgId], false),
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
     orgs: state.getIn(['orgs', 'orgs'], Map()),
     requestStates: {
-      [ADD_MEMBER_TO_ORG]: state.getIn(['orgs', ADD_MEMBER_TO_ORG, 'requestState']),
-      [DELETE_ORGANIZATION]: state.getIn(['orgs', DELETE_ORGANIZATION, 'requestState']),
       [GET_ORGANIZATION_DETAILS]: state.getIn(['orgs', GET_ORGANIZATION_DETAILS, 'requestState']),
     },
   };
@@ -317,7 +192,6 @@ const mapStateToProps = (state :Map, props) => {
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     getOrganizationDetails: OrgsActions.getOrganizationDetails,
-    deleteOrganization: OrganizationsApiActions.deleteOrganization,
     goToRoot: RoutingActions.goToRoot,
     resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)

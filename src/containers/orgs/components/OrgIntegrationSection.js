@@ -7,9 +7,11 @@ import React, { Component } from 'react';
 import { Map } from 'immutable';
 import { CopyButton, Input } from 'lattice-ui-kit';
 
-import ActionControlWithButton from './styled/ActionControlWithButton';
-import OrgDetailSectionGrid from './styled/OrgDetailSectionGrid';
-import OrgDetailSectionGridItem from './styled/OrgDetailSectionGridItem';
+import {
+  ActionControlWithButton,
+  OrgDetailSectionGrid,
+  OrgDetailSectionGridItem,
+} from './styled';
 
 type Props = {
   isOwner :boolean;
