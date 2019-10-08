@@ -72,6 +72,8 @@ const { getSecurablePrincipalWorker, searchAllUsersWorker } = PrincipalsApiSagas
 
 function* getOrgsAndPermissionsWorker(action :SequenceAction) :Generator<*, *, *> {
 
+  const workerResponse :Object = {};
+
   try {
     yield put(getOrgsAndPermissions.request(action.id, action.value));
 
@@ -110,12 +112,15 @@ function* getOrgsAndPermissionsWorker(action :SequenceAction) :Generator<*, *, *
     yield put(getOrgsAndPermissions.success(action.id, { organizations, permissions }));
   }
   catch (error) {
-    LOG.error('getOrgsAndPermissionsWorker()', error);
+    LOG.error(action.type, error);
+    workerResponse.error = error;
     yield put(getOrgsAndPermissions.failure(action.id));
   }
   finally {
     yield put(getOrgsAndPermissions.finally(action.id));
   }
+
+  return workerResponse;
 }
 
 function* getOrgsAndPermissionsWatcher() :Generator<*, *, *> {
@@ -189,7 +194,7 @@ function* getOrganizationDetailsWorker(action :SequenceAction) :Generator<*, *, 
     }));
   }
   catch (error) {
-    LOG.error('getOrganizationDetailsWorker()', error);
+    LOG.error(action.type, error);
     yield put(getOrganizationDetails.failure(action.id));
   }
   finally {
@@ -229,7 +234,7 @@ function* searchMembersToAddToOrgWorker(action :SequenceAction) :Generator<*, *,
     yield put(searchMembersToAddToOrg.success(action.id, searchResults));
   }
   catch (error) {
-    LOG.error('searchMembersToAddToOrgWorker()', error);
+    LOG.error(action.type, error);
     yield put(searchMembersToAddToOrg.failure(action.id));
   }
   finally {
@@ -241,71 +246,6 @@ function* searchMembersToAddToOrgWatcher() :Generator<*, *, *> {
 
   yield takeLatest(SEARCH_MEMBERS_TO_ADD_TO_ORG, searchMembersToAddToOrgWorker);
 }
-
-// const { getAppConfigs } = AppApiActions;
-// const { getAppConfigsWorker } = AppApiSagas;
-//
-// /*
-//  *
-//  * OrgsActions.getRelevantEntitySets()
-//  *
-//  */
-//
-// function* getRelevantEntitySetsWorker(action :SequenceAction) :Generator<*, *, *> {
-//
-//   const { id, value } = action;
-//   if (value === null || value === undefined) {
-//     yield put(getRelevantEntitySets.failure(id, ERR_ACTION_VALUE_NOT_DEFINED));
-//     return;
-//   }
-//
-//   const organization :Map = value;
-//   let response :Object = {};
-//
-//   try {
-//     yield put(getRelevantEntitySets.request(action.id));
-//     const appIds :UUID[] = organization.get('apps').toJS();
-//     const organizationId :UUID = organization.get('id');
-//     const appConfigsCalls = appIds.map((appId :UUID) => call(getAppConfigsWorker, getAppConfigs(appId)));
-//     response = yield all(appConfigsCalls);
-//     const appConfigsMultipleApps :List<List<Map>> = fromJS(response).map(
-//       (appConfigsResponse :Map) => (appConfigsResponse.has('error') ? Map() : appConfigsResponse.get('data'))
-//     );
-//
-//     const appIdToEntitySetIdsMap :Map<UUID, Set<UUID>> = Map().withMutations((map :Map<UUID, Set<UUID>>) => {
-//       appConfigsMultipleApps.forEach((appConfigsSingleApp :List<Map>) => {
-//         appConfigsSingleApp
-//           .filter((appConfig :Map) => appConfig.getIn(['organization', 'id']) === organizationId)
-//           .forEach((appConfig :Map) => {
-//             const appId :UUID = appConfig.get('id');
-//             const entitySetIds :Set<UUID> = Set().withMutations((set :Set<UUID>) => {
-//               appConfig.get('config', Map()).valueSeq().forEach((settings :Map) => {
-//                 const entitySetId :UUID = settings.get('entitySetId');
-//                 if (isValidUUID(entitySetId)) {
-//                   set.add(entitySetId);
-//                 }
-//               });
-//             });
-//             map.set(appId, entitySetIds);
-//           });
-//       });
-//     });
-//
-//     yield put(getRelevantEntitySets.success(action.id, { appIdToEntitySetIdsMap }));
-//   }
-//   catch (error) {
-//     LOG.error('caught exception in initializeApplicationWorker()', error);
-//     yield put(getRelevantEntitySets.failure(action.id, error));
-//   }
-//   finally {
-//     yield put(getRelevantEntitySets.finally(action.id));
-//   }
-// }
-//
-// function* getRelevantEntitySetsWatcher() :Generator<*, *, *> {
-//
-//   yield takeEvery(GET_RELEVANT_ENTITY_SETS, getRelevantEntitySetsWorker);
-// }
 
 export {
   getOrganizationDetailsWatcher,

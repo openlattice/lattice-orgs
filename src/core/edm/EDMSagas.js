@@ -8,11 +8,14 @@ import {
   put,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { EntityDataModelApiActions, EntityDataModelApiSagas } from 'lattice-sagas';
+import {
+  EntityDataModelApiActions,
+  EntityDataModelApiSagas,
+} from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import Logger from '../../utils/Logger';
-import { ERR_WORKER_SAGA } from '../../utils/Errors';
+import { isDefined } from '../../utils/LangUtils';
 import {
   GET_EDM_TYPES,
   getEntityDataModelTypes,
@@ -20,17 +23,8 @@ import {
 
 const LOG = new Logger('EDMSagas');
 
-const {
-  getAllAssociationTypes,
-  getAllEntityTypes,
-  getAllPropertyTypes,
-} = EntityDataModelApiActions;
-
-const {
-  getAllAssociationTypesWorker,
-  getAllEntityTypesWorker,
-  getAllPropertyTypesWorker,
-} = EntityDataModelApiSagas;
+const { getAllEntityTypes, getAllPropertyTypes } = EntityDataModelApiActions;
+const { getAllEntityTypesWorker, getAllPropertyTypesWorker } = EntityDataModelApiSagas;
 
 /*
  *
@@ -40,29 +34,38 @@ const {
 
 function* getEntityDataModelTypesWorker(action :SequenceAction) :Generator<*, *, *> {
 
+  const workerResponse :Object = {};
+
   try {
     yield put(getEntityDataModelTypes.request(action.id));
-    const response = yield all([
-      call(getAllAssociationTypesWorker, getAllAssociationTypes()),
+
+    const responses :Object[] = yield all([
       call(getAllEntityTypesWorker, getAllEntityTypes()),
       call(getAllPropertyTypesWorker, getAllPropertyTypes()),
     ]);
-    yield put(getEntityDataModelTypes.success(
-      action.id,
-      [
-        ...response[0].data,
-        ...response[1].data,
-        ...response[2].data,
-      ]
-    ));
+
+    // all requests must succeed
+    const responseError = responses.reduce(
+      (error :any, r :Object) => (isDefined(error) ? error : r.error),
+      undefined,
+    );
+    if (responseError) throw responseError;
+
+    yield put(getEntityDataModelTypes.success(action.id, {
+      entityTypes: responses[0].data,
+      propertyTypes: responses[1].data,
+    }));
   }
   catch (error) {
-    LOG.error(ERR_WORKER_SAGA, error);
+    LOG.error(action.type, error);
+    workerResponse.error = error;
     yield put(getEntityDataModelTypes.failure(action.id, error));
   }
   finally {
     yield put(getEntityDataModelTypes.finally(action.id));
   }
+
+  return workerResponse;
 }
 
 function* getEntityDataModelTypesWatcher() :Generator<*, *, *> {

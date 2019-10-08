@@ -37,6 +37,7 @@ const {
   CREATE_ROLE,
   DELETE_ORGANIZATION,
   DELETE_ROLE,
+  GET_ORGANIZATION_ENTITY_SETS,
   GRANT_TRUST_TO_ORG,
   REMOVE_DOMAIN_FROM_ORG,
   REMOVE_MEMBER_FROM_ORG,
@@ -48,6 +49,7 @@ const {
   createRole,
   deleteOrganization,
   deleteRole,
+  getOrganizationEntitySets,
   grantTrustToOrganization,
   removeDomainFromOrganization,
   removeMemberFromOrganization,
@@ -75,6 +77,9 @@ const INITIAL_STATE :Map<*, *> = fromJS({
   [GET_ORGANIZATION_DETAILS]: {
     requestState: RequestStates.STANDBY,
   },
+  [GET_ORGANIZATION_ENTITY_SETS]: {
+    requestState: RequestStates.STANDBY,
+  },
   [GRANT_TRUST_TO_ORG]: {
     requestState: RequestStates.STANDBY,
   },
@@ -100,6 +105,7 @@ const INITIAL_STATE :Map<*, *> = fromJS({
   isOwnerOfOrgIds: Set(),
   memberSearchResults: Map(),
   orgs: Map(),
+  orgEntitySets: Map(),
 });
 
 export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Object) {
@@ -332,6 +338,36 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
         },
         FAILURE: () => state.setIn([GET_ORGANIZATION_DETAILS, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([GET_ORGANIZATION_DETAILS, seqAction.id]),
+      });
+    }
+
+    case getOrganizationEntitySets.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return getOrganizationEntitySets.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([GET_ORGANIZATION_ENTITY_SETS, 'requestState'], RequestStates.PENDING)
+          .setIn([GET_ORGANIZATION_ENTITY_SETS, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([GET_ORGANIZATION_ENTITY_SETS, seqAction.id]);
+          if (storedSeqAction) {
+            const organizationId :UUID = storedSeqAction.value;
+            return state
+              .setIn(['orgEntitySets', organizationId], fromJS(seqAction.value))
+              .setIn([GET_ORGANIZATION_ENTITY_SETS, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => {
+          const storedSeqAction :SequenceAction = state.getIn([GET_ORGANIZATION_ENTITY_SETS, seqAction.id]);
+          if (storedSeqAction) {
+            const organizationId :UUID = storedSeqAction.value;
+            return state
+              .setIn(['orgEntitySets', organizationId], Map())
+              .setIn([GET_ORGANIZATION_ENTITY_SETS, 'requestState'], RequestStates.FAILURE);
+          }
+          return state.setIn([GET_ORGANIZATION_ENTITY_SETS, 'requestState'], RequestStates.FAILURE);
+        },
+        FINALLY: () => state.deleteIn([GET_ORGANIZATION_ENTITY_SETS, seqAction.id]),
       });
     }
 
