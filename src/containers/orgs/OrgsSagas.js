@@ -66,70 +66,6 @@ const { getSecurablePrincipalWorker, searchAllUsersWorker } = PrincipalsApiSagas
 
 /*
  *
- * OrgsActions.getOrgsAndPermissions
- *
- */
-
-function* getOrgsAndPermissionsWorker(action :SequenceAction) :Generator<*, *, *> {
-
-  const workerResponse :Object = {};
-
-  try {
-    yield put(getOrgsAndPermissions.request(action.id, action.value));
-
-    let response = yield call(getAllOrganizationsWorker, getAllOrganizations());
-    if (response.error) throw response.error;
-
-    const organizations :Map<UUID, Map> = Map().withMutations((map :Map) => {
-      fromJS(response.data).forEach((org :Map) => map.set(org.get('id'), org));
-    });
-
-    const accessChecks :AccessCheck[] = organizations.valueSeq()
-      .map((org :Map) => (
-        (new AccessCheckBuilder())
-          .setAclKey([org.get('id')])
-          .setPermissions([PermissionTypes.OWNER])
-          .build()
-      ))
-      .toJS();
-
-    response = yield call(getAuthorizationsWorker, getAuthorizations(accessChecks));
-    if (response.error) throw response.error;
-
-    const permissions :Map<UUID, Map> = Map().withMutations((map :Map) => {
-      fromJS(response.data).forEach((authorization :Map) => {
-        map.set(
-          authorization.getIn(['aclKey', 0], ''), // organization id
-          authorization.get('permissions', Map()),
-        );
-      });
-    });
-
-    if (organizations.count() !== permissions.count()) {
-      throw new Error('organizations and permissions size mismatch');
-    }
-
-    yield put(getOrgsAndPermissions.success(action.id, { organizations, permissions }));
-  }
-  catch (error) {
-    LOG.error(action.type, error);
-    workerResponse.error = error;
-    yield put(getOrgsAndPermissions.failure(action.id));
-  }
-  finally {
-    yield put(getOrgsAndPermissions.finally(action.id));
-  }
-
-  return workerResponse;
-}
-
-function* getOrgsAndPermissionsWatcher() :Generator<*, *, *> {
-
-  yield takeEvery(GET_ORGS_AND_PERMISSIONS, getOrgsAndPermissionsWorker);
-}
-
-/*
- *
  * OrgsActions.getOrganizationDetails
  *
  */
@@ -205,6 +141,70 @@ function* getOrganizationDetailsWorker(action :SequenceAction) :Generator<*, *, 
 function* getOrganizationDetailsWatcher() :Generator<*, *, *> {
 
   yield takeEvery(GET_ORGANIZATION_DETAILS, getOrganizationDetailsWorker);
+}
+
+/*
+ *
+ * OrgsActions.getOrgsAndPermissions
+ *
+ */
+
+function* getOrgsAndPermissionsWorker(action :SequenceAction) :Generator<*, *, *> {
+
+  const workerResponse :Object = {};
+
+  try {
+    yield put(getOrgsAndPermissions.request(action.id, action.value));
+
+    let response = yield call(getAllOrganizationsWorker, getAllOrganizations());
+    if (response.error) throw response.error;
+
+    const organizations :Map<UUID, Map> = Map().withMutations((map :Map) => {
+      fromJS(response.data).forEach((org :Map) => map.set(org.get('id'), org));
+    });
+
+    const accessChecks :AccessCheck[] = organizations.valueSeq()
+      .map((org :Map) => (
+        (new AccessCheckBuilder())
+          .setAclKey([org.get('id')])
+          .setPermissions([PermissionTypes.OWNER])
+          .build()
+      ))
+      .toJS();
+
+    response = yield call(getAuthorizationsWorker, getAuthorizations(accessChecks));
+    if (response.error) throw response.error;
+
+    const permissions :Map<UUID, Map> = Map().withMutations((map :Map) => {
+      fromJS(response.data).forEach((authorization :Map) => {
+        map.set(
+          authorization.getIn(['aclKey', 0], ''), // organization id
+          authorization.get('permissions', Map()),
+        );
+      });
+    });
+
+    if (organizations.count() !== permissions.count()) {
+      throw new Error('organizations and permissions size mismatch');
+    }
+
+    yield put(getOrgsAndPermissions.success(action.id, { organizations, permissions }));
+  }
+  catch (error) {
+    LOG.error(action.type, error);
+    workerResponse.error = error;
+    yield put(getOrgsAndPermissions.failure(action.id));
+  }
+  finally {
+    yield put(getOrgsAndPermissions.finally(action.id));
+  }
+
+  return workerResponse;
+}
+
+function* getOrgsAndPermissionsWatcher() :Generator<*, *, *> {
+
+  yield takeEvery(GET_ORGS_AND_PERMISSIONS, getOrgsAndPermissionsWorker);
 }
 
 /*
