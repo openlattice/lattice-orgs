@@ -7,6 +7,7 @@ import {
   call,
   delay,
   put,
+  select,
   takeEvery,
   takeLatest,
 } from '@redux-saga/core/effects';
@@ -22,15 +23,19 @@ import {
   PrincipalsApiActions,
   PrincipalsApiSagas,
 } from 'lattice-sagas';
+import type { AclObject } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import Logger from '../../utils/Logger';
+import { isDefined } from '../../utils/LangUtils';
 import { isValidUUID } from '../../utils/ValidationUtils';
 import {
   GET_ORGANIZATION_DETAILS,
+  GET_ORGANIZATION_PERMISSIONS,
   GET_ORGS_AND_PERMISSIONS,
   SEARCH_MEMBERS_TO_ADD_TO_ORG,
   getOrganizationDetails,
+  getOrganizationPermissions,
   getOrgsAndPermissions,
   searchMembersToAddToOrg,
 } from './OrgsActions';
@@ -57,12 +62,137 @@ const {
   getAllOrganizationsWorker,
   getOrganizationWorker,
   getOrganizationIntegrationAccountWorker,
-  getOrganizationMembersWorker,
 } = OrganizationsApiSagas;
 const { getAcl } = PermissionsApiActions;
 const { getAclWorker } = PermissionsApiSagas;
 const { getSecurablePrincipal, searchAllUsers } = PrincipalsApiActions;
 const { getSecurablePrincipalWorker, searchAllUsersWorker } = PrincipalsApiSagas;
+
+/*
+ *
+ * OrgsActions.getOrganizationDetails
+ *
+ */
+
+function* getOrganizationDetailsWorker(action :SequenceAction) :Generator<*, *, *> {
+
+  try {
+    yield put(getOrganizationDetails.request(action.id, action.value));
+
+    const organizationId :UUID = action.value;
+    if (!isValidUUID(organizationId)) {
+      throw new Error('organizationId must be a valid UUID');
+    }
+
+    // non-blocking
+    yield put(getOrganizationMembers(organizationId));
+
+    const [
+      orgResponse,
+      orgIntegrationResponse,
+      orgAclResponse,
+    ] = yield all([
+      call(getOrganizationWorker, getOrganization(organizationId)),
+      call(getOrganizationIntegrationAccountWorker, getOrganizationIntegrationAccount(organizationId)),
+      call(getAclWorker, getAcl([organizationId])),
+    ]);
+
+    // NOTE: the integration account details request will fail if the user is not an owner of the org, but we should
+    // still render the organization page, just without the integration account details section
+    if (orgResponse.error) throw orgResponse.error;
+
+    const principals :Principal[] = fromJS(orgAclResponse.data || {})
+      .get('aces', List())
+      .filter((ace :Map) => (
+        ace.getIn(['principal', 'type'], '') === PrincipalTypes.ORGANIZATION
+        && ace.getIn(['permissions'], List()).includes(PermissionTypes.READ)
+      ))
+      .map((ace :Map) => (
+        (new PrincipalBuilder())
+          .setId(ace.getIn(['principal', 'id']))
+          .setType(ace.getIn(['principal', 'type']))
+          .build()
+      ))
+      .toJS();
+
+    const securablePrincipalResponses :Object[] = yield all(
+      principals.map(
+        (principal :Principal) => call(getSecurablePrincipalWorker, getSecurablePrincipal(principal))
+      )
+    );
+
+    const trustedOrgIds :UUID[] = securablePrincipalResponses
+      .filter((response :Object) => !response.error)
+      .map((response :Object) => response.data)
+      .map((securablePrincipal :Object) => securablePrincipal.id);
+
+    yield put(getOrganizationDetails.success(action.id, {
+      integration: fromJS(orgIntegrationResponse.data || []),
+      org: fromJS(orgResponse.data),
+      trustedOrgIds: fromJS(trustedOrgIds),
+    }));
+  }
+  catch (error) {
+    LOG.error(action.type, error);
+    yield put(getOrganizationDetails.failure(action.id));
+  }
+  finally {
+    yield put(getOrganizationDetails.finally(action.id));
+  }
+}
+
+function* getOrganizationDetailsWatcher() :Generator<*, *, *> {
+
+  yield takeEvery(GET_ORGANIZATION_DETAILS, getOrganizationDetailsWorker);
+}
+
+/*
+ *
+ * OrgsActions.getOrganizationPermissions
+ *
+ */
+
+function* getOrganizationPermissionsWorker(action :SequenceAction) :Generator<*, *, *> {
+
+  try {
+    yield put(getOrganizationPermissions.request(action.id, action.value));
+
+    const organizationId :UUID = action.value;
+    const organization :Map = yield select((state) => state.getIn(['orgs', 'orgs', organizationId]), Map());
+
+    const calls = [
+      call(getAclWorker, getAcl([organizationId]))
+    ];
+    organization.get('roles', List()).forEach((role :Map) => (
+      calls.push(
+        call(getAclWorker, getAcl(role.get('aclKey').toJS()))
+      )
+    ));
+
+    const responses = yield all(calls);
+    const responseError = responses.reduce((e :?Error, r :Object) => (isDefined(e) ? e : r.error), undefined);
+    if (responseError) throw responseError;
+
+    const acls :AclObject[] = responses.map((r) => r.data);
+    const aclsMap :Map = Map().withMutations((map :Map) => {
+      fromJS(acls).forEach((acl :Map) => map.set(acl.get('aclKey'), acl));
+    });
+
+    yield put(getOrganizationPermissions.success(action.id, aclsMap));
+  }
+  catch (error) {
+    LOG.error(action.type, error);
+    yield put(getOrganizationPermissions.failure(action.id));
+  }
+  finally {
+    yield put(getOrganizationPermissions.finally(action.id));
+  }
+}
+
+function* getOrganizationPermissionsWatcher() :Generator<*, *, *> {
+
+  yield takeEvery(GET_ORGANIZATION_PERMISSIONS, getOrganizationPermissionsWorker);
+}
 
 /*
  *
@@ -130,85 +260,6 @@ function* getOrgsAndPermissionsWatcher() :Generator<*, *, *> {
 
 /*
  *
- * OrgsActions.getOrganizationDetails
- *
- */
-
-function* getOrganizationDetailsWorker(action :SequenceAction) :Generator<*, *, *> {
-
-  try {
-    yield put(getOrganizationDetails.request(action.id, action.value));
-
-    const organizationId :UUID = action.value;
-    if (!isValidUUID(organizationId)) {
-      throw new Error('organizationId must be a valid UUID');
-    }
-
-    const [
-      orgResponse,
-      orgIntegrationResponse,
-      orgMembersResponse,
-      orgAclResponse,
-    ] = yield all([
-      call(getOrganizationWorker, getOrganization(organizationId)),
-      call(getOrganizationIntegrationAccountWorker, getOrganizationIntegrationAccount(organizationId)),
-      call(getOrganizationMembersWorker, getOrganizationMembers(organizationId)),
-      call(getAclWorker, getAcl([organizationId])),
-    ]);
-
-    // NOTE: the integration account details request will fail if the user is not an owner of the org, but we should
-    // still render the organization page, just without the integration account details section
-    if (orgResponse.error) throw orgResponse.error;
-    if (orgMembersResponse.error) throw orgMembersResponse.error;
-
-    const principals :Principal[] = fromJS(orgAclResponse.data || {})
-      .get('aces', List())
-      .filter((ace :Map) => (
-        ace.getIn(['principal', 'type'], '') === PrincipalTypes.ORGANIZATION
-        && ace.getIn(['permissions'], List()).includes(PermissionTypes.READ)
-      ))
-      .map((ace :Map) => (
-        (new PrincipalBuilder())
-          .setId(ace.getIn(['principal', 'id']))
-          .setType(ace.getIn(['principal', 'type']))
-          .build()
-      ))
-      .toJS();
-
-    const securablePrincipalResponses :Object[] = yield all(
-      principals.map(
-        (principal :Principal) => call(getSecurablePrincipalWorker, getSecurablePrincipal(principal))
-      )
-    );
-
-    const trustedOrgIds :UUID[] = securablePrincipalResponses
-      .filter((response :Object) => !response.error)
-      .map((response :Object) => response.data)
-      .map((securablePrincipal :Object) => securablePrincipal.id);
-
-    yield put(getOrganizationDetails.success(action.id, {
-      integration: fromJS(orgIntegrationResponse.data || []),
-      members: fromJS(orgMembersResponse.data),
-      org: fromJS(orgResponse.data),
-      trustedOrgIds: fromJS(trustedOrgIds),
-    }));
-  }
-  catch (error) {
-    LOG.error(action.type, error);
-    yield put(getOrganizationDetails.failure(action.id));
-  }
-  finally {
-    yield put(getOrganizationDetails.finally(action.id));
-  }
-}
-
-function* getOrganizationDetailsWatcher() :Generator<*, *, *> {
-
-  yield takeEvery(GET_ORGANIZATION_DETAILS, getOrganizationDetailsWorker);
-}
-
-/*
- *
  * OrgsActions.searchMembersToAddToOrg
  *
  */
@@ -250,6 +301,8 @@ function* searchMembersToAddToOrgWatcher() :Generator<*, *, *> {
 export {
   getOrganizationDetailsWatcher,
   getOrganizationDetailsWorker,
+  getOrganizationPermissionsWatcher,
+  getOrganizationPermissionsWorker,
   getOrgsAndPermissionsWatcher,
   getOrgsAndPermissionsWorker,
   searchMembersToAddToOrgWatcher,

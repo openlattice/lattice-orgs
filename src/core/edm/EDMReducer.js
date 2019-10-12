@@ -28,7 +28,7 @@ const {
   getAllEntitySets,
 } = EntitySetsApiActions;
 
-const INITIAL_STATE :Map<*, *> = fromJS({
+const INITIAL_STATE :Map = fromJS({
   [GET_EDM_TYPES]: {
     requestState: RequestStates.STANDBY,
   },
@@ -40,7 +40,7 @@ const INITIAL_STATE :Map<*, *> = fromJS({
   propertyTypesIndexMap: Map(),
 });
 
-export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object) {
+export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
 

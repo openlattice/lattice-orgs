@@ -217,7 +217,7 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state :Map<*, *>, props) => {
+const mapStateToProps = (state :Map, props) => {
 
   const orgs :Map = state.getIn(['orgs', 'orgs'], Map());
   const trustedOrgIds :List = props.org.get('trustedOrgIds', List());
