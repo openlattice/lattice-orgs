@@ -126,7 +126,7 @@ class AppContainer extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state :Map<*, *>) => ({
+const mapStateToProps = (state :Map) => ({
   requestStates: {
     [INITIALIZE_APPLICATION]: state.getIn(['app', INITIALIZE_APPLICATION, 'requestState']),
   }

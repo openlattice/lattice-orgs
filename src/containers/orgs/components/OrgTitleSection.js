@@ -176,7 +176,7 @@ class OrgDescriptionSection extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state :Map<*, *>) => ({
+const mapStateToProps = (state :Map) => ({
   requestStates: {
     [UPDATE_ORG_TITLE]: state.getIn(['orgs', UPDATE_ORG_TITLE, 'requestState']),
   },

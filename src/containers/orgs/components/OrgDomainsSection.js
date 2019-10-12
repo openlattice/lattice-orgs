@@ -173,7 +173,7 @@ class OrgDomainsSection extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state :Map<*, *>) => ({
+const mapStateToProps = (state :Map) => ({
   requestStates: {
     [ADD_DOMAIN_TO_ORG]: state.getIn(['orgs', ADD_DOMAIN_TO_ORG, 'requestState']),
     [REMOVE_DOMAIN_FROM_ORG]: state.getIn(['orgs', REMOVE_DOMAIN_FROM_ORG, 'requestState']),

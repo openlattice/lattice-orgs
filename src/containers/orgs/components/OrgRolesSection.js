@@ -196,7 +196,7 @@ class OrgRolesSection extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state :Map<*, *>) => ({
+const mapStateToProps = (state :Map) => ({
   requestStates: {
     [CREATE_ROLE]: state.getIn(['orgs', CREATE_ROLE, 'requestState']),
     [DELETE_ROLE]: state.getIn(['orgs', DELETE_ROLE, 'requestState']),

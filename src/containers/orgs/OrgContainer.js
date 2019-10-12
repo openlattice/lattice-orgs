@@ -22,6 +22,7 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import OrgDetailsContainer from './OrgDetailsContainer';
 import OrgEntitySetsContainer from './OrgEntitySetsContainer';
+import OrgPermissionsContainer from './OrgPermissionsContainer';
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
@@ -48,7 +49,7 @@ const OrgNavLink = styled(NavLink)`
   border-bottom: 2px solid transparent;
   color: ${NEUTRALS[1]};
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 70px;
   margin-right: 40px;
   outline: none;
@@ -130,17 +131,6 @@ class OrgContainer extends Component<Props> {
     actions.resetRequestState(GET_ORGANIZATION_DETAILS);
   }
 
-  renderPermissions = () => {
-
-    return (
-      <Card>
-        <CardSegment vertical>
-          Manage Permissions
-        </CardSegment>
-      </Card>
-    );
-  }
-
   render() {
 
     const { isOwner, org, requestStates } = this.props;
@@ -151,24 +141,34 @@ class OrgContainer extends Component<Props> {
       );
     }
 
+    const orgId :UUID = org.get('id');
+
     return (
       <>
         <OrgTitleSection isOwner={isOwner} org={org} />
         <Tabs>
-          <OrgNavLink exact to={Routes.ORG.replace(Routes.ID_PARAM, org.get('id'))}>
+          <OrgNavLink exact to={Routes.ORG.replace(Routes.ID_PARAM, orgId)}>
             Organization Details
           </OrgNavLink>
-          <OrgNavLink exact to={Routes.ORG_PERMISSIONS.replace(Routes.ID_PARAM, org.get('id'))}>
-            Permissions
-          </OrgNavLink>
-          <OrgNavLink exact to={Routes.ORG_ENTITY_SETS.replace(Routes.ID_PARAM, org.get('id'))}>
+          {
+            isOwner && (
+              <OrgNavLink exact to={Routes.ORG_PERMISSIONS.replace(Routes.ID_PARAM, orgId)}>
+                Permissions
+              </OrgNavLink>
+            )
+          }
+          <OrgNavLink exact to={Routes.ORG_ENTITY_SETS.replace(Routes.ID_PARAM, orgId)}>
             Entity Sets
           </OrgNavLink>
         </Tabs>
         <Switch>
-          <Route path={Routes.ORG_PERMISSIONS} render={this.renderPermissions} />
+          <Route exact path={Routes.ORG} component={OrgDetailsContainer} />
           <Route path={Routes.ORG_ENTITY_SETS} component={OrgEntitySetsContainer} />
-          <Route path={Routes.ORG} component={OrgDetailsContainer} />
+          {
+            isOwner && (
+              <Route path={Routes.ORG_PERMISSIONS} component={OrgPermissionsContainer} />
+            )
+          }
         </Switch>
       </>
     );
@@ -182,7 +182,6 @@ const mapStateToProps = (state :Map, props) => {
   return {
     isOwner: state.hasIn(['orgs', 'isOwnerOfOrgIds', orgId], false),
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
-    orgs: state.getIn(['orgs', 'orgs'], Map()),
     requestStates: {
       [GET_ORGANIZATION_DETAILS]: state.getIn(['orgs', GET_ORGANIZATION_DETAILS, 'requestState']),
     },

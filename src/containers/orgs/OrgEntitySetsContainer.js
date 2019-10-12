@@ -24,13 +24,13 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
-import { isValidUUID } from '../../utils/ValidationUtils';
+import { getIdFromMatch } from '../../core/router/RouterUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS, PURPLES } = Colors;
 
 const {
-  GET_ORGANIZATION_ENTITY_SETS,
+  GET_ORG_ENTITY_SETS,
 } = OrganizationsApiActions;
 
 const SUB_TITLE = `
@@ -49,13 +49,13 @@ const ES_SELECT_OPTIONS = [
   AUDIT_OPTION,
 ];
 
-const EntitySetTitle = styled.h3`
+const Title = styled.h2`
   font-size: 22px;
-  font-weight: 600;
+  font-weight: 500;
   margin: 0 0 16px 0;
 `;
 
-const EntitySetSubTitle = styled.p`
+const SubTitle = styled.p`
   margin: 0;
 `;
 
@@ -135,7 +135,7 @@ type Props = {
   match :Match;
   orgEntitySets :Map;
   requestStates :{
-    GET_ORGANIZATION_ENTITY_SETS :RequestState;
+    GET_ORG_ENTITY_SETS :RequestState;
   };
 };
 
@@ -158,30 +158,20 @@ class OrgEntitySetsContainer extends Component<Props, State> {
   componentDidMount() {
 
     const { actions, match } = this.props;
-    const { params: { id: orgId = null } = {} } = match;
-
-    if (!isValidUUID(orgId)) {
-      actions.goToRoot();
-    }
-    else {
-      actions.getOrganizationEntitySets(orgId);
-    }
+    const orgId :?UUID = getIdFromMatch(match);
+    actions.getOrganizationEntitySets(orgId);
   }
 
   componentDidUpdate(prevProps :Props) {
 
     const { actions, match } = this.props;
-    const { params: { id: orgId = null } = {} } = match;
-    const { params: { id: prevOrgId = null } = {} } = prevProps.match;
+    const orgId :?UUID = getIdFromMatch(match);
+    const prevOrgId :?UUID = getIdFromMatch(prevProps.match);
 
     if (orgId !== prevOrgId) {
       actions.getOrganizationEntitySets(orgId);
     }
   }
-
-  // componentWillUnmount() {
-  //
-  // }
 
   handleOnChangeSelect = (options :?Object[]) => {
 
@@ -248,13 +238,13 @@ class OrgEntitySetsContainer extends Component<Props, State> {
     const { requestStates } = this.props;
     const { entitySetFilters, showAssociationEntitySets } = this.state;
 
-    if (requestStates[GET_ORGANIZATION_ENTITY_SETS] === RequestStates.PENDING) {
+    if (requestStates[GET_ORG_ENTITY_SETS] === RequestStates.PENDING) {
       return (
         <Spinner size="2x" />
       );
     }
 
-    if (requestStates[GET_ORGANIZATION_ENTITY_SETS] === RequestStates.FAILURE) {
+    if (requestStates[GET_ORG_ENTITY_SETS] === RequestStates.FAILURE) {
       return (
         <Error>
           Sorry, something went wrong. Please try refreshing the page, or contact support.
@@ -267,8 +257,8 @@ class OrgEntitySetsContainer extends Component<Props, State> {
     return (
       <Card>
         <CardSegment noBleed vertical>
-          <EntitySetTitle>Entity Sets</EntitySetTitle>
-          <EntitySetSubTitle>{SUB_TITLE}</EntitySetSubTitle>
+          <Title>Entity Sets</Title>
+          <SubTitle>{SUB_TITLE}</SubTitle>
         </CardSegment>
         <CardSegment vertical>
           <EntitySetSelectionWrapper>
@@ -325,7 +315,7 @@ const mapStateToProps = (state :Map, props :Object) => {
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
     orgEntitySets: state.getIn(['orgs', 'orgEntitySets', orgId], Map()),
     requestStates: {
-      [GET_ORGANIZATION_ENTITY_SETS]: state.getIn(['orgs', GET_ORGANIZATION_ENTITY_SETS, 'requestState']),
+      [GET_ORG_ENTITY_SETS]: state.getIn(['orgs', GET_ORG_ENTITY_SETS, 'requestState']),
     },
   };
 };

@@ -14,15 +14,20 @@ import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
+// import Logger from '../../utils/Logger';
 import { RESET_REQUEST_STATE } from '../../core/redux/ReduxActions';
 import {
   GET_ORGANIZATION_DETAILS,
+  GET_ORGANIZATION_PERMISSIONS,
   GET_ORGS_AND_PERMISSIONS,
   SEARCH_MEMBERS_TO_ADD_TO_ORG,
   getOrganizationDetails,
+  getOrganizationPermissions,
   getOrgsAndPermissions,
   searchMembersToAddToOrg,
 } from './OrgsActions';
+
+// const LOG :Logger = new Logger('OrgsReducer');
 
 const {
   Role,
@@ -37,7 +42,8 @@ const {
   CREATE_ROLE,
   DELETE_ORGANIZATION,
   DELETE_ROLE,
-  GET_ORGANIZATION_ENTITY_SETS,
+  GET_ORG_ENTITY_SETS,
+  GET_ORG_MEMBERS,
   GRANT_TRUST_TO_ORG,
   REMOVE_DOMAIN_FROM_ORG,
   REMOVE_MEMBER_FROM_ORG,
@@ -50,6 +56,7 @@ const {
   deleteOrganization,
   deleteRole,
   getOrganizationEntitySets,
+  getOrganizationMembers,
   grantTrustToOrganization,
   removeDomainFromOrganization,
   removeMemberFromOrganization,
@@ -58,7 +65,7 @@ const {
   updateOrganizationTitle,
 } = OrganizationsApiActions;
 
-const INITIAL_STATE :Map<*, *> = fromJS({
+const INITIAL_STATE :Map = fromJS({
   [ADD_DOMAIN_TO_ORG]: {
     requestState: RequestStates.STANDBY,
   },
@@ -77,7 +84,13 @@ const INITIAL_STATE :Map<*, *> = fromJS({
   [GET_ORGANIZATION_DETAILS]: {
     requestState: RequestStates.STANDBY,
   },
-  [GET_ORGANIZATION_ENTITY_SETS]: {
+  [GET_ORGANIZATION_PERMISSIONS]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [GET_ORG_ENTITY_SETS]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [GET_ORG_MEMBERS]: {
     requestState: RequestStates.STANDBY,
   },
   [GRANT_TRUST_TO_ORG]: {
@@ -104,11 +117,13 @@ const INITIAL_STATE :Map<*, *> = fromJS({
   isMemberOfOrgIds: Set(),
   isOwnerOfOrgIds: Set(),
   memberSearchResults: Map(),
-  orgs: Map(),
+  orgAcls: Map(),
   orgEntitySets: Map(),
+  orgMembers: Map(),
+  orgs: Map(),
 });
 
-export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Object) {
+export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
 
@@ -173,7 +188,7 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
         SUCCESS: () => {
           const storedSeqAction :SequenceAction = state.getIn([CREATE_ROLE, seqAction.id]);
           if (storedSeqAction) {
-            const roleId :UUID = action.value;
+            const roleId :UUID = seqAction.value;
             const role :Role = storedSeqAction.value;
             const newRole :Role = (new RoleBuilder())
               .setDescription(role.description)
@@ -321,16 +336,10 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
           .setIn([GET_ORGANIZATION_DETAILS, 'requestState'], RequestStates.PENDING)
           .setIn([GET_ORGANIZATION_DETAILS, seqAction.id], seqAction),
         SUCCESS: () => {
-          const {
-            integration,
-            members,
-            org,
-            trustedOrgIds,
-          } = seqAction.value;
+          const { integration, org, trustedOrgIds } = seqAction.value;
           const orgId :UUID = org.get('id');
           const updatedOrg :Map = org
             .set('integration', integration)
-            .set('members', members)
             .set('trustedOrgIds', trustedOrgIds);
           return state
             .setIn(['orgs', orgId], updatedOrg)
@@ -345,29 +354,89 @@ export default function orgsReducer(state :Map<*, *> = INITIAL_STATE, action :Ob
       const seqAction :SequenceAction = action;
       return getOrganizationEntitySets.reducer(state, action, {
         REQUEST: () => state
-          .setIn([GET_ORGANIZATION_ENTITY_SETS, 'requestState'], RequestStates.PENDING)
-          .setIn([GET_ORGANIZATION_ENTITY_SETS, seqAction.id], seqAction),
+          .setIn([GET_ORG_ENTITY_SETS, 'requestState'], RequestStates.PENDING)
+          .setIn([GET_ORG_ENTITY_SETS, seqAction.id], seqAction),
         SUCCESS: () => {
-          const storedSeqAction :SequenceAction = state.getIn([GET_ORGANIZATION_ENTITY_SETS, seqAction.id]);
+          const storedSeqAction :SequenceAction = state.getIn([GET_ORG_ENTITY_SETS, seqAction.id]);
           if (storedSeqAction) {
             const organizationId :UUID = storedSeqAction.value;
             return state
               .setIn(['orgEntitySets', organizationId], fromJS(seqAction.value))
-              .setIn([GET_ORGANIZATION_ENTITY_SETS, 'requestState'], RequestStates.SUCCESS);
+              .setIn([GET_ORG_ENTITY_SETS, 'requestState'], RequestStates.SUCCESS);
           }
           return state;
         },
         FAILURE: () => {
-          const storedSeqAction :SequenceAction = state.getIn([GET_ORGANIZATION_ENTITY_SETS, seqAction.id]);
+          const storedSeqAction :SequenceAction = state.getIn([GET_ORG_ENTITY_SETS, seqAction.id]);
           if (storedSeqAction) {
             const organizationId :UUID = storedSeqAction.value;
             return state
               .setIn(['orgEntitySets', organizationId], Map())
-              .setIn([GET_ORGANIZATION_ENTITY_SETS, 'requestState'], RequestStates.FAILURE);
+              .setIn([GET_ORG_ENTITY_SETS, 'requestState'], RequestStates.FAILURE);
           }
-          return state.setIn([GET_ORGANIZATION_ENTITY_SETS, 'requestState'], RequestStates.FAILURE);
+          return state.setIn([GET_ORG_ENTITY_SETS, 'requestState'], RequestStates.FAILURE);
         },
-        FINALLY: () => state.deleteIn([GET_ORGANIZATION_ENTITY_SETS, seqAction.id]),
+        FINALLY: () => state.deleteIn([GET_ORG_ENTITY_SETS, seqAction.id]),
+      });
+    }
+
+    case getOrganizationMembers.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return getOrganizationMembers.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([GET_ORG_MEMBERS, 'requestState'], RequestStates.PENDING)
+          .setIn([GET_ORG_MEMBERS, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([GET_ORG_MEMBERS, seqAction.id]);
+          if (storedSeqAction) {
+            const organizationId :UUID = storedSeqAction.value;
+            return state
+              .setIn([GET_ORG_MEMBERS, 'requestState'], RequestStates.SUCCESS)
+              .setIn(['orgMembers', organizationId], fromJS(seqAction.value));
+          }
+          return state;
+        },
+        FAILURE: () => {
+          const storedSeqAction :SequenceAction = state.getIn([GET_ORG_MEMBERS, seqAction.id]);
+          if (storedSeqAction) {
+            const organizationId :UUID = storedSeqAction.value;
+            return state
+              .setIn([GET_ORG_MEMBERS, 'requestState'], RequestStates.FAILURE)
+              .setIn(['orgMembers', organizationId], List());
+          }
+          return state.setIn([GET_ORG_MEMBERS, 'requestState'], RequestStates.FAILURE);
+        },
+        FINALLY: () => state.deleteIn([GET_ORG_MEMBERS, seqAction.id]),
+      });
+    }
+
+    case getOrganizationPermissions.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return getOrganizationPermissions.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([GET_ORGANIZATION_PERMISSIONS, 'requestState'], RequestStates.PENDING)
+          .setIn([GET_ORGANIZATION_PERMISSIONS, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([GET_ORGANIZATION_PERMISSIONS, seqAction.id]);
+          if (storedSeqAction) {
+            const organizationId :UUID = storedSeqAction.value;
+            return state
+              .setIn([GET_ORGANIZATION_PERMISSIONS, 'requestState'], RequestStates.SUCCESS)
+              .setIn(['orgAcls', organizationId], seqAction.value);
+          }
+          return state;
+        },
+        FAILURE: () => {
+          const storedSeqAction :SequenceAction = state.getIn([GET_ORGANIZATION_PERMISSIONS, seqAction.id]);
+          if (storedSeqAction) {
+            const organizationId :UUID = storedSeqAction.value;
+            return state
+              .setIn([GET_ORGANIZATION_PERMISSIONS, 'requestState'], RequestStates.FAILURE)
+              .setIn(['orgAcls', organizationId], List());
+          }
+          return state.setIn([GET_ORGANIZATION_PERMISSIONS, 'requestState'], RequestStates.FAILURE);
+        },
+        FINALLY: () => state.deleteIn([GET_ORGANIZATION_PERMISSIONS, seqAction.id]),
       });
     }
 
