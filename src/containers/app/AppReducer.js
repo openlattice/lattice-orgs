@@ -11,13 +11,13 @@ import {
   initializeApplication,
 } from './AppActions';
 
-const INITIAL_STATE :Map<*, *> = fromJS({
+const INITIAL_STATE :Map = fromJS({
   [INITIALIZE_APPLICATION]: {
     requestState: RequestStates.STANDBY,
   },
 });
 
-export default function appReducer(state :Map<*, *> = INITIAL_STATE, action :Object) {
+export default function appReducer(state :Map = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
 

@@ -259,7 +259,7 @@ class OrgsContainer extends Component<Props> {
   }
 }
 
-const mapStateToProps = (state :Map<*, *>) => ({
+const mapStateToProps = (state :Map) => ({
   isMemberOfOrgIds: state.getIn(['orgs', 'isMemberOfOrgIds'], Set()),
   isOwnerOfOrgIds: state.getIn(['orgs', 'isOwnerOfOrgIds'], Set()),
   orgs: state.getIn(['orgs', 'orgs']),

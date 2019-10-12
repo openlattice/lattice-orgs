@@ -8,6 +8,9 @@ import type { RequestSequence } from 'redux-reqseq';
 const GET_ORGANIZATION_DETAILS :'GET_ORGANIZATION_DETAILS' = 'GET_ORGANIZATION_DETAILS';
 const getOrganizationDetails :RequestSequence = newRequestSequence(GET_ORGANIZATION_DETAILS);
 
+const GET_ORGANIZATION_PERMISSIONS :'GET_ORGANIZATION_PERMISSIONS' = 'GET_ORGANIZATION_PERMISSIONS';
+const getOrganizationPermissions :RequestSequence = newRequestSequence(GET_ORGANIZATION_PERMISSIONS);
+
 const GET_ORGS_AND_PERMISSIONS :'GET_ORGS_AND_PERMISSIONS' = 'GET_ORGS_AND_PERMISSIONS';
 const getOrgsAndPermissions :RequestSequence = newRequestSequence(GET_ORGS_AND_PERMISSIONS);
 
@@ -16,9 +19,11 @@ const searchMembersToAddToOrg :RequestSequence = newRequestSequence(SEARCH_MEMBE
 
 export {
   GET_ORGANIZATION_DETAILS,
+  GET_ORGANIZATION_PERMISSIONS,
   GET_ORGS_AND_PERMISSIONS,
   SEARCH_MEMBERS_TO_ADD_TO_ORG,
   getOrganizationDetails,
+  getOrganizationPermissions,
   getOrgsAndPermissions,
   searchMembersToAddToOrg,
 };

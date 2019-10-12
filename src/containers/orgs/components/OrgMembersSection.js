@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 
-import { List, Map } from 'immutable';
+import { Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   Card,
@@ -53,6 +53,7 @@ type Props = {
   isOwner :boolean;
   memberSearchResults :Map;
   org :Map;
+  orgMembers :Map;
   requestStates :{
     ADD_MEMBER_TO_ORG :RequestState;
     REMOVE_MEMBER_FROM_ORG :RequestState;
@@ -125,14 +126,14 @@ class OrgMembersSection extends Component<Props, State> {
 
     const {
       isOwner,
-      org,
       memberSearchResults,
+      org,
+      orgMembers,
       requestStates,
     } = this.props;
     const { valueOfSearchQuery } = this.state;
 
-    const members = org.get('members', List());
-    const memberCardSegments = members.map((member :Map) => {
+    const memberCardSegments = orgMembers.get(org.get('id')).map((member :Map) => {
       const userProfileLabel :string = getUserProfileLabel(member);
       const memberId :string = member.getIn(['profile', 'user_id'], member.get('id'));
       return (
@@ -212,6 +213,7 @@ class OrgMembersSection extends Component<Props, State> {
 
 const mapStateToProps = (state :Map<*, *>) => ({
   memberSearchResults: state.getIn(['orgs', 'memberSearchResults'], Map()),
+  orgMembers: state.getIn(['orgs', 'orgMembers'], Map()),
   requestStates: {
     [ADD_MEMBER_TO_ORG]: state.getIn(['orgs', ADD_MEMBER_TO_ORG, 'requestState']),
     [REMOVE_MEMBER_FROM_ORG]: state.getIn(['orgs', REMOVE_MEMBER_FROM_ORG, 'requestState']),
