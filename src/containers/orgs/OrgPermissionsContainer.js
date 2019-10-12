@@ -44,6 +44,18 @@ const Title = styled.h2`
   margin: 0;
 `;
 
+const PermissionsManagementSection = styled.section`
+  border-left: 1px solid ${NEUTRALS[4]};
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding: 0 0 0 30px;
+
+  > div {
+    margin-bottom: 30px;
+  }
+`;
+
 const SelectionSection = styled.section`
   display: flex;
   flex: 1 0 auto;
@@ -75,18 +87,6 @@ const SelectionSection = styled.section`
       font-weight: normal;
       margin: 0;
     }
-  }
-`;
-
-const PermissionsManagementSection = styled.section`
-  border-left: 1px solid ${NEUTRALS[4]};
-  display: flex;
-  flex: 1 1 auto;
-  flex-direction: column;
-  padding: 0 0 0 30px;
-
-  > div {
-    margin-bottom: 30px;
   }
 `;
 

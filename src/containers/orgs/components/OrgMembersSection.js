@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 
-import { List, Map } from 'immutable';
+import { Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   Card,

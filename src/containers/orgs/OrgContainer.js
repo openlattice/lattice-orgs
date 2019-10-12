@@ -6,12 +6,7 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
-import {
-  Card,
-  CardSegment,
-  Colors,
-  Spinner,
-} from 'lattice-ui-kit';
+import { Colors, Spinner } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
