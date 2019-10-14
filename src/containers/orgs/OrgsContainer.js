@@ -26,15 +26,17 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
-import { isNonEmptyString } from '../../utils/LangUtils';
 import * as OrgsActions from './OrgsActions';
 import * as Routes from '../../core/router/Routes';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
+import { Logger } from '../../utils';
+import { isNonEmptyString } from '../../utils/LangUtils';
+import { isValidUUID } from '../../utils/ValidationUtils';
 import type { ResetRequestState } from '../../core/redux/ReduxActions';
 import type { GoToRoute } from '../../core/router/RoutingActions';
 
-// const LOG = new Logger('OrgsContainer');
+const LOG = new Logger('OrgsContainer');
 
 const { NEUTRALS } = Colors;
 
@@ -123,6 +125,7 @@ type Props = {
     resetRequestState :ResetRequestState;
   };
   orgs :Map<UUID, Map>;
+  newlyCreatedOrgId :?UUID;
   requestStates :{
     CREATE_ORGANIZATION :RequestState;
     GET_ORGS_AND_PERMISSIONS :RequestState;
@@ -153,7 +156,8 @@ class OrgsContainer extends Component<Props, State> {
 
   componentDidUpdate(props :Props) {
 
-    const { actions, requestStates } = this.props;
+    const { actions, newlyCreatedOrgId, requestStates } = this.props;
+
     if (props.requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.PENDING
         && requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.SUCCESS) {
       actions.resetRequestState(OrgsActions.GET_ORGS_AND_PERMISSIONS);
@@ -161,7 +165,7 @@ class OrgsContainer extends Component<Props, State> {
 
     if (props.requestStates[CREATE_ORGANIZATION] === RequestStates.PENDING
         && requestStates[CREATE_ORGANIZATION] === RequestStates.SUCCESS) {
-      console.log('success! go to org...');
+      this.goToOrg(newlyCreatedOrgId);
     }
   }
 
@@ -172,11 +176,16 @@ class OrgsContainer extends Component<Props, State> {
     actions.resetRequestState(OrgsActions.GET_ORGS_AND_PERMISSIONS);
   }
 
-  goToOrg = (org :Map) => {
+  goToOrg = (orgId :?UUID) => {
 
     const { actions } = this.props;
-    const orgId :UUID = org.get('id');
-    actions.goToRoute(Routes.ORG.replace(Routes.ID_PARAM, orgId));
+
+    if (isValidUUID(orgId) && orgId) {
+      actions.goToRoute(Routes.ORG.replace(Routes.ID_PARAM, orgId));
+    }
+    else {
+      LOG.error('organization id is not a valid UUID', orgId);
+    }
   }
 
   handleOnChangeNewOrgTitle = (event :SyntheticInputEvent<HTMLInputElement>) => {
@@ -220,6 +229,7 @@ class OrgsContainer extends Component<Props, State> {
 
   renderOrgCard = (org :Map) => {
 
+    const orgId :UUID = org.get('id');
     let description :string = org.get('description', '');
 
     // TODO: refactor as a utility function
@@ -230,7 +240,7 @@ class OrgsContainer extends Component<Props, State> {
     }
 
     return (
-      <Card key={org.get('id')} onClick={() => this.goToOrg(org)}>
+      <Card key={orgId} onClick={() => this.goToOrg(orgId)}>
         <CardHeader padding="md">
           <OrgName>{org.get('title', '')}</OrgName>
         </CardHeader>
@@ -336,6 +346,7 @@ class OrgsContainer extends Component<Props, State> {
 
 const mapStateToProps = (state :Map) => ({
   orgs: state.getIn(['orgs', 'orgs']),
+  newlyCreatedOrgId: state.getIn(['orgs', 'newlyCreatedOrgId']),
   requestStates: {
     [CREATE_ORGANIZATION]: state.getIn(['orgs', CREATE_ORGANIZATION, 'requestState']),
     [GET_ORGS_AND_PERMISSIONS]: state.getIn(['orgs', GET_ORGS_AND_PERMISSIONS, 'requestState']),

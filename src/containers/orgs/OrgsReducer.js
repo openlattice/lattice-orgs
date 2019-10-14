@@ -9,7 +9,6 @@ import {
   fromJS,
 } from 'immutable';
 import { Models, Types } from 'lattice';
-import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
@@ -30,6 +29,8 @@ import {
 // const LOG :Logger = new Logger('OrgsReducer');
 
 const {
+  Organization,
+  OrganizationBuilder,
   Role,
   RoleBuilder,
 } = Models;
@@ -119,9 +120,9 @@ const INITIAL_STATE :Map = fromJS({
   [UPDATE_ORG_TITLE]: {
     requestState: RequestStates.STANDBY,
   },
-  isMemberOfOrgIds: Set(),
   isOwnerOfOrgIds: Set(),
   memberSearchResults: Map(),
+  newlyCreatedOrgId: undefined,
   orgAcls: Map(),
   orgEntitySets: Map(),
   orgMembers: Map(),
@@ -188,17 +189,35 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
       const seqAction :SequenceAction = action;
       return createOrganization.reducer(state, action, {
         REQUEST: () => state
-          .setIn([CREATE_ORGANIZATION, 'requestState'], RequestStates.PENDING)
-          .setIn([CREATE_ORGANIZATION, seqAction.id], seqAction),
+          .setIn([CREATE_ORGANIZATION, seqAction.id], seqAction)
+          .setIn([CREATE_ORGANIZATION, 'requestState'], RequestStates.PENDING),
         SUCCESS: () => {
           const storedSeqAction :SequenceAction = state.getIn([CREATE_ORGANIZATION, seqAction.id]);
           if (storedSeqAction) {
+            const orgId :UUID = seqAction.value;
+            const org :Organization = storedSeqAction.value;
+            const newOrg :Organization = (new OrganizationBuilder())
+              .setId(orgId)
+              .setPrincipal(org.principal)
+              .setTitle(org.title)
+              .build();
+            const updatedOrgs :Map = state
+              .get('orgs', Map())
+              .set(orgId, newOrg.toImmutable());
+            const updatedIsOwnerOfOrgIds :Set = state
+              .get('isOwnerOfOrgIds', Set())
+              .add(orgId);
             return state
+              .set('isOwnerOfOrgIds', updatedIsOwnerOfOrgIds)
+              .set('orgs', updatedOrgs)
+              .set('newlyCreatedOrgId', orgId)
               .setIn([CREATE_ORGANIZATION, 'requestState'], RequestStates.SUCCESS);
           }
           return state;
         },
-        FAILURE: () => state.setIn([CREATE_ORGANIZATION, 'requestState'], RequestStates.FAILURE),
+        FAILURE: () => state
+          .set('newlyCreatedOrgId', undefined)
+          .setIn([CREATE_ORGANIZATION, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([CREATE_ORGANIZATION, seqAction.id]),
       });
     }
@@ -247,7 +266,6 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
             const organizationId :UUID = storedSeqAction.value;
             return state
               .deleteIn(['orgs', organizationId])
-              .deleteIn(['orgs', 'isMemberOfOrgIds', organizationId])
               .deleteIn(['orgs', 'isOwnerOfOrgIds', organizationId])
               .setIn([DELETE_ORGANIZATION, 'requestState'], RequestStates.SUCCESS);
           }
@@ -320,32 +338,18 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
 
           const organizations :Map<UUID, Map> = seqAction.value.organizations;
           const permissions :Map<UUID, Map> = seqAction.value.permissions;
-          const userInfo :Object = AuthUtils.getUserInfo() || { id: '' };
-          const userId :string = userInfo.id;
 
           const isOwnerOfOrgIds :Set<UUID> = organizations
             .filter((org :Map) => permissions.getIn([org.get('id'), PermissionTypes.OWNER]) === true)
             .keySeq()
             .toSet();
 
-          const isMemberOfOrgIds :Set<UUID> = organizations
-            .filter((org :Map) => {
-              if (isOwnerOfOrgIds.has(org.get('id'))) {
-                return false;
-              }
-              return org.get('members', List()).findIndex((member :Map) => member.get('id') === userId) !== -1;
-            })
-            .keySeq()
-            .toSet();
-
           return state
-            .set('isMemberOfOrgIds', isMemberOfOrgIds)
             .set('isOwnerOfOrgIds', isOwnerOfOrgIds)
             .set('orgs', organizations)
             .setIn([GET_ORGS_AND_PERMISSIONS, 'requestState'], RequestStates.SUCCESS);
         },
         FAILURE: () => state
-          .set('isMemberOfOrgIds', Set())
           .set('isOwnerOfOrgIds', Set())
           .set('orgs', Map())
           .setIn([GET_ORGS_AND_PERMISSIONS, 'requestState'], RequestStates.FAILURE),
