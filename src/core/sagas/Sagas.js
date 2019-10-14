@@ -25,6 +25,7 @@ export default function* sagas() :Generator<*, *, *> {
     fork(EntitySetsApiSagas.getAllEntitySetsWatcher),
     fork(OrganizationsApiSagas.addDomainToOrganizationWatcher),
     fork(OrganizationsApiSagas.addMemberToOrganizationWatcher),
+    fork(OrganizationsApiSagas.createOrganizationWatcher),
     fork(OrganizationsApiSagas.createRoleWatcher),
     fork(OrganizationsApiSagas.deleteOrganizationWatcher),
     fork(OrganizationsApiSagas.deleteRoleWatcher),

@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   Card,
@@ -133,7 +133,7 @@ class OrgMembersSection extends Component<Props, State> {
     } = this.props;
     const { valueOfSearchQuery } = this.state;
 
-    const memberCardSegments = orgMembers.get(org.get('id')).map((member :Map) => {
+    const memberCardSegments = orgMembers.get(org.get('id'), List()).map((member :Map) => {
       const userProfileLabel :string = getUserProfileLabel(member);
       const memberId :string = member.getIn(['profile', 'user_id'], member.get('id'));
       return (

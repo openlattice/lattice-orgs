@@ -39,6 +39,7 @@ const { PermissionTypes } = Types;
 const {
   ADD_DOMAIN_TO_ORG,
   ADD_MEMBER_TO_ORG,
+  CREATE_ORGANIZATION,
   CREATE_ROLE,
   DELETE_ORGANIZATION,
   DELETE_ROLE,
@@ -52,6 +53,7 @@ const {
   UPDATE_ORG_TITLE,
   addDomainToOrganization,
   addMemberToOrganization,
+  createOrganization,
   createRole,
   deleteOrganization,
   deleteRole,
@@ -67,6 +69,9 @@ const {
 
 const INITIAL_STATE :Map = fromJS({
   [ADD_DOMAIN_TO_ORG]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [CREATE_ORGANIZATION]: {
     requestState: RequestStates.STANDBY,
   },
   [CREATE_ROLE]: {
@@ -176,6 +181,25 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
         },
         FAILURE: () => state.setIn([ADD_MEMBER_TO_ORG, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([ADD_MEMBER_TO_ORG, seqAction.id]),
+      });
+    }
+
+    case createOrganization.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return createOrganization.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([CREATE_ORGANIZATION, 'requestState'], RequestStates.PENDING)
+          .setIn([CREATE_ORGANIZATION, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([CREATE_ORGANIZATION, seqAction.id]);
+          if (storedSeqAction) {
+            return state
+              .setIn([CREATE_ORGANIZATION, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([CREATE_ORGANIZATION, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([CREATE_ORGANIZATION, seqAction.id]),
       });
     }
 

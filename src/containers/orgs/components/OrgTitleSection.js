@@ -20,7 +20,7 @@ const { UPDATE_ORG_TITLE } = OrganizationsApiActions;
 
 const dataSchema = {
   properties: {
-    title: {
+    orgTitle: {
       title: 'Edit organization\'s title',
       type: 'string',
     },
@@ -29,8 +29,8 @@ const dataSchema = {
   type: 'object',
 };
 
-export const uiSchema = {
-  title: {
+const uiSchema = {
+  orgTitle: {
     classNames: 'column-span-12',
     'ui:widget': 'textarea',
   },
@@ -72,7 +72,7 @@ type Props = {
 
 type State = {
   data :{
-    title :string;
+    orgTitle :string;
   };
   isEditing :boolean;
 };
@@ -85,7 +85,7 @@ class OrgDescriptionSection extends Component<Props, State> {
 
     this.state = {
       data: {
-        title: props.org.get('title', ''),
+        orgTitle: props.org.get('title', ''),
       },
       isEditing: false,
     };
@@ -107,7 +107,7 @@ class OrgDescriptionSection extends Component<Props, State> {
 
     this.setState({
       data: {
-        title: org.get('title', ''),
+        orgTitle: org.get('title', ''),
       },
       isEditing: false,
     });
@@ -117,7 +117,7 @@ class OrgDescriptionSection extends Component<Props, State> {
 
     this.setState({
       data: {
-        title: formData.title || '',
+        orgTitle: formData.orgTitle || '',
       },
     });
   }
@@ -133,12 +133,12 @@ class OrgDescriptionSection extends Component<Props, State> {
     const { actions, isOwner, org } = this.props;
     const currentTitle :string = org.get('title');
 
-    if (currentTitle === formData.title) {
+    if (currentTitle === formData.orgTitle) {
       this.resetState();
     }
     else if (isOwner) {
       actions.updateOrganizationTitle({
-        title: formData.title,
+        title: formData.orgTitle,
         organizationId: org.get('id'),
       });
     }

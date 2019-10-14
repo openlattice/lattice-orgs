@@ -3,17 +3,22 @@
  */
 
 import React, { Component } from 'react';
-import type { Element } from 'react';
 
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/pro-solid-svg-icons';
-import { List, Map, Set } from 'immutable';
+import { List, Map } from 'immutable';
+import { Models, Types } from 'lattice';
+import { OrganizationsApiActions } from 'lattice-sagas';
 import {
+  Button,
   Card,
   CardHeader,
   CardSegment,
   Colors,
+  Input,
+  Label,
+  Modal,
   Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
@@ -26,34 +31,30 @@ import * as OrgsActions from './OrgsActions';
 import * as Routes from '../../core/router/Routes';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
+import type { ResetRequestState } from '../../core/redux/ReduxActions';
 import type { GoToRoute } from '../../core/router/RoutingActions';
 
 // const LOG = new Logger('OrgsContainer');
 
 const { NEUTRALS } = Colors;
+
+const { OrganizationBuilder, PrincipalBuilder } = Models;
+const { PrincipalTypes } = Types;
+
 const { GET_ORGS_AND_PERMISSIONS } = OrgsActions;
+const { CREATE_ORGANIZATION } = OrganizationsApiActions;
 
-const Title = styled.h1`
-  font-size: 28px;
-  font-weight: normal;
+const TitleSection = styled.section`
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
   margin: 20px 0 0 0;
-  padding: 0;
-`;
 
-const OrgCount = styled.span`
-  color: #674fef;
-  font-weight: normal;
-`;
-
-const OrgCollectionSection = styled.section`
-  > h2 {
-    font-size: 22px;
-    font-weight: 500;
-    margin: 48px 0 24px 0;
-  }
-
-  ${OrgCount} {
-    margin: 0 0 0 8px;
+  > h1 {
+    font-size: 28px;
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
   }
 `;
 
@@ -61,6 +62,7 @@ const CardGrid = styled.div`
   display: grid;
   grid-gap: 30px;
   grid-template-columns: 1fr 1fr; /* the goal is to have 2 equal-width columns */
+  margin-top: 50px;
 
   ${Card} {
     min-width: 0; /* setting min-width ensures cards do not overflow the grid column */
@@ -109,21 +111,40 @@ const Error = styled.div`
   text-align: center;
 `;
 
+const MinWidth = styled.div`
+  min-width: 500px;
+`;
+
 type Props = {
   actions :{
+    createOrganization :RequestSequence;
     getOrgsAndPermissions :RequestSequence;
     goToRoute :GoToRoute;
-    resetRequestState :(actionType :string) => void;
+    resetRequestState :ResetRequestState;
   };
-  isMemberOfOrgIds :Set<UUID>;
-  isOwnerOfOrgIds :Set<UUID>;
   orgs :Map<UUID, Map>;
   requestStates :{
+    CREATE_ORGANIZATION :RequestState;
     GET_ORGS_AND_PERMISSIONS :RequestState;
   };
 };
 
-class OrgsContainer extends Component<Props> {
+type State = {
+  isVisibleNewOrgModal :boolean;
+  newOrgTitle :string;
+};
+
+class OrgsContainer extends Component<Props, State> {
+
+  constructor(props :Props) {
+
+    super(props);
+
+    this.state = {
+      isVisibleNewOrgModal: false,
+      newOrgTitle: '',
+    };
+  }
 
   componentDidMount() {
     const { actions } = this.props;
@@ -133,22 +154,68 @@ class OrgsContainer extends Component<Props> {
   componentDidUpdate(props :Props) {
 
     const { actions, requestStates } = this.props;
-    if (requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.SUCCESS
-        && props.requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.PENDING) {
+    if (props.requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.PENDING
+        && requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.SUCCESS) {
       actions.resetRequestState(OrgsActions.GET_ORGS_AND_PERMISSIONS);
+    }
+
+    if (props.requestStates[CREATE_ORGANIZATION] === RequestStates.PENDING
+        && requestStates[CREATE_ORGANIZATION] === RequestStates.SUCCESS) {
+      console.log('success! go to org...');
     }
   }
 
   componentWillUnmount() {
 
     const { actions } = this.props;
+    actions.resetRequestState(CREATE_ORGANIZATION);
     actions.resetRequestState(OrgsActions.GET_ORGS_AND_PERMISSIONS);
   }
 
   goToOrg = (org :Map) => {
+
     const { actions } = this.props;
     const orgId :UUID = org.get('id');
     actions.goToRoute(Routes.ORG.replace(Routes.ID_PARAM, orgId));
+  }
+
+  handleOnChangeNewOrgTitle = (event :SyntheticInputEvent<HTMLInputElement>) => {
+
+    this.setState({ newOrgTitle: event.target.value || '' });
+  }
+
+  handleOnClickCreateOrg = () => {
+
+    const { actions } = this.props;
+    const { newOrgTitle } = this.state;
+
+    if (isNonEmptyString(newOrgTitle)) {
+
+      const principal = (new PrincipalBuilder())
+        .setType(PrincipalTypes.ORGANIZATION)
+        .setId(newOrgTitle.replace(/\W/g, ''))
+        .build();
+
+      const org = (new OrganizationBuilder())
+        .setTitle(newOrgTitle)
+        .setPrincipal(principal)
+        .build();
+
+      actions.createOrganization(org);
+    }
+  }
+
+  closeNewOrgModal = () => {
+
+    const { actions } = this.props;
+
+    this.setState({ isVisibleNewOrgModal: false, newOrgTitle: '' });
+    actions.resetRequestState(CREATE_ORGANIZATION);
+  }
+
+  openNewOrgModal = () => {
+
+    this.setState({ isVisibleNewOrgModal: true, newOrgTitle: '' });
   }
 
   renderOrgCard = (org :Map) => {
@@ -184,31 +251,49 @@ class OrgsContainer extends Component<Props> {
     );
   }
 
-  renderOrgCollectionSection = (title :string, orgCards :Element<any>[]) => {
+  renderNewOrgModal = () => {
 
-    if (orgCards.length === 0) {
-      return null;
+    const { requestStates } = this.props;
+    const { isVisibleNewOrgModal, newOrgTitle } = this.state;
+
+    let withFooter = true;
+    let body = (
+      <>
+        <Label htmlFor="new-org-title">Organization title*</Label>
+        <Input
+            id="new-org-title"
+            invalid={requestStates[CREATE_ORGANIZATION] === RequestStates.FAILURE}
+            onChange={this.handleOnChangeNewOrgTitle}
+            value={newOrgTitle} />
+      </>
+    );
+
+    if (requestStates[CREATE_ORGANIZATION] === RequestStates.PENDING) {
+      body = (
+        <Spinner size="2x" />
+      );
+      withFooter = false;
     }
 
     return (
-      <OrgCollectionSection>
-        <h2>
-          <span>{title}</span>
-          <OrgCount>{orgCards.length}</OrgCount>
-        </h2>
-        <CardGrid>{orgCards}</CardGrid>
-      </OrgCollectionSection>
+      <Modal
+          isVisible={isVisibleNewOrgModal}
+          onClickPrimary={this.handleOnClickCreateOrg}
+          onClickSecondary={this.closeNewOrgModal}
+          onClose={this.closeNewOrgModal}
+          textPrimary="Create"
+          textSecondary="Cancel"
+          textTitle="New Organization"
+          withFooter={withFooter}>
+        {body}
+        <MinWidth />
+      </Modal>
     );
   }
 
   render() {
 
-    const {
-      isMemberOfOrgIds,
-      isOwnerOfOrgIds,
-      orgs,
-      requestStates,
-    } = this.props;
+    const { orgs, requestStates } = this.props;
 
     if (requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.PENDING) {
       return (
@@ -224,52 +309,42 @@ class OrgsContainer extends Component<Props> {
       );
     }
 
-    const ownerOrgCards :Element<any>[] = [];
-    const memberOrgCards :Element<any>[] = [];
-    const publicOrgCards :Element<any>[] = [];
-
-    orgs.forEach((org :Map, orgId :UUID) => {
-      const orgCard :Element<any> = this.renderOrgCard(org);
-      if (isOwnerOfOrgIds.has(orgId)) {
-        ownerOrgCards.push(orgCard);
-      }
-      else if (isMemberOfOrgIds.has(orgId)) {
-        memberOrgCards.push(orgCard);
-      }
-      else {
-        publicOrgCards.push(orgCard);
-      }
-    });
-
     return (
       <>
-        <Title>Organizations</Title>
+        <TitleSection>
+          <h1>Organizations</h1>
+          <Button mode="primary" onClick={this.openNewOrgModal}>Create Organization</Button>
+        </TitleSection>
         {
-          orgs.isEmpty() && (
-            <Error>
-              Sorry, no organizations were found. Please try refreshing the page, or contact support.
-            </Error>
-          )
+          orgs.isEmpty()
+            ? (
+              <Error>
+                Sorry, no organizations were found. Please try refreshing the page, or contact support.
+              </Error>
+            )
+            : (
+              <CardGrid>
+                {orgs.valueSeq().map((org :Map) => this.renderOrgCard(org))}
+              </CardGrid>
+            )
         }
-        {this.renderOrgCollectionSection('Owner', ownerOrgCards)}
-        {this.renderOrgCollectionSection('Member', memberOrgCards)}
-        {this.renderOrgCollectionSection('Public', publicOrgCards)}
+        {this.renderNewOrgModal()}
       </>
     );
   }
 }
 
 const mapStateToProps = (state :Map) => ({
-  isMemberOfOrgIds: state.getIn(['orgs', 'isMemberOfOrgIds'], Set()),
-  isOwnerOfOrgIds: state.getIn(['orgs', 'isOwnerOfOrgIds'], Set()),
   orgs: state.getIn(['orgs', 'orgs']),
   requestStates: {
+    [CREATE_ORGANIZATION]: state.getIn(['orgs', CREATE_ORGANIZATION, 'requestState']),
     [GET_ORGS_AND_PERMISSIONS]: state.getIn(['orgs', GET_ORGS_AND_PERMISSIONS, 'requestState']),
-  }
+  },
 });
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
+    createOrganization: OrganizationsApiActions.createOrganization,
     getOrgsAndPermissions: OrgsActions.getOrgsAndPermissions,
     goToRoute: RoutingActions.goToRoute,
     resetRequestState: ReduxActions.resetRequestState,
