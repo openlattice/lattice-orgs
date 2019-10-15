@@ -35,7 +35,7 @@ const dataSchema = {
   type: 'object',
 };
 
-export const uiSchema = {
+const uiSchema = {
   description: {
     classNames: 'column-span-12',
     'ui:widget': 'textarea',

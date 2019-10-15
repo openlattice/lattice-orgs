@@ -2,6 +2,9 @@
  * @flow
  */
 
+
+declare type ResetRequestState = (actionType :string) => void;
+
 const RESET_REQUEST_STATE :'RESET_REQUEST_STATE' = 'RESET_REQUEST_STATE';
 function resetRequestState(actionType :string) {
   return {
@@ -13,4 +16,8 @@ function resetRequestState(actionType :string) {
 export {
   RESET_REQUEST_STATE,
   resetRequestState,
+};
+
+export type {
+  ResetRequestState,
 };

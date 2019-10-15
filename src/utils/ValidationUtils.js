@@ -33,17 +33,17 @@ function validateNonEmptyArray(value :any[], validatorFn :ValidatorFn) :boolean 
   return true;
 }
 
-function isValidUUID(value :any) :boolean {
+function isValidUUID(value :any) :boolean %checks {
 
   return BASE_UUID_PATTERN.test(value);
 }
 
-function isValidUUIDArray(uuids :any[]) :boolean {
+function isValidUUIDArray(uuids :any[]) :boolean %checks {
 
   return validateNonEmptyArray(uuids, (id :any) => isValidUUID(id));
 }
 
-function isValidEmailDomain(value :any) :boolean {
+function isValidEmailDomain(value :any) :boolean %checks {
 
   return isEmail(`test@${value}`);
 }
