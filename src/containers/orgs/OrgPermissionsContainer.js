@@ -115,7 +115,7 @@ const Unauthorized = styled.div`
 `;
 
 const UNAUTHORIZED = `
-Sorry, you are not authorized to view this role's permissions. Only the owner of a role can access other users'
+You are not authorized to view this role's permissions. Only the owner of a role can access other users'
 permissions for that role.
 `;
 
