@@ -107,6 +107,11 @@ const OrgDescription = styled.p`
   overflow-wrap: break-word;
   padding: 0;
   text-overflow: ellipsis;
+
+  /* https://css-tricks.com/line-clampin */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
 `;
 
 const Error = styled.div`
@@ -230,14 +235,7 @@ class OrgsContainer extends Component<Props, State> {
   renderOrgCard = (org :Map) => {
 
     const orgId :UUID = org.get('id');
-    let description :string = org.get('description', '');
-
-    // TODO: refactor as a utility function
-    if (description.length > 100) {
-      let spaceIndex = description.indexOf(' ', 98);
-      if (spaceIndex === -1) spaceIndex = 100;
-      description = `${description.substr(0, spaceIndex)}...`;
-    }
+    const description :string = org.get('description', '');
 
     return (
       <Card key={orgId} onClick={() => this.goToOrg(orgId)}>
