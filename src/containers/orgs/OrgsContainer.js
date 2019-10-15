@@ -98,6 +98,7 @@ const UserIcon = styled(FontAwesomeIcon).attrs({
   margin-right: 10px;
 `;
 
+/* stylelint-disable value-no-vendor-prefix, property-no-vendor-prefix */
 const OrgDescription = styled.p`
   color: ${NEUTRALS[1]};
   font-size: 14px;
@@ -113,6 +114,7 @@ const OrgDescription = styled.p`
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 `;
+/* stylelint-enable */
 
 const Error = styled.div`
   text-align: center;
