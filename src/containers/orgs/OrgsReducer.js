@@ -449,8 +449,8 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
           if (storedSeqAction) {
             const organizationId :UUID = storedSeqAction.value;
             return state
-              .setIn([GET_ORGANIZATION_PERMISSIONS, 'requestState'], RequestStates.SUCCESS)
-              .setIn(['orgAcls', organizationId], seqAction.value);
+              .setIn(['orgAcls', organizationId], seqAction.value)
+              .setIn([GET_ORGANIZATION_PERMISSIONS, 'requestState'], RequestStates.SUCCESS);
           }
           return state;
         },

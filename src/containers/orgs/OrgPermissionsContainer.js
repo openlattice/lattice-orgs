@@ -7,6 +7,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
+import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
   Card,
@@ -47,7 +48,7 @@ const Title = styled.h2`
 const PermissionsManagementSection = styled.section`
   border-left: 1px solid ${NEUTRALS[4]};
   display: flex;
-  flex: 1 1 auto;
+  flex: 1 0 auto;
   flex-direction: column;
   padding: 0 0 0 30px;
 
@@ -58,9 +59,10 @@ const PermissionsManagementSection = styled.section`
 
 const SelectionSection = styled.section`
   display: flex;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   flex-direction: column;
-  max-width: 300px;
+  padding: 0 30px 0 0;
+  width: 300px;
 
   > div {
     margin-bottom: 30px;
@@ -107,6 +109,16 @@ const PermissionsHeader = styled.div`
   justify-content: space-evenly;
 `;
 
+const Unauthorized = styled.div`
+  border-left: 1px solid ${NEUTRALS[4]};
+  padding: 0 0 0 30px;
+`;
+
+const UNAUTHORIZED = `
+You are not authorized to view this role's permissions. Only the owner of a role can access other users'
+permissions for that role.
+`;
+
 type Props = {
   actions :{
     getAllUsers :RequestSequence;
@@ -131,7 +143,7 @@ type State = {
   selectedPermission :PermissionType;
 };
 
-class OrgDetailsContainer extends Component<Props, State> {
+class OrgPermissionsContainer extends Component<Props, State> {
 
   constructor(props :Props) {
 
@@ -256,7 +268,7 @@ class OrgDetailsContainer extends Component<Props, State> {
       ? orgAcls
       : Map().set(selectedAclKey, orgAcls.get(selectedAclKey, List()));
 
-    const lookup = {};
+    const lookup = {}; // I don't like this
     const userCardSegments = [];
     targetAcls.forEach((acl :Map) => {
       acl.get('aces', List())
@@ -267,7 +279,12 @@ class OrgDetailsContainer extends Component<Props, State> {
         .forEach((ace :Map) => {
           const userId :string = ace.getIn(['principal', 'id']);
           const user :Map = users.get(userId, Map());
-          const userProfileLabel :string = getUserProfileLabel(user);
+          let userProfileLabel :string = getUserProfileLabel(user);
+          const thisUserInfo :Object = AuthUtils.getUserInfo() || { id: '' };
+          const thisUserId :string = thisUserInfo.id;
+          if (userId === thisUserId) {
+            userProfileLabel = `${userProfileLabel} (you)`;
+          }
           if (!lookup[userId]) {
             lookup[userId] = true;
             userCardSegments.push((
@@ -347,11 +364,25 @@ class OrgDetailsContainer extends Component<Props, State> {
     );
   }
 
+  renderUnauthorizedAccess = () => (
+    <Unauthorized>
+      <span>{UNAUTHORIZED}</span>
+    </Unauthorized>
+  )
+
   render() {
 
-    const { isOwner } = this.props;
+    const { isOwner, orgAcls } = this.props;
+    const { selectedAclKey } = this.state;
     if (!isOwner) {
       return null;
+    }
+
+    let isAuthorized :boolean = true;
+    const selectedAcl :Map = orgAcls.get(selectedAclKey, Map());
+    if (selectedAcl.getIn(['error', 'status']) === 401
+        && selectedAcl.getIn(['error', 'statusText']) === 'Unauthorized') {
+      isAuthorized = false;
     }
 
     return (
@@ -361,7 +392,8 @@ class OrgDetailsContainer extends Component<Props, State> {
         </CardSegment>
         <CardSegment>
           {this.renderSelectionSection()}
-          {this.renderPermissionsManagementSection()}
+          {isAuthorized && this.renderPermissionsManagementSection()}
+          {!isAuthorized && this.renderUnauthorizedAccess()}
         </CardSegment>
       </Card>
     );
@@ -376,7 +408,7 @@ const mapStateToProps = (state :Map, props :Object) => {
     isOwner: state.hasIn(['orgs', 'isOwnerOfOrgIds', orgId], false),
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
     orgAclKey: List([orgId]),
-    orgAcls: state.getIn(['orgs', 'orgAcls', orgId], List()),
+    orgAcls: state.getIn(['orgs', 'orgAcls', orgId], Map()),
     requestStates: {
       [GET_ALL_USERS]: state.getIn(['principals', GET_ALL_USERS, 'requestState']),
       [GET_ORGANIZATION_PERMISSIONS]: state.getIn(['orgs', GET_ORGANIZATION_PERMISSIONS, 'requestState']),
@@ -397,4 +429,4 @@ const mapActionsToProps = (dispatch :Function) => ({
 });
 
 // $FlowFixMe
-export default connect(mapStateToProps, mapActionsToProps)(OrgDetailsContainer);
+export default connect(mapStateToProps, mapActionsToProps)(OrgPermissionsContainer);
