@@ -153,10 +153,13 @@ class OrgRolesContainer extends Component<Props, State> {
     document.removeEventListener('mousedown', this.handleOnClickOutside, false);
   }
 
-  handleOnClickOutside = (event :SyntheticEvent<HTMLElement>) => {
+  handleOnClickOutside = (event :MouseEvent) => {
 
-    if (this.rolesRef.current && !this.rolesRef.current.contains(event.target)
-        && this.usersRef.current && !this.usersRef.current.contains(event.target)) {
+    const { target } = event;
+
+    if (target instanceof Node
+        && this.rolesRef.current && !this.rolesRef.current.contains(target)
+        && this.usersRef.current && !this.usersRef.current.contains(target)) {
       this.setState({
         selectedRoleId: undefined,
         selectedUserId: undefined,
@@ -182,7 +185,7 @@ class OrgRolesContainer extends Component<Props, State> {
 
   isRoleAssignedToMember = (roleId :?UUID, member :?Map) => {
 
-    if (Map.isMap(member)) {
+    if (Map.isMap(member) && member) {
       const roleIndex :number = member.get('roles', List())
         .findIndex((role :Map) => (
           role.get('id') === roleId
