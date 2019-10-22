@@ -7,21 +7,23 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
-import { PrincipalsApiActions } from 'lattice-sagas';
+import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
   Card,
   CardSegment,
   Checkbox,
   Colors,
+  Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-// import { RequestStates } from 'redux-reqseq';
-import type { RequestState } from 'redux-reqseq';
+import { RequestStates } from 'redux-reqseq';
+import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
+import { Logger } from '../../utils';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
 import { isDefined } from '../../utils/LangUtils';
 import { getUserId, getUserProfileLabel } from '../../utils/PersonUtils';
@@ -31,6 +33,7 @@ const { NEUTRALS, PURPLES } = Colors;
 const { PrincipalTypes } = Types;
 
 const { GET_ORGANIZATION_PERMISSIONS } = OrgsActions;
+const { ADD_ROLE_TO_MEMBER, REMOVE_ROLE_FROM_MEMBER } = OrganizationsApiActions;
 const { GET_ALL_USERS } = PrincipalsApiActions;
 
 const Title = styled.h2`
@@ -111,17 +114,23 @@ const SectionItem = styled.div`
   }
 `;
 
+const LOG :Logger = new Logger('OrgRolesContainer');
+
 type Props = {
   actions :{
+    addRoleToMember :RequestSequence;
     goToRoot :GoToRoot;
+    removeRoleFromMember :RequestSequence;
     resetRequestState :(actionType :string) => void;
   };
   isOwner :boolean;
   org :Map;
   orgMembers :Map;
   requestStates :{
+    ADD_ROLE_TO_MEMBER :RequestState;
     GET_ALL_USERS :RequestState;
     GET_ORGANIZATION_PERMISSIONS :RequestState;
+    REMOVE_ROLE_FROM_MEMBER :RequestState;
   };
 };
 
@@ -151,6 +160,44 @@ class OrgRolesContainer extends Component<Props, State> {
   componentWillUnmount() {
 
     document.removeEventListener('mousedown', this.handleOnClickOutside, false);
+  }
+
+  handleOnChangeRoleAssignment = (event :SyntheticEvent<HTMLElement>) => {
+
+    const { actions, isOwner, org } = this.props;
+    const { selectedRoleId, selectedUserId } = this.state;
+
+    const { target } = event;
+    if (target instanceof HTMLElement) {
+
+      const organizationId :UUID = org.get('id');
+      let memberId :?string;
+      let roleId :?UUID;
+
+      const { dataset } = target;
+      if (isDefined(dataset.roleId) && isDefined(selectedUserId)) {
+        roleId = dataset.roleId;
+        memberId = selectedUserId;
+      }
+      else if (isDefined(dataset.userId) && isDefined(selectedRoleId)) {
+        roleId = selectedRoleId;
+        memberId = dataset.userId;
+      }
+
+
+      if (isOwner) {
+        const isRoleAssignedToMember = this.isRoleAssignedToMember(roleId, memberId);
+        if (isRoleAssignedToMember) {
+          actions.removeRoleFromMember({ memberId, organizationId, roleId });
+        }
+        else {
+          actions.addRoleToMember({ memberId, organizationId, roleId });
+        }
+      }
+      else {
+        LOG.warn('cannot change role assignment because the user is not an owner of the org');
+      }
+    }
   }
 
   handleOnClickOutside = (event :MouseEvent) => {
@@ -183,10 +230,22 @@ class OrgRolesContainer extends Component<Props, State> {
     });
   }
 
-  isRoleAssignedToMember = (roleId :?UUID, member :?Map) => {
+  isRoleAssignedToMember = (roleId :?UUID, userIdOrMember :UUID | Map) => {
 
-    if (Map.isMap(member) && member) {
-      const roleIndex :number = member.get('roles', List())
+    const { orgMembers } = this.props;
+
+    let targetMember :?Map = userIdOrMember;
+    if (isDefined(userIdOrMember) && !Map.isMap(userIdOrMember)) {
+      // userIdOrMember === userId
+      const userId :UUID = userIdOrMember;
+      targetMember = orgMembers.find((member :Map) => (
+        member.getIn(['principal', 'principal', 'id']) === userId
+        && member.getIn(['principal', 'principal', 'type']) === PrincipalTypes.USER
+      ));
+    }
+
+    if (Map.isMap(targetMember) && targetMember) {
+      const roleIndex :number = targetMember.get('roles', List())
         .findIndex((role :Map) => (
           role.get('id') === roleId
           && role.getIn(['principal', 'type']) === PrincipalTypes.ROLE
@@ -199,22 +258,14 @@ class OrgRolesContainer extends Component<Props, State> {
 
   renderRolesSection = () => {
 
-    const { org, orgMembers } = this.props;
+    const { org } = this.props;
     const { selectedRoleId, selectedUserId } = this.state;
-
-    let selectedMember :Map;
-    if (isDefined(selectedUserId)) {
-      selectedMember = orgMembers.find((member :Map) => (
-        member.getIn(['principal', 'principal', 'id']) === selectedUserId
-        && member.getIn(['principal', 'principal', 'type']) === PrincipalTypes.USER
-      ));
-    }
 
     const roles = org.get('roles', List());
     const roleElements = roles.map((role :Map) => {
       const roleId :UUID = role.get('id');
       const title :string = role.get('title');
-      const isRoleAssignedToMember = this.isRoleAssignedToMember(roleId, selectedMember);
+      const isRoleAssignedToMember = this.isRoleAssignedToMember(roleId, selectedUserId);
       return (
         <SectionItem isCheckBoxVisible={isDefined(selectedUserId)} key={roleId}>
           <ItemText
@@ -223,7 +274,10 @@ class OrgRolesContainer extends Component<Props, State> {
               title={title}>
             {title}
           </ItemText>
-          <Checkbox checked={isRoleAssignedToMember} />
+          <Checkbox
+              checked={isRoleAssignedToMember}
+              data-role-id={roleId}
+              onChange={this.handleOnChangeRoleAssignment} />
         </SectionItem>
       );
     });
@@ -252,7 +306,10 @@ class OrgRolesContainer extends Component<Props, State> {
               title={userProfileLabel}>
             {userProfileLabel}
           </ItemText>
-          <Checkbox checked={isRoleAssignedToMember} />
+          <Checkbox
+              checked={isRoleAssignedToMember}
+              data-user-id={userId}
+              onChange={this.handleOnChangeRoleAssignment} />
         </SectionItem>
       );
     });
@@ -266,10 +323,14 @@ class OrgRolesContainer extends Component<Props, State> {
 
   render() {
 
-    const { isOwner } = this.props;
+    const { isOwner, requestStates } = this.props;
+
     if (!isOwner) {
       return null;
     }
+
+    const isPending = requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.PENDING
+      || requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.PENDING;
 
     return (
       <Card>
@@ -277,10 +338,18 @@ class OrgRolesContainer extends Component<Props, State> {
           <Title>Role Assignments</Title>
         </CardSegment>
         <CardSegment vertical>
-          <RoleAssignmentsGrid>
-            {this.renderRolesSection()}
-            {this.renderMembersSection()}
-          </RoleAssignmentsGrid>
+          {
+            isPending
+              ? (
+                <Spinner />
+              )
+              : (
+                <RoleAssignmentsGrid>
+                  {this.renderRolesSection()}
+                  {this.renderMembersSection()}
+                </RoleAssignmentsGrid>
+              )
+          }
         </CardSegment>
       </Card>
     );
@@ -294,10 +363,12 @@ const mapStateToProps = (state :Map, props :Object) => {
   return {
     isOwner: state.hasIn(['orgs', 'isOwnerOfOrgIds', orgId], false),
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
-    orgMembers: state.getIn(['orgs', 'orgMembers', orgId], Map()),
+    orgMembers: state.getIn(['orgs', 'orgMembers', orgId], List()),
     requestStates: {
+      [ADD_ROLE_TO_MEMBER]: state.getIn(['orgs', ADD_ROLE_TO_MEMBER, 'requestState']),
       [GET_ALL_USERS]: state.getIn(['principals', GET_ALL_USERS, 'requestState']),
       [GET_ORGANIZATION_PERMISSIONS]: state.getIn(['orgs', GET_ORGANIZATION_PERMISSIONS, 'requestState']),
+      [REMOVE_ROLE_FROM_MEMBER]: state.getIn(['orgs', REMOVE_ROLE_FROM_MEMBER, 'requestState']),
     },
     users: state.getIn(['principals', 'users'], Map()),
   };
@@ -305,7 +376,9 @@ const mapStateToProps = (state :Map, props :Object) => {
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
+    addRoleToMember: OrganizationsApiActions.addRoleToMember,
     goToRoot: RoutingActions.goToRoot,
+    removeRoleFromMember: OrganizationsApiActions.removeRoleFromMember,
     resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)
 });
