@@ -9,6 +9,7 @@ import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
+  ActionModal,
   Card,
   CardSegment,
   Checkbox,
@@ -135,6 +136,9 @@ type Props = {
 };
 
 type State = {
+  actionMemberId :?string;
+  actionRoleId :?UUID;
+  isVisibleActionModal :boolean;
   selectedRoleId :?UUID;
   selectedUserId :?string;
 };
@@ -147,9 +151,33 @@ class OrgRolesContainer extends Component<Props, State> {
   constructor(props :Props) {
     super(props);
     this.state = {
+      actionMemberId: undefined,
+      actionRoleId: undefined,
+      isVisibleActionModal: false,
       selectedRoleId: undefined,
       selectedUserId: undefined,
     };
+  }
+
+  componentDidUpdate(props :Props) {
+
+    const { actions, requestStates } = this.props;
+
+    const success1 = props.requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.PENDING
+        && requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.SUCCESS;
+
+    const success2 = props.requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.PENDING
+        && requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.SUCCESS;
+
+    if (success1 || success2) {
+      actions.resetRequestState(ADD_ROLE_TO_MEMBER);
+      actions.resetRequestState(REMOVE_ROLE_FROM_MEMBER);
+      this.setState({
+        actionMemberId: undefined,
+        actionRoleId: undefined,
+        isVisibleActionModal: false,
+      });
+    }
   }
 
   componentDidMount() {
@@ -162,15 +190,13 @@ class OrgRolesContainer extends Component<Props, State> {
     document.removeEventListener('mousedown', this.handleOnClickOutside, false);
   }
 
-  handleOnChangeRoleAssignment = (event :SyntheticEvent<HTMLElement>) => {
+  handleOnChangeCheckBox = (event :SyntheticEvent<HTMLElement>) => {
 
-    const { actions, isOwner, org } = this.props;
     const { selectedRoleId, selectedUserId } = this.state;
 
     const { target } = event;
     if (target instanceof HTMLElement) {
 
-      const organizationId :UUID = org.get('id');
       let memberId :?string;
       let roleId :?UUID;
 
@@ -184,19 +210,11 @@ class OrgRolesContainer extends Component<Props, State> {
         memberId = dataset.userId;
       }
 
-
-      if (isOwner) {
-        const isRoleAssignedToMember = this.isRoleAssignedToMember(roleId, memberId);
-        if (isRoleAssignedToMember) {
-          actions.removeRoleFromMember({ memberId, organizationId, roleId });
-        }
-        else {
-          actions.addRoleToMember({ memberId, organizationId, roleId });
-        }
-      }
-      else {
-        LOG.warn('cannot change role assignment because the user is not an owner of the org');
-      }
+      this.setState({
+        actionMemberId: memberId,
+        actionRoleId: roleId,
+        isVisibleActionModal: true,
+      });
     }
   }
 
@@ -214,11 +232,10 @@ class OrgRolesContainer extends Component<Props, State> {
     }
   }
 
-  selectUser = (userId :string) => {
+  hideModal = () => {
 
     this.setState({
-      selectedRoleId: undefined,
-      selectedUserId: userId,
+      isVisibleActionModal: false,
     });
   }
 
@@ -228,6 +245,34 @@ class OrgRolesContainer extends Component<Props, State> {
       selectedRoleId: roleId,
       selectedUserId: undefined,
     });
+  }
+
+  selectUser = (userId :string) => {
+
+    this.setState({
+      selectedRoleId: undefined,
+      selectedUserId: userId,
+    });
+  }
+
+  updateRoleAssignment = () => {
+
+    const { actions, isOwner, org } = this.props;
+    const { actionMemberId: memberId, actionRoleId: roleId } = this.state;
+
+    if (isOwner) {
+      const organizationId :UUID = org.get('id');
+      const isRoleAssignedToMember = this.isRoleAssignedToMember(roleId, memberId);
+      if (isRoleAssignedToMember) {
+        actions.removeRoleFromMember({ memberId, organizationId, roleId });
+      }
+      else {
+        actions.addRoleToMember({ memberId, organizationId, roleId });
+      }
+    }
+    else {
+      LOG.warn('cannot update role assignment because the user is not an owner of the org');
+    }
   }
 
   isRoleAssignedToMember = (roleId :?UUID, userIdOrMember :UUID | Map) => {
@@ -277,7 +322,7 @@ class OrgRolesContainer extends Component<Props, State> {
           <Checkbox
               checked={isRoleAssignedToMember}
               data-role-id={roleId}
-              onChange={this.handleOnChangeRoleAssignment} />
+              onChange={this.handleOnChangeCheckBox} />
         </SectionItem>
       );
     });
@@ -309,7 +354,7 @@ class OrgRolesContainer extends Component<Props, State> {
           <Checkbox
               checked={isRoleAssignedToMember}
               data-user-id={userId}
-              onChange={this.handleOnChangeRoleAssignment} />
+              onChange={this.handleOnChangeCheckBox} />
         </SectionItem>
       );
     });
@@ -321,37 +366,60 @@ class OrgRolesContainer extends Component<Props, State> {
     );
   }
 
+  renderActionModal = () => {
+
+    const { requestStates } = this.props;
+    const { isVisibleActionModal } = this.state;
+
+    let modalRequestState :RequestState = RequestStates.STANDBY;
+    if (requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.PENDING
+        || requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.PENDING) {
+      modalRequestState = RequestStates.PENDING;
+    }
+    else if (requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.SUCCESS
+        || requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.SUCCESS) {
+      modalRequestState = RequestStates.SUCCESS;
+    }
+    else if (requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.FAILURE
+        || requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.FAILURE) {
+      modalRequestState = RequestStates.FAILURE;
+    }
+
+    return (
+      <ActionModal
+          isVisible={isVisibleActionModal}
+          onClickPrimary={this.updateRoleAssignment}
+          onClickSecondary={this.hideModal}
+          onClose={this.hideModal}
+          requestState={modalRequestState}
+          shouldStretchButtons
+          textTitle="Update Role Assignment" />
+    );
+  }
+
   render() {
 
-    const { isOwner, requestStates } = this.props;
+    const { isOwner } = this.props;
 
     if (!isOwner) {
       return null;
     }
 
-    const isPending = requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.PENDING
-      || requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.PENDING;
-
     return (
-      <Card>
-        <CardSegment noBleed>
-          <Title>Role Assignments</Title>
-        </CardSegment>
-        <CardSegment vertical>
-          {
-            isPending
-              ? (
-                <Spinner />
-              )
-              : (
-                <RoleAssignmentsGrid>
-                  {this.renderRolesSection()}
-                  {this.renderMembersSection()}
-                </RoleAssignmentsGrid>
-              )
-          }
-        </CardSegment>
-      </Card>
+      <>
+        <Card>
+          <CardSegment noBleed>
+            <Title>Role Assignments</Title>
+          </CardSegment>
+          <CardSegment vertical>
+            <RoleAssignmentsGrid>
+              {this.renderRolesSection()}
+              {this.renderMembersSection()}
+            </RoleAssignmentsGrid>
+          </CardSegment>
+        </Card>
+        {this.renderActionModal()}
+      </>
     );
   }
 }
