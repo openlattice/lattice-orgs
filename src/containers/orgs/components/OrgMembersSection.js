@@ -23,10 +23,9 @@ import * as ReduxActions from '../../../core/redux/ReduxActions';
 import {
   ActionControlWithButton,
   CompactCardSegment,
-  OrgDetailSectionGrid,
-  OrgDetailSectionGridItem,
   SpinnerOverlayCard,
 } from './styled';
+import { SectionGrid } from '../../../components';
 import { isNonEmptyString } from '../../../utils/LangUtils';
 import { getUserProfileLabel } from '../../../utils/PersonUtils';
 
@@ -38,10 +37,6 @@ const {
 const {
   SEARCH_MEMBERS_TO_ADD_TO_ORG,
 } = OrgsActions;
-
-const MEMBERS_SUB_TITLE = `
-Click on a member to view their roles. To add members to this organization, search for users in the system.
-`;
 
 type Props = {
   actions :{
@@ -162,16 +157,16 @@ class OrgMembersSection extends Component<Props, State> {
     });
 
     return (
-      <OrgDetailSectionGrid>
+      <SectionGrid>
         <h2>Members</h2>
         {
           isOwner && (
-            <h4>{MEMBERS_SUB_TITLE}</h4>
+            <h4>To add members to this organization, search for users in the system.</h4>
           )
         }
         {
           isOwner && (
-            <OrgDetailSectionGridItem>
+            <div>
               <ActionControlWithButton>
                 <SearchInput
                     onChange={this.handleOnChangeMemberSearch}
@@ -180,17 +175,17 @@ class OrgMembersSection extends Component<Props, State> {
                     isLoading={requestStates[SEARCH_MEMBERS_TO_ADD_TO_ORG] === RequestStates.PENDING}
                     onClick={this.handleOnClickSearch} />
               </ActionControlWithButton>
-            </OrgDetailSectionGridItem>
+            </div>
           )
         }
         {
           isOwner && isNonEmptyString(valueOfSearchQuery) && !searchResultCardSegments.isEmpty() && (
-            <OrgDetailSectionGridItem>
+            <div>
               <Card>{searchResultCardSegments}</Card>
-            </OrgDetailSectionGridItem>
+            </div>
           )
         }
-        <OrgDetailSectionGridItem>
+        <div>
           {
             memberCardSegments.isEmpty()
               ? (
@@ -205,8 +200,8 @@ class OrgMembersSection extends Component<Props, State> {
               <SpinnerOverlayCard />
             )
           }
-        </OrgDetailSectionGridItem>
-      </OrgDetailSectionGrid>
+        </div>
+      </SectionGrid>
     );
   }
 }

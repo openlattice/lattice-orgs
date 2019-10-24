@@ -24,6 +24,8 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
+import { OrgRolesSection } from './components';
+import { SectionGrid } from '../../components';
 import { Logger } from '../../utils';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
 import { isDefined } from '../../utils/LangUtils';
@@ -47,6 +49,13 @@ const RoleAssignmentsGrid = styled.div`
   display: grid;
   grid-gap: 30px;
   grid-template-columns: auto 1fr;
+
+  > section:first-child {
+    border-right: 1px solid ${NEUTRALS[4]};
+    max-width: 400px;
+    min-width: 300px;
+    padding-right: 30px;
+  }
 `;
 
 const ItemText = styled.span`
@@ -63,18 +72,11 @@ const ItemText = styled.span`
   }
 `;
 
-const SectionGrid = styled.section`
+const RoleAssignmentsSection = styled.section`
   align-items: flex-start;
   display: grid;
   grid-auto-rows: min-content;
   position: relative;
-
-  &:first-child {
-    border-right: 1px solid ${NEUTRALS[4]};
-    max-width: 400px;
-    min-width: 300px;
-    padding-right: 30px;
-  }
 
   > div {
     border-bottom: 1px solid ${NEUTRALS[4]};
@@ -328,9 +330,9 @@ class OrgRolesContainer extends Component<Props, State> {
     });
 
     return (
-      <SectionGrid ref={this.rolesRef}>
+      <RoleAssignmentsSection ref={this.rolesRef}>
         {roleElements}
-      </SectionGrid>
+      </RoleAssignmentsSection>
     );
   }
 
@@ -360,9 +362,9 @@ class OrgRolesContainer extends Component<Props, State> {
     });
 
     return (
-      <SectionGrid ref={this.usersRef}>
+      <RoleAssignmentsSection ref={this.usersRef}>
         {memberElements}
-      </SectionGrid>
+      </RoleAssignmentsSection>
     );
   }
 
@@ -399,7 +401,7 @@ class OrgRolesContainer extends Component<Props, State> {
 
   render() {
 
-    const { isOwner } = this.props;
+    const { isOwner, org } = this.props;
 
     if (!isOwner) {
       return null;
@@ -409,13 +411,16 @@ class OrgRolesContainer extends Component<Props, State> {
       <>
         <Card>
           <CardSegment noBleed>
-            <Title>Role Assignments</Title>
+            <OrgRolesSection isOwner={isOwner} org={org} />
           </CardSegment>
           <CardSegment vertical>
-            <RoleAssignmentsGrid>
-              {this.renderRolesSection()}
-              {this.renderMembersSection()}
-            </RoleAssignmentsGrid>
+            <SectionGrid>
+              <h2>Role Assignments</h2>
+              <RoleAssignmentsGrid>
+                {this.renderRolesSection()}
+                {this.renderMembersSection()}
+              </RoleAssignmentsGrid>
+            </SectionGrid>
           </CardSegment>
         </Card>
         {this.renderActionModal()}

@@ -31,10 +31,9 @@ import {
   OrgDomainsSection,
   OrgIntegrationSection,
   OrgMembersSection,
-  OrgRolesSection,
   OrgTrustedOrgsSection,
 } from './components';
-import { OrgDetailSectionGrid } from './components/styled';
+import { CardSegmentNoBorder, SectionGrid } from '../../components';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
 import { isNonEmptyString } from '../../utils/LangUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
@@ -50,10 +49,6 @@ const {
 
 const OrgDescriptionSegment = styled(CardSegment)`
   justify-content: space-between;
-`;
-
-const RolesAndMembersCardSegment = styled(CardSegment)`
-  border: none !important;
 `;
 
 const DeleteOrgButton = styled(IconButton)`
@@ -205,10 +200,10 @@ class OrgDetailsContainer extends Component<Props, State> {
 
     return (
       <CardSegment noBleed vertical>
-        <OrgDetailSectionGrid columns={2}>
+        <SectionGrid columns={2}>
           <OrgDomainsSection isOwner={isOwner} org={org} />
           <OrgTrustedOrgsSection isOwner={isOwner} org={org} />
-        </OrgDetailSectionGrid>
+        </SectionGrid>
       </CardSegment>
     );
   }
@@ -218,12 +213,9 @@ class OrgDetailsContainer extends Component<Props, State> {
     const { isOwner, org } = this.props;
 
     return (
-      <RolesAndMembersCardSegment noBleed vertical>
-        <OrgDetailSectionGrid columns={2}>
-          <OrgRolesSection isOwner={isOwner} org={org} />
-          <OrgMembersSection isOwner={isOwner} org={org} />
-        </OrgDetailSectionGrid>
-      </RolesAndMembersCardSegment>
+      <CardSegmentNoBorder noBleed vertical>
+        <OrgMembersSection isOwner={isOwner} org={org} />
+      </CardSegmentNoBorder>
     );
   }
 
