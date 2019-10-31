@@ -14,11 +14,9 @@ import {
   CardSegment,
   Checkbox,
   Colors,
-  Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as OrgsActions from './OrgsActions';
@@ -38,12 +36,6 @@ const { PrincipalTypes } = Types;
 const { GET_ORGANIZATION_PERMISSIONS } = OrgsActions;
 const { ADD_ROLE_TO_MEMBER, REMOVE_ROLE_FROM_MEMBER } = OrganizationsApiActions;
 const { GET_ALL_USERS } = PrincipalsApiActions;
-
-const Title = styled.h2`
-  font-size: 22px;
-  font-weight: 500;
-  margin: 0;
-`;
 
 const RoleAssignmentsGrid = styled.div`
   display: grid;
@@ -86,7 +78,7 @@ const RoleAssignmentsSection = styled.section`
     &:first-child {
       border-top: none;
 
-      span {
+      > span {
         padding: 0 0 10px 0;
       }
     }
@@ -95,7 +87,7 @@ const RoleAssignmentsSection = styled.section`
       border-bottom: none;
       margin-bottom: 0;
 
-      span {
+      > span {
         padding: 10px 0 0 0;
       }
     }
@@ -140,13 +132,16 @@ type Props = {
 type State = {
   actionMemberId :?string;
   actionRoleId :?UUID;
-  isVisibleActionModal :boolean;
+  isVisibleAddRoleModal :boolean;
+  isVisibleRemoveRoleModal :boolean;
   selectedRoleId :?UUID;
   selectedUserId :?string;
 };
 
 class OrgRolesContainer extends Component<Props, State> {
 
+  addRoleModalRef :{ current :null | HTMLElement } = React.createRef();
+  removeRoleModalRef :{ current :null | HTMLElement } = React.createRef();
   rolesRef :{ current :null | HTMLElement } = React.createRef();
   usersRef :{ current :null | HTMLElement } = React.createRef();
 
@@ -155,41 +150,21 @@ class OrgRolesContainer extends Component<Props, State> {
     this.state = {
       actionMemberId: undefined,
       actionRoleId: undefined,
-      isVisibleActionModal: false,
+      isVisibleAddRoleModal: false,
+      isVisibleRemoveRoleModal: false,
       selectedRoleId: undefined,
       selectedUserId: undefined,
     };
   }
 
-  componentDidUpdate(props :Props) {
-
-    const { actions, requestStates } = this.props;
-
-    const success1 = props.requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.PENDING
-        && requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.SUCCESS;
-
-    const success2 = props.requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.PENDING
-        && requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.SUCCESS;
-
-    if (success1 || success2) {
-      actions.resetRequestState(ADD_ROLE_TO_MEMBER);
-      actions.resetRequestState(REMOVE_ROLE_FROM_MEMBER);
-      this.setState({
-        actionMemberId: undefined,
-        actionRoleId: undefined,
-        isVisibleActionModal: false,
-      });
-    }
-  }
-
   componentDidMount() {
 
-    document.addEventListener('mousedown', this.handleOnClickOutside, false);
+    document.addEventListener('click', this.handleOnClickOutside, false);
   }
 
   componentWillUnmount() {
 
-    document.removeEventListener('mousedown', this.handleOnClickOutside, false);
+    document.removeEventListener('click', this.handleOnClickOutside, false);
   }
 
   handleOnChangeCheckBox = (event :SyntheticEvent<HTMLElement>) => {
@@ -212,10 +187,15 @@ class OrgRolesContainer extends Component<Props, State> {
         memberId = dataset.userId;
       }
 
+      const isRoleAssignedToMember = this.isRoleAssignedToMember(roleId, memberId);
+      const isVisibleAddRoleModal = !isRoleAssignedToMember;
+      const isVisibleRemoveRoleModal = isRoleAssignedToMember;
+
       this.setState({
+        isVisibleAddRoleModal,
+        isVisibleRemoveRoleModal,
         actionMemberId: memberId,
         actionRoleId: roleId,
-        isVisibleActionModal: true,
       });
     }
   }
@@ -224,20 +204,48 @@ class OrgRolesContainer extends Component<Props, State> {
 
     const { target } = event;
 
-    if (target instanceof Node
-        && this.rolesRef.current && !this.rolesRef.current.contains(target)
-        && this.usersRef.current && !this.usersRef.current.contains(target)) {
-      this.setState({
-        selectedRoleId: undefined,
-        selectedUserId: undefined,
-      });
+    /*
+     * if you click to close the modal, either by a button click or an outside click, the modal and its ref are
+     * no longer available, which means the modal ref checks below will fail, which we don't want.
+     *   ... HOWEVER ...
+     * "target" is still defined which means "document.contains(target)" will return false, which means we know that
+     * this click is a modal click so its safe to ignore this click.
+     */
+    if (target instanceof Node && document.contains(target)) {
+
+      // we dont want to unselect if any of the modals are open
+      if (
+        (this.addRoleModalRef.current && this.addRoleModalRef.current.contains(target))
+        || (this.removeRoleModalRef.current && this.removeRoleModalRef.current.contains(target))
+      ) {
+        return;
+      }
+
+      // we want to unselect only if the click is outside of these nodes
+      if (
+        this.rolesRef.current && !this.rolesRef.current.contains(target)
+        && this.usersRef.current && !this.usersRef.current.contains(target)
+      ) {
+        this.setState({
+          selectedRoleId: undefined,
+          selectedUserId: undefined,
+        });
+      }
     }
   }
 
-  hideModal = () => {
+  closeModal = () => {
+
+    const { actions } = this.props;
+
+    actions.resetRequestState(ADD_ROLE_TO_MEMBER);
+    actions.resetRequestState(REMOVE_ROLE_FROM_MEMBER);
 
     this.setState({
-      isVisibleActionModal: false,
+      actionMemberId: undefined,
+      actionRoleId: undefined,
+      isVisibleAddRoleModal: false,
+      isVisibleRemoveRoleModal: false,
     });
   }
 
@@ -368,34 +376,35 @@ class OrgRolesContainer extends Component<Props, State> {
     );
   }
 
-  renderActionModal = () => {
+  renderAddRoleModal = () => {
 
     const { requestStates } = this.props;
-    const { isVisibleActionModal } = this.state;
-
-    let modalRequestState :RequestState = RequestStates.STANDBY;
-    if (requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.PENDING
-        || requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.PENDING) {
-      modalRequestState = RequestStates.PENDING;
-    }
-    else if (requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.SUCCESS
-        || requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.SUCCESS) {
-      modalRequestState = RequestStates.SUCCESS;
-    }
-    else if (requestStates[ADD_ROLE_TO_MEMBER] === RequestStates.FAILURE
-        || requestStates[REMOVE_ROLE_FROM_MEMBER] === RequestStates.FAILURE) {
-      modalRequestState = RequestStates.FAILURE;
-    }
+    const { isVisibleAddRoleModal } = this.state;
 
     return (
       <ActionModal
-          isVisible={isVisibleActionModal}
+          isVisible={isVisibleAddRoleModal}
+          modalRef={this.addRoleModalRef}
           onClickPrimary={this.updateRoleAssignment}
-          onClickSecondary={this.hideModal}
-          onClose={this.hideModal}
-          requestState={modalRequestState}
-          shouldStretchButtons
-          textTitle="Update Role Assignment" />
+          onClose={this.closeModal}
+          requestState={requestStates[ADD_ROLE_TO_MEMBER]}
+          textTitle="Add Role To Member" />
+    );
+  }
+
+  renderRemoveRoleModal = () => {
+
+    const { requestStates } = this.props;
+    const { isVisibleRemoveRoleModal } = this.state;
+
+    return (
+      <ActionModal
+          isVisible={isVisibleRemoveRoleModal}
+          modalRef={this.removeRoleModalRef}
+          onClickPrimary={this.updateRoleAssignment}
+          onClose={this.closeModal}
+          requestState={requestStates[REMOVE_ROLE_FROM_MEMBER]}
+          textTitle="Remove Role From Member" />
     );
   }
 
@@ -423,7 +432,8 @@ class OrgRolesContainer extends Component<Props, State> {
             </SectionGrid>
           </CardSegment>
         </Card>
-        {this.renderActionModal()}
+        {this.renderAddRoleModal()}
+        {this.renderRemoveRoleModal()}
       </>
     );
   }
