@@ -15,8 +15,6 @@ import {
   CardSegment,
   IconButton,
   Input,
-  Modal,
-  Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -56,10 +54,6 @@ const DeleteOrgButton = styled(IconButton)`
   align-self: center;
   margin: 20px 0 50px 0;
   width: 300px;
-`;
-
-const MinWidth = styled.div`
-  min-width: 500px;
 `;
 
 const TrashIcon = (
