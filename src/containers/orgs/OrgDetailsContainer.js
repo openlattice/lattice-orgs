@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
+  ActionModal,
   Card,
   CardSegment,
   IconButton,
@@ -125,6 +126,9 @@ class OrgDetailsContainer extends Component<Props, State> {
 
   closeDeleteModal = () => {
 
+    const { actions } = this.props;
+    actions.resetRequestState(DELETE_ORGANIZATION);
+
     this.setState({
       deleteConfirmationText: '',
       isValidConfirmation: true,
@@ -221,75 +225,42 @@ class OrgDetailsContainer extends Component<Props, State> {
 
   renderDeleteSegment = () => {
 
-    const { isOwner, requestStates } = this.props;
-    const { isVisibleDeleteModal } = this.state;
+    const { requestStates } = this.props;
+    const { isValidConfirmation, isVisibleDeleteModal } = this.state;
 
-    if (!isOwner) {
-      return null;
-    }
-
-    let withFooter = true;
-    let body = (
-      <>
-        <span>Are you absolutely sure you want to delete this organization?</span>
-        <br />
-        {this.renderConfirmInput()}
-      </>
-    );
-
-    if (requestStates[DELETE_ORGANIZATION] === RequestStates.PENDING) {
-      body = (
-        <Spinner size="2x" />
-      );
-      withFooter = false;
-    }
-
-    if (requestStates[DELETE_ORGANIZATION] === RequestStates.FAILURE) {
-      body = (
+    const requestStateComponents = {
+      [RequestStates.STANDBY]: (
         <>
-          <span>Delete failed, please try again.</span>
+          <span>Are you absolutely sure you want to delete this organization?</span>
           <br />
-          {this.renderConfirmInput()}
+          <span>To confirm, please type the organization name.</span>
+          <Input invalid={!isValidConfirmation} onChange={this.handleOnChangeDeleteConfirmation} />
         </>
-      );
-    }
-
-    if (requestStates[DELETE_ORGANIZATION] === RequestStates.SUCCESS) {
-      body = (
-        <div>The organization has been deleted.</div>
-      );
-      withFooter = false;
-    }
+      ),
+      [RequestStates.SUCCESS]: (
+        <span>The organization has been deleted.</span>
+      ),
+      [RequestStates.FAILURE]: (
+        <span>Failed to delete the organization. Please try again.</span>
+      ),
+    };
 
     return (
       <CardSegment noBleed vertical>
         <DeleteOrgButton icon={TrashIcon} mode="negative" onClick={this.openDeleteModal}>
           <span>Delete Organization</span>
         </DeleteOrgButton>
-        <Modal
+        <ActionModal
             isVisible={isVisibleDeleteModal}
-            onClickPrimary={this.closeDeleteModal}
-            onClickSecondary={this.deleteOrganization}
+            onClickPrimary={this.deleteOrganization}
+            onClickSecondary={this.closeDeleteModal}
             onClose={this.closeDeleteModal}
-            textPrimary="No, cancel"
-            textSecondary="Yes, delete"
-            textTitle="Delete Organization"
-            withFooter={withFooter}>
-          {body}
-          <MinWidth />
-        </Modal>
+            requestState={requestStates[DELETE_ORGANIZATION]}
+            requestStateComponents={requestStateComponents}
+            textPrimary="Yes, delete"
+            textSecondary="No, cancel"
+            textTitle="Delete Organization" />
       </CardSegment>
-    );
-  }
-
-  renderConfirmInput = () => {
-
-    const { isValidConfirmation } = this.state;
-    return (
-      <>
-        <span>To confirm, please type the organization name.</span>
-        <Input invalid={!isValidConfirmation} onChange={this.handleOnChangeDeleteConfirmation} />
-      </>
     );
   }
 
