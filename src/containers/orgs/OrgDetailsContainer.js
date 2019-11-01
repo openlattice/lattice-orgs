@@ -212,7 +212,7 @@ class OrgDetailsContainer extends Component<Props, State> {
     );
   }
 
-  renderRolesAndMembersSegment = () => {
+  renderMembersSegment = () => {
 
     const { isOwner, org } = this.props;
 
@@ -267,7 +267,7 @@ class OrgDetailsContainer extends Component<Props, State> {
         {this.renderOrgDescriptionSegment()}
         {this.renderIntegrationSegment()}
         {this.renderDomainsAndTrustedOrgsSegment()}
-        {this.renderRolesAndMembersSegment()}
+        {this.renderMembersSegment()}
         {this.renderDeleteSegment()}
       </Card>
     );

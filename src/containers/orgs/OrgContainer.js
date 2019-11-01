@@ -153,13 +153,9 @@ class OrgContainer extends Component<Props> {
               </OrgNavLink>
             )
           }
-          {
-            isOwner && (
-              <OrgNavLink exact to={Routes.ORG_ROLES.replace(Routes.ID_PARAM, orgId)}>
-                Roles
-              </OrgNavLink>
-            )
-          }
+          <OrgNavLink exact to={Routes.ORG_ROLES.replace(Routes.ID_PARAM, orgId)}>
+            Roles
+          </OrgNavLink>
           <OrgNavLink exact to={Routes.ORG_ENTITY_SETS.replace(Routes.ID_PARAM, orgId)}>
             Entity Sets
           </OrgNavLink>
@@ -167,14 +163,10 @@ class OrgContainer extends Component<Props> {
         <Switch>
           <Route exact path={Routes.ORG} component={OrgDetailsContainer} />
           <Route path={Routes.ORG_ENTITY_SETS} component={OrgEntitySetsContainer} />
+          <Route path={Routes.ORG_ROLES} component={OrgRolesContainer} />
           {
             isOwner && (
               <Route path={Routes.ORG_PERMISSIONS} component={OrgPermissionsContainer} />
-            )
-          }
-          {
-            isOwner && (
-              <Route path={Routes.ORG_ROLES} component={OrgRolesContainer} />
             )
           }
         </Switch>

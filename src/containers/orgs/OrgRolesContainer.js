@@ -313,7 +313,7 @@ class OrgRolesContainer extends Component<Props, State> {
 
   renderRolesSection = () => {
 
-    const { org } = this.props;
+    const { isOwner, org } = this.props;
     const { selectedRoleId, selectedUserId } = this.state;
 
     const roles = org.get('roles', List());
@@ -332,6 +332,7 @@ class OrgRolesContainer extends Component<Props, State> {
           <Checkbox
               checked={isRoleAssignedToMember}
               data-role-id={roleId}
+              disabled={!isOwner}
               onChange={this.handleOnChangeCheckBox} />
         </SectionItem>
       );
@@ -346,7 +347,7 @@ class OrgRolesContainer extends Component<Props, State> {
 
   renderMembersSection = () => {
 
-    const { orgMembers } = this.props;
+    const { isOwner, orgMembers } = this.props;
     const { selectedRoleId, selectedUserId } = this.state;
 
     const memberElements = orgMembers.map((member :Map) => {
@@ -364,6 +365,7 @@ class OrgRolesContainer extends Component<Props, State> {
           <Checkbox
               checked={isRoleAssignedToMember}
               data-user-id={userId}
+              disabled={!isOwner}
               onChange={this.handleOnChangeCheckBox} />
         </SectionItem>
       );
@@ -411,10 +413,6 @@ class OrgRolesContainer extends Component<Props, State> {
   render() {
 
     const { isOwner, org } = this.props;
-
-    if (!isOwner) {
-      return null;
-    }
 
     return (
       <>
