@@ -7,11 +7,8 @@ import React, { Component } from 'react';
 import { Map } from 'immutable';
 import { CopyButton, Input } from 'lattice-ui-kit';
 
-import {
-  ActionControlWithButton,
-  OrgDetailSectionGrid,
-  OrgDetailSectionGridItem,
-} from './styled';
+import { ActionControlWithButton } from './styled';
+import { SectionGrid } from '../../../components';
 
 type Props = {
   isOwner :boolean;
@@ -39,22 +36,22 @@ class OrgIntegrationSection extends Component<Props> {
 
     return (
       <>
-        <OrgDetailSectionGrid>
+        <SectionGrid>
           <h2>Integration Account Details</h2>
           <h5>JDBC URL</h5>
           <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
           <h5>USER</h5>
           <pre>{org.getIn(['integration', 'user'], '')}</pre>
           <h5>CREDENTIAL</h5>
-        </OrgDetailSectionGrid>
-        <OrgDetailSectionGrid columns={2}>
-          <OrgDetailSectionGridItem marginTop={4}>
+        </SectionGrid>
+        <SectionGrid columns={2}>
+          <div style={{ marginTop: '4px' }}>
             <ActionControlWithButton>
               <Input disabled type="password" value="********************************" />
               <CopyButton onClick={this.handleOnClickCopyCredential} />
             </ActionControlWithButton>
-          </OrgDetailSectionGridItem>
-        </OrgDetailSectionGrid>
+          </div>
+        </SectionGrid>
       </>
     );
   }

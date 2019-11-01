@@ -6,6 +6,21 @@ import { get } from 'immutable';
 
 import { isDefined, isNonEmptyString } from './LangUtils';
 
+function getUserId(user :any) :string {
+
+  if (!isDefined(user)) {
+    return '';
+  }
+
+  // handling various possible values that "user" can be:
+  //   com.openlattice.organization.OrganizationMember
+  //   com.openlattice.authorization.Principal
+  let userPrincipal = get(user, 'principal', user);
+  userPrincipal = get(userPrincipal, 'principal', userPrincipal);
+  const userId = get(userPrincipal, 'id', '');
+  return userId || '';
+}
+
 function getUserProfileLabel(user :any) :string {
 
   if (!isDefined(user)) {
@@ -13,7 +28,7 @@ function getUserProfileLabel(user :any) :string {
   }
 
   const auth0UserProfile = get(user, 'profile', user);
-  let userId :string = get(auth0UserProfile, 'user_id', '');
+  const userId :string = get(auth0UserProfile, 'user_id', '');
   const nickname :string = get(auth0UserProfile, 'nickname', '');
   const username :string = get(auth0UserProfile, 'username', '');
   const email :string = get(auth0UserProfile, 'email', '');
@@ -36,18 +51,13 @@ function getUserProfileLabel(user :any) :string {
     }
   }
   else {
-    // handling various possible values that "user" can be:
-    //   com.openlattice.organization.OrganizationMember
-    //   com.openlattice.authorization.Principal
-    let userPrincipal = get(user, 'principal', user);
-    userPrincipal = get(userPrincipal, 'principal', userPrincipal);
-    userId = get(userPrincipal, 'id', '');
-    label = `${userId}`;
+    label = `${getUserId(user)}`;
   }
 
   return label;
 }
 
 export {
+  getUserId,
   getUserProfileLabel,
 };

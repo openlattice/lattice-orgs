@@ -388,7 +388,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
     return (
       <Card>
         <CardSegment noBleed>
-          <Title>Manage Permissions</Title>
+          <Title>Organization and Role Permissions</Title>
         </CardSegment>
         <CardSegment>
           {this.renderSelectionSection()}
