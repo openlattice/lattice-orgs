@@ -132,7 +132,9 @@ class OrgDetailsContainer extends Component<Props, State> {
 
   openDeleteModal = () => {
 
-    this.setState({ isVisibleDeleteModal: true });
+    this.setState({
+      isVisibleDeleteModal: true,
+    });
   }
 
   deleteOrganization = () => {
@@ -142,10 +144,14 @@ class OrgDetailsContainer extends Component<Props, State> {
 
     if (deleteConfirmationText === org.get('title')) {
       actions.deleteOrganization(org.get('id'));
-      this.setState({ deleteConfirmationText: '' });
+      this.setState({
+        deleteConfirmationText: '',
+      });
     }
     else {
-      this.setState({ isValidConfirmation: false });
+      this.setState({
+        isValidConfirmation: false,
+      });
     }
   }
 
@@ -231,9 +237,6 @@ class OrgDetailsContainer extends Component<Props, State> {
           <Input invalid={!isValidConfirmation} onChange={this.handleOnChangeDeleteConfirmation} />
         </>
       ),
-      [RequestStates.SUCCESS]: (
-        <span>The organization has been deleted.</span>
-      ),
       [RequestStates.FAILURE]: (
         <span>Failed to delete the organization. Please try again.</span>
       ),
@@ -247,7 +250,6 @@ class OrgDetailsContainer extends Component<Props, State> {
         <ActionModal
             isVisible={isVisibleDeleteModal}
             onClickPrimary={this.deleteOrganization}
-            onClickSecondary={this.closeDeleteModal}
             onClose={this.closeDeleteModal}
             requestState={requestStates[DELETE_ORGANIZATION]}
             requestStateComponents={requestStateComponents}
