@@ -1,11 +1,9 @@
 import styled, { css } from 'styled-components';
 import { Colors } from 'lattice-ui-kit';
 
-import OrgDetailSectionGridItem from './OrgDetailSectionGridItem';
-
 const { NEUTRALS } = Colors;
 
-const OrgDetailSectionGrid = styled.section`
+const SectionGrid = styled.section`
   display: grid;
   flex: 1;
   grid-auto-rows: min-content;
@@ -18,6 +16,24 @@ const OrgDetailSectionGrid = styled.section`
     }
     return null;
   }}
+
+  > div {
+    position: relative;
+    margin-top: 30px;
+    /*
+     * !!! IMPORTANT !!!
+     *
+     * https://www.w3.org/TR/css-flexbox-1/
+     *   | By default, flex items won’t shrink below their minimum content size (the length of the longest word or
+     *   | fixed-size element). To change this, set the min-width or min-height property.
+     *
+     * https://dfmcphee.com/flex-items-and-min-width-0/
+     * https://css-tricks.com/flexbox-truncated-text/
+     *
+     * !!! IMPORTANT !!!
+     */
+    min-width: 0; /* setting min-width fixes the text truncation issue */
+  }
 
   > h2 {
     font-size: 22px;
@@ -49,22 +65,6 @@ const OrgDetailSectionGrid = styled.section`
   pre {
     margin: 0;
   }
-
-  ${OrgDetailSectionGridItem} {
-    /*
-     * !!! IMPORTANT !!!
-     *
-     * https://www.w3.org/TR/css-flexbox-1/
-     *   | By default, flex items won’t shrink below their minimum content size (the length of the longest word or
-     *   | fixed-size element). To change this, set the min-width or min-height property.
-     *
-     * https://dfmcphee.com/flex-items-and-min-width-0/
-     * https://css-tricks.com/flexbox-truncated-text/
-     *
-     * !!! IMPORTANT !!!
-     */
-    min-width: 0; /* setting min-width fixes the text truncation issue */
-  }
 `;
 
-export default OrgDetailSectionGrid;
+export default SectionGrid;

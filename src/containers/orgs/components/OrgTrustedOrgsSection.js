@@ -20,11 +20,10 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 import * as ReduxActions from '../../../core/redux/ReduxActions';
 import {
   CompactCardSegment,
-  OrgDetailSectionGrid,
-  OrgDetailSectionGridItem,
   SelectControlWithButton,
   SpinnerOverlayCard,
 } from './styled';
+import { SectionGrid } from '../../../components';
 
 const {
   GRANT_TRUST_TO_ORG,
@@ -170,7 +169,7 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
     ));
 
     return (
-      <OrgDetailSectionGrid>
+      <SectionGrid>
         <h2>Trusted Organizations</h2>
         {
           isOwner && (
@@ -179,7 +178,7 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
         }
         {
           isOwner && (
-            <OrgDetailSectionGridItem>
+            <div>
               <SelectControlWithButton>
                 <Select
                     isClearable
@@ -193,10 +192,10 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
                     mode="positive"
                     onClick={this.handleOnClickGrantTrustToOrg} />
               </SelectControlWithButton>
-            </OrgDetailSectionGridItem>
+            </div>
           )
         }
-        <OrgDetailSectionGridItem>
+        <div>
           {
             orgCardSegments.isEmpty()
               ? (
@@ -211,8 +210,8 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
               <SpinnerOverlayCard />
             )
           }
-        </OrgDetailSectionGridItem>
-      </OrgDetailSectionGrid>
+        </div>
+      </SectionGrid>
     );
   }
 }

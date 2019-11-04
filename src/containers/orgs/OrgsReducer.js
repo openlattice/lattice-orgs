@@ -14,6 +14,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
 // import Logger from '../../utils/Logger';
+import { getUserId } from '../../utils/PersonUtils';
 import { RESET_REQUEST_STATE } from '../../core/redux/ReduxActions';
 import {
   GET_ORGANIZATION_DETAILS,
@@ -40,6 +41,7 @@ const { PermissionTypes } = Types;
 const {
   ADD_DOMAIN_TO_ORG,
   ADD_MEMBER_TO_ORG,
+  ADD_ROLE_TO_MEMBER,
   CREATE_ORGANIZATION,
   CREATE_ROLE,
   DELETE_ORGANIZATION,
@@ -50,10 +52,12 @@ const {
   REMOVE_DOMAIN_FROM_ORG,
   REMOVE_MEMBER_FROM_ORG,
   REVOKE_TRUST_FROM_ORG,
+  REMOVE_ROLE_FROM_MEMBER,
   UPDATE_ORG_DESCRIPTION,
   UPDATE_ORG_TITLE,
   addDomainToOrganization,
   addMemberToOrganization,
+  addRoleToMember,
   createOrganization,
   createRole,
   deleteOrganization,
@@ -63,6 +67,7 @@ const {
   grantTrustToOrganization,
   removeDomainFromOrganization,
   removeMemberFromOrganization,
+  removeRoleFromMember,
   revokeTrustFromOrganization,
   updateOrganizationDescription,
   updateOrganizationTitle,
@@ -70,6 +75,9 @@ const {
 
 const INITIAL_STATE :Map = fromJS({
   [ADD_DOMAIN_TO_ORG]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [ADD_ROLE_TO_MEMBER]: {
     requestState: RequestStates.STANDBY,
   },
   [CREATE_ORGANIZATION]: {
@@ -106,6 +114,9 @@ const INITIAL_STATE :Map = fromJS({
     requestState: RequestStates.STANDBY,
   },
   [REMOVE_MEMBER_FROM_ORG]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [REMOVE_ROLE_FROM_MEMBER]: {
     requestState: RequestStates.STANDBY,
   },
   [REVOKE_TRUST_FROM_ORG]: {
@@ -182,6 +193,38 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
         },
         FAILURE: () => state.setIn([ADD_MEMBER_TO_ORG, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([ADD_MEMBER_TO_ORG, seqAction.id]),
+      });
+    }
+
+    case addRoleToMember.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return addRoleToMember.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([ADD_ROLE_TO_MEMBER, seqAction.id], seqAction)
+          .setIn([ADD_ROLE_TO_MEMBER, 'requestState'], RequestStates.PENDING),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([ADD_ROLE_TO_MEMBER, seqAction.id]);
+          if (storedSeqAction) {
+            const { memberId, organizationId, roleId } = storedSeqAction.value;
+            const targetRole :Map = state
+              .getIn(['orgs', organizationId, 'roles'])
+              .find((role :Map) => role.get('id') === roleId);
+            const targetMemberIndex :number = state
+              .getIn(['orgMembers', organizationId])
+              .findIndex((member :Map) => getUserId(member) === memberId);
+            if (targetRole && targetMemberIndex !== -1) {
+              const targetMember :Map = state.getIn(['orgMembers', organizationId, targetMemberIndex], Map());
+              const updatedMemberRoles :List = targetMember.get('roles', List()).push(targetRole);
+              const updatedMember :Map = targetMember.set('roles', updatedMemberRoles);
+              return state
+                .setIn(['orgMembers', organizationId, targetMemberIndex], updatedMember)
+                .setIn([ADD_ROLE_TO_MEMBER, 'requestState'], RequestStates.SUCCESS);
+            }
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([ADD_ROLE_TO_MEMBER, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([ADD_ROLE_TO_MEMBER, seqAction.id]),
       });
     }
 
@@ -534,6 +577,39 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
         },
         FAILURE: () => state.setIn([REMOVE_MEMBER_FROM_ORG, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([REMOVE_MEMBER_FROM_ORG, seqAction.id]),
+      });
+    }
+
+    case removeRoleFromMember.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return removeRoleFromMember.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([REMOVE_ROLE_FROM_MEMBER, seqAction.id], seqAction)
+          .setIn([REMOVE_ROLE_FROM_MEMBER, 'requestState'], RequestStates.PENDING),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([REMOVE_ROLE_FROM_MEMBER, seqAction.id]);
+          if (storedSeqAction) {
+            const { memberId, organizationId, roleId } = storedSeqAction.value;
+            const targetMemberIndex :number = state
+              .getIn(['orgMembers', organizationId])
+              .findIndex((member :Map) => getUserId(member) === memberId);
+            if (targetMemberIndex !== -1) {
+              const targetMember :Map = state.getIn(['orgMembers', organizationId, targetMemberIndex], Map());
+              const targetRoleIndex :number = targetMember
+                .get('roles', List())
+                .findIndex((role :Map) => role.get('id') === roleId);
+              if (targetRoleIndex !== -1) {
+                const updatedMember = targetMember.deleteIn(['roles', targetRoleIndex]);
+                return state
+                  .setIn(['orgMembers', organizationId, targetMemberIndex], updatedMember)
+                  .setIn([REMOVE_ROLE_FROM_MEMBER, 'requestState'], RequestStates.SUCCESS);
+              }
+            }
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([REMOVE_ROLE_FROM_MEMBER, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([REMOVE_ROLE_FROM_MEMBER, seqAction.id]),
       });
     }
 

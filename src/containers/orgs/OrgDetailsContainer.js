@@ -10,12 +10,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
+  ActionModal,
   Card,
   CardSegment,
   IconButton,
   Input,
-  Modal,
-  Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -31,10 +30,9 @@ import {
   OrgDomainsSection,
   OrgIntegrationSection,
   OrgMembersSection,
-  OrgRolesSection,
   OrgTrustedOrgsSection,
 } from './components';
-import { OrgDetailSectionGrid } from './components/styled';
+import { CardSegmentNoBorder, SectionGrid } from '../../components';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
 import { isNonEmptyString } from '../../utils/LangUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
@@ -52,18 +50,10 @@ const OrgDescriptionSegment = styled(CardSegment)`
   justify-content: space-between;
 `;
 
-const RolesAndMembersCardSegment = styled(CardSegment)`
-  border: none !important;
-`;
-
 const DeleteOrgButton = styled(IconButton)`
   align-self: center;
   margin: 20px 0 50px 0;
   width: 300px;
-`;
-
-const MinWidth = styled.div`
-  min-width: 500px;
 `;
 
 const TrashIcon = (
@@ -130,6 +120,9 @@ class OrgDetailsContainer extends Component<Props, State> {
 
   closeDeleteModal = () => {
 
+    const { actions } = this.props;
+    actions.resetRequestState(DELETE_ORGANIZATION);
+
     this.setState({
       deleteConfirmationText: '',
       isValidConfirmation: true,
@@ -139,7 +132,9 @@ class OrgDetailsContainer extends Component<Props, State> {
 
   openDeleteModal = () => {
 
-    this.setState({ isVisibleDeleteModal: true });
+    this.setState({
+      isVisibleDeleteModal: true,
+    });
   }
 
   deleteOrganization = () => {
@@ -149,10 +144,14 @@ class OrgDetailsContainer extends Component<Props, State> {
 
     if (deleteConfirmationText === org.get('title')) {
       actions.deleteOrganization(org.get('id'));
-      this.setState({ deleteConfirmationText: '' });
+      this.setState({
+        deleteConfirmationText: '',
+      });
     }
     else {
-      this.setState({ isValidConfirmation: false });
+      this.setState({
+        isValidConfirmation: false,
+      });
     }
   }
 
@@ -205,99 +204,59 @@ class OrgDetailsContainer extends Component<Props, State> {
 
     return (
       <CardSegment noBleed vertical>
-        <OrgDetailSectionGrid columns={2}>
+        <SectionGrid columns={2}>
           <OrgDomainsSection isOwner={isOwner} org={org} />
           <OrgTrustedOrgsSection isOwner={isOwner} org={org} />
-        </OrgDetailSectionGrid>
+        </SectionGrid>
       </CardSegment>
     );
   }
 
-  renderRolesAndMembersSegment = () => {
+  renderMembersSegment = () => {
 
     const { isOwner, org } = this.props;
 
     return (
-      <RolesAndMembersCardSegment noBleed vertical>
-        <OrgDetailSectionGrid columns={2}>
-          <OrgRolesSection isOwner={isOwner} org={org} />
-          <OrgMembersSection isOwner={isOwner} org={org} />
-        </OrgDetailSectionGrid>
-      </RolesAndMembersCardSegment>
+      <CardSegmentNoBorder noBleed vertical>
+        <OrgMembersSection isOwner={isOwner} org={org} />
+      </CardSegmentNoBorder>
     );
   }
 
   renderDeleteSegment = () => {
 
-    const { isOwner, requestStates } = this.props;
-    const { isVisibleDeleteModal } = this.state;
+    const { requestStates } = this.props;
+    const { isValidConfirmation, isVisibleDeleteModal } = this.state;
 
-    if (!isOwner) {
-      return null;
-    }
-
-    let withFooter = true;
-    let body = (
-      <>
-        <span>Are you absolutely sure you want to delete this organization?</span>
-        <br />
-        {this.renderConfirmInput()}
-      </>
-    );
-
-    if (requestStates[DELETE_ORGANIZATION] === RequestStates.PENDING) {
-      body = (
-        <Spinner size="2x" />
-      );
-      withFooter = false;
-    }
-
-    if (requestStates[DELETE_ORGANIZATION] === RequestStates.FAILURE) {
-      body = (
+    const requestStateComponents = {
+      [RequestStates.STANDBY]: (
         <>
-          <span>Delete failed, please try again.</span>
+          <span>Are you absolutely sure you want to delete this organization?</span>
           <br />
-          {this.renderConfirmInput()}
+          <span>To confirm, please type the organization name.</span>
+          <Input invalid={!isValidConfirmation} onChange={this.handleOnChangeDeleteConfirmation} />
         </>
-      );
-    }
-
-    if (requestStates[DELETE_ORGANIZATION] === RequestStates.SUCCESS) {
-      body = (
-        <div>The organization has been deleted.</div>
-      );
-      withFooter = false;
-    }
+      ),
+      [RequestStates.FAILURE]: (
+        <span>Failed to delete the organization. Please try again.</span>
+      ),
+    };
 
     return (
       <CardSegment noBleed vertical>
         <DeleteOrgButton icon={TrashIcon} mode="negative" onClick={this.openDeleteModal}>
           <span>Delete Organization</span>
         </DeleteOrgButton>
-        <Modal
+        <ActionModal
             isVisible={isVisibleDeleteModal}
-            onClickPrimary={this.closeDeleteModal}
-            onClickSecondary={this.deleteOrganization}
+            onClickPrimary={this.deleteOrganization}
             onClose={this.closeDeleteModal}
-            textPrimary="No, cancel"
-            textSecondary="Yes, delete"
-            textTitle="Delete Organization"
-            withFooter={withFooter}>
-          {body}
-          <MinWidth />
-        </Modal>
+            requestState={requestStates[DELETE_ORGANIZATION]}
+            requestStateComponents={requestStateComponents}
+            textPrimary="Yes, delete"
+            textSecondary="No, cancel"
+            textTitle="Delete Organization" />
       </CardSegment>
-    );
-  }
-
-  renderConfirmInput = () => {
-
-    const { isValidConfirmation } = this.state;
-    return (
-      <>
-        <span>To confirm, please type the organization name.</span>
-        <Input invalid={!isValidConfirmation} onChange={this.handleOnChangeDeleteConfirmation} />
-      </>
     );
   }
 
@@ -308,7 +267,7 @@ class OrgDetailsContainer extends Component<Props, State> {
         {this.renderOrgDescriptionSegment()}
         {this.renderIntegrationSegment()}
         {this.renderDomainsAndTrustedOrgsSegment()}
-        {this.renderRolesAndMembersSegment()}
+        {this.renderMembersSegment()}
         {this.renderDeleteSegment()}
       </Card>
     );

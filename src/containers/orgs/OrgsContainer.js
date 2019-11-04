@@ -11,6 +11,7 @@ import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
+  ActionModal,
   Button,
   Card,
   CardHeader,
@@ -18,7 +19,6 @@ import {
   Colors,
   Input,
   Label,
-  Modal,
   Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
@@ -120,8 +120,8 @@ const Error = styled.div`
   text-align: center;
 `;
 
-const MinWidth = styled.div`
-  min-width: 500px;
+const ModalBodyMinWidth = styled.div`
+  min-width: 440px;
 `;
 
 type Props = {
@@ -140,6 +140,7 @@ type Props = {
 };
 
 type State = {
+  isValidOrgTitle :boolean;
   isVisibleNewOrgModal :boolean;
   newOrgTitle :string;
 };
@@ -151,6 +152,7 @@ class OrgsContainer extends Component<Props, State> {
     super(props);
 
     this.state = {
+      isValidOrgTitle: true,
       isVisibleNewOrgModal: false,
       newOrgTitle: '',
     };
@@ -197,7 +199,10 @@ class OrgsContainer extends Component<Props, State> {
 
   handleOnChangeNewOrgTitle = (event :SyntheticInputEvent<HTMLInputElement>) => {
 
-    this.setState({ newOrgTitle: event.target.value || '' });
+    this.setState({
+      isValidOrgTitle: true,
+      newOrgTitle: event.target.value || '',
+    });
   }
 
   handleOnClickCreateOrg = () => {
@@ -219,19 +224,30 @@ class OrgsContainer extends Component<Props, State> {
 
       actions.createOrganization(org);
     }
+    else {
+      this.setState({
+        isValidOrgTitle: false,
+      });
+    }
   }
 
   closeNewOrgModal = () => {
 
     const { actions } = this.props;
 
-    this.setState({ isVisibleNewOrgModal: false, newOrgTitle: '' });
+    this.setState({
+      isVisibleNewOrgModal: false,
+      newOrgTitle: '',
+    });
     actions.resetRequestState(CREATE_ORGANIZATION);
   }
 
   openNewOrgModal = () => {
 
-    this.setState({ isVisibleNewOrgModal: true, newOrgTitle: '' });
+    this.setState({
+      isVisibleNewOrgModal: true,
+      newOrgTitle: '',
+    });
   }
 
   renderOrgCard = (org :Map) => {
@@ -264,40 +280,36 @@ class OrgsContainer extends Component<Props, State> {
   renderNewOrgModal = () => {
 
     const { requestStates } = this.props;
-    const { isVisibleNewOrgModal, newOrgTitle } = this.state;
+    const { isValidOrgTitle, isVisibleNewOrgModal, newOrgTitle } = this.state;
 
-    let withFooter = true;
-    let body = (
-      <>
-        <Label htmlFor="new-org-title">Organization title*</Label>
-        <Input
-            id="new-org-title"
-            invalid={requestStates[CREATE_ORGANIZATION] === RequestStates.FAILURE}
-            onChange={this.handleOnChangeNewOrgTitle}
-            value={newOrgTitle} />
-      </>
-    );
-
-    if (requestStates[CREATE_ORGANIZATION] === RequestStates.PENDING) {
-      body = (
-        <Spinner size="2x" />
-      );
-      withFooter = false;
-    }
+    const requestStateComponents = {
+      [RequestStates.STANDBY]: (
+        <ModalBodyMinWidth>
+          <Label htmlFor="new-org-title">Organization title*</Label>
+          <Input
+              id="new-org-title"
+              invalid={!isValidOrgTitle}
+              onChange={this.handleOnChangeNewOrgTitle}
+              value={newOrgTitle} />
+        </ModalBodyMinWidth>
+      ),
+      [RequestStates.FAILURE]: (
+        <ModalBodyMinWidth>
+          <span>Failed to create the organization. Please try again.</span>
+        </ModalBodyMinWidth>
+      ),
+    };
 
     return (
-      <Modal
+      <ActionModal
           isVisible={isVisibleNewOrgModal}
           onClickPrimary={this.handleOnClickCreateOrg}
-          onClickSecondary={this.closeNewOrgModal}
           onClose={this.closeNewOrgModal}
+          requestState={requestStates[CREATE_ORGANIZATION]}
+          requestStateComponents={requestStateComponents}
           textPrimary="Create"
           textSecondary="Cancel"
-          textTitle="New Organization"
-          withFooter={withFooter}>
-        {body}
-        <MinWidth />
-      </Modal>
+          textTitle="New Organization" />
     );
   }
 
