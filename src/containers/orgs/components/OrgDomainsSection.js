@@ -21,10 +21,9 @@ import * as ReduxActions from '../../../core/redux/ReduxActions';
 import {
   ActionControlWithButton,
   CompactCardSegment,
-  OrgDetailSectionGrid,
-  OrgDetailSectionGridItem,
   SpinnerOverlayCard,
 } from './styled';
+import { SectionGrid } from '../../../components';
 import { isNonEmptyString } from '../../../utils/LangUtils';
 import { isValidEmailDomain } from '../../../utils/ValidationUtils';
 
@@ -129,7 +128,7 @@ class OrgDomainsSection extends Component<Props, State> {
     ));
 
     return (
-      <OrgDetailSectionGrid>
+      <SectionGrid>
         <h2>Domains</h2>
         {
           isOwner && (
@@ -138,7 +137,7 @@ class OrgDomainsSection extends Component<Props, State> {
         }
         {
           isOwner && (
-            <OrgDetailSectionGridItem>
+            <div>
               <ActionControlWithButton>
                 <Input
                     invalid={!isValidDomain}
@@ -149,10 +148,10 @@ class OrgDomainsSection extends Component<Props, State> {
                     mode="positive"
                     onClick={this.handleOnClickAddDomain} />
               </ActionControlWithButton>
-            </OrgDetailSectionGridItem>
+            </div>
           )
         }
-        <OrgDetailSectionGridItem>
+        <div>
           {
             domainCardSegments.isEmpty()
               ? (
@@ -167,8 +166,8 @@ class OrgDomainsSection extends Component<Props, State> {
               <SpinnerOverlayCard />
             )
           }
-        </OrgDetailSectionGridItem>
-      </OrgDetailSectionGrid>
+        </div>
+      </SectionGrid>
     );
   }
 }

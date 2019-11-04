@@ -32,7 +32,6 @@ const dataSchema = {
 const uiSchema = {
   orgTitle: {
     classNames: 'column-span-12',
-    'ui:widget': 'textarea',
   },
 };
 

@@ -22,10 +22,9 @@ import * as ReduxActions from '../../../core/redux/ReduxActions';
 import {
   ActionControlWithButton,
   CompactCardSegment,
-  OrgDetailSectionGrid,
-  OrgDetailSectionGridItem,
   SpinnerOverlayCard,
 } from './styled';
+import { SectionGrid } from '../../../components';
 import { isNonEmptyString } from '../../../utils/LangUtils';
 
 const {
@@ -43,10 +42,6 @@ const {
   CREATE_ROLE,
   DELETE_ROLE,
 } = OrganizationsApiActions;
-
-const ROLES_SUB_TITLE = `
-You will be able to use the Roles below to manage permissions on Entity Sets that you own.
-`;
 
 type Props = {
   actions :{
@@ -152,16 +147,11 @@ class OrgRolesSection extends Component<Props, State> {
     ));
 
     return (
-      <OrgDetailSectionGrid>
+      <SectionGrid>
         <h2>Roles</h2>
         {
           isOwner && (
-            <h4>{ROLES_SUB_TITLE}</h4>
-          )
-        }
-        {
-          isOwner && (
-            <OrgDetailSectionGridItem>
+            <div>
               <ActionControlWithButton>
                 <Input
                     invalid={!isValidRole}
@@ -172,10 +162,10 @@ class OrgRolesSection extends Component<Props, State> {
                     mode="positive"
                     onClick={this.handleOnClickAddRole} />
               </ActionControlWithButton>
-            </OrgDetailSectionGridItem>
+            </div>
           )
         }
-        <OrgDetailSectionGridItem>
+        <div>
           {
             roleCardSegments.isEmpty()
               ? (
@@ -190,8 +180,8 @@ class OrgRolesSection extends Component<Props, State> {
               <SpinnerOverlayCard />
             )
           }
-        </OrgDetailSectionGridItem>
-      </OrgDetailSectionGrid>
+        </div>
+      </SectionGrid>
     );
   }
 }

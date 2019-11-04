@@ -233,16 +233,53 @@ class OrgEntitySetsContainer extends Component<Props, State> {
       });
   }
 
+  renderEntitySetsSegment = () => {
+
+    const { entitySetFilters, showAssociationEntitySets } = this.state;
+    const filteredEntitySets :List = this.filterEntitySets();
+
+    return (
+      <CardSegment vertical>
+        <EntitySetSelectionWrapper>
+          <EntitySetType
+              isActive={!showAssociationEntitySets}
+              onClick={this.selectRegularEntitySets}>
+            Regular Entity Sets
+          </EntitySetType>
+          <EntitySetType
+              isActive={showAssociationEntitySets}
+              onClick={this.selectAssociationEntitySets}>
+            Association Entity Sets
+          </EntitySetType>
+          <CheckboxSelect
+              defaultValue={entitySetFilters}
+              options={ES_SELECT_OPTIONS}
+              onChange={this.handleOnChangeSelect} />
+        </EntitySetSelectionWrapper>
+        <CardGrid>
+          {
+            filteredEntitySets.map((entitySet :Map) => (
+              <Card key={entitySet.get('id')}>
+                <CardSegment padding="0">
+                  <IconWrapper>
+                    <FontAwesomeIcon icon={faListAlt} />
+                  </IconWrapper>
+                  <EntitySetInfoWrapper>
+                    <h4>{entitySet.get('title', entitySet.get('id'))}</h4>
+                    <span>{entitySet.get('name', '')}</span>
+                  </EntitySetInfoWrapper>
+                </CardSegment>
+              </Card>
+            ))
+          }
+        </CardGrid>
+      </CardSegment>
+    );
+  }
+
   render() {
 
     const { requestStates } = this.props;
-    const { entitySetFilters, showAssociationEntitySets } = this.state;
-
-    if (requestStates[GET_ORG_ENTITY_SETS] === RequestStates.PENDING) {
-      return (
-        <Spinner size="2x" />
-      );
-    }
 
     if (requestStates[GET_ORG_ENTITY_SETS] === RequestStates.FAILURE) {
       return (
@@ -252,7 +289,8 @@ class OrgEntitySetsContainer extends Component<Props, State> {
       );
     }
 
-    const filteredEntitySets :List = this.filterEntitySets();
+    const isPending = requestStates[GET_ORG_ENTITY_SETS] === RequestStates.PENDING;
+    const isSuccess = requestStates[GET_ORG_ENTITY_SETS] === RequestStates.SUCCESS;
 
     return (
       <Card>
@@ -260,41 +298,16 @@ class OrgEntitySetsContainer extends Component<Props, State> {
           <Title>Entity Sets</Title>
           <SubTitle>{SUB_TITLE}</SubTitle>
         </CardSegment>
-        <CardSegment vertical>
-          <EntitySetSelectionWrapper>
-            <EntitySetType
-                isActive={!showAssociationEntitySets}
-                onClick={this.selectRegularEntitySets}>
-              Regular Entity Sets
-            </EntitySetType>
-            <EntitySetType
-                isActive={showAssociationEntitySets}
-                onClick={this.selectAssociationEntitySets}>
-              Association Entity Sets
-            </EntitySetType>
-            <CheckboxSelect
-                defaultValue={entitySetFilters}
-                options={ES_SELECT_OPTIONS}
-                onChange={this.handleOnChangeSelect} />
-          </EntitySetSelectionWrapper>
-          <CardGrid>
-            {
-              filteredEntitySets.map((entitySet :Map) => (
-                <Card key={entitySet.get('id')}>
-                  <CardSegment padding="0">
-                    <IconWrapper>
-                      <FontAwesomeIcon icon={faListAlt} />
-                    </IconWrapper>
-                    <EntitySetInfoWrapper>
-                      <h4>{entitySet.get('title', entitySet.get('id'))}</h4>
-                      <span>{entitySet.get('name', '')}</span>
-                    </EntitySetInfoWrapper>
-                  </CardSegment>
-                </Card>
-              ))
-            }
-          </CardGrid>
-        </CardSegment>
+        {
+          isPending && (
+            <CardSegment vertical>
+              <Spinner size="2x" />
+            </CardSegment>
+          )
+        }
+        {
+          isSuccess && this.renderEntitySetsSegment()
+        }
       </Card>
     );
   }
