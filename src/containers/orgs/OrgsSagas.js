@@ -193,7 +193,7 @@ function* getOrganizationPermissionsWorker(action :SequenceAction) :Generator<*,
           map.set(List(roleAclKey), fromJS({ error }));
         }
         else {
-          const roleAcl :AclObject = orgAclResponse.data;
+          const roleAcl :AclObject = roleAclResponse.data;
           map.set(List(roleAclKey), fromJS(roleAcl));
         }
       });
