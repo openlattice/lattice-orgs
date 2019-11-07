@@ -7,6 +7,8 @@ import { PrincipalsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { RESET_REQUEST_STATE } from '../redux/ReduxActions';
+
 const {
   GET_ALL_USERS,
   getAllUsers,
@@ -22,6 +24,16 @@ const INITIAL_STATE :Map = fromJS({
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
+
+    case RESET_REQUEST_STATE: {
+      const { actionType } = action;
+      if (actionType === GET_ALL_USERS) {
+        return state
+          .set('users', Map())
+          .setIn([actionType, 'requestState'], RequestStates.STANDBY);
+      }
+      return state;
+    }
 
     case getAllUsers.case(action.type): {
       const seqAction :SequenceAction = action;

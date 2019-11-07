@@ -410,10 +410,10 @@ const mapStateToProps = (state :Map, props :Object) => {
     orgAclKey: List([orgId]),
     orgAcls: state.getIn(['orgs', 'orgAcls', orgId], Map()),
     requestStates: {
-      [GET_ALL_USERS]: state.getIn(['principals', GET_ALL_USERS, 'requestState']),
+      [GET_ALL_USERS]: state.getIn(['users', GET_ALL_USERS, 'requestState']),
       [GET_ORGANIZATION_PERMISSIONS]: state.getIn(['orgs', GET_ORGANIZATION_PERMISSIONS, 'requestState']),
     },
-    users: state.getIn(['principals', 'users'], Map()),
+    users: state.getIn(['users', 'users'], Map()),
   };
 };
 
