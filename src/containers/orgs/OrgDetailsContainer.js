@@ -34,6 +34,7 @@ import {
 } from './components';
 import { CardSegmentNoBorder, SectionGrid } from '../../components';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
+import { Logger } from '../../utils';
 import { isNonEmptyString } from '../../utils/LangUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
@@ -82,6 +83,8 @@ type State = {
   isValidConfirmation :boolean;
   isVisibleDeleteModal :boolean;
 };
+
+const LOG :Logger = new Logger('OrgDetailsContainer');
 
 class OrgDetailsContainer extends Component<Props, State> {
 
@@ -132,6 +135,11 @@ class OrgDetailsContainer extends Component<Props, State> {
 
   openDeleteModal = () => {
 
+    const { isOwner } = this.props;
+    if (!isOwner) {
+      return;
+    }
+
     this.setState({
       isVisibleDeleteModal: true,
     });
@@ -139,8 +147,13 @@ class OrgDetailsContainer extends Component<Props, State> {
 
   deleteOrganization = () => {
 
-    const { actions, org } = this.props;
+    const { actions, isOwner, org } = this.props;
     const { deleteConfirmationText } = this.state;
+
+    if (!isOwner) {
+      LOG.error('only owners can delete an organization');
+      return;
+    }
 
     if (deleteConfirmationText === org.get('title')) {
       actions.deleteOrganization(org.get('id'));
@@ -225,8 +238,12 @@ class OrgDetailsContainer extends Component<Props, State> {
 
   renderDeleteSegment = () => {
 
-    const { requestStates } = this.props;
+    const { isOwner, requestStates } = this.props;
     const { isValidConfirmation, isVisibleDeleteModal } = this.state;
+
+    if (!isOwner) {
+      return null;
+    }
 
     const requestStateComponents = {
       [RequestStates.STANDBY]: (

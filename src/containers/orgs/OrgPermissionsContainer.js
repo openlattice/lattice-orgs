@@ -6,9 +6,9 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
-import { Types } from 'lattice';
+import { Models, Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
-import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
+import { OrganizationsApiActions, PermissionsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
   Card,
   CardSegment,
@@ -29,15 +29,28 @@ import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { CompactCardSegment, SelectControlWithButton } from './components/styled';
+import { Logger } from '../../utils';
+import { isNonEmptyString } from '../../utils/LangUtils';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
-import { getUserProfileLabel } from '../../utils/PersonUtils';
+import { getUserId, getUserProfileLabel } from '../../utils/PersonUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS, PURPLES } = Colors;
-const { PermissionTypes, PrincipalTypes } = Types;
+const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
+const {
+  Ace,
+  AceBuilder,
+  Acl,
+  AclBuilder,
+  AclData,
+  AclDataBuilder,
+  Principal,
+  PrincipalBuilder,
+} = Models;
 
 const { GET_ORGANIZATION_PERMISSIONS } = OrgsActions;
 const { GET_ALL_USERS } = PrincipalsApiActions;
+const { UPDATE_ACLS } = PermissionsApiActions;
 
 const Title = styled.h2`
   font-size: 22px;
@@ -125,6 +138,7 @@ type Props = {
     getOrganizationPermissions :RequestSequence;
     goToRoot :GoToRoot;
     resetRequestState :(actionType :string) => void;
+    updateAcls :RequestSequence;
   };
   isOwner :boolean;
   match :Match;
@@ -134,6 +148,7 @@ type Props = {
   requestStates :{
     GET_ALL_USERS :RequestState;
     GET_ORGANIZATION_PERMISSIONS :RequestState;
+    UPDATE_ACLS :RequestState;
   };
   users :Map;
 };
@@ -141,7 +156,10 @@ type Props = {
 type State = {
   selectedAclKey :List;
   selectedPermission :PermissionType;
+  selectedUserId :?string;
 };
+
+const LOG :Logger = new Logger('OrgPermissionsContainer');
 
 class OrgPermissionsContainer extends Component<Props, State> {
 
@@ -152,6 +170,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
     this.state = {
       selectedAclKey: props.orgAclKey, // an empty "selectedAclKey" is treated as org + roles, i.e. everything
       selectedPermission: PermissionTypes.OWNER,
+      selectedUserId: undefined,
     };
   }
 
@@ -164,15 +183,158 @@ class OrgPermissionsContainer extends Component<Props, State> {
     actions.getOrganizationPermissions(orgId);
   }
 
-  componentDidUpdate(prevProps :Props) {
+  componentDidUpdate(props :Props) {
 
-    const { actions, match } = this.props;
+    const { actions, match, requestStates } = this.props;
     const orgId :?UUID = getIdFromMatch(match);
-    const prevOrgId :?UUID = getIdFromMatch(prevProps.match);
+    const prevOrgId :?UUID = getIdFromMatch(props.match);
 
     if (orgId !== prevOrgId) {
       actions.getAllUsers();
       actions.getOrganizationPermissions(orgId);
+    }
+    else if (props.requestStates[UPDATE_ACLS] === RequestStates.PENDING
+        && requestStates[UPDATE_ACLS] === RequestStates.SUCCESS) {
+      actions.resetRequestState(UPDATE_ACLS);
+      actions.getOrganizationPermissions(orgId);
+    }
+  }
+
+  handleOnChangeSelectedUser = (selectedOption :{ label :string; value :string }) => {
+
+    this.setState({
+      selectedUserId: selectedOption.value,
+    });
+  }
+
+  handleOnClickAddPermission = () => {
+
+    const {
+      actions,
+      isOwner,
+      orgAcls,
+      users,
+    } = this.props;
+    const { selectedAclKey, selectedPermission, selectedUserId } = this.state;
+
+    if (!isOwner) {
+      LOG.error('only owners can update permissions');
+      return;
+    }
+
+    if (!selectedUserId || !users.has(selectedUserId) || !PermissionTypes[selectedPermission]) {
+      return;
+    }
+
+    const updates :AclData[] = [];
+
+    // an empty "selectedAclKey" is treated as org + roles, i.e. everything
+    const targetAclKeys = selectedAclKey.isEmpty()
+      ? orgAcls.keySeq()
+      : List().push(selectedAclKey);
+
+    targetAclKeys.forEach((aclKey :List) => {
+
+      const permissions = selectedPermission === PermissionTypes.OWNER
+        ? [
+          PermissionTypes.OWNER,
+          PermissionTypes.WRITE,
+          PermissionTypes.READ,
+          PermissionTypes.LINK,
+          PermissionTypes.DISCOVER,
+        ]
+        : [selectedPermission];
+
+      const principal :Principal = new PrincipalBuilder()
+        .setId(selectedUserId)
+        .setType(PrincipalTypes.USER)
+        .build();
+
+      const ace :Ace = new AceBuilder()
+        .setPermissions(permissions)
+        .setPrincipal(principal)
+        .build();
+
+      const acl :Acl = new AclBuilder()
+        .setAces([ace])
+        .setAclKey(aclKey.toJS())
+        .build();
+
+      const aclData :AclData = new AclDataBuilder()
+        .setAcl(acl)
+        .setAction(ActionTypes.ADD)
+        .build();
+
+      updates.push(aclData);
+    });
+
+    actions.updateAcls(updates);
+    this.setState({
+      selectedUserId: undefined,
+    });
+  }
+
+  handleOnClickRemovePermission = (event :SyntheticEvent<HTMLElement>) => {
+
+    const { actions, isOwner, orgAcls } = this.props;
+    const { selectedAclKey, selectedPermission } = this.state;
+
+    if (!isOwner) {
+      LOG.error('only owners can update permissions');
+      return;
+    }
+
+    if (!PermissionTypes[selectedPermission]) {
+      return;
+    }
+
+    const { currentTarget } = event;
+    if (currentTarget instanceof HTMLElement) {
+
+      const { dataset } = currentTarget;
+      if (isNonEmptyString(dataset.userId)) {
+
+        const { userId } = dataset;
+        const updates :AclData[] = [];
+
+        // an empty "selectedAclKey" is treated as org + roles, i.e. everything
+        const targetAclKeys = selectedAclKey.isEmpty()
+          ? orgAcls.keySeq()
+          : List().push(selectedAclKey);
+
+        targetAclKeys.forEach((aclKey :List) => {
+
+          const principal :Principal = new PrincipalBuilder()
+            .setId(userId)
+            .setType(PrincipalTypes.USER)
+            .build();
+
+          const ace :Ace = new AceBuilder()
+            .setPermissions([selectedPermission])
+            .setPrincipal(principal)
+            .build();
+
+          const acl :Acl = new AclBuilder()
+            .setAces([ace])
+            .setAclKey(aclKey.toJS())
+            .build();
+
+          const aclData :AclData = new AclDataBuilder()
+            .setAcl(acl)
+            .setAction(ActionTypes.REMOVE)
+            .build();
+
+          updates.push(aclData);
+        });
+
+        actions.updateAcls(updates);
+      }
+      else {
+        LOG.warn('target is missing expected data attributes: userId', currentTarget);
+      }
+    }
+    else {
+      LOG.warn('target is not an HTMLElement', currentTarget);
     }
   }
 
@@ -187,11 +349,6 @@ class OrgPermissionsContainer extends Component<Props, State> {
     this.setState({ selectedPermission });
   }
 
-  todo = () => {
-
-    alert('Not implemented');
-  }
-
   getUserSelectOptions = () => {
 
     const { users } = this.props;
@@ -202,18 +359,14 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
     return users.valueSeq().map((user :Map) => ({
       label: getUserProfileLabel(user),
-      value: user.get('user_id'),
+      value: getUserId(user),
     }));
   }
 
   renderSelectionSection = () => {
 
-    const { isOwner, org, orgAclKey } = this.props;
+    const { org, orgAclKey } = this.props;
     const { selectedAclKey } = this.state;
-
-    if (!isOwner) {
-      return null;
-    }
 
     const roles :List = org.get('roles', List());
 
@@ -259,10 +412,6 @@ class OrgPermissionsContainer extends Component<Props, State> {
     } = this.props;
     const { selectedAclKey, selectedPermission } = this.state;
 
-    if (!isOwner) {
-      return null;
-    }
-
     // an empty "selectedAclKey" is treated as org + roles, i.e. everything
     const targetAcls = selectedAclKey.isEmpty()
       ? orgAcls
@@ -290,11 +439,11 @@ class OrgPermissionsContainer extends Component<Props, State> {
             userCardSegments.push((
               <CompactCardSegment key={userId || userProfileLabel}>
                 <span title={userProfileLabel}>{userProfileLabel}</span>
-                {
-                  isOwner && (
-                    <MinusButton mode="negative" onClick={this.todo} />
-                  )
-                }
+                <MinusButton
+                    disabled={!isOwner}
+                    data-user-id={userId}
+                    mode="negative"
+                    onClick={this.handleOnClickRemovePermission} />
               </CompactCardSegment>
             ));
           }
@@ -302,10 +451,8 @@ class OrgPermissionsContainer extends Component<Props, State> {
     });
 
     const isPending = requestStates[GET_ALL_USERS] === RequestStates.PENDING
-      && requestStates[GET_ORGANIZATION_PERMISSIONS] === RequestStates.PENDING;
-
-    const isSuccess = requestStates[GET_ALL_USERS] === RequestStates.SUCCESS
-      && requestStates[GET_ORGANIZATION_PERMISSIONS] === RequestStates.SUCCESS;
+      || requestStates[GET_ORGANIZATION_PERMISSIONS] === RequestStates.PENDING
+      || requestStates[UPDATE_ACLS] === RequestStates.PENDING;
 
     return (
       <PermissionsManagementSection>
@@ -342,21 +489,21 @@ class OrgPermissionsContainer extends Component<Props, State> {
           )
         }
         {
-          isSuccess && (
+          !isPending && (
             <SelectControlWithButton>
               <Select
                   isClearable
                   options={this.getUserSelectOptions()}
-                  onClick={this.todo}
+                  onChange={this.handleOnChangeSelectedUser}
                   placeholder="Select a user" />
               <PlusButton
                   mode="positive"
-                  onClick={this.todo} />
+                  onClick={this.handleOnClickAddPermission} />
             </SelectControlWithButton>
           )
         }
         {
-          isSuccess && userCardSegments.length > 0 && (
+          !isPending && userCardSegments.length > 0 && (
             <Card>{userCardSegments}</Card>
           )
         }
@@ -412,6 +559,7 @@ const mapStateToProps = (state :Map, props :Object) => {
     requestStates: {
       [GET_ALL_USERS]: state.getIn(['principals', GET_ALL_USERS, 'requestState']),
       [GET_ORGANIZATION_PERMISSIONS]: state.getIn(['orgs', GET_ORGANIZATION_PERMISSIONS, 'requestState']),
+      [UPDATE_ACLS]: state.getIn(['permissions', UPDATE_ACLS, 'requestState']),
     },
     users: state.getIn(['principals', 'users'], Map()),
   };
@@ -425,6 +573,7 @@ const mapActionsToProps = (dispatch :Function) => ({
     getOrganizationPermissions: OrgsActions.getOrganizationPermissions,
     goToRoot: RoutingActions.goToRoot,
     resetRequestState: ReduxActions.resetRequestState,
+    updateAcls: PermissionsApiActions.updateAcls,
   }, dispatch)
 });
 
