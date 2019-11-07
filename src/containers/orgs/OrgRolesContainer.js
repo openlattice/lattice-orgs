@@ -450,11 +450,11 @@ const mapStateToProps = (state :Map, props :Object) => {
     orgMembers: state.getIn(['orgs', 'orgMembers', orgId], List()),
     requestStates: {
       [ADD_ROLE_TO_MEMBER]: state.getIn(['orgs', ADD_ROLE_TO_MEMBER, 'requestState']),
-      [GET_ALL_USERS]: state.getIn(['principals', GET_ALL_USERS, 'requestState']),
+      [GET_ALL_USERS]: state.getIn(['users', GET_ALL_USERS, 'requestState']),
       [GET_ORGANIZATION_PERMISSIONS]: state.getIn(['orgs', GET_ORGANIZATION_PERMISSIONS, 'requestState']),
       [REMOVE_ROLE_FROM_MEMBER]: state.getIn(['orgs', REMOVE_ROLE_FROM_MEMBER, 'requestState']),
     },
-    users: state.getIn(['principals', 'users'], Map()),
+    users: state.getIn(['users', 'users'], Map()),
   };
 };
 
