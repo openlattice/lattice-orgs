@@ -20,6 +20,7 @@ const SectionGrid = styled.section`
   > div {
     position: relative;
     margin-top: 30px;
+
     /*
      * !!! IMPORTANT !!!
      *
