@@ -192,7 +192,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
     }
     else if (props.requestStates[UPDATE_USER_PERMISSION] === RequestStates.PENDING
         && requestStates[UPDATE_USER_PERMISSION] === RequestStates.SUCCESS) {
-      actions.getOrganizationPermissions(orgId);
+      actions.getOrganizationACLs(orgId);
       this.closeModal();
     }
   }
@@ -201,7 +201,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
     const { actions } = this.props;
     actions.resetRequestState(GET_ALL_USERS);
-    actions.resetRequestState(GET_ORGANIZATION_PERMISSIONS);
+    actions.resetRequestState(GET_ORGANIZATION_ACLS);
     actions.resetRequestState(UPDATE_USER_PERMISSION);
   }
 
@@ -252,7 +252,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
   addPermissionToUser = () => {
 
-    const { actions, isOwner, orgAcls } = this.props;
+    const { actions, isOwner, orgACLs } = this.props;
     const { selectedAclKey, selectedPermission, selectedUserId } = this.state;
 
     if (!isOwner) {
@@ -262,7 +262,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
     // an empty "selectedAclKey" is treated as org + roles, i.e. everything
     const targetAclKeys :List<List<UUID>> = selectedAclKey.isEmpty()
-      ? orgAcls.keySeq().toList()
+      ? orgACLs.keySeq().toList()
       : List().push(selectedAclKey);
 
     actions.updateUserPermission({
@@ -279,7 +279,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
   removePermissionFromUser = () => {
 
-    const { actions, isOwner, orgAcls } = this.props;
+    const { actions, isOwner, orgACLs } = this.props;
     const { selectedAclKey, selectedPermission, selectedUserId } = this.state;
 
     if (!isOwner) {
@@ -289,7 +289,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
     // an empty "selectedAclKey" is treated as org + roles, i.e. everything
     const targetAclKeys :List<List<UUID>> = selectedAclKey.isEmpty()
-      ? orgAcls.keySeq().toList()
+      ? orgACLs.keySeq().toList()
       : List().push(selectedAclKey);
 
     actions.updateUserPermission({
