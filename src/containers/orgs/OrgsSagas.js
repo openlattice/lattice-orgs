@@ -159,7 +159,7 @@ function* getOrganizationPermissionsWorker(action :SequenceAction) :Generator<*,
 
     const organizationId :UUID = action.value;
     const organizationAclKey :UUID[] = [organizationId];
-    const organization :Map = yield select((state) => state.getIn(['orgs', 'orgs', organizationId]), Map());
+    const organization :Map = yield select((state :Map) => state.getIn(['orgs', 'orgs', organizationId], Map()));
 
     const orgAclResponse = yield call(getAclWorker, getAcl(organizationAclKey));
     if (orgAclResponse.error) throw orgAclResponse.error;

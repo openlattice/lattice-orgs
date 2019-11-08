@@ -15,6 +15,7 @@ import * as EDMSagas from '../edm/EDMSagas';
 import * as RoutingSagas from '../router/RoutingSagas';
 import { AppSagas } from '../../containers/app';
 import { OrgsSagas } from '../../containers/orgs';
+import { PermissionsSagas } from '../permissions';
 
 export default function* sagas() :Generator<*, *, *> {
 
@@ -64,6 +65,9 @@ export default function* sagas() :Generator<*, *, *> {
     fork(OrgsSagas.getOrganizationPermissionsWatcher),
     fork(OrgsSagas.getOrgsAndPermissionsWatcher),
     fork(OrgsSagas.searchMembersToAddToOrgWatcher),
+
+    // PermissionsSagas
+    fork(PermissionsSagas.updateUserPermissionWatcher),
 
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),

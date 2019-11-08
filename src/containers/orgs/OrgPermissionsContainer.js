@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
-import { Models, Types } from 'lattice';
+import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PermissionsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
@@ -26,27 +26,19 @@ import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as OrgsActions from './OrgsActions';
+import * as PermissionsActions from '../../core/permissions/PermissionsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { CompactCardSegment, SelectControlWithButton } from './components/styled';
 import { Logger } from '../../utils';
-import { isNonEmptyString } from '../../utils/LangUtils';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
+import { isNonEmptyString } from '../../utils/LangUtils';
 import { getUserId, getUserProfileLabel } from '../../utils/PersonUtils';
+import type { ResetRequestStateAction } from '../../core/redux/ReduxActions';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS, PURPLES } = Colors;
 const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
-const {
-  Ace,
-  AceBuilder,
-  Acl,
-  AclBuilder,
-  AclData,
-  AclDataBuilder,
-  Principal,
-  PrincipalBuilder,
-} = Models;
 
 const { GET_ORGANIZATION_PERMISSIONS } = OrgsActions;
 const { GET_ALL_USERS } = PrincipalsApiActions;
@@ -137,8 +129,8 @@ type Props = {
     getAllUsers :RequestSequence;
     getOrganizationPermissions :RequestSequence;
     goToRoot :GoToRoot;
-    resetRequestState :(actionType :string) => void;
-    updateAcls :RequestSequence;
+    resetRequestState :ResetRequestStateAction;
+    updateUserPermission :RequestSequence;
   };
   isOwner :boolean;
   match :Match;
@@ -200,6 +192,13 @@ class OrgPermissionsContainer extends Component<Props, State> {
     }
   }
 
+  componentWillUnmount() {
+
+    const { actions } = this.props;
+    actions.resetRequestState(GET_ALL_USERS);
+    actions.resetRequestState(GET_ORGANIZATION_PERMISSIONS);
+  }
+
   handleOnChangeSelectedUser = (selectedOption :{ label :string; value :string }) => {
 
     this.setState({
@@ -209,12 +208,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
   handleOnClickAddPermission = () => {
 
-    const {
-      actions,
-      isOwner,
-      orgAcls,
-      users,
-    } = this.props;
+    const { actions, isOwner, orgAcls } = this.props;
     const { selectedAclKey, selectedPermission, selectedUserId } = this.state;
 
     if (!isOwner) {
@@ -222,53 +216,18 @@ class OrgPermissionsContainer extends Component<Props, State> {
       return;
     }
 
-    if (!selectedUserId || !users.has(selectedUserId) || !PermissionTypes[selectedPermission]) {
-      return;
-    }
-
-    const updates :AclData[] = [];
-
     // an empty "selectedAclKey" is treated as org + roles, i.e. everything
-    const targetAclKeys = selectedAclKey.isEmpty()
-      ? orgAcls.keySeq()
+    const targetAclKeys :List<List<UUID>> = selectedAclKey.isEmpty()
+      ? orgAcls.keySeq().toList()
       : List().push(selectedAclKey);
 
-    targetAclKeys.forEach((aclKey :List) => {
-
-      const permissions = selectedPermission === PermissionTypes.OWNER
-        ? [
-          PermissionTypes.OWNER,
-          PermissionTypes.WRITE,
-          PermissionTypes.READ,
-          PermissionTypes.LINK,
-          PermissionTypes.DISCOVER,
-        ]
-        : [selectedPermission];
-
-      const principal :Principal = new PrincipalBuilder()
-        .setId(selectedUserId)
-        .setType(PrincipalTypes.USER)
-        .build();
-
-      const ace :Ace = new AceBuilder()
-        .setPermissions(permissions)
-        .setPrincipal(principal)
-        .build();
-
-      const acl :Acl = new AclBuilder()
-        .setAces([ace])
-        .setAclKey(aclKey.toJS())
-        .build();
-
-      const aclData :AclData = new AclDataBuilder()
-        .setAcl(acl)
-        .setAction(ActionTypes.ADD)
-        .build();
-
-      updates.push(aclData);
+    actions.updateUserPermission({
+      aclKeys: targetAclKeys,
+      actionType: ActionTypes.ADD,
+      permissionType: selectedPermission,
+      userId: selectedUserId,
     });
 
-    actions.updateAcls(updates);
     this.setState({
       selectedUserId: undefined,
     });
@@ -284,50 +243,23 @@ class OrgPermissionsContainer extends Component<Props, State> {
       return;
     }
 
-    if (!PermissionTypes[selectedPermission]) {
-      return;
-    }
-
     const { currentTarget } = event;
     if (currentTarget instanceof HTMLElement) {
 
       const { dataset } = currentTarget;
       if (isNonEmptyString(dataset.userId)) {
 
-        const { userId } = dataset;
-        const updates :AclData[] = [];
-
         // an empty "selectedAclKey" is treated as org + roles, i.e. everything
-        const targetAclKeys = selectedAclKey.isEmpty()
-          ? orgAcls.keySeq()
+        const targetAclKeys :List<List<UUID>> = selectedAclKey.isEmpty()
+          ? orgAcls.keySeq().toList()
           : List().push(selectedAclKey);
 
-        targetAclKeys.forEach((aclKey :List) => {
-
-          const principal :Principal = new PrincipalBuilder()
-            .setId(userId)
-            .setType(PrincipalTypes.USER)
-            .build();
-
-          const ace :Ace = new AceBuilder()
-            .setPermissions([selectedPermission])
-            .setPrincipal(principal)
-            .build();
-
-          const acl :Acl = new AclBuilder()
-            .setAces([ace])
-            .setAclKey(aclKey.toJS())
-            .build();
-
-          const aclData :AclData = new AclDataBuilder()
-            .setAcl(acl)
-            .setAction(ActionTypes.REMOVE)
-            .build();
-
-          updates.push(aclData);
+        actions.updateUserPermission({
+          aclKeys: targetAclKeys,
+          actionType: ActionTypes.REMOVE,
+          permissionType: selectedPermission,
+          userId: dataset.userId,
         });
-
-        actions.updateAcls(updates);
       }
       else {
         LOG.warn('target is missing expected data attributes: userId', currentTarget);
@@ -573,7 +505,7 @@ const mapActionsToProps = (dispatch :Function) => ({
     getOrganizationPermissions: OrgsActions.getOrganizationPermissions,
     goToRoot: RoutingActions.goToRoot,
     resetRequestState: ReduxActions.resetRequestState,
-    updateAcls: PermissionsApiActions.updateAcls,
+    updateUserPermission: PermissionsActions.updateUserPermission,
   }, dispatch)
 });
 
