@@ -33,7 +33,7 @@ import * as RoutingActions from '../../core/router/RoutingActions';
 import { Logger } from '../../utils';
 import { isNonEmptyString } from '../../utils/LangUtils';
 import { isValidUUID } from '../../utils/ValidationUtils';
-import type { ResetRequestState } from '../../core/redux/ReduxActions';
+import type { ResetRequestStateAction } from '../../core/redux/ReduxActions';
 import type { GoToRoute } from '../../core/router/RoutingActions';
 
 const LOG = new Logger('OrgsContainer');
@@ -129,7 +129,7 @@ type Props = {
     createOrganization :RequestSequence;
     getOrgsAndPermissions :RequestSequence;
     goToRoute :GoToRoute;
-    resetRequestState :ResetRequestState;
+    resetRequestState :ResetRequestStateAction;
   };
   orgs :Map<UUID, Map>;
   newlyCreatedOrgId :?UUID;
