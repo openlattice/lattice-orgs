@@ -33,7 +33,7 @@ import type { GoToRoot } from '../../core/router/RoutingActions';
 const { NEUTRALS, PURPLES } = Colors;
 const { PrincipalTypes } = Types;
 
-const { GET_ORGANIZATION_PERMISSIONS } = OrgsActions;
+const { GET_ORGANIZATION_ACLS } = OrgsActions;
 const { ADD_ROLE_TO_MEMBER, REMOVE_ROLE_FROM_MEMBER } = OrganizationsApiActions;
 const { GET_ALL_USERS } = PrincipalsApiActions;
 
@@ -124,7 +124,7 @@ type Props = {
   requestStates :{
     ADD_ROLE_TO_MEMBER :RequestState;
     GET_ALL_USERS :RequestState;
-    GET_ORGANIZATION_PERMISSIONS :RequestState;
+    GET_ORGANIZATION_ACLS :RequestState;
     REMOVE_ROLE_FROM_MEMBER :RequestState;
   };
 };
@@ -448,7 +448,7 @@ const mapStateToProps = (state :Map, props :Object) => {
     requestStates: {
       [ADD_ROLE_TO_MEMBER]: state.getIn(['orgs', ADD_ROLE_TO_MEMBER, 'requestState']),
       [GET_ALL_USERS]: state.getIn(['users', GET_ALL_USERS, 'requestState']),
-      [GET_ORGANIZATION_PERMISSIONS]: state.getIn(['orgs', GET_ORGANIZATION_PERMISSIONS, 'requestState']),
+      [GET_ORGANIZATION_ACLS]: state.getIn(['orgs', GET_ORGANIZATION_ACLS, 'requestState']),
       [REMOVE_ROLE_FROM_MEMBER]: state.getIn(['orgs', REMOVE_ROLE_FROM_MEMBER, 'requestState']),
     },
     users: state.getIn(['users', 'users'], Map()),
