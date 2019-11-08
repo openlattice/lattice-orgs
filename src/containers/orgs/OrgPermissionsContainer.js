@@ -428,7 +428,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
     });
 
     const isPending = requestStates[GET_ALL_USERS] === RequestStates.PENDING
-      || requestStates[GET_ORGANIZATION_PERMISSIONS] === RequestStates.PENDING;
+      || requestStates[GET_ORGANIZATION_PERMISSIONS] === RequestStates.PENDING
       || requestStates[UPDATE_USER_PERMISSION] === RequestStates.PENDING;
 
     return (
