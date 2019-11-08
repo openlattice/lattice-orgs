@@ -380,12 +380,55 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
   renderPermissionsManagementSection = () => {
 
-    const {
-      isOwner,
-      orgACLs,
-      requestStates,
-      users,
-    } = this.props;
+    const { requestStates } = this.props;
+    const { selectedPermission } = this.state;
+
+    const isPending = requestStates[GET_ALL_USERS] === RequestStates.PENDING
+      || requestStates[GET_ORGANIZATION_ACLS] === RequestStates.PENDING;
+
+    return (
+      <PermissionsManagementSection>
+        <PermissionsHeader>
+          <SelectableHeader
+              isSelected={selectedPermission === PermissionTypes.OWNER}
+              onClick={() => this.selectPermission(PermissionTypes.OWNER)}>
+            Owner
+          </SelectableHeader>
+          <SelectableHeader
+              isSelected={selectedPermission === PermissionTypes.WRITE}
+              onClick={() => this.selectPermission(PermissionTypes.WRITE)}>
+            Write
+          </SelectableHeader>
+          <SelectableHeader
+              isSelected={selectedPermission === PermissionTypes.READ}
+              onClick={() => this.selectPermission(PermissionTypes.READ)}>
+            Read
+          </SelectableHeader>
+          <SelectableHeader
+              isSelected={selectedPermission === PermissionTypes.LINK}
+              onClick={() => this.selectPermission(PermissionTypes.LINK)}>
+            Link
+          </SelectableHeader>
+          <SelectableHeader
+              isSelected={selectedPermission === PermissionTypes.DISCOVER}
+              onClick={() => this.selectPermission(PermissionTypes.DISCOVER)}>
+            Discover
+          </SelectableHeader>
+        </PermissionsHeader>
+        {
+          isPending
+            ? (
+              <Spinner size="2x" />
+            )
+            : this.renderUserPermissions()
+        }
+      </PermissionsManagementSection>
+    );
+  }
+
+  renderUserPermissions = () => {
+
+    const { isOwner, orgACLs, users } = this.props;
     const { selectedAclKey, selectedPermission } = this.state;
 
     // an empty "selectedAclKey" is treated as org + roles, i.e. everything
@@ -426,64 +469,24 @@ class OrgPermissionsContainer extends Component<Props, State> {
         });
     });
 
-    const isPending = requestStates[GET_ALL_USERS] === RequestStates.PENDING
-      || requestStates[GET_ORGANIZATION_ACLS] === RequestStates.PENDING
-      || requestStates[UPDATE_USER_PERMISSION] === RequestStates.PENDING;
-
     return (
-      <PermissionsManagementSection>
-        <PermissionsHeader>
-          <SelectableHeader
-              isSelected={selectedPermission === PermissionTypes.OWNER}
-              onClick={() => this.selectPermission(PermissionTypes.OWNER)}>
-            Owner
-          </SelectableHeader>
-          <SelectableHeader
-              isSelected={selectedPermission === PermissionTypes.WRITE}
-              onClick={() => this.selectPermission(PermissionTypes.WRITE)}>
-            Write
-          </SelectableHeader>
-          <SelectableHeader
-              isSelected={selectedPermission === PermissionTypes.READ}
-              onClick={() => this.selectPermission(PermissionTypes.READ)}>
-            Read
-          </SelectableHeader>
-          <SelectableHeader
-              isSelected={selectedPermission === PermissionTypes.LINK}
-              onClick={() => this.selectPermission(PermissionTypes.LINK)}>
-            Link
-          </SelectableHeader>
-          <SelectableHeader
-              isSelected={selectedPermission === PermissionTypes.DISCOVER}
-              onClick={() => this.selectPermission(PermissionTypes.DISCOVER)}>
-            Discover
-          </SelectableHeader>
-        </PermissionsHeader>
+      <>
+        <SelectControlWithButton>
+          <Select
+              isClearable
+              options={this.getUserSelectOptions()}
+              onChange={this.handleOnChangeSelectedUser}
+              placeholder="Select a user" />
+          <PlusButton
+              mode="positive"
+              onClick={this.handleOnClickAddPermission} />
+        </SelectControlWithButton>
         {
-          isPending && (
-            <Spinner size="2x" />
-          )
-        }
-        {
-          !isPending && (
-            <SelectControlWithButton>
-              <Select
-                  isClearable
-                  options={this.getUserSelectOptions()}
-                  onChange={this.handleOnChangeSelectedUser}
-                  placeholder="Select a user" />
-              <PlusButton
-                  mode="positive"
-                  onClick={this.handleOnClickAddPermission} />
-            </SelectControlWithButton>
-          )
-        }
-        {
-          !isPending && userCardSegments.length > 0 && (
+          userCardSegments.length > 0 && (
             <Card>{userCardSegments}</Card>
           )
         }
-      </PermissionsManagementSection>
+      </>
     );
   }
 
