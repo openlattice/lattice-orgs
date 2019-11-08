@@ -41,7 +41,7 @@ import type { GoToRoot } from '../../core/router/RoutingActions';
 const { NEUTRALS, PURPLES } = Colors;
 const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
 
-const { GET_ORGANIZATION_PERMISSIONS } = OrgsActions;
+const { GET_ORGANIZATION_ACLS } = OrgsActions;
 const { GET_ALL_USERS } = PrincipalsApiActions;
 const { UPDATE_USER_PERMISSION } = PermissionsActions;
 
@@ -128,7 +128,7 @@ permissions for that role.
 type Props = {
   actions :{
     getAllUsers :RequestSequence;
-    getOrganizationPermissions :RequestSequence;
+    getOrganizationACLs :RequestSequence;
     goToRoot :GoToRoot;
     resetRequestState :ResetRequestStateAction;
     updateUserPermission :RequestSequence;
@@ -137,10 +137,10 @@ type Props = {
   match :Match;
   org :Map;
   orgAclKey :List;
-  orgAcls :Map;
+  orgACLs :Map;
   requestStates :{
     GET_ALL_USERS :RequestState;
-    GET_ORGANIZATION_PERMISSIONS :RequestState;
+    GET_ORGANIZATION_ACLS :RequestState;
     UPDATE_USER_PERMISSION :RequestState;
   };
   users :Map;
@@ -177,7 +177,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
     const orgId :?UUID = getIdFromMatch(match);
 
     actions.getAllUsers();
-    actions.getOrganizationPermissions(orgId);
+    actions.getOrganizationACLs(orgId);
   }
 
   componentDidUpdate(props :Props) {
@@ -188,7 +188,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
     if (orgId !== prevOrgId) {
       actions.getAllUsers();
-      actions.getOrganizationPermissions(orgId);
+      actions.getOrganizationACLs(orgId);
     }
     else if (props.requestStates[UPDATE_USER_PERMISSION] === RequestStates.PENDING
         && requestStates[UPDATE_USER_PERMISSION] === RequestStates.SUCCESS) {
@@ -383,7 +383,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
     const {
       isOwner,
-      orgAcls,
+      orgACLs,
       requestStates,
       users,
     } = this.props;
@@ -391,8 +391,8 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
     // an empty "selectedAclKey" is treated as org + roles, i.e. everything
     const targetAcls = selectedAclKey.isEmpty()
-      ? orgAcls
-      : Map().set(selectedAclKey, orgAcls.get(selectedAclKey, List()));
+      ? orgACLs
+      : Map().set(selectedAclKey, orgACLs.get(selectedAclKey, List()));
 
     const lookup = {}; // I don't like this
     const userCardSegments = [];
@@ -428,7 +428,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
     });
 
     const isPending = requestStates[GET_ALL_USERS] === RequestStates.PENDING
-      || requestStates[GET_ORGANIZATION_PERMISSIONS] === RequestStates.PENDING
+      || requestStates[GET_ORGANIZATION_ACLS] === RequestStates.PENDING
       || requestStates[UPDATE_USER_PERMISSION] === RequestStates.PENDING;
 
     return (
@@ -526,14 +526,14 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
   render() {
 
-    const { isOwner, orgAcls } = this.props;
+    const { isOwner, orgACLs } = this.props;
     const { selectedAclKey } = this.state;
     if (!isOwner) {
       return null;
     }
 
     let isAuthorized :boolean = true;
-    const selectedAcl :Map = orgAcls.get(selectedAclKey, Map());
+    const selectedAcl :Map = orgACLs.get(selectedAclKey, Map());
     if (selectedAcl.getIn(['error', 'status']) === 401
         && selectedAcl.getIn(['error', 'statusText']) === 'Unauthorized') {
       isAuthorized = false;
@@ -564,10 +564,10 @@ const mapStateToProps = (state :Map, props :Object) => {
     isOwner: state.hasIn(['orgs', 'isOwnerOfOrgIds', orgId], false),
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
     orgAclKey: List([orgId]),
-    orgAcls: state.getIn(['orgs', 'orgAcls', orgId], Map()),
+    orgACLs: state.getIn(['orgs', 'orgACLs', orgId], Map()),
     requestStates: {
       [GET_ALL_USERS]: state.getIn(['users', GET_ALL_USERS, 'requestState']),
-      [GET_ORGANIZATION_PERMISSIONS]: state.getIn(['orgs', GET_ORGANIZATION_PERMISSIONS, 'requestState']),
+      [GET_ORGANIZATION_ACLS]: state.getIn(['orgs', GET_ORGANIZATION_ACLS, 'requestState']),
       [UPDATE_USER_PERMISSION]: state.getIn(['permissions', UPDATE_USER_PERMISSION, 'requestState']),
     },
     users: state.getIn(['users', 'users'], Map()),
@@ -578,8 +578,8 @@ const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     deleteOrganization: OrganizationsApiActions.deleteOrganization,
     getAllUsers: PrincipalsApiActions.getAllUsers,
+    getOrganizationACLs: OrgsActions.getOrganizationACLs,
     getOrganizationDetails: OrgsActions.getOrganizationDetails,
-    getOrganizationPermissions: OrgsActions.getOrganizationPermissions,
     goToRoot: RoutingActions.goToRoot,
     resetRequestState: ReduxActions.resetRequestState,
     updateUserPermission: PermissionsActions.updateUserPermission,

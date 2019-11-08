@@ -30,12 +30,12 @@ import type { SequenceAction } from 'redux-reqseq';
 import Logger from '../../utils/Logger';
 import { isValidUUID } from '../../utils/ValidationUtils';
 import {
+  GET_ORGANIZATION_ACLS,
   GET_ORGANIZATION_DETAILS,
-  GET_ORGANIZATION_PERMISSIONS,
   GET_ORGS_AND_PERMISSIONS,
   SEARCH_MEMBERS_TO_ADD_TO_ORG,
+  getOrganizationACLs,
   getOrganizationDetails,
-  getOrganizationPermissions,
   getOrgsAndPermissions,
   searchMembersToAddToOrg,
 } from './OrgsActions';
@@ -67,6 +67,75 @@ const { getAcl } = PermissionsApiActions;
 const { getAclWorker } = PermissionsApiSagas;
 const { getSecurablePrincipal, searchAllUsers } = PrincipalsApiActions;
 const { getSecurablePrincipalWorker, searchAllUsersWorker } = PrincipalsApiSagas;
+
+/*
+ *
+ * OrgsActions.getOrganizationACLs
+ *
+ */
+
+function* getOrganizationACLsWorker(action :SequenceAction) :Generator<*, *, *> {
+
+  try {
+    yield put(getOrganizationACLs.request(action.id, action.value));
+
+    const organizationId :UUID = action.value;
+    const organizationAclKey :UUID[] = [organizationId];
+    const organization :Map = yield select((state) => state.getIn(['orgs', 'orgs', organizationId]), Map());
+
+    const orgAclResponse = yield call(getAclWorker, getAcl(organizationAclKey));
+    if (orgAclResponse.error) throw orgAclResponse.error;
+    const orgAcl :AclObject = orgAclResponse.data;
+
+    const calls = {};
+    organization.get('roles', List()).forEach((role :Map) => {
+      const roleId :UUID = role.get('id');
+      calls[roleId] = call(getAclWorker, getAcl([organizationId, roleId]));
+    });
+    const roleAclResponses :Object = yield all(calls);
+
+    const acls :Map = Map().withMutations((map :Map) => {
+
+      // org acl
+      map.set(List(organizationAclKey), fromJS(orgAcl));
+
+      // role acls
+      Object.keys(roleAclResponses).forEach((roleId :UUID) => {
+        const roleAclKey :UUID[] = [organizationId, roleId];
+        const roleAclResponse :Object = roleAclResponses[roleId];
+        if (roleAclResponse.error) {
+          let error = true;
+          const axiosError :$AxiosError<any> = roleAclResponse.error;
+          if (axiosError.isAxiosError && axiosError.response) {
+            error = {
+              status: axiosError.response.status,
+              statusText: axiosError.response.statusText,
+            };
+          }
+          map.set(List(roleAclKey), fromJS({ error }));
+        }
+        else {
+          const roleAcl :AclObject = roleAclResponse.data;
+          map.set(List(roleAclKey), fromJS(roleAcl));
+        }
+      });
+    });
+
+    yield put(getOrganizationACLs.success(action.id, acls));
+  }
+  catch (error) {
+    LOG.error(action.type, error);
+    yield put(getOrganizationACLs.failure(action.id));
+  }
+  finally {
+    yield put(getOrganizationACLs.finally(action.id));
+  }
+}
+
+function* getOrganizationACLsWatcher() :Generator<*, *, *> {
+
+  yield takeEvery(GET_ORGANIZATION_ACLS, getOrganizationACLsWorker);
+}
 
 /*
  *
@@ -144,75 +213,6 @@ function* getOrganizationDetailsWorker(action :SequenceAction) :Generator<*, *, 
 function* getOrganizationDetailsWatcher() :Generator<*, *, *> {
 
   yield takeEvery(GET_ORGANIZATION_DETAILS, getOrganizationDetailsWorker);
-}
-
-/*
- *
- * OrgsActions.getOrganizationPermissions
- *
- */
-
-function* getOrganizationPermissionsWorker(action :SequenceAction) :Generator<*, *, *> {
-
-  try {
-    yield put(getOrganizationPermissions.request(action.id, action.value));
-
-    const organizationId :UUID = action.value;
-    const organizationAclKey :UUID[] = [organizationId];
-    const organization :Map = yield select((state :Map) => state.getIn(['orgs', 'orgs', organizationId], Map()));
-
-    const orgAclResponse = yield call(getAclWorker, getAcl(organizationAclKey));
-    if (orgAclResponse.error) throw orgAclResponse.error;
-    const orgAcl :AclObject = orgAclResponse.data;
-
-    const calls = {};
-    organization.get('roles', List()).forEach((role :Map) => {
-      const roleId :UUID = role.get('id');
-      calls[roleId] = call(getAclWorker, getAcl([organizationId, roleId]));
-    });
-    const roleAclResponses :Object = yield all(calls);
-
-    const acls :Map = Map().withMutations((map :Map) => {
-
-      // org acl
-      map.set(List(organizationAclKey), fromJS(orgAcl));
-
-      // role acls
-      Object.keys(roleAclResponses).forEach((roleId :UUID) => {
-        const roleAclKey :UUID[] = [organizationId, roleId];
-        const roleAclResponse :Object = roleAclResponses[roleId];
-        if (roleAclResponse.error) {
-          let error = true;
-          const axiosError :$AxiosError<any> = roleAclResponse.error;
-          if (axiosError.isAxiosError && axiosError.response) {
-            error = {
-              status: axiosError.response.status,
-              statusText: axiosError.response.statusText,
-            };
-          }
-          map.set(List(roleAclKey), fromJS({ error }));
-        }
-        else {
-          const roleAcl :AclObject = roleAclResponse.data;
-          map.set(List(roleAclKey), fromJS(roleAcl));
-        }
-      });
-    });
-
-    yield put(getOrganizationPermissions.success(action.id, acls));
-  }
-  catch (error) {
-    LOG.error(action.type, error);
-    yield put(getOrganizationPermissions.failure(action.id));
-  }
-  finally {
-    yield put(getOrganizationPermissions.finally(action.id));
-  }
-}
-
-function* getOrganizationPermissionsWatcher() :Generator<*, *, *> {
-
-  yield takeEvery(GET_ORGANIZATION_PERMISSIONS, getOrganizationPermissionsWorker);
 }
 
 /*
@@ -320,10 +320,10 @@ function* searchMembersToAddToOrgWatcher() :Generator<*, *, *> {
 }
 
 export {
+  getOrganizationACLsWatcher,
+  getOrganizationACLsWorker,
   getOrganizationDetailsWatcher,
   getOrganizationDetailsWorker,
-  getOrganizationPermissionsWatcher,
-  getOrganizationPermissionsWorker,
   getOrgsAndPermissionsWatcher,
   getOrgsAndPermissionsWorker,
   searchMembersToAddToOrgWatcher,
