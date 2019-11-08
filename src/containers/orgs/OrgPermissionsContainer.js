@@ -193,7 +193,6 @@ class OrgPermissionsContainer extends Component<Props, State> {
     else if (props.requestStates[UPDATE_USER_PERMISSION] === RequestStates.PENDING
         && requestStates[UPDATE_USER_PERMISSION] === RequestStates.SUCCESS) {
       actions.getOrganizationACLs(orgId);
-      this.closeModal();
     }
   }
 
