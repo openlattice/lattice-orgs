@@ -33,7 +33,12 @@ const {
   Principal,
   PrincipalBuilder,
 } = Models;
-const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
+
+const {
+  ActionTypes,
+  PermissionTypes,
+  PrincipalTypes,
+} = Types;
 
 const { updateAcls } = PermissionsApiActions;
 const { updateAclsWorker } = PermissionsApiSagas;

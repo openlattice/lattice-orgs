@@ -418,24 +418,22 @@ class OrgRolesContainer extends Component<Props, State> {
     const { isOwner, org } = this.props;
 
     return (
-      <>
-        <Card>
-          <CardSegment noBleed>
-            <OrgRolesSection isOwner={isOwner} org={org} />
-          </CardSegment>
-          <CardSegment vertical>
-            <SectionGrid>
-              <h2>Role Assignments</h2>
-              <RoleAssignmentsGrid>
-                {this.renderRolesSection()}
-                {this.renderMembersSection()}
-              </RoleAssignmentsGrid>
-            </SectionGrid>
-          </CardSegment>
-        </Card>
+      <Card>
+        <CardSegment noBleed>
+          <OrgRolesSection isOwner={isOwner} org={org} />
+        </CardSegment>
+        <CardSegment vertical>
+          <SectionGrid>
+            <h2>Role Assignments</h2>
+            <RoleAssignmentsGrid>
+              {this.renderRolesSection()}
+              {this.renderMembersSection()}
+            </RoleAssignmentsGrid>
+          </SectionGrid>
+        </CardSegment>
         {this.renderAddRoleModal()}
         {this.renderRemoveRoleModal()}
-      </>
+      </Card>
     );
   }
 }
