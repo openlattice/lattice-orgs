@@ -48,6 +48,7 @@ const {
   addRoleToMember,
   createRole,
   deleteRole,
+  removeRoleFromMember,
 } = OrganizationsApiActions;
 
 describe('OrgsReducer', () => {
@@ -352,6 +353,95 @@ describe('OrgsReducer', () => {
       state = reducer(state, deleteRole.finally(id));
       expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
       expect(state.hasIn([DELETE_ROLE, id])).toEqual(false);
+    });
+
+  });
+
+  describe(REMOVE_ROLE_FROM_MEMBER, () => {
+
+    const mockMemberPrincipal :Principal = (new PrincipalBuilder())
+      .setId('MockOrgMemberPrincipalId')
+      .setType(PrincipalTypes.USER)
+      .build();
+
+    // the structure of this object isn't 100% accurate, but it's enough to make things work
+    const mockOrgMember = fromJS({
+      principal: mockMemberPrincipal.toImmutable(),
+      roles: [MOCK_ORG_ROLE.toImmutable()],
+    });
+
+    const initialState = INITIAL_STATE
+      .setIn(['orgs', MOCK_ORG.id], MOCK_ORG.toImmutable())
+      .setIn(['orgMembers', MOCK_ORG.id], List().push(mockOrgMember));
+
+    const requestActionValue = {
+      memberId: mockMemberPrincipal.id,
+      organizationId: MOCK_ORG.id,
+      roleId: MOCK_ORG_ROLE.id,
+    };
+
+    test(removeRoleFromMember.REQUEST, () => {
+
+      const { id } = removeRoleFromMember();
+      const requestAction = removeRoleFromMember.request(id, requestActionValue);
+      const state = reducer(initialState, requestAction);
+
+      expect(state.getIn([REMOVE_ROLE_FROM_MEMBER, 'requestState'])).toEqual(RequestStates.PENDING);
+      expect(state.getIn([REMOVE_ROLE_FROM_MEMBER, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+      expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
+      expect(state.get('orgMembers').equals(initialState.get('orgMembers'))).toEqual(true);
+    });
+
+    test(removeRoleFromMember.SUCCESS, () => {
+
+      const { id } = removeRoleFromMember();
+      const requestAction = removeRoleFromMember.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, removeRoleFromMember.success(id));
+
+      expect(state.getIn([REMOVE_ROLE_FROM_MEMBER, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([REMOVE_ROLE_FROM_MEMBER, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+
+      const expectedOrgMembers = Map().set(
+        MOCK_ORG.id,
+        List().push(mockOrgMember.set('roles', List())),
+      );
+      expect(state.get('orgMembers').hashCode()).toEqual(expectedOrgMembers.hashCode());
+      expect(state.get('orgMembers').equals(expectedOrgMembers)).toEqual(true);
+    });
+
+    test(removeRoleFromMember.FAILURE, () => {
+
+      const { id } = removeRoleFromMember();
+      const requestAction = removeRoleFromMember.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, removeRoleFromMember.failure(id));
+
+      expect(state.getIn([REMOVE_ROLE_FROM_MEMBER, 'requestState'])).toEqual(RequestStates.FAILURE);
+      expect(state.getIn([REMOVE_ROLE_FROM_MEMBER, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+      expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
+      expect(state.get('orgMembers').equals(initialState.get('orgMembers'))).toEqual(true);
+    });
+
+    test(removeRoleFromMember.FINALLY, () => {
+
+      const { id } = removeRoleFromMember();
+      const requestAction = removeRoleFromMember.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+
+      state = reducer(state, removeRoleFromMember.success(id));
+      expect(state.getIn([REMOVE_ROLE_FROM_MEMBER, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([REMOVE_ROLE_FROM_MEMBER, id])).toEqual(requestAction);
+
+      state = reducer(state, removeRoleFromMember.finally(id));
+      expect(state.getIn([REMOVE_ROLE_FROM_MEMBER, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.hasIn([REMOVE_ROLE_FROM_MEMBER, id])).toEqual(false);
     });
 
   });
