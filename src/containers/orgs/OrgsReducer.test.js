@@ -165,6 +165,7 @@ describe('OrgsReducer', () => {
       const { id } = createRole();
       const requestAction = createRole.request(id, MOCK_ROLE);
       let state = reducer(initialState, requestAction);
+
       state = reducer(state, createRole.success(id, MOCK_ROLE.id));
       expect(state.getIn([CREATE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
       expect(state.getIn([CREATE_ROLE, id])).toEqual(requestAction);
