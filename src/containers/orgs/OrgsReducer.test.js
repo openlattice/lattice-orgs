@@ -33,6 +33,7 @@ const {
   UPDATE_ORG_DESCRIPTION,
   UPDATE_ORG_TITLE,
   createRole,
+  deleteRole,
 } = OrganizationsApiActions;
 
 describe('OrgsReducer', () => {
@@ -173,6 +174,70 @@ describe('OrgsReducer', () => {
       state = reducer(state, createRole.finally(id));
       expect(state.getIn([CREATE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
       expect(state.hasIn([CREATE_ROLE, id])).toEqual(false);
+    });
+
+  });
+
+  describe(DELETE_ROLE, () => {
+
+    const initialState = INITIAL_STATE.setIn(
+      ['orgs', MOCK_ORGANIZATION.id],
+      MOCK_ORGANIZATION.toImmutable().setIn(['roles', 1], MOCK_ROLE.toImmutable()),
+    );
+
+    test(deleteRole.REQUEST, () => {
+
+      const { id } = deleteRole();
+      const requestAction = deleteRole.request(id, MOCK_ROLE);
+      const state = reducer(initialState, requestAction);
+
+      expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.PENDING);
+      expect(state.getIn([DELETE_ROLE, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+    });
+
+    test(deleteRole.SUCCESS, () => {
+
+      const { id } = deleteRole();
+      const requestAction = deleteRole.request(id, { organizationId: MOCK_ORGANIZATION.id, roleId: MOCK_ROLE.id });
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, deleteRole.success(id));
+
+      expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([DELETE_ROLE, id])).toEqual(requestAction);
+
+      const expectedOrgs = Map().set(MOCK_ORGANIZATION.id, MOCK_ORGANIZATION.toImmutable());
+      expect(state.get('orgs').hashCode()).toEqual(expectedOrgs.hashCode());
+      expect(state.get('orgs').equals(expectedOrgs)).toEqual(true);
+    });
+
+    test(deleteRole.FAILURE, () => {
+
+      const { id } = deleteRole();
+      const requestAction = deleteRole.request(id, MOCK_ROLE);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, deleteRole.failure(id));
+
+      expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.FAILURE);
+      expect(state.getIn([DELETE_ROLE, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+    });
+
+    test(deleteRole.FINALLY, () => {
+
+      const { id } = deleteRole();
+      const requestAction = deleteRole.request(id, MOCK_ROLE);
+      let state = reducer(initialState, requestAction);
+
+      state = reducer(state, deleteRole.success(id, MOCK_ROLE.id));
+      expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([DELETE_ROLE, id])).toEqual(requestAction);
+
+      state = reducer(state, deleteRole.finally(id));
+      expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.hasIn([DELETE_ROLE, id])).toEqual(false);
     });
 
   });

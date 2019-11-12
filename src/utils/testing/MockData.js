@@ -29,7 +29,7 @@ const MOCK_PRINCIPAL :Principal = new PrincipalBuilder()
 
 const MOCK_ROLE :Role = new RoleBuilder()
   .setDescription('MockRoleDescription')
-  .setId('ec6865e6-e60e-424b-a071-6a9c1603d735')
+  .setId('9e9e7dde-75fe-4a9a-aefe-0f9f1356a2de')
   .setOrganizationId(MOCK_ORG_ID)
   .setPrincipal(MOCK_PRINCIPAL)
   .setTitle('MockRoleTitle')
@@ -56,7 +56,7 @@ const MOCK_ORGANIZATION :Organization = (new OrganizationBuilder())
   .setRoles([
     (new RoleBuilder())
       .setDescription('MockOrgRoleDescription')
-      .setId(genRandomUUID())
+      .setId('235558db-5414-4ec7-9651-2a6867e2784e')
       .setOrganizationId(MOCK_ORG_ID)
       .setPrincipal(
         (new PrincipalBuilder())
