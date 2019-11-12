@@ -8,7 +8,8 @@ import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 
 import reducer from './OrgsReducer';
-import { MOCK_ORGANIZATION, MOCK_ROLE } from '../../utils/testing/MockData';
+import { MOCK_ORG, MOCK_ORG_ROLE } from '../../utils/testing/MockData';
+import { genRandomUUID } from '../../utils/testing/MockUtils';
 import {
   GET_ORGANIZATION_ACLS,
   GET_ORGANIZATION_DETAILS,
@@ -23,6 +24,8 @@ const {
 const {
   Principal,
   PrincipalBuilder,
+  Role,
+  RoleBuilder,
 } = Models;
 
 const {
@@ -138,16 +141,13 @@ describe('OrgsReducer', () => {
     });
 
     const initialState = INITIAL_STATE
-      .setIn(
-        ['orgs', MOCK_ORGANIZATION.id],
-        MOCK_ORGANIZATION.toImmutable().setIn(['roles', 1], MOCK_ROLE.toImmutable()),
-      )
-      .setIn(['orgMembers', MOCK_ORGANIZATION.id], List().push(mockOrgMember));
+      .setIn(['orgs', MOCK_ORG.id], MOCK_ORG.toImmutable())
+      .setIn(['orgMembers', MOCK_ORG.id], List().push(mockOrgMember));
 
     const requestActionValue = {
       memberId: mockMemberPrincipal.id,
-      organizationId: MOCK_ORGANIZATION.id,
-      roleId: MOCK_ROLE.id,
+      organizationId: MOCK_ORG.id,
+      roleId: MOCK_ORG_ROLE.id,
     };
 
     test(addRoleToMember.REQUEST, () => {
@@ -177,8 +177,8 @@ describe('OrgsReducer', () => {
       expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
 
       const expectedOrgMembers = Map().set(
-        MOCK_ORGANIZATION.id,
-        List().push(mockOrgMember.set('roles', List().push(MOCK_ROLE.toImmutable()))),
+        MOCK_ORG.id,
+        List().push(mockOrgMember.set('roles', List().push(MOCK_ORG_ROLE.toImmutable()))),
       );
       expect(state.get('orgMembers').hashCode()).toEqual(expectedOrgMembers.hashCode());
       expect(state.get('orgMembers').equals(expectedOrgMembers)).toEqual(true);
@@ -218,13 +218,26 @@ describe('OrgsReducer', () => {
 
   describe(CREATE_ROLE, () => {
 
-    const initialState = INITIAL_STATE
-      .setIn(['orgs', MOCK_ORGANIZATION.id], MOCK_ORGANIZATION.toImmutable());
+    const mockRole :Role = (new RoleBuilder())
+      .setDescription('MockRoleDescription')
+      .setId(genRandomUUID())
+      // $FlowFixMe
+      .setOrganizationId(MOCK_ORG.id)
+      .setPrincipal(
+        (new PrincipalBuilder())
+          .setId('MockRolePrincipalId')
+          .setType(PrincipalTypes.USER)
+          .build()
+      )
+      .setTitle('MockRoleTitle')
+      .build();
+
+    const initialState = INITIAL_STATE.setIn(['orgs', MOCK_ORG.id], MOCK_ORG.toImmutable());
 
     test(createRole.REQUEST, () => {
 
       const { id } = createRole();
-      const requestAction = createRole.request(id, MOCK_ROLE);
+      const requestAction = createRole.request(id, mockRole);
       const state = reducer(initialState, requestAction);
 
       expect(state.getIn([CREATE_ROLE, 'requestState'])).toEqual(RequestStates.PENDING);
@@ -236,16 +249,16 @@ describe('OrgsReducer', () => {
     test(createRole.SUCCESS, () => {
 
       const { id } = createRole();
-      const requestAction = createRole.request(id, MOCK_ROLE);
+      const requestAction = createRole.request(id, mockRole);
       let state = reducer(initialState, requestAction);
-      state = reducer(state, createRole.success(id, MOCK_ROLE.id));
+      state = reducer(state, createRole.success(id, mockRole.id));
 
       expect(state.getIn([CREATE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
       expect(state.getIn([CREATE_ROLE, id])).toEqual(requestAction);
 
       const expectedOrgs = Map().set(
-        MOCK_ORGANIZATION.id,
-        MOCK_ORGANIZATION.toImmutable().setIn(['roles', 1], MOCK_ROLE.toImmutable()),
+        MOCK_ORG.id,
+        MOCK_ORG.toImmutable().setIn(['roles', 1], mockRole.toImmutable()),
       );
       expect(state.get('orgs').hashCode()).toEqual(expectedOrgs.hashCode());
       expect(state.get('orgs').equals(expectedOrgs)).toEqual(true);
@@ -254,7 +267,7 @@ describe('OrgsReducer', () => {
     test(createRole.FAILURE, () => {
 
       const { id } = createRole();
-      const requestAction = createRole.request(id, MOCK_ROLE);
+      const requestAction = createRole.request(id, mockRole);
       let state = reducer(initialState, requestAction);
       state = reducer(state, createRole.failure(id));
 
@@ -267,10 +280,10 @@ describe('OrgsReducer', () => {
     test(createRole.FINALLY, () => {
 
       const { id } = createRole();
-      const requestAction = createRole.request(id, MOCK_ROLE);
+      const requestAction = createRole.request(id, mockRole);
       let state = reducer(initialState, requestAction);
 
-      state = reducer(state, createRole.success(id, MOCK_ROLE.id));
+      state = reducer(state, createRole.success(id, mockRole.id));
       expect(state.getIn([CREATE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
       expect(state.getIn([CREATE_ROLE, id])).toEqual(requestAction);
 
@@ -283,15 +296,13 @@ describe('OrgsReducer', () => {
 
   describe(DELETE_ROLE, () => {
 
-    const initialState = INITIAL_STATE.setIn(
-      ['orgs', MOCK_ORGANIZATION.id],
-      MOCK_ORGANIZATION.toImmutable().setIn(['roles', 1], MOCK_ROLE.toImmutable()),
-    );
+    const initialState = INITIAL_STATE.setIn(['orgs', MOCK_ORG.id], MOCK_ORG.toImmutable());
+    const requestActionValue = { organizationId: MOCK_ORG.id, roleId: MOCK_ORG_ROLE.id };
 
     test(deleteRole.REQUEST, () => {
 
       const { id } = deleteRole();
-      const requestAction = deleteRole.request(id, MOCK_ROLE);
+      const requestAction = deleteRole.request(id, requestActionValue);
       const state = reducer(initialState, requestAction);
 
       expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.PENDING);
@@ -303,14 +314,14 @@ describe('OrgsReducer', () => {
     test(deleteRole.SUCCESS, () => {
 
       const { id } = deleteRole();
-      const requestAction = deleteRole.request(id, { organizationId: MOCK_ORGANIZATION.id, roleId: MOCK_ROLE.id });
+      const requestAction = deleteRole.request(id, requestActionValue);
       let state = reducer(initialState, requestAction);
       state = reducer(state, deleteRole.success(id));
 
       expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
       expect(state.getIn([DELETE_ROLE, id])).toEqual(requestAction);
 
-      const expectedOrgs = Map().set(MOCK_ORGANIZATION.id, MOCK_ORGANIZATION.toImmutable());
+      const expectedOrgs = Map().set(MOCK_ORG.id, MOCK_ORG.toImmutable().set('roles', List()));
       expect(state.get('orgs').hashCode()).toEqual(expectedOrgs.hashCode());
       expect(state.get('orgs').equals(expectedOrgs)).toEqual(true);
     });
@@ -318,7 +329,7 @@ describe('OrgsReducer', () => {
     test(deleteRole.FAILURE, () => {
 
       const { id } = deleteRole();
-      const requestAction = deleteRole.request(id, MOCK_ROLE);
+      const requestAction = deleteRole.request(id, requestActionValue);
       let state = reducer(initialState, requestAction);
       state = reducer(state, deleteRole.failure(id));
 
@@ -331,10 +342,10 @@ describe('OrgsReducer', () => {
     test(deleteRole.FINALLY, () => {
 
       const { id } = deleteRole();
-      const requestAction = deleteRole.request(id, MOCK_ROLE);
+      const requestAction = deleteRole.request(id, requestActionValue);
       let state = reducer(initialState, requestAction);
 
-      state = reducer(state, deleteRole.success(id, MOCK_ROLE.id));
+      state = reducer(state, deleteRole.success(id));
       expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
       expect(state.getIn([DELETE_ROLE, id])).toEqual(requestAction);
 
