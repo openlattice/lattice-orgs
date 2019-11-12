@@ -210,10 +210,10 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
           if (storedSeqAction) {
             const { memberId, organizationId, roleId } = storedSeqAction.value;
             const targetRole :Map = state
-              .getIn(['orgs', organizationId, 'roles'])
+              .getIn(['orgs', organizationId, 'roles'], List())
               .find((role :Map) => role.get('id') === roleId);
             const targetMemberIndex :number = state
-              .getIn(['orgMembers', organizationId])
+              .getIn(['orgMembers', organizationId], List())
               .findIndex((member :Map) => getUserId(member) === memberId);
             if (targetRole && targetMemberIndex !== -1) {
               const targetMember :Map = state.getIn(['orgMembers', organizationId, targetMemberIndex], Map());

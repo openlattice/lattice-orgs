@@ -2,7 +2,8 @@
  * @flow
  */
 
-import { Map } from 'immutable';
+import { List, Map, fromJS } from 'immutable';
+import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 
@@ -14,6 +15,15 @@ import {
   GET_ORGS_AND_PERMISSIONS,
   SEARCH_MEMBERS_TO_ADD_TO_ORG,
 } from './OrgsActions';
+
+const {
+  PrincipalTypes,
+} = Types;
+
+const {
+  Principal,
+  PrincipalBuilder,
+} = Models;
 
 const {
   ADD_DOMAIN_TO_ORG,
@@ -32,6 +42,7 @@ const {
   REVOKE_TRUST_FROM_ORG,
   UPDATE_ORG_DESCRIPTION,
   UPDATE_ORG_TITLE,
+  addRoleToMember,
   createRole,
   deleteRole,
 } = OrganizationsApiActions;
@@ -111,6 +122,98 @@ describe('OrgsReducer', () => {
       orgMembers: {},
       orgs: {},
     });
+  });
+
+  describe(ADD_ROLE_TO_MEMBER, () => {
+
+    const mockMemberPrincipal :Principal = (new PrincipalBuilder())
+      .setId('MockOrgMemberPrincipalId')
+      .setType(PrincipalTypes.USER)
+      .build();
+
+    // the structure of this object isn't 100% accurate, but it's enough to make things work
+    const mockOrgMember = fromJS({
+      principal: mockMemberPrincipal.toImmutable(),
+      roles: [],
+    });
+
+    const initialState = INITIAL_STATE
+      .setIn(
+        ['orgs', MOCK_ORGANIZATION.id],
+        MOCK_ORGANIZATION.toImmutable().setIn(['roles', 1], MOCK_ROLE.toImmutable()),
+      )
+      .setIn(['orgMembers', MOCK_ORGANIZATION.id], List().push(mockOrgMember));
+
+    const requestActionValue = {
+      memberId: mockMemberPrincipal.id,
+      organizationId: MOCK_ORGANIZATION.id,
+      roleId: MOCK_ROLE.id,
+    };
+
+    test(addRoleToMember.REQUEST, () => {
+
+      const { id } = addRoleToMember();
+      const requestAction = addRoleToMember.request(id, requestActionValue);
+      const state = reducer(initialState, requestAction);
+
+      expect(state.getIn([ADD_ROLE_TO_MEMBER, 'requestState'])).toEqual(RequestStates.PENDING);
+      expect(state.getIn([ADD_ROLE_TO_MEMBER, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+      expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
+      expect(state.get('orgMembers').equals(initialState.get('orgMembers'))).toEqual(true);
+    });
+
+    test(addRoleToMember.SUCCESS, () => {
+
+      const { id } = addRoleToMember();
+      const requestAction = addRoleToMember.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, addRoleToMember.success(id));
+
+      expect(state.getIn([ADD_ROLE_TO_MEMBER, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([ADD_ROLE_TO_MEMBER, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+
+      const expectedOrgMembers = Map().set(
+        MOCK_ORGANIZATION.id,
+        List().push(mockOrgMember.set('roles', List().push(MOCK_ROLE.toImmutable()))),
+      );
+      expect(state.get('orgMembers').hashCode()).toEqual(expectedOrgMembers.hashCode());
+      expect(state.get('orgMembers').equals(expectedOrgMembers)).toEqual(true);
+    });
+
+    test(addRoleToMember.FAILURE, () => {
+
+      const { id } = addRoleToMember();
+      const requestAction = addRoleToMember.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, addRoleToMember.failure(id));
+
+      expect(state.getIn([ADD_ROLE_TO_MEMBER, 'requestState'])).toEqual(RequestStates.FAILURE);
+      expect(state.getIn([ADD_ROLE_TO_MEMBER, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+      expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
+      expect(state.get('orgMembers').equals(initialState.get('orgMembers'))).toEqual(true);
+    });
+
+    test(addRoleToMember.FINALLY, () => {
+
+      const { id } = addRoleToMember();
+      const requestAction = addRoleToMember.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+
+      state = reducer(state, addRoleToMember.success(id));
+      expect(state.getIn([ADD_ROLE_TO_MEMBER, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([ADD_ROLE_TO_MEMBER, id])).toEqual(requestAction);
+
+      state = reducer(state, addRoleToMember.finally(id));
+      expect(state.getIn([ADD_ROLE_TO_MEMBER, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.hasIn([ADD_ROLE_TO_MEMBER, id])).toEqual(false);
+    });
+
   });
 
   describe(CREATE_ROLE, () => {
