@@ -77,6 +77,9 @@ const INITIAL_STATE :Map = fromJS({
   [ADD_DOMAIN_TO_ORG]: {
     requestState: RequestStates.STANDBY,
   },
+  [ADD_MEMBER_TO_ORG]: {
+    requestState: RequestStates.STANDBY,
+  },
   [ADD_ROLE_TO_MEMBER]: {
     requestState: RequestStates.STANDBY,
   },
