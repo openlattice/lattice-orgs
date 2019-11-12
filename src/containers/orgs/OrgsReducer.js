@@ -95,10 +95,10 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORGS_AND_PERMISSIONS]: {
     requestState: RequestStates.STANDBY,
   },
-  [GET_ORGANIZATION_DETAILS]: {
+  [GET_ORGANIZATION_ACLS]: {
     requestState: RequestStates.STANDBY,
   },
-  [GET_ORGANIZATION_ACLS]: {
+  [GET_ORGANIZATION_DETAILS]: {
     requestState: RequestStates.STANDBY,
   },
   [GET_ORG_ENTITY_SETS]: {

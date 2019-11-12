@@ -17,7 +17,13 @@ function getUserId(user :any) :string {
   //   com.openlattice.authorization.Principal
   let userPrincipal = get(user, 'principal', user);
   userPrincipal = get(userPrincipal, 'principal', userPrincipal);
-  const userId = get(userPrincipal, 'id', '');
+  let userId = get(userPrincipal, 'id', '');
+
+  if (!isNonEmptyString(userId)) {
+    // com.openlattice.directory.pojo.Auth0UserBasic
+    userId = get(user, 'user_id', '');
+  }
+
   return userId || '';
 }
 

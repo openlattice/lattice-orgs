@@ -109,8 +109,6 @@ const SectionItem = styled.div`
   }
 `;
 
-const LOG :Logger = new Logger('OrgRolesContainer');
-
 type Props = {
   actions :{
     addRoleToMember :RequestSequence;
@@ -137,6 +135,8 @@ type State = {
   selectedRoleId :?UUID;
   selectedUserId :?string;
 };
+
+const LOG :Logger = new Logger('OrgRolesContainer');
 
 class OrgRolesContainer extends Component<Props, State> {
 
@@ -171,13 +171,13 @@ class OrgRolesContainer extends Component<Props, State> {
 
     const { selectedRoleId, selectedUserId } = this.state;
 
-    const { target } = event;
-    if (target instanceof HTMLElement) {
+    const { currentTarget } = event;
+    if (currentTarget instanceof HTMLElement) {
 
       let memberId :?string;
       let roleId :?UUID;
 
-      const { dataset } = target;
+      const { dataset } = currentTarget;
       if (isDefined(dataset.roleId) && isDefined(selectedUserId)) {
         roleId = dataset.roleId;
         memberId = selectedUserId;
@@ -197,6 +197,9 @@ class OrgRolesContainer extends Component<Props, State> {
         actionMemberId: memberId,
         actionRoleId: roleId,
       });
+    }
+    else {
+      LOG.warn('target is not an HTMLElement', currentTarget);
     }
   }
 
@@ -415,24 +418,22 @@ class OrgRolesContainer extends Component<Props, State> {
     const { isOwner, org } = this.props;
 
     return (
-      <>
-        <Card>
-          <CardSegment noBleed>
-            <OrgRolesSection isOwner={isOwner} org={org} />
-          </CardSegment>
-          <CardSegment vertical>
-            <SectionGrid>
-              <h2>Role Assignments</h2>
-              <RoleAssignmentsGrid>
-                {this.renderRolesSection()}
-                {this.renderMembersSection()}
-              </RoleAssignmentsGrid>
-            </SectionGrid>
-          </CardSegment>
-        </Card>
+      <Card>
+        <CardSegment noBleed>
+          <OrgRolesSection isOwner={isOwner} org={org} />
+        </CardSegment>
+        <CardSegment vertical>
+          <SectionGrid>
+            <h2>Role Assignments</h2>
+            <RoleAssignmentsGrid>
+              {this.renderRolesSection()}
+              {this.renderMembersSection()}
+            </RoleAssignmentsGrid>
+          </SectionGrid>
+        </CardSegment>
         {this.renderAddRoleModal()}
         {this.renderRemoveRoleModal()}
-      </>
+      </Card>
     );
   }
 }
