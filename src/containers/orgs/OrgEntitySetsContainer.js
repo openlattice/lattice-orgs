@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { faListAlt } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
-import { OrganizationsApiActions } from 'lattice-sagas';
+import { EntitySetsApiActions, OrganizationsApiActions } from 'lattice-sagas';
 import {
   Card,
   CardSegment,
@@ -29,9 +29,8 @@ import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS, PURPLES } = Colors;
 
-const {
-  GET_ORG_ENTITY_SETS,
-} = OrganizationsApiActions;
+const { GET_ALL_ENTITY_SETS } = EntitySetsApiActions;
+const { GET_ORG_ENTITY_SETS } = OrganizationsApiActions;
 
 const SUB_TITLE = `
 These entity sets belong to this organization, and can be materialized by anyone with materialize permissions.
@@ -135,6 +134,7 @@ type Props = {
   match :Match;
   orgEntitySets :Map;
   requestStates :{
+    GET_ALL_ENTITY_SETS :RequestState;
     GET_ORG_ENTITY_SETS :RequestState;
   };
 };
@@ -256,6 +256,11 @@ class OrgEntitySetsContainer extends Component<Props, State> {
               options={ES_SELECT_OPTIONS}
               onChange={this.handleOnChangeSelect} />
         </EntitySetSelectionWrapper>
+        {
+          filteredEntitySets.isEmpty() && (
+            <p>No EntitySets matching the selected filters.</p>
+          )
+        }
         <CardGrid>
           {
             filteredEntitySets.map((entitySet :Map) => (
@@ -281,16 +286,14 @@ class OrgEntitySetsContainer extends Component<Props, State> {
 
     const { requestStates } = this.props;
 
-    if (requestStates[GET_ORG_ENTITY_SETS] === RequestStates.FAILURE) {
-      return (
-        <Error>
-          Sorry, something went wrong. Please try refreshing the page, or contact support.
-        </Error>
-      );
-    }
+    const isPending = requestStates[GET_ALL_ENTITY_SETS] === RequestStates.PENDING
+      || requestStates[GET_ORG_ENTITY_SETS] === RequestStates.PENDING;
 
-    const isPending = requestStates[GET_ORG_ENTITY_SETS] === RequestStates.PENDING;
-    const isSuccess = requestStates[GET_ORG_ENTITY_SETS] === RequestStates.SUCCESS;
+    const isSuccess = requestStates[GET_ALL_ENTITY_SETS] === RequestStates.SUCCESS
+      && requestStates[GET_ORG_ENTITY_SETS] === RequestStates.SUCCESS;
+
+    const isFailure = requestStates[GET_ALL_ENTITY_SETS] === RequestStates.FAILURE
+      || requestStates[GET_ORG_ENTITY_SETS] === RequestStates.FAILURE;
 
     return (
       <Card>
@@ -307,6 +310,15 @@ class OrgEntitySetsContainer extends Component<Props, State> {
         }
         {
           isSuccess && this.renderEntitySetsSegment()
+        }
+        {
+          isFailure && (
+            <CardSegment>
+              <Error>
+                Sorry, something went wrong. Please try refreshing the page, or contact support.
+              </Error>
+            </CardSegment>
+          )
         }
       </Card>
     );
@@ -328,6 +340,7 @@ const mapStateToProps = (state :Map, props :Object) => {
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
     orgEntitySets: state.getIn(['orgs', 'orgEntitySets', orgId], Map()),
     requestStates: {
+      [GET_ALL_ENTITY_SETS]: state.getIn(['edm', GET_ALL_ENTITY_SETS, 'requestState']),
       [GET_ORG_ENTITY_SETS]: state.getIn(['orgs', GET_ORG_ENTITY_SETS, 'requestState']),
     },
   };

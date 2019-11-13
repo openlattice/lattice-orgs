@@ -39,12 +39,18 @@ function* initializeApplicationWorker(action :SequenceAction) :Generator<*, *, *
     yield put(initializeApplication.request(action.id));
     const responses :Object[] = yield all([
       call(getEntityDataModelTypesWorker, getEntityDataModelTypes()),
-      call(getAllEntitySetsWorker, getAllEntitySets()),
       call(getOrgsAndPermissionsWorker, getOrgsAndPermissions()),
+      call(getAllEntitySetsWorker, getAllEntitySets()),
     ]);
     if (responses[0].error) throw responses[0].error;
     if (responses[1].error) throw responses[1].error;
-    if (responses[2].error) throw responses[2].error;
+
+    // do not block the app from loading if getAllEntitySets() fails. handling this error can be done in the container
+    // responsible for rendering an organization's EntitySets
+    if (responses[2].error) {
+      LOG.error(action.type, responses[2].error);
+    }
+
     yield put(initializeApplication.success(action.id));
   }
   catch (error) {
