@@ -4,18 +4,111 @@
 
 import React, { Component } from 'react';
 
-import { Map } from 'immutable';
-import { CopyButton, Input } from 'lattice-ui-kit';
+import { Map, fromJS } from 'immutable';
+import { Form } from 'lattice-fabricate';
+import {
+  Button,
+  CopyButton,
+  Input,
+  Modal,
+} from 'lattice-ui-kit';
 
+import DBMSTypes from '../../../utils/integration-config/DBMSTypes';
 import { ActionControlWithButton } from './styled';
 import { SectionGrid } from '../../../components';
+import { isNonEmptyString } from '../../../utils/LangUtils';
+import { generateIntegrationConfigFile } from '../../../utils/integration-config/IntegrationConfigUtils';
+
+const dataSchema = {
+  properties: {
+    fields: {
+      properties: {
+        targetServer: {
+          title: 'Target Server',
+          type: 'string',
+        },
+        targetDatabase: {
+          title: 'Target Database',
+          type: 'string',
+        },
+        targetDBMS: {
+          enum: Object.keys(DBMSTypes),
+          title: 'Target DBMS',
+          type: 'string',
+        },
+        targetPort: {
+          title: 'Target Port',
+          type: 'number',
+        },
+      },
+      title: '',
+      type: 'object',
+    },
+  },
+  title: '',
+  type: 'object',
+};
+
+const uiSchema = {
+  fields: {
+    classNames: 'column-span-12',
+  }
+};
+
+const INITIAL_FORM_DATA = fromJS({
+  fields: {
+    targetDBMS: '',
+    targetDatabase: '',
+    targetPort: 5432,
+    targetServer: '',
+  }
+});
+
+type FormData = {
+  fields :{
+    targetDBMS :?string;
+    targetDatabase :?string;
+    targetPort :?number;
+    targetServer :?string;
+  };
+};
 
 type Props = {
   isOwner :boolean;
   org :Map;
 };
 
-class OrgIntegrationSection extends Component<Props> {
+type State = {
+  formData :Map;
+  isVisibleGenerateConfigModal :boolean;
+};
+
+class OrgIntegrationSection extends Component<Props, State> {
+
+  constructor(props :Props) {
+
+    super(props);
+
+    this.state = {
+      formData: INITIAL_FORM_DATA,
+      isVisibleGenerateConfigModal: false,
+    };
+  }
+
+  handleOnChangeForm = ({ formData } :{ formData :FormData }) => {
+
+    const { formData: stateFormData } = this.state;
+
+    let newFormData = fromJS(formData);
+    if (isNonEmptyString(formData.fields.targetDBMS)) {
+      if (stateFormData.getIn(['fields', 'targetDBMS']) !== newFormData.getIn(['fields', 'targetDBMS'])) {
+        const dbms :Object = DBMSTypes[formData.fields.targetDBMS];
+        newFormData = newFormData.setIn(['fields', 'targetPort'], dbms.port);
+      }
+    }
+
+    this.setState({ formData: newFormData });
+  }
 
   handleOnClickCopyCredential = () => {
 
@@ -27,6 +120,61 @@ class OrgIntegrationSection extends Component<Props> {
         navigator.clipboard.writeText(org.getIn(['integration', 'credential'], ''));
       }
     }
+  }
+
+  handleOnClickGenerate = () => {
+
+    const { org } = this.props;
+    const { formData } = this.state;
+
+    generateIntegrationConfigFile({
+      orgId: org.get('id'),
+      orgName: org.get('title'),
+      orgPassword: org.getIn(['integration', 'credential']),
+      orgUsername: org.getIn(['integration', 'user']),
+      targetDatabase: formData.getIn(['fields', 'targetDatabase']),
+      targetPort: formData.getIn(['fields', 'targetPort']),
+      targetServer: formData.getIn(['fields', 'targetServer']),
+      targetDBMS: formData.getIn(['fields', 'targetDBMS']),
+    });
+  }
+
+  closeModal = () => {
+
+    this.setState({
+      formData: INITIAL_FORM_DATA,
+      isVisibleGenerateConfigModal: false,
+    });
+  }
+
+  openModal = () => {
+
+    this.setState({
+      isVisibleGenerateConfigModal: true,
+    });
+  }
+
+  renderGenerateConfigModal = () => {
+
+    const { formData, isVisibleGenerateConfigModal } = this.state;
+
+    return (
+      <Modal
+          isVisible={isVisibleGenerateConfigModal}
+          onClickPrimary={this.handleOnClickGenerate}
+          onClose={this.closeModal}
+          textPrimary="Generate"
+          textTitle="Generate Integration Configuration File"
+          viewportScrolling>
+        <Form
+            formData={formData.toJS()}
+            hideSubmit
+            noPadding
+            onChange={this.handleOnChangeForm}
+            schema={dataSchema}
+            uiSchema={uiSchema} />
+      </Modal>
+    );
   }
 
   render() {
@@ -52,6 +200,12 @@ class OrgIntegrationSection extends Component<Props> {
             </ActionControlWithButton>
           </div>
         </SectionGrid>
+        <SectionGrid columns={2}>
+          <div>
+            <Button mode="primary" onClick={this.openModal}>Generate Integration Configuration File</Button>
+          </div>
+        </SectionGrid>
+        {this.renderGenerateConfigModal()}
       </>
     );
   }

@@ -49,11 +49,6 @@ const OrgDescriptionHeader = styled.h3`
   padding: 0;
 `;
 
-const FormMinusMargin = styled(Form)`
-  flex: 1;
-  margin: -30px;
-`;
-
 const NoDescription = styled.i`
   color: ${NEUTRALS[1]};
   font-size: 16px;
@@ -149,9 +144,10 @@ class OrgDescriptionSection extends Component<Props, State> {
 
     if (isOwner && isEditing) {
       return (
-        <FormMinusMargin
+        <Form
             formData={data}
             isSubmitting={requestStates[UPDATE_ORG_DESCRIPTION] === RequestStates.PENDING}
+            noPadding
             onChange={this.handleOnChange}
             onDiscard={this.resetState}
             onSubmit={this.handleOnClickSubmit}
