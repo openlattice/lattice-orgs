@@ -167,6 +167,12 @@ class OrgsContainer extends Component<Props, State> {
     }
   }
 
+  componentWillUnmount() {
+
+    const { actions } = this.props;
+    actions.resetRequestState(CREATE_ORGANIZATION);
+  }
+
   goToOrg = (orgId :?UUID) => {
 
     const { actions } = this.props;
