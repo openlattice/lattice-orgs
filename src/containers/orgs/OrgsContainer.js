@@ -127,7 +127,6 @@ const ModalBodyMinWidth = styled.div`
 type Props = {
   actions :{
     createOrganization :RequestSequence;
-    getOrgsAndPermissions :RequestSequence;
     goToRoute :GoToRoute;
     resetRequestState :ResetRequestStateAction;
   };
@@ -158,31 +157,14 @@ class OrgsContainer extends Component<Props, State> {
     };
   }
 
-  componentDidMount() {
-    const { actions } = this.props;
-    actions.getOrgsAndPermissions();
-  }
-
   componentDidUpdate(props :Props) {
 
-    const { actions, newlyCreatedOrgId, requestStates } = this.props;
-
-    if (props.requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.PENDING
-        && requestStates[GET_ORGS_AND_PERMISSIONS] === RequestStates.SUCCESS) {
-      actions.resetRequestState(OrgsActions.GET_ORGS_AND_PERMISSIONS);
-    }
+    const { newlyCreatedOrgId, requestStates } = this.props;
 
     if (props.requestStates[CREATE_ORGANIZATION] === RequestStates.PENDING
         && requestStates[CREATE_ORGANIZATION] === RequestStates.SUCCESS) {
       this.goToOrg(newlyCreatedOrgId);
     }
-  }
-
-  componentWillUnmount() {
-
-    const { actions } = this.props;
-    actions.resetRequestState(CREATE_ORGANIZATION);
-    actions.resetRequestState(OrgsActions.GET_ORGS_AND_PERMISSIONS);
   }
 
   goToOrg = (orgId :?UUID) => {
@@ -368,7 +350,6 @@ const mapStateToProps = (state :Map) => ({
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     createOrganization: OrganizationsApiActions.createOrganization,
-    getOrgsAndPermissions: OrgsActions.getOrgsAndPermissions,
     goToRoute: RoutingActions.goToRoute,
     resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)

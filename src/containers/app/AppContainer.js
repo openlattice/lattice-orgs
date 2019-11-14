@@ -115,7 +115,7 @@ class AppContainer extends Component<Props> {
       <AppContainerWrapper>
         <AppHeaderWrapper appIcon={OpenLatticeIcon} appTitle="OpenLattice" logout={this.logout} user={user}>
           <AppNavigationWrapper>
-            <NavLink to={Routes.ROOT} />
+            <NavLink to={Routes.ORGS} />
           </AppNavigationWrapper>
         </AppHeaderWrapper>
         <AppContentWrapper contentWidth={APP_CONTENT_WIDTH}>
