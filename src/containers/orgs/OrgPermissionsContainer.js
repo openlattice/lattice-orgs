@@ -311,6 +311,12 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
   selectAclKey = (selectedAclKey :?List) => {
 
+    const { selectedAclKey: stateSelectedAclKey } = this.state;
+
+    if (stateSelectedAclKey.equals(selectedAclKey)) {
+      return;
+    }
+
     // an empty "selectedAclKey" is treated as org + roles, i.e. everything
     this.setState({
       selectedAclKey: selectedAclKey || List(),
