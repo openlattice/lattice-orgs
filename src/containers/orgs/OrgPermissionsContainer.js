@@ -369,14 +369,17 @@ class OrgPermissionsContainer extends Component<Props, State> {
         <div>
           <h4>Roles</h4>
           {
-            roles.map((role :Map) => (
-              <SelectableHeader
-                  isSelected={selectedAclKey.equals(role.get('aclKey'))}
-                  key={role.get('id')}
-                  onClick={() => this.selectAclKey(role.get('aclKey'))}>
-                {role.get('title')}
-              </SelectableHeader>
-            ))
+            roles.map((role :Map) => {
+              const roleAclKey :List<List<UUID>> = List([org.get('id'), role.get('id')]);
+              return (
+                <SelectableHeader
+                    isSelected={selectedAclKey.equals(roleAclKey)}
+                    key={role.get('id')}
+                    onClick={() => this.selectAclKey(roleAclKey)}>
+                  {role.get('title')}
+                </SelectableHeader>
+              );
+            })
           }
         </div>
       </SelectionSection>
