@@ -3,6 +3,7 @@
  */
 
 import { get } from 'immutable';
+import { AuthUtils } from 'lattice-auth';
 
 import { isDefined, isNonEmptyString } from './LangUtils';
 
@@ -33,8 +34,10 @@ function getUserProfileLabel(user :any) :string {
     return '';
   }
 
+  const thisUserInfo :Object = AuthUtils.getUserInfo() || { id: '' };
+
   const auth0UserProfile = get(user, 'profile', user);
-  const userId :string = get(auth0UserProfile, 'user_id', '');
+  let userId :string = get(auth0UserProfile, 'user_id', '');
   const nickname :string = get(auth0UserProfile, 'nickname', '');
   const username :string = get(auth0UserProfile, 'username', '');
   const email :string = get(auth0UserProfile, 'email', '');
@@ -55,9 +58,16 @@ function getUserProfileLabel(user :any) :string {
     else if (userId.startsWith('google')) {
       label = `${label} - Google`;
     }
+    if (userId === thisUserInfo.id) {
+      label = `${label} (you)`;
+    }
   }
   else {
-    label = `${getUserId(user)}`;
+    userId = getUserId(user);
+    label = `${userId}`;
+    if (userId === thisUserInfo.id) {
+      label = `${label} (you)`;
+    }
   }
 
   return label;

@@ -7,7 +7,6 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
-import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
   ActionModal,
@@ -428,46 +427,48 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
   renderUserPermissions = () => {
 
-    const { isOwner, orgACLs, users } = this.props;
+    const { orgACLs } = this.props;
     const { selectedAclKey, selectedPermission } = this.state;
 
-    // an empty "selectedAclKey" is treated as org + roles, i.e. everything
-    const targetAcls = selectedAclKey.isEmpty()
-      ? orgACLs
-      : Map().set(selectedAclKey, orgACLs.get(selectedAclKey, List()));
-
-    const lookup = {}; // I don't like this
     const userCardSegments = [];
-    targetAcls.forEach((acl :Map) => {
-      acl.get('aces', List())
+
+    // an empty "selectedAclKey" is treated as org + roles, i.e. everything
+    if (selectedAclKey.isEmpty()) {
+
+      const aclKeysMap :Map<string, List<List<UUID>>> = Map().withMutations((map :Map) => {
+        orgACLs.forEach((acl :Map) => {
+          const aclKey :List<UUID> = acl.get('aclKey');
+          acl.get('aces', List()).forEach((ace :Map) => {
+            if (
+              ace.getIn(['principal', 'type']) === PrincipalTypes.USER
+              && ace.get('permissions').includes(selectedPermission)
+            ) {
+              const userId :string = getUserId(ace);
+              map.update(userId, List(), (aclKeys :List<List<UUID>>) => aclKeys.push(aclKey));
+            }
+          });
+        });
+      });
+
+      const orgACLKeys :List<List<UUID>> = orgACLs.keySeq().toList();
+      aclKeysMap
+        .filter((aclKeys :List<List<UUID>>) => aclKeys.equals(orgACLKeys))
+        .keySeq()
+        .forEach((userId :string) => {
+          userCardSegments.push(this.renderUserCardSegment(userId));
+        });
+    }
+    else {
+      orgACLs.get(selectedAclKey, Map()).get('aces', List())
         .filter((ace :Map) => (
           ace.getIn(['principal', 'type']) === PrincipalTypes.USER
-          && ace.get('permissions').includes(PermissionTypes[selectedPermission])
+          && ace.get('permissions').includes(selectedPermission)
         ))
         .forEach((ace :Map) => {
-          const userId :string = ace.getIn(['principal', 'id']);
-          const user :Map = users.get(userId, Map());
-          let userProfileLabel :string = getUserProfileLabel(user);
-          const thisUserInfo :Object = AuthUtils.getUserInfo() || { id: '' };
-          const thisUserId :string = thisUserInfo.id;
-          if (userId === thisUserId) {
-            userProfileLabel = `${userProfileLabel} (you)`;
-          }
-          if (!lookup[userId]) {
-            lookup[userId] = true;
-            userCardSegments.push((
-              <CompactCardSegment key={userId || userProfileLabel}>
-                <span title={userProfileLabel}>{userProfileLabel}</span>
-                <MinusButton
-                    disabled={!isOwner}
-                    data-user-id={userId}
-                    mode="negative"
-                    onClick={this.handleOnClickRemovePermission} />
-              </CompactCardSegment>
-            ));
-          }
+          const userId :string = getUserId(ace);
+          userCardSegments.push(this.renderUserCardSegment(userId));
         });
-    });
+    }
 
     return (
       <>
@@ -487,6 +488,25 @@ class OrgPermissionsContainer extends Component<Props, State> {
           )
         }
       </>
+    );
+  }
+
+  renderUserCardSegment = (userId :string) => {
+
+    const { isOwner, users } = this.props;
+
+    const user :Map = users.get(userId, Map());
+    const userProfileLabel :string = getUserProfileLabel(user);
+
+    return (
+      <CompactCardSegment key={userId || userProfileLabel}>
+        <span title={userProfileLabel}>{userProfileLabel}</span>
+        <MinusButton
+            disabled={!isOwner}
+            data-user-id={userId}
+            mode="negative"
+            onClick={this.handleOnClickRemovePermission} />
+      </CompactCardSegment>
     );
   }
 
