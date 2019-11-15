@@ -499,7 +499,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
     const userProfileLabel :string = getUserProfileLabel(user);
 
     return (
-      <CompactCardSegment key={userId || userProfileLabel}>
+      <CompactCardSegment key={userId}>
         <span title={userProfileLabel}>{userProfileLabel}</span>
         <MinusButton
             disabled={!isOwner}
