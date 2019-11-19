@@ -505,7 +505,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
     const { isOwner, users } = this.props;
 
     const user :Map = users.get(userId, Map());
-    const userProfileLabel :string = getUserProfileLabel(user);
+    const userProfileLabel :string = getUserProfileLabel(user) || userId;
 
     return (
       <CompactCardSegment key={userId}>
