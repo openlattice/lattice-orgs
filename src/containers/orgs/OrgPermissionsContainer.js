@@ -53,8 +53,9 @@ const Title = styled.h2`
 const PermissionsManagementSection = styled.section`
   border-left: 1px solid ${NEUTRALS[4]};
   display: flex;
-  flex: 1 0 auto;
+  flex: 1 1 auto;
   flex-direction: column;
+  min-width: 500px;
   padding: 0 0 0 30px;
 
   > div {
