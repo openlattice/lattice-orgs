@@ -15,7 +15,6 @@ import type { ActionType, PermissionType } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import Logger from '../../utils/Logger';
-import { isNonEmptyString } from '../../utils/LangUtils';
 import {
   UPDATE_USER_PERMISSION,
   updateUserPermission,
