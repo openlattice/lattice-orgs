@@ -27,7 +27,7 @@ import {
 } from './styled';
 import { SectionGrid } from '../../../components';
 import { isNonEmptyString } from '../../../utils/LangUtils';
-import { getUserProfileLabel } from '../../../utils/PersonUtils';
+import { getUserId, getUserProfileLabel } from '../../../utils/PersonUtils';
 
 const {
   ADD_MEMBER_TO_ORG,
@@ -129,14 +129,14 @@ class OrgMembersSection extends Component<Props, State> {
     const { valueOfSearchQuery } = this.state;
 
     const memberCardSegments = orgMembers.get(org.get('id'), List()).map((member :Map) => {
-      const userProfileLabel :string = getUserProfileLabel(member);
-      const memberId :string = member.getIn(['profile', 'user_id'], member.get('id'));
+      const userId :string = getUserId(member);
+      const userProfileLabel :string = getUserProfileLabel(member) || userId;
       return (
-        <CompactCardSegment key={memberId || userProfileLabel}>
+        <CompactCardSegment key={userId}>
           <span title={userProfileLabel}>{userProfileLabel}</span>
           {
             isOwner && (
-              <MinusButton mode="negative" onClick={() => this.handleOnClickRemoveMember(memberId)} />
+              <MinusButton mode="negative" onClick={() => this.handleOnClickRemoveMember(userId)} />
             )
           }
         </CompactCardSegment>
@@ -144,14 +144,15 @@ class OrgMembersSection extends Component<Props, State> {
     });
 
     const searchResultCardSegments = memberSearchResults.valueSeq().map((member :Map) => {
-      const userProfileLabel :string = getUserProfileLabel(member);
+      const userId :string = getUserId(member);
+      const userProfileLabel :string = getUserProfileLabel(member) || userId;
       return (
-        <CompactCardSegment key={member.get('user_id')}>
+        <CompactCardSegment key={userId}>
           <span title={userProfileLabel}>{userProfileLabel}</span>
           <PlusButton
               isLoading={requestStates[ADD_MEMBER_TO_ORG] === RequestStates.PENDING}
               mode="positive"
-              onClick={() => this.handleOnClickAddMember(member.get('user_id'))} />
+              onClick={() => this.handleOnClickAddMember(userId)} />
         </CompactCardSegment>
       );
     });

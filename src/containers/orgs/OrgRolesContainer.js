@@ -354,8 +354,8 @@ class OrgRolesContainer extends Component<Props, State> {
     const { selectedRoleId, selectedUserId } = this.state;
 
     const memberElements = orgMembers.map((member :Map) => {
-      const userProfileLabel :string = getUserProfileLabel(member);
       const userId :string = getUserId(member);
+      const userProfileLabel :string = getUserProfileLabel(member) || userId;
       const isRoleAssignedToMember = this.isRoleAssignedToMember(selectedRoleId, member);
       return (
         <SectionItem isCheckBoxVisible={isDefined(selectedRoleId)} key={userId}>
