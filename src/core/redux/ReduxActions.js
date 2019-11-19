@@ -2,7 +2,6 @@
  * @flow
  */
 
-
 const RESET_REQUEST_STATE :'RESET_REQUEST_STATE' = 'RESET_REQUEST_STATE';
 declare type ResetRequestStateAction = (actionType :string) => {|
   actionType :string;
