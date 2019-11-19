@@ -68,8 +68,11 @@ function* updateUserPermissionWorker(action :SequenceAction) :Generator<*, *, *>
     }
 
     const users :Map = yield select((state :Map) => state.getIn(['users', 'users'], Map()));
-    if (!users.has(userId) || !isNonEmptyString(userId)) {
-      throw new Error(`invalid user id - ${userId}`);
+    if (!users.has(userId)) {
+      // it is possible for user permissions to exist even if the user does not, for example, when a user has deleted
+      // their account or has been removed from Auth0. these "zombie permissions" should still be removeable, so we'll
+      // still make the request and let the backend respond with an error
+      LOG.error('invalid user id', userId);
     }
 
     const permissions = actionType === ActionTypes.ADD && permissionType === PermissionTypes.OWNER
