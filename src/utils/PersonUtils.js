@@ -34,21 +34,21 @@ function getUserProfileLabel(user :any) :string {
     return '';
   }
 
+  const userId :string = getUserId(user);
   const thisUserInfo :Object = AuthUtils.getUserInfo() || { id: '' };
 
   const auth0UserProfile = get(user, 'profile', user);
-  let userId :string = get(auth0UserProfile, 'user_id', '');
   const nickname :string = get(auth0UserProfile, 'nickname', '');
   const username :string = get(auth0UserProfile, 'username', '');
   const email :string = get(auth0UserProfile, 'email', '');
 
-  let label :string = nickname || username;
+  let label :string = nickname || username || userId;
 
   if (isNonEmptyString(email) && email !== label) {
     label = `${label} - ${email}`;
   }
 
-  if (isNonEmptyString(userId)) {
+  if (label !== userId) {
     if (userId.startsWith('auth0')) {
       label = `${label} - Auth0`;
     }
@@ -62,15 +62,8 @@ function getUserProfileLabel(user :any) :string {
       label = `${label} (you)`;
     }
   }
-  else {
-    userId = getUserId(user);
-    label = `${userId}`;
-    if (userId === thisUserInfo.id) {
-      label = `${label} (you)`;
-    }
-  }
 
-  return label;
+  return label || '';
 }
 
 export {
