@@ -45,7 +45,12 @@ function getUserProfileLabel(user :any) :string {
   let label :string = nickname || username || userId;
 
   if (isNonEmptyString(email) && email !== label) {
-    label = `${label} - ${email}`;
+    if (email.startsWith(label)) {
+      label = email;
+    }
+    else {
+      label = `${label} - ${email}`;
+    }
   }
 
   if (label !== userId) {
