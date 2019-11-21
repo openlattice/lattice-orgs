@@ -30,6 +30,7 @@ import * as OrgsActions from './OrgsActions';
 import * as Routes from '../../core/router/Routes';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
+import { ModalBodyMinWidth } from '../../components';
 import { Logger } from '../../utils';
 import { isNonEmptyString } from '../../utils/LangUtils';
 import { isValidUUID } from '../../utils/ValidationUtils';
@@ -118,10 +119,6 @@ const OrgDescription = styled.p`
 
 const Error = styled.div`
   text-align: center;
-`;
-
-const ModalBodyMinWidth = styled.div`
-  min-width: 440px;
 `;
 
 type Props = {

@@ -3,6 +3,7 @@
  */
 
 import OrgDescriptionSection from './OrgDescriptionSection';
+import OrgConnectionsSection from './OrgConnectionsSection';
 import OrgDomainsSection from './OrgDomainsSection';
 import OrgIntegrationSection from './OrgIntegrationSection';
 import OrgMembersSection from './OrgMembersSection';
@@ -11,6 +12,7 @@ import OrgTitleSection from './OrgTitleSection';
 import OrgTrustedOrgsSection from './OrgTrustedOrgsSection';
 
 export {
+  OrgConnectionsSection,
   OrgDescriptionSection,
   OrgDomainsSection,
   OrgIntegrationSection,

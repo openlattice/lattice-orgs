@@ -61,9 +61,11 @@ export default function* sagas() :Generator<*, *, *> {
     fork(EDMSagas.getEntityDataModelTypesWatcher),
 
     // OrgsSagas
+    fork(OrgsSagas.addConnectionWatcher),
     fork(OrgsSagas.getOrganizationACLsWatcher),
     fork(OrgsSagas.getOrganizationDetailsWatcher),
     fork(OrgsSagas.getOrgsAndPermissionsWatcher),
+    fork(OrgsSagas.removeConnectionWatcher),
     fork(OrgsSagas.searchMembersToAddToOrgWatcher),
 
     // PermissionsSagas
