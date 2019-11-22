@@ -45,11 +45,17 @@ const GRANT_TYPE_SELECT_OPTIONS :GrantTypeSelectOption[] = Object.keys(GrantType
 const { UPDATE_ROLE_GRANT } = OrganizationsApiActions;
 
 const GRANT_TABLE_HEADERS = [
-  { key: 'grantType', label: 'Grant Type' },
-  { key: 'mappings', label: 'Mappings' },
+  {
+    key: 'grantType',
+    label: 'Grant Type',
+  },
+  {
+    key: 'mappings',
+    label: 'Mappings',
+  },
   {
     cellStyle: { width: '100px' },
-    key: 'edit',
+    key: 'button',
     label: '',
     sortable: false,
   },
@@ -267,10 +273,10 @@ class OrgRoleGrantsContainer extends Component<Props, State> {
     const roleGrant :Map = org.getIn(['grants', selectedRoleId], Map());
 
     const data = [{
+      button: <EditButton onClick={this.openModal} />,
       grantType: roleGrant.get('grantType'),
-      id: 'grant1',
+      id: 'roleGrant', // for now, there can only be one grant per role
       mappings: roleGrant.get('mappings', List()).join(' , '),
-      edit: <EditButton onClick={this.openModal} />,
     }];
 
     return (
