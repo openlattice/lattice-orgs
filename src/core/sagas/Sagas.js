@@ -48,6 +48,7 @@ export default function* sagas() :Generator<*, *, *> {
     fork(OrganizationsApiSagas.revokeTrustFromOrganizationWatcher),
     fork(OrganizationsApiSagas.updateOrganizationDescriptionWatcher),
     fork(OrganizationsApiSagas.updateOrganizationTitleWatcher),
+    fork(OrganizationsApiSagas.updateRoleGrantWatcher),
     fork(PermissionsApiSagas.updateAclWatcher),
     fork(PermissionsApiSagas.updateAclsWatcher),
     fork(PrincipalsApiSagas.getAllUsersWatcher),
@@ -61,9 +62,11 @@ export default function* sagas() :Generator<*, *, *> {
     fork(EDMSagas.getEntityDataModelTypesWatcher),
 
     // OrgsSagas
+    fork(OrgsSagas.addConnectionWatcher),
     fork(OrgsSagas.getOrganizationACLsWatcher),
     fork(OrgsSagas.getOrganizationDetailsWatcher),
     fork(OrgsSagas.getOrgsAndPermissionsWatcher),
+    fork(OrgsSagas.removeConnectionWatcher),
     fork(OrgsSagas.searchMembersToAddToOrgWatcher),
 
     // PermissionsSagas

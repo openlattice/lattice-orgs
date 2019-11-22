@@ -35,7 +35,7 @@ function validateNonEmptyArray(value :any[], validatorFn :ValidatorFn) :boolean 
 
 function isValidUUID(value :any) :boolean %checks {
 
-  return BASE_UUID_PATTERN.test(value);
+  return value && BASE_UUID_PATTERN.test(value);
 }
 
 function isValidUUIDArray(uuids :any[]) :boolean %checks {

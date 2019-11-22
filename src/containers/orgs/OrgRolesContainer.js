@@ -17,12 +17,13 @@ import {
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as OrgsActions from './OrgsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
-import { OrgRolesSection } from './components';
+import { OrgRoleGrantsSection, OrgRolesSection } from './components';
 import { SectionGrid } from '../../components';
 import { Logger } from '../../utils';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
@@ -117,6 +118,7 @@ type Props = {
     resetRequestState :(actionType :string) => void;
   };
   isOwner :boolean;
+  match :Match;
   org :Map;
   orgMembers :Map;
   requestStates :{
@@ -415,14 +417,14 @@ class OrgRolesContainer extends Component<Props, State> {
 
   render() {
 
-    const { isOwner, org } = this.props;
+    const { isOwner, match, org } = this.props;
 
     return (
       <Card>
         <CardSegment noBleed>
           <OrgRolesSection isOwner={isOwner} org={org} />
         </CardSegment>
-        <CardSegment vertical>
+        <CardSegment noBleed vertical>
           <SectionGrid>
             <h2>Role Assignments</h2>
             <RoleAssignmentsGrid>
@@ -431,6 +433,13 @@ class OrgRolesContainer extends Component<Props, State> {
             </RoleAssignmentsGrid>
           </SectionGrid>
         </CardSegment>
+        {
+          isOwner && (
+            <CardSegment noBleed>
+              <OrgRoleGrantsSection isOwner={isOwner} match={match} org={org} />
+            </CardSegment>
+          )
+        }
         {this.renderAddRoleModal()}
         {this.renderRemoveRoleModal()}
       </Card>
