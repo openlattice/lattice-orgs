@@ -13,6 +13,7 @@ import {
 } from '@redux-saga/core/effects';
 import { List, Map, fromJS } from 'immutable';
 import { Models, Types } from 'lattice';
+import { AuthUtils } from 'lattice-auth';
 import {
   AuthorizationsApiActions,
   AuthorizationsApiSagas,
@@ -30,13 +31,17 @@ import type { SequenceAction } from 'redux-reqseq';
 import Logger from '../../utils/Logger';
 import { isValidUUID } from '../../utils/ValidationUtils';
 import {
+  ADD_CONNECTION,
   GET_ORGANIZATION_ACLS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
+  REMOVE_CONNECTION,
   SEARCH_MEMBERS_TO_ADD_TO_ORG,
+  addConnection,
   getOrganizationACLs,
   getOrganizationDetails,
   getOrgsAndPermissions,
+  removeConnection,
   searchMembersToAddToOrg,
 } from './OrgsActions';
 
@@ -53,20 +58,66 @@ const { PermissionTypes, PrincipalTypes } = Types;
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 const {
+  addConnections,
   getAllOrganizations,
   getOrganization,
   getOrganizationIntegrationAccount,
   getOrganizationMembers,
+  removeConnections,
 } = OrganizationsApiActions;
 const {
+  addConnectionsWorker,
   getAllOrganizationsWorker,
   getOrganizationWorker,
   getOrganizationIntegrationAccountWorker,
+  removeConnectionsWorker,
 } = OrganizationsApiSagas;
 const { getAcl } = PermissionsApiActions;
 const { getAclWorker } = PermissionsApiSagas;
 const { getSecurablePrincipal, searchAllUsers } = PrincipalsApiActions;
 const { getSecurablePrincipalWorker, searchAllUsersWorker } = PrincipalsApiSagas;
+
+/*
+ *
+ * OrgsActions.addConnection
+ *
+ */
+
+function* addConnectionWorker(action :SequenceAction) :Generator<*, *, *> {
+
+  try {
+    yield put(addConnection.request(action.id, action.value));
+
+    if (!AuthUtils.isAdmin()) {
+      throw new Error('only admins are allowed to take this action');
+    }
+
+    const { organizationId, connection } = action.value;
+    if (!isValidUUID(organizationId)) {
+      throw new Error('organizationId must be a valid UUID');
+    }
+
+    const response = yield call(
+      addConnectionsWorker,
+      addConnections({ organizationId, connections: [connection] })
+    );
+    if (response.error) throw response.error;
+
+    yield put(addConnection.success(action.id));
+  }
+  catch (error) {
+    LOG.error(action.type, error);
+    yield put(addConnection.failure(action.id));
+  }
+  finally {
+    yield put(addConnection.finally(action.id));
+  }
+}
+
+function* addConnectionWatcher() :Generator<*, *, *> {
+
+  yield takeLatest(ADD_CONNECTION, addConnectionWorker);
+}
 
 /*
  *
@@ -281,6 +332,48 @@ function* getOrgsAndPermissionsWatcher() :Generator<*, *, *> {
 
 /*
  *
+ * OrgsActions.removeConnection
+ *
+ */
+
+function* removeConnectionWorker(action :SequenceAction) :Generator<*, *, *> {
+
+  try {
+    yield put(removeConnection.request(action.id, action.value));
+
+    if (!AuthUtils.isAdmin()) {
+      throw new Error('only admins are allowed to take this action');
+    }
+
+    const { organizationId, connection } = action.value;
+    if (!isValidUUID(organizationId)) {
+      throw new Error('organizationId must be a valid UUID');
+    }
+
+    const response = yield call(
+      removeConnectionsWorker,
+      removeConnections({ organizationId, connections: [connection] })
+    );
+    if (response.error) throw response.error;
+
+    yield put(removeConnection.success(action.id));
+  }
+  catch (error) {
+    LOG.error(action.type, error);
+    yield put(removeConnection.failure(action.id));
+  }
+  finally {
+    yield put(removeConnection.finally(action.id));
+  }
+}
+
+function* removeConnectionWatcher() :Generator<*, *, *> {
+
+  yield takeLatest(REMOVE_CONNECTION, removeConnectionWorker);
+}
+
+/*
+ *
  * OrgsActions.searchMembersToAddToOrg
  *
  */
@@ -320,12 +413,16 @@ function* searchMembersToAddToOrgWatcher() :Generator<*, *, *> {
 }
 
 export {
+  addConnectionWatcher,
+  addConnectionWorker,
   getOrganizationACLsWatcher,
   getOrganizationACLsWorker,
   getOrganizationDetailsWatcher,
   getOrganizationDetailsWorker,
   getOrgsAndPermissionsWatcher,
   getOrgsAndPermissionsWorker,
+  removeConnectionWatcher,
+  removeConnectionWorker,
   searchMembersToAddToOrgWatcher,
   searchMembersToAddToOrgWorker,
 };

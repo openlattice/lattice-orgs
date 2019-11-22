@@ -26,6 +26,7 @@ import {
 } from './styled';
 import { SectionGrid } from '../../../components';
 import { isNonEmptyString } from '../../../utils/LangUtils';
+import type { ResetRequestStateAction } from '../../../core/redux/ReduxActions';
 
 const {
   Principal,
@@ -47,7 +48,7 @@ type Props = {
   actions :{
     createRole :RequestSequence;
     deleteRole :RequestSequence;
-    resetRequestState :(actionType :string) => void;
+    resetRequestState :ResetRequestStateAction;
   };
   isOwner :boolean;
   org :Map;

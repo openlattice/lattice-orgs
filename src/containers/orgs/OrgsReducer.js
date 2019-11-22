@@ -17,19 +17,24 @@ import type { SequenceAction } from 'redux-reqseq';
 import { getUserId } from '../../utils/PersonUtils';
 import { RESET_REQUEST_STATE } from '../../core/redux/ReduxActions';
 import {
+  ADD_CONNECTION,
   GET_ORGANIZATION_ACLS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
+  REMOVE_CONNECTION,
   SEARCH_MEMBERS_TO_ADD_TO_ORG,
+  addConnection,
   getOrganizationACLs,
   getOrganizationDetails,
   getOrgsAndPermissions,
+  removeConnection,
   searchMembersToAddToOrg,
 } from './OrgsActions';
 
 // const LOG :Logger = new Logger('OrgsReducer');
 
 const {
+  Grant,
   Organization,
   OrganizationBuilder,
   Role,
@@ -55,6 +60,7 @@ const {
   REVOKE_TRUST_FROM_ORG,
   UPDATE_ORG_DESCRIPTION,
   UPDATE_ORG_TITLE,
+  UPDATE_ROLE_GRANT,
   addDomainToOrganization,
   addMemberToOrganization,
   addRoleToMember,
@@ -71,9 +77,13 @@ const {
   revokeTrustFromOrganization,
   updateOrganizationDescription,
   updateOrganizationTitle,
+  updateRoleGrant,
 } = OrganizationsApiActions;
 
 const INITIAL_STATE :Map = fromJS({
+  [ADD_CONNECTION]: {
+    requestState: RequestStates.STANDBY,
+  },
   [ADD_DOMAIN_TO_ORG]: {
     requestState: RequestStates.STANDBY,
   },
@@ -113,6 +123,9 @@ const INITIAL_STATE :Map = fromJS({
   [GRANT_TRUST_TO_ORG]: {
     requestState: RequestStates.STANDBY,
   },
+  [REMOVE_CONNECTION]: {
+    requestState: RequestStates.STANDBY,
+  },
   [REMOVE_DOMAIN_FROM_ORG]: {
     requestState: RequestStates.STANDBY,
   },
@@ -134,6 +147,9 @@ const INITIAL_STATE :Map = fromJS({
   [UPDATE_ORG_TITLE]: {
     requestState: RequestStates.STANDBY,
   },
+  [UPDATE_ROLE_GRANT]: {
+    requestState: RequestStates.STANDBY,
+  },
   isOwnerOfOrgIds: Set(),
   memberSearchResults: Map(),
   newlyCreatedOrgId: undefined,
@@ -153,6 +169,31 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
         return state.setIn([actionType, 'requestState'], RequestStates.STANDBY);
       }
       return state;
+    }
+
+    case addConnection.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return addConnection.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([ADD_CONNECTION, 'requestState'], RequestStates.PENDING)
+          .setIn([ADD_CONNECTION, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([ADD_CONNECTION, seqAction.id]);
+          if (storedSeqAction) {
+            const { connection, organizationId } = storedSeqAction.value;
+            return state
+              .setIn([ADD_CONNECTION, 'requestState'], RequestStates.SUCCESS)
+              .updateIn(
+                ['orgs', organizationId, 'connections'],
+                List(),
+                (connections :List) => connections.push(connection),
+              );
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([ADD_CONNECTION, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([ADD_CONNECTION, seqAction.id]),
+      });
     }
 
     case addDomainToOrganization.case(action.type): {
@@ -537,6 +578,31 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
       });
     }
 
+    case removeConnection.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return removeConnection.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([REMOVE_CONNECTION, 'requestState'], RequestStates.PENDING)
+          .setIn([REMOVE_CONNECTION, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([REMOVE_CONNECTION, seqAction.id]);
+          if (storedSeqAction) {
+            const { connection, organizationId } = storedSeqAction.value;
+            return state
+              .setIn([REMOVE_CONNECTION, 'requestState'], RequestStates.SUCCESS)
+              .updateIn(
+                ['orgs', organizationId, 'connections'],
+                List(),
+                (connections :List) => connections.filter((currentConnection) => currentConnection !== connection),
+              );
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([REMOVE_CONNECTION, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([REMOVE_CONNECTION, seqAction.id]),
+      });
+    }
+
     case removeDomainFromOrganization.case(action.type): {
       const seqAction :SequenceAction = action;
       return removeDomainFromOrganization.reducer(state, action, {
@@ -707,6 +773,29 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
         },
         FAILURE: () => state.setIn([UPDATE_ORG_TITLE, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([UPDATE_ORG_TITLE, seqAction.id]),
+      });
+    }
+
+    case updateRoleGrant.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return updateRoleGrant.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([UPDATE_ROLE_GRANT, 'requestState'], RequestStates.PENDING)
+          .setIn([UPDATE_ROLE_GRANT, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([UPDATE_ROLE_GRANT, seqAction.id]);
+          if (storedSeqAction) {
+            const grant :Grant = storedSeqAction.value.grant;
+            const organizationId :UUID = storedSeqAction.value.organizationId;
+            const roleId :UUID = storedSeqAction.value.roleId;
+            return state
+              .setIn(['orgs', organizationId, 'grants', roleId], grant.toImmutable())
+              .setIn([UPDATE_ROLE_GRANT, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([UPDATE_ROLE_GRANT, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([UPDATE_ROLE_GRANT, seqAction.id]),
       });
     }
 

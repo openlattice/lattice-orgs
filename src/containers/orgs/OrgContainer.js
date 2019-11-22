@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
+import { AuthUtils } from 'lattice-auth';
 import { Colors, Spinner } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router';
@@ -15,6 +16,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
+import OrgAdminContainer from './OrgAdminContainer';
 import OrgDetailsContainer from './OrgDetailsContainer';
 import OrgEntitySetsContainer from './OrgEntitySetsContainer';
 import OrgPermissionsContainer from './OrgPermissionsContainer';
@@ -159,6 +161,13 @@ class OrgContainer extends Component<Props> {
           <OrgNavLink exact to={Routes.ORG_ENTITY_SETS.replace(Routes.ID_PARAM, orgId)}>
             Entity Sets
           </OrgNavLink>
+          {
+            AuthUtils.isAdmin() && (
+              <OrgNavLink exact to={Routes.ORG_ADMIN.replace(Routes.ID_PARAM, orgId)}>
+                Admin
+              </OrgNavLink>
+            )
+          }
         </Tabs>
         <Switch>
           <Route exact path={Routes.ORG} component={OrgDetailsContainer} />
@@ -167,6 +176,11 @@ class OrgContainer extends Component<Props> {
           {
             isOwner && (
               <Route path={Routes.ORG_PERMISSIONS} component={OrgPermissionsContainer} />
+            )
+          }
+          {
+            AuthUtils.isAdmin() && (
+              <Route path={Routes.ORG_ADMIN} component={OrgAdminContainer} />
             )
           }
         </Switch>

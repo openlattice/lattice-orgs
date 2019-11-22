@@ -3,3 +3,8 @@
  */
 
 declare type UUID = string;
+
+declare type ReactSelectOption = {|
+  label :string;
+  value :any;
+|};

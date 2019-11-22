@@ -11,9 +11,11 @@ import reducer from './OrgsReducer';
 import { MOCK_ORG, MOCK_ORG_ROLE } from '../../utils/testing/MockData';
 import { genRandomUUID } from '../../utils/testing/MockUtils';
 import {
+  ADD_CONNECTION,
   GET_ORGANIZATION_ACLS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
+  REMOVE_CONNECTION,
   SEARCH_MEMBERS_TO_ADD_TO_ORG,
 } from './OrgsActions';
 
@@ -45,6 +47,7 @@ const {
   REVOKE_TRUST_FROM_ORG,
   UPDATE_ORG_DESCRIPTION,
   UPDATE_ORG_TITLE,
+  UPDATE_ROLE_GRANT,
   addRoleToMember,
   createRole,
   deleteRole,
@@ -58,6 +61,9 @@ describe('OrgsReducer', () => {
   test('INITIAL_STATE', () => {
     expect(INITIAL_STATE).toBeInstanceOf(Map);
     expect(INITIAL_STATE.toJS()).toEqual({
+      [ADD_CONNECTION]: {
+        requestState: RequestStates.STANDBY,
+      },
       [ADD_DOMAIN_TO_ORG]: {
         requestState: RequestStates.STANDBY,
       },
@@ -97,6 +103,9 @@ describe('OrgsReducer', () => {
       [GRANT_TRUST_TO_ORG]: {
         requestState: RequestStates.STANDBY,
       },
+      [REMOVE_CONNECTION]: {
+        requestState: RequestStates.STANDBY,
+      },
       [REMOVE_DOMAIN_FROM_ORG]: {
         requestState: RequestStates.STANDBY,
       },
@@ -116,6 +125,9 @@ describe('OrgsReducer', () => {
         requestState: RequestStates.STANDBY,
       },
       [UPDATE_ORG_TITLE]: {
+        requestState: RequestStates.STANDBY,
+      },
+      [UPDATE_ROLE_GRANT]: {
         requestState: RequestStates.STANDBY,
       },
       isOwnerOfOrgIds: [],
