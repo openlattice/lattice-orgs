@@ -782,9 +782,11 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
         SUCCESS: () => {
           const storedSeqAction :SequenceAction = state.getIn([UPDATE_ROLE_GRANT, seqAction.id]);
           if (storedSeqAction) {
-            const { grant, organizationId, roleId } = storedSeqAction.value;
+            const grant :Grant = storedSeqAction.value.grant;
+            const organizationId :UUID = storedSeqAction.value.organizationId;
+            const roleId :UUID = storedSeqAction.value.roleId;
             return state
-              .setIn(['orgs', organizationId, 'grants', roleId], grant)
+              .setIn(['orgs', organizationId, 'grants', roleId], grant.toImmutable())
               .setIn([UPDATE_ROLE_GRANT, 'requestState'], RequestStates.SUCCESS);
           }
           return state;
