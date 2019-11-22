@@ -54,9 +54,14 @@ type State = {
 
 class OrgConnectionsSection extends Component<Props, State> {
 
-  state = {
-    isValidConnection: true,
-    valueOfConnection: '',
+  constructor(props :Props) {
+
+    super(props);
+
+    this.state = {
+      isValidConnection: true,
+      valueOfConnection: '',
+    };
   }
 
   componentDidUpdate(props :Props) {
