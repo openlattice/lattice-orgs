@@ -2,14 +2,14 @@
  * @flow
  */
 
-import { List, Map } from 'immutable';
+import { List, Map, get } from 'immutable';
 
 const getRoleSelectOptions = (org :Map) :ReactSelectOption[] => {
 
-  const roles :List = org.get('roles', List());
+  const roles :List = get(org, 'roles', List());
   const roleSelectOptions :ReactSelectOption[] = roles.map((role :Map) => ({
-    label: role.get('title'),
-    value: role.get('id'),
+    label: get(role, 'title'),
+    value: get(role, 'id'),
   })).toJS();
 
   return roleSelectOptions;
