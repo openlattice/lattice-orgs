@@ -116,7 +116,7 @@ class OrgRoleGrantsContainer extends Component<Props, State> {
     }
   }
 
-  handleOnChangeSelectGrantMappings = (selectedOptions :?{ label :string; value :string }[]) => {
+  handleOnChangeSelectGrantMappings = (selectedOptions :?ReactSelectOption[]) => {
 
     const selectedGrantMappings :string[] = selectedOptions
       ? selectedOptions.map((selectedOption) => selectedOption.value)
@@ -138,7 +138,7 @@ class OrgRoleGrantsContainer extends Component<Props, State> {
     });
   }
 
-  handleOnChangeSelectedRole = (selectedOption :?{ label :string; value :string }) => {
+  handleOnChangeSelectedRole = (selectedOption :?ReactSelectOption) => {
 
     const selectedRoleId = selectedOption && selectedOption.value
       ? selectedOption.value
