@@ -147,6 +147,9 @@ const INITIAL_STATE :Map = fromJS({
   [UPDATE_ORG_TITLE]: {
     requestState: RequestStates.STANDBY,
   },
+  [UPDATE_ROLE_GRANT]: {
+    requestState: RequestStates.STANDBY,
+  },
   isOwnerOfOrgIds: Set(),
   memberSearchResults: Map(),
   newlyCreatedOrgId: undefined,
