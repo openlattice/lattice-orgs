@@ -159,6 +159,7 @@ class OrgRoleGrantsContainer extends Component<Props, State> {
       selectedGrantType: undefined,
     });
 
+    // the timeout avoids rendering the modal with new state before the transition animation finishes
     setTimeout(() => {
       actions.resetRequestState(UPDATE_ROLE_GRANT);
     }, 1000);
