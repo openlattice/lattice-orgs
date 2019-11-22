@@ -129,6 +129,10 @@ class OrgConnectionsSection extends Component<Props, State> {
     const { isOwner, org, requestStates } = this.props;
     const { isValidConnection } = this.state;
 
+    if (!AuthUtils.isAdmin()) {
+      return null;
+    }
+
     const connections = org.get('connections', List());
     const connectionCardSegments = connections.map((connection :string) => (
       <CompactCardSegment key={connection}>
