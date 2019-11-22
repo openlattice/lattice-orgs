@@ -27,7 +27,6 @@ import { ModalBodyMinWidth, SectionGrid } from '../../../components';
 import { getIdFromMatch } from '../../../core/router/RouterUtils';
 import { getRoleSelectOptions } from '../OrgsUtils';
 import { SelectControlWithButton } from './styled';
-import type { GoToRoot, GoToRoute } from '../../../core/router/RoutingActions';
 
 const { Grant, GrantBuilder } = Models;
 const { GrantTypes } = Types;
@@ -63,8 +62,6 @@ const GRANT_TABLE_HEADERS = [
 
 type Props = {
   actions :{
-    goToRoot :GoToRoot;
-    goToRoute :GoToRoute;
     resetRequestState :(actionType :string) => void;
     updateRoleGrant :RequestSequence;
   };
@@ -296,19 +293,11 @@ class OrgRoleGrantsContainer extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state :Map, props :Object) => {
-
-  const orgId :?UUID = getIdFromMatch(props.match);
-
-  return {
-    isOwner: state.hasIn(['orgs', 'isOwnerOfOrgIds', orgId], false),
-    org: state.getIn(['orgs', 'orgs', orgId], Map()),
-    orgs: state.getIn(['orgs', 'orgs'], Map()),
-    requestStates: {
-      [UPDATE_ROLE_GRANT]: state.getIn(['orgs', UPDATE_ROLE_GRANT, 'requestState']),
-    },
-  };
-};
+const mapStateToProps = (state :Map) => ({
+  requestStates: {
+    [UPDATE_ROLE_GRANT]: state.getIn(['orgs', UPDATE_ROLE_GRANT, 'requestState']),
+  }
+});
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
