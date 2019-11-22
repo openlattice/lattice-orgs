@@ -789,18 +789,7 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
           }
           return state;
         },
-        FAILURE: () => {
-          const storedSeqAction :SequenceAction = state.getIn([UPDATE_ROLE_GRANT, seqAction.id]);
-          if (storedSeqAction) {
-            const grant :Grant = storedSeqAction.value.grant;
-            const organizationId = storedSeqAction.value.organizationId;
-            const roleId = storedSeqAction.value.roleId;
-            return state
-              .setIn(['orgs', organizationId, 'grants', roleId], grant.toImmutable())
-              .setIn([UPDATE_ROLE_GRANT, 'requestState'], RequestStates.SUCCESS);
-          }
-          return state;
-        },
+        FAILURE: () => state.setIn([UPDATE_ROLE_GRANT, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([UPDATE_ROLE_GRANT, seqAction.id]),
       });
     }
