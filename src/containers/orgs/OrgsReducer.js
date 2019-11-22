@@ -34,6 +34,7 @@ import {
 // const LOG :Logger = new Logger('OrgsReducer');
 
 const {
+  Grant,
   Organization,
   OrganizationBuilder,
   Role,
@@ -59,6 +60,7 @@ const {
   REVOKE_TRUST_FROM_ORG,
   UPDATE_ORG_DESCRIPTION,
   UPDATE_ORG_TITLE,
+  UPDATE_ROLE_GRANT,
   addDomainToOrganization,
   addMemberToOrganization,
   addRoleToMember,
@@ -75,6 +77,7 @@ const {
   revokeTrustFromOrganization,
   updateOrganizationDescription,
   updateOrganizationTitle,
+  updateRoleGrant,
 } = OrganizationsApiActions;
 
 const INITIAL_STATE :Map = fromJS({
@@ -767,6 +770,38 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
         },
         FAILURE: () => state.setIn([UPDATE_ORG_TITLE, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([UPDATE_ORG_TITLE, seqAction.id]),
+      });
+    }
+
+    case updateRoleGrant.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return updateRoleGrant.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([UPDATE_ROLE_GRANT, 'requestState'], RequestStates.PENDING)
+          .setIn([UPDATE_ROLE_GRANT, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([UPDATE_ROLE_GRANT, seqAction.id]);
+          if (storedSeqAction) {
+            const { grant, organizationId, roleId } = storedSeqAction.value;
+            return state
+              .setIn(['orgs', organizationId, 'grants', roleId], grant)
+              .setIn([UPDATE_ROLE_GRANT, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => {
+          const storedSeqAction :SequenceAction = state.getIn([UPDATE_ROLE_GRANT, seqAction.id]);
+          if (storedSeqAction) {
+            const grant :Grant = storedSeqAction.value.grant;
+            const organizationId = storedSeqAction.value.organizationId;
+            const roleId = storedSeqAction.value.roleId;
+            return state
+              .setIn(['orgs', organizationId, 'grants', roleId], grant.toImmutable())
+              .setIn([UPDATE_ROLE_GRANT, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FINALLY: () => state.deleteIn([UPDATE_ROLE_GRANT, seqAction.id]),
       });
     }
 
