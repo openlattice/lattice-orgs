@@ -36,7 +36,7 @@ const MOCK_ORG_ROLE :Role = (new RoleBuilder())
 
 const MOCK_ORG :Organization = (new OrganizationBuilder())
   .setApps([genRandomUUID(), genRandomUUID()])
-  .setAutoApprovedEmails(['openlattice.com'])
+  .setEmailDomains(['openlattice.com'])
   .setDescription('MockOrgDescription')
   .setId(MOCK_ORG_ID)
   .setMembers([
