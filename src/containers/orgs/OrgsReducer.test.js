@@ -51,6 +51,7 @@ const {
   addRoleToMember,
   createRole,
   deleteRole,
+  removeMemberFromOrganization,
   removeRoleFromMember,
 } = OrganizationsApiActions;
 
@@ -154,7 +155,7 @@ describe('OrgsReducer', () => {
     });
 
     // the structure of this object isn't 100% accurate, but it's enough to make things work
-    const newOrgMember = fromJS({
+    const mockOrgMember = fromJS({
       principal: {
         principal: MOCK_USER_PRINCIPAL.toImmutable(),
       },
@@ -205,7 +206,7 @@ describe('OrgsReducer', () => {
 
       const expectedOrgMembers = Map().set(
         MOCK_ORG.id,
-        initialState.getIn(['orgMembers', MOCK_ORG.id]).push(newOrgMember),
+        initialState.getIn(['orgMembers', MOCK_ORG.id]).push(mockOrgMember),
       );
       expect(state.get('orgMembers').hashCode()).toEqual(expectedOrgMembers.hashCode());
       expect(state.get('orgMembers').equals(expectedOrgMembers)).toEqual(true);
@@ -463,6 +464,102 @@ describe('OrgsReducer', () => {
       state = reducer(state, deleteRole.finally(id));
       expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
       expect(state.hasIn([DELETE_ROLE, id])).toEqual(false);
+    });
+
+  });
+
+  describe(REMOVE_MEMBER_FROM_ORG, () => {
+
+    // the structure of this object isn't 100% accurate, but it's enough to make things work
+    const existingOrgMembers = fromJS([
+      {
+        principal: {
+          principal: MOCK_ORG.members[0].toImmutable(),
+        },
+        profile: {
+          user_id: MOCK_ORG.members[0].id,
+        },
+      },
+      {
+        principal: {
+          principal: MOCK_USER_PRINCIPAL.toImmutable(),
+        },
+        profile: {
+          user_id: MOCK_USER_PRINCIPAL.id,
+        },
+      }
+    ]);
+
+    const initialState = INITIAL_STATE
+      .setIn(['orgs', MOCK_ORG.id], MOCK_ORG.toImmutable())
+      .setIn(['orgMembers', MOCK_ORG.id], existingOrgMembers);
+
+    const requestActionValue = {
+      memberId: MOCK_USER_PRINCIPAL.id,
+      organizationId: MOCK_ORG.id,
+    };
+
+    test(removeMemberFromOrganization.REQUEST, () => {
+
+      const { id } = removeMemberFromOrganization();
+      const requestAction = removeMemberFromOrganization.request(id, requestActionValue);
+      const state = reducer(initialState, requestAction);
+
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.PENDING);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+      expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
+      expect(state.get('orgMembers').equals(initialState.get('orgMembers'))).toEqual(true);
+    });
+
+    test(removeMemberFromOrganization.SUCCESS, () => {
+
+      const { id } = removeMemberFromOrganization();
+      const requestAction = removeMemberFromOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, removeMemberFromOrganization.success(id));
+
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+
+      const expectedOrgs = Map().set(MOCK_ORG.id, MOCK_ORG.toImmutable());
+      expect(state.get('orgs').hashCode()).toEqual(expectedOrgs.hashCode());
+      expect(state.get('orgs').equals(expectedOrgs)).toEqual(true);
+
+      const expectedOrgMembers = Map().set(MOCK_ORG.id, List().push(existingOrgMembers.get(0)));
+      expect(state.get('orgMembers').hashCode()).toEqual(expectedOrgMembers.hashCode());
+      expect(state.get('orgMembers').equals(expectedOrgMembers)).toEqual(true);
+    });
+
+    test(removeMemberFromOrganization.FAILURE, () => {
+
+      const { id } = removeMemberFromOrganization();
+      const requestAction = removeMemberFromOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, removeMemberFromOrganization.failure(id));
+
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.FAILURE);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+      expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
+      expect(state.get('orgMembers').equals(initialState.get('orgMembers'))).toEqual(true);
+    });
+
+    test(removeMemberFromOrganization.FINALLY, () => {
+
+      const { id } = removeMemberFromOrganization();
+      const requestAction = removeMemberFromOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+
+      state = reducer(state, removeMemberFromOrganization.success(id));
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+
+      state = reducer(state, removeMemberFromOrganization.finally(id));
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.hasIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(false);
     });
 
   });
