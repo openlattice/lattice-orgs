@@ -23,9 +23,13 @@ export default function initializeReduxStore(routerHistory :any) :Object {
     applyMiddleware(...reduxMiddlewares)
   ];
 
+  const stateSanitizer = (state) => state
+    .set('edm', 'HIDDEN by stateSanitizer');
+
   /* eslint-disable no-underscore-dangle */
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+      stateSanitizer,
       maxAge: 100,
       serialize: true,
     })

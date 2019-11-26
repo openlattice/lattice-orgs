@@ -22,13 +22,11 @@ import {
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
-  SEARCH_MEMBERS_TO_ADD_TO_ORG,
   addConnection,
   getOrganizationACLs,
   getOrganizationDetails,
   getOrgsAndPermissions,
   removeConnection,
-  searchMembersToAddToOrg,
 } from './OrgsActions';
 
 // const LOG :Logger = new Logger('OrgsReducer');
@@ -37,11 +35,13 @@ const {
   Grant,
   Organization,
   OrganizationBuilder,
+  Principal,
+  PrincipalBuilder,
   Role,
   RoleBuilder,
 } = Models;
 
-const { PermissionTypes } = Types;
+const { PermissionTypes, PrincipalTypes } = Types;
 
 const {
   ADD_DOMAIN_TO_ORG,
@@ -138,9 +138,6 @@ const INITIAL_STATE :Map = fromJS({
   [REVOKE_TRUST_FROM_ORG]: {
     requestState: RequestStates.STANDBY,
   },
-  [SEARCH_MEMBERS_TO_ADD_TO_ORG]: {
-    requestState: RequestStates.STANDBY,
-  },
   [UPDATE_ORG_DESCRIPTION]: {
     requestState: RequestStates.STANDBY,
   },
@@ -151,7 +148,6 @@ const INITIAL_STATE :Map = fromJS({
     requestState: RequestStates.STANDBY,
   },
   isOwnerOfOrgIds: Set(),
-  memberSearchResults: Map(),
   newlyCreatedOrgId: undefined,
   orgACLs: Map(),
   orgEntitySets: Map(),
@@ -228,10 +224,31 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
         SUCCESS: () => {
           const storedSeqAction :SequenceAction = state.getIn([ADD_MEMBER_TO_ORG, seqAction.id]);
           if (storedSeqAction) {
-            const { memberId } = storedSeqAction.value;
+            const { memberId, organizationId } = storedSeqAction.value;
+            const memberPrincipal :Principal = (new PrincipalBuilder())
+              .setId(memberId)
+              .setType(PrincipalTypes.USER)
+              .build();
+            const orgMemberObject = fromJS({
+              principal: {
+                principal: memberPrincipal.toImmutable(),
+              },
+              profile: {
+                user_id: memberId
+              },
+            });
             return state
-              .deleteIn(['memberSearchResults', memberId])
-              .setIn([ADD_MEMBER_TO_ORG, 'requestState'], RequestStates.SUCCESS);
+              .setIn([ADD_MEMBER_TO_ORG, 'requestState'], RequestStates.SUCCESS)
+              .updateIn(
+                ['orgs', organizationId, 'members'],
+                List(),
+                (members :List) => members.push(memberPrincipal.toImmutable()),
+              )
+              .updateIn(
+                ['orgMembers', organizationId],
+                List(),
+                (members :List) => members.push(orgMemberObject),
+              );
           }
           return state;
         },
@@ -636,11 +653,18 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
           const storedSeqAction :SequenceAction = state.getIn([REMOVE_MEMBER_FROM_ORG, seqAction.id]);
           if (storedSeqAction) {
             const { memberId, organizationId } = storedSeqAction.value;
-            const updatedMembers :List<Map> = state.getIn(['orgs', organizationId, 'members'])
-              .filter((member :Map) => member.getIn(['profile', 'user_id']) !== memberId);
             return state
-              .setIn(['orgs', organizationId, 'members'], updatedMembers)
-              .setIn([REMOVE_MEMBER_FROM_ORG, 'requestState'], RequestStates.SUCCESS);
+              .setIn([REMOVE_MEMBER_FROM_ORG, 'requestState'], RequestStates.SUCCESS)
+              .updateIn(
+                ['orgs', organizationId, 'members'],
+                List(),
+                (members :List) => members.filter((member :Map) => getUserId(member) !== memberId),
+              )
+              .updateIn(
+                ['orgMembers', organizationId],
+                List(),
+                (members :List) => members.filter((member :Map) => getUserId(member) !== memberId),
+              );
           }
           return state;
         },
@@ -702,35 +726,6 @@ export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) 
         },
         FAILURE: () => state.setIn([REVOKE_TRUST_FROM_ORG, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([REVOKE_TRUST_FROM_ORG, seqAction.id]),
-      });
-    }
-
-    case searchMembersToAddToOrg.case(action.type): {
-      const seqAction :SequenceAction = action;
-      return searchMembersToAddToOrg.reducer(state, action, {
-        REQUEST: () => state
-          .setIn([SEARCH_MEMBERS_TO_ADD_TO_ORG, 'requestState'], RequestStates.PENDING)
-          .setIn([SEARCH_MEMBERS_TO_ADD_TO_ORG, seqAction.id], seqAction),
-        SUCCESS: () => {
-          const storedSeqAction :SequenceAction = state.getIn([SEARCH_MEMBERS_TO_ADD_TO_ORG, seqAction.id]);
-          if (storedSeqAction) {
-            const { organizationId } = storedSeqAction.value;
-            const orgMembers :List<Map> = state.getIn(['orgs', organizationId, 'members'], List());
-            const memberSearchResults = fromJS(seqAction.value)
-              .filter((user :Map) => {
-                const index = orgMembers.findIndex(
-                  (member :Map) => member.getIn(['profile', 'user_id']) === user.get('user_id')
-                );
-                return index === -1; // user is already a member
-              });
-            return state
-              .set('memberSearchResults', memberSearchResults)
-              .setIn([SEARCH_MEMBERS_TO_ADD_TO_ORG, 'requestState'], RequestStates.SUCCESS);
-          }
-          return state;
-        },
-        FAILURE: () => state.setIn([SEARCH_MEMBERS_TO_ADD_TO_ORG, 'requestState'], RequestStates.FAILURE),
-        FINALLY: () => state.deleteIn([SEARCH_MEMBERS_TO_ADD_TO_ORG, seqAction.id]),
       });
     }
 

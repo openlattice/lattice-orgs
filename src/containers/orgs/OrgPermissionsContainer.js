@@ -5,8 +5,9 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
-import { List, Map } from 'immutable';
+import { List, Map, Set } from 'immutable';
 import { Types } from 'lattice';
+import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
   ActionModal,
@@ -15,13 +16,14 @@ import {
   Colors,
   MinusButton,
   PlusButton,
-  Select,
+  SearchButton,
+  SearchInput,
   Spinner,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
-import type { PermissionType } from 'lattice';
+import type { ActionType, PermissionType } from 'lattice';
 import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
@@ -29,19 +31,21 @@ import * as OrgsActions from './OrgsActions';
 import * as PermissionsActions from '../../core/permissions/PermissionsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
-import { CompactCardSegment, SelectControlWithButton } from './components/styled';
-import { Logger } from '../../utils';
+import * as UsersActions from '../../core/users/UsersActions';
+import { INITIAL_SEARCH_RESULTS } from '../../core/redux/ReduxConstants';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
+import { Logger } from '../../utils';
 import { isNonEmptyString } from '../../utils/LangUtils';
 import { getUserId, getUserProfileLabel } from '../../utils/PersonUtils';
+import { ActionControlWithButton, CompactCardSegment } from './components/styled';
 import type { ResetRequestStateAction } from '../../core/redux/ReduxActions';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS, PURPLES } = Colors;
 const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
 
+const { GET_ALL_USERS, SEARCH_ALL_USERS } = PrincipalsApiActions;
 const { GET_ORGANIZATION_ACLS } = OrgsActions;
-const { GET_ALL_USERS } = PrincipalsApiActions;
 const { UPDATE_USER_PERMISSION } = PermissionsActions;
 
 const Title = styled.h2`
@@ -127,10 +131,11 @@ permissions for that role.
 
 type Props = {
   actions :{
-    getAllUsers :RequestSequence;
     getOrganizationACLs :RequestSequence;
     goToRoot :GoToRoot;
     resetRequestState :ResetRequestStateAction;
+    resetUserSearchResults :() => void;
+    searchAllUsers :RequestSequence;
     updateUserPermission :RequestSequence;
   };
   isOwner :boolean;
@@ -141,9 +146,11 @@ type Props = {
   requestStates :{
     GET_ALL_USERS :RequestState;
     GET_ORGANIZATION_ACLS :RequestState;
+    SEARCH_ALL_USERS :RequestState;
     UPDATE_USER_PERMISSION :RequestState;
   };
   users :Map;
+  userSearchResults :Map;
 };
 
 type State = {
@@ -152,6 +159,7 @@ type State = {
   selectedAclKey :List;
   selectedPermission :PermissionType;
   selectedUserId :?string;
+  valueOfSearchQuery :?string;
 };
 
 const LOG :Logger = new Logger('OrgPermissionsContainer');
@@ -168,6 +176,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
       selectedAclKey: props.orgAclKey, // an empty "selectedAclKey" is treated as org + roles, i.e. everything
       selectedPermission: PermissionTypes.OWNER,
       selectedUserId: undefined,
+      valueOfSearchQuery: undefined,
     };
   }
 
@@ -176,7 +185,6 @@ class OrgPermissionsContainer extends Component<Props, State> {
     const { actions, match } = this.props;
     const orgId :?UUID = getIdFromMatch(match);
 
-    actions.getAllUsers();
     actions.getOrganizationACLs(orgId);
   }
 
@@ -187,11 +195,11 @@ class OrgPermissionsContainer extends Component<Props, State> {
     const prevOrgId :?UUID = getIdFromMatch(props.match);
 
     if (orgId !== prevOrgId) {
-      actions.getAllUsers();
       actions.getOrganizationACLs(orgId);
     }
     else if (props.requestStates[UPDATE_USER_PERMISSION] === RequestStates.PENDING
         && requestStates[UPDATE_USER_PERMISSION] === RequestStates.SUCCESS) {
+      actions.resetUserSearchResults();
       actions.getOrganizationACLs(orgId);
     }
   }
@@ -199,33 +207,44 @@ class OrgPermissionsContainer extends Component<Props, State> {
   componentWillUnmount() {
 
     const { actions } = this.props;
-    actions.resetRequestState(GET_ALL_USERS);
+
     actions.resetRequestState(GET_ORGANIZATION_ACLS);
     actions.resetRequestState(UPDATE_USER_PERMISSION);
   }
 
-  handleOnChangeSelectedUser = (selectedOption :?{ label :string; value :string }) => {
+  handleOnChangeUserSearch = (event :SyntheticInputEvent<HTMLInputElement>) => {
 
-    const selectedUserId = selectedOption && selectedOption.value
-      ? selectedOption.value
-      : undefined;
+    const { actions } = this.props;
+    const valueOfSearchQuery = event.target.value || '';
 
-    this.setState({
-      selectedUserId,
-    });
-  }
-
-  handleOnClickAddPermission = () => {
-
-    const { selectedUserId } = this.state;
-    if (!isNonEmptyString(selectedUserId)) {
-      return;
+    if (!isNonEmptyString(valueOfSearchQuery)) {
+      actions.resetUserSearchResults();
     }
 
     this.setState({
-      isVisibleAddPermissionModal: true,
-      isVisibleRemovePermissionModal: false,
+      valueOfSearchQuery,
     });
+  }
+
+  handleOnClickAddPermission = (event :SyntheticEvent<HTMLElement>) => {
+
+    const { currentTarget } = event;
+    if (currentTarget instanceof HTMLElement) {
+      const { dataset } = currentTarget;
+      if (isNonEmptyString(dataset.userId)) {
+        this.setState({
+          isVisibleAddPermissionModal: true,
+          isVisibleRemovePermissionModal: false,
+          selectedUserId: dataset.userId,
+        });
+      }
+      else {
+        LOG.warn('target is missing expected data attributes: userId', currentTarget);
+      }
+    }
+    else {
+      LOG.warn('target is not an HTMLElement', currentTarget);
+    }
   }
 
   handleOnClickRemovePermission = (event :SyntheticEvent<HTMLElement>) => {
@@ -246,6 +265,27 @@ class OrgPermissionsContainer extends Component<Props, State> {
     }
     else {
       LOG.warn('target is not an HTMLElement', currentTarget);
+    }
+  }
+
+  handleOnKeyDownUserSearch = (event :SyntheticKeyboardEvent<HTMLInputElement>) => {
+
+    switch (event.key) {
+      case 'Enter':
+        this.searchUsers();
+        break;
+      default:
+        break;
+    }
+  }
+
+  searchUsers = () => {
+
+    const { actions, isOwner } = this.props;
+    const { valueOfSearchQuery } = this.state;
+
+    if (isOwner && isNonEmptyString(valueOfSearchQuery)) {
+      actions.searchAllUsers(valueOfSearchQuery);
     }
   }
 
@@ -303,11 +343,15 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
     const { actions } = this.props;
 
-    actions.resetRequestState(UPDATE_USER_PERMISSION);
     this.setState({
       isVisibleAddPermissionModal: false,
       isVisibleRemovePermissionModal: false,
     });
+
+    // the timeout avoids rendering the modal with new state before the transition animation finishes
+    setTimeout(() => {
+      actions.resetRequestState(UPDATE_USER_PERMISSION);
+    }, 1000);
   }
 
   selectAclKey = (selectedAclKey :?List) => {
@@ -437,63 +481,62 @@ class OrgPermissionsContainer extends Component<Props, State> {
 
   renderUserPermissions = () => {
 
-    const { orgACLs } = this.props;
+    const { orgACLs, requestStates } = this.props;
     const { selectedAclKey, selectedPermission } = this.state;
 
-    const userCardSegments = [];
+    const userIdsWithPermissions :Set<string> = Set().withMutations((set :Set) => {
+      // an empty "selectedAclKey" is treated as org + roles, i.e. everything
+      if (selectedAclKey.isEmpty()) {
 
-    // an empty "selectedAclKey" is treated as org + roles, i.e. everything
-    if (selectedAclKey.isEmpty()) {
-
-      const aclKeysMap :Map<string, List<List<UUID>>> = Map().withMutations((map :Map) => {
-        orgACLs.forEach((acl :Map) => {
-          const aclKey :List<UUID> = acl.get('aclKey');
-          acl.get('aces', List()).forEach((ace :Map) => {
-            if (
-              ace.getIn(['principal', 'type']) === PrincipalTypes.USER
-              && ace.get('permissions').includes(selectedPermission)
-            ) {
-              const userId :string = getUserId(ace);
-              map.update(userId, List(), (aclKeys :List<List<UUID>>) => aclKeys.push(aclKey));
-            }
+        const aclKeysMap :Map<string, List<List<UUID>>> = Map().withMutations((map :Map) => {
+          orgACLs.forEach((acl :Map) => {
+            const aclKey :List<UUID> = acl.get('aclKey');
+            acl.get('aces', List()).forEach((ace :Map) => {
+              if (
+                ace.getIn(['principal', 'type']) === PrincipalTypes.USER
+                && ace.get('permissions').includes(selectedPermission)
+              ) {
+                const userId :string = getUserId(ace);
+                map.update(userId, List(), (aclKeys :List<List<UUID>>) => aclKeys.push(aclKey));
+              }
+            });
           });
         });
-      });
 
-      const orgACLKeys :List<List<UUID>> = orgACLs.keySeq().toList();
-      aclKeysMap
-        .filter((aclKeys :List<List<UUID>>) => aclKeys.equals(orgACLKeys))
-        .keySeq()
-        .forEach((userId :string) => {
-          userCardSegments.push(this.renderUserCardSegment(userId));
-        });
-    }
-    else {
-      orgACLs.get(selectedAclKey, Map()).get('aces', List())
-        .filter((ace :Map) => (
-          ace.getIn(['principal', 'type']) === PrincipalTypes.USER
-          && ace.get('permissions').includes(selectedPermission)
-        ))
-        .forEach((ace :Map) => {
-          const userId :string = getUserId(ace);
-          userCardSegments.push(this.renderUserCardSegment(userId));
-        });
-    }
+        const orgACLKeys :List<List<UUID>> = orgACLs.keySeq().toList();
+        aclKeysMap
+          .filter((aclKeys :List<List<UUID>>) => aclKeys.equals(orgACLKeys))
+          .keySeq()
+          .forEach((userId :string) => set.add(userId));
+      }
+      else {
+        orgACLs.get(selectedAclKey, Map()).get('aces', List())
+          .filter((ace :Map) => (
+            ace.getIn(['principal', 'type']) === PrincipalTypes.USER
+            && ace.get('permissions').includes(selectedPermission)
+          ))
+          .forEach((ace :Map) => set.add(getUserId(ace)));
+      }
+    });
+
+    const userCardSegments = userIdsWithPermissions.map(
+      (userId :string) => this.renderUserCardSegment(userId, ActionTypes.REMOVE)
+    );
 
     return (
       <>
-        <SelectControlWithButton>
-          <Select
-              isClearable
-              options={this.getUserSelectOptions()}
-              onChange={this.handleOnChangeSelectedUser}
-              placeholder="Select a user" />
-          <PlusButton
-              mode="positive"
-              onClick={this.handleOnClickAddPermission} />
-        </SelectControlWithButton>
+        <ActionControlWithButton>
+          <SearchInput
+              onChange={this.handleOnChangeUserSearch}
+              onKeyDown={this.handleOnKeyDownUserSearch}
+              placeholder="Search users..." />
+          <SearchButton
+              isLoading={requestStates.SEARCH_ALL_USERS === RequestStates.PENDING}
+              onClick={this.searchUsers} />
+        </ActionControlWithButton>
+        {this.renderUserSearchResults(userIdsWithPermissions)}
         {
-          userCardSegments.length > 0 && (
+          !userCardSegments.isEmpty() && (
             <Card>{userCardSegments}</Card>
           )
         }
@@ -501,23 +544,69 @@ class OrgPermissionsContainer extends Component<Props, State> {
     );
   }
 
-  renderUserCardSegment = (userId :string) => {
+  renderUserSearchResults = (existingUserIds :Set) => {
+
+    const { userSearchResults } = this.props;
+    const { valueOfSearchQuery } = this.state;
+
+    if (INITIAL_SEARCH_RESULTS.equals(userSearchResults) || !isNonEmptyString(valueOfSearchQuery)) {
+      return null;
+    }
+
+    const searchResultCardSegments = userSearchResults
+      .valueSeq()
+      .filter((user :Map) => {
+        const thisUserInfo :Object = AuthUtils.getUserInfo() || { id: '' };
+        const userId :string = getUserId(user);
+        return userId !== thisUserInfo.id && !existingUserIds.has(userId);
+      })
+      .map((user :Map) => this.renderUserCardSegment(getUserId(user), ActionTypes.ADD));
+
+    if (searchResultCardSegments.isEmpty()) {
+      return (
+        <div>No matching users found</div>
+      );
+    }
+
+    return (
+      <Card>{searchResultCardSegments}</Card>
+    );
+  }
+
+  renderUserCardSegment = (userId :string, action :ActionType) => {
 
     const { isOwner, users } = this.props;
 
     const user :Map = users.get(userId, Map());
     const userProfileLabel :string = getUserProfileLabel(user) || userId;
 
-    return (
-      <CompactCardSegment key={userId}>
-        <span title={userProfileLabel}>{userProfileLabel}</span>
-        <MinusButton
-            disabled={!isOwner}
-            data-user-id={userId}
-            mode="negative"
-            onClick={this.handleOnClickRemovePermission} />
-      </CompactCardSegment>
-    );
+    if (action === ActionTypes.ADD) {
+      return (
+        <CompactCardSegment key={userId}>
+          <span title={userProfileLabel}>{userProfileLabel}</span>
+          <PlusButton
+              disabled={!isOwner}
+              data-user-id={userId}
+              mode="positive"
+              onClick={this.handleOnClickAddPermission} />
+        </CompactCardSegment>
+      );
+    }
+
+    if (action === ActionTypes.REMOVE) {
+      return (
+        <CompactCardSegment key={userId}>
+          <span title={userProfileLabel}>{userProfileLabel}</span>
+          <MinusButton
+              disabled={!isOwner}
+              data-user-id={userId}
+              mode="negative"
+              onClick={this.handleOnClickRemovePermission} />
+        </CompactCardSegment>
+      );
+    }
+
+    return null;
   }
 
   renderUnauthorizedAccess = () => (
@@ -600,20 +689,23 @@ const mapStateToProps = (state :Map, props :Object) => {
     requestStates: {
       [GET_ALL_USERS]: state.getIn(['users', GET_ALL_USERS, 'requestState']),
       [GET_ORGANIZATION_ACLS]: state.getIn(['orgs', GET_ORGANIZATION_ACLS, 'requestState']),
+      [SEARCH_ALL_USERS]: state.getIn(['users', SEARCH_ALL_USERS, 'requestState']),
       [UPDATE_USER_PERMISSION]: state.getIn(['permissions', UPDATE_USER_PERMISSION, 'requestState']),
     },
     users: state.getIn(['users', 'users'], Map()),
+    userSearchResults: state.getIn(['users', 'userSearchResults'], Map()),
   };
 };
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     deleteOrganization: OrganizationsApiActions.deleteOrganization,
-    getAllUsers: PrincipalsApiActions.getAllUsers,
     getOrganizationACLs: OrgsActions.getOrganizationACLs,
     getOrganizationDetails: OrgsActions.getOrganizationDetails,
     goToRoot: RoutingActions.goToRoot,
     resetRequestState: ReduxActions.resetRequestState,
+    resetUserSearchResults: UsersActions.resetUserSearchResults,
+    searchAllUsers: PrincipalsApiActions.searchAllUsers,
     updateUserPermission: PermissionsActions.updateUserPermission,
   }, dispatch)
 });

@@ -11,6 +11,8 @@ import {
 import {
   EntitySetsApiActions,
   EntitySetsApiSagas,
+  PrincipalsApiActions,
+  PrincipalsApiSagas,
 } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -25,6 +27,8 @@ const LOG = new Logger('AppSagas');
 
 const { getAllEntitySets } = EntitySetsApiActions;
 const { getAllEntitySetsWorker } = EntitySetsApiSagas;
+const { getAllUsers } = PrincipalsApiActions;
+const { getAllUsersWorker } = PrincipalsApiSagas;
 
 
 /*
@@ -41,14 +45,19 @@ function* initializeApplicationWorker(action :SequenceAction) :Generator<*, *, *
       call(getEntityDataModelTypesWorker, getEntityDataModelTypes()),
       call(getOrgsAndPermissionsWorker, getOrgsAndPermissions()),
       call(getAllEntitySetsWorker, getAllEntitySets()),
+      call(getAllUsersWorker, getAllUsers()),
     ]);
     if (responses[0].error) throw responses[0].error;
     if (responses[1].error) throw responses[1].error;
 
-    // do not block the app from loading if getAllEntitySets() fails. handling this error can be done in the container
-    // responsible for rendering an organization's EntitySets
+    // do not block the app from loading if getAllEntitySets() fails
     if (responses[2].error) {
       LOG.error(action.type, responses[2].error);
+    }
+
+    // do not block the app from loading if getAllUsers() fails
+    if (responses[3].error) {
+      LOG.error(action.type, responses[3].error);
     }
 
     yield put(initializeApplication.success(action.id));

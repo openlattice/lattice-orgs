@@ -16,7 +16,6 @@ import {
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
-  SEARCH_MEMBERS_TO_ADD_TO_ORG,
 } from './OrgsActions';
 
 const {
@@ -118,9 +117,6 @@ describe('OrgsReducer', () => {
       [REVOKE_TRUST_FROM_ORG]: {
         requestState: RequestStates.STANDBY,
       },
-      [SEARCH_MEMBERS_TO_ADD_TO_ORG]: {
-        requestState: RequestStates.STANDBY,
-      },
       [UPDATE_ORG_DESCRIPTION]: {
         requestState: RequestStates.STANDBY,
       },
@@ -131,7 +127,6 @@ describe('OrgsReducer', () => {
         requestState: RequestStates.STANDBY,
       },
       isOwnerOfOrgIds: [],
-      memberSearchResults: {},
       newlyCreatedOrgId: undefined,
       orgACLs: {},
       orgEntitySets: {},
