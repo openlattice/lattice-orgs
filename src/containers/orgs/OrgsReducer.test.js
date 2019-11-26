@@ -54,8 +54,8 @@ const {
   removeRoleFromMember,
 } = OrganizationsApiActions;
 
-const MOCK_MEMBER_PRINCIPAL :Principal = (new PrincipalBuilder())
-  .setId('MockOrgMemberPrincipalId')
+const MOCK_USER_PRINCIPAL :Principal = (new PrincipalBuilder())
+  .setId('MockUserPrincipalId')
   .setType(PrincipalTypes.USER)
   .build();
 
@@ -156,10 +156,10 @@ describe('OrgsReducer', () => {
     // the structure of this object isn't 100% accurate, but it's enough to make things work
     const newOrgMember = fromJS({
       principal: {
-        principal: MOCK_MEMBER_PRINCIPAL.toImmutable(),
+        principal: MOCK_USER_PRINCIPAL.toImmutable(),
       },
       profile: {
-        user_id: MOCK_MEMBER_PRINCIPAL.id,
+        user_id: MOCK_USER_PRINCIPAL.id,
       },
     });
 
@@ -168,7 +168,7 @@ describe('OrgsReducer', () => {
       .setIn(['orgMembers', MOCK_ORG.id], List().push(existingOrgMember));
 
     const requestActionValue = {
-      memberId: MOCK_MEMBER_PRINCIPAL.id,
+      memberId: MOCK_USER_PRINCIPAL.id,
       organizationId: MOCK_ORG.id,
     };
 
@@ -198,7 +198,7 @@ describe('OrgsReducer', () => {
 
       const expectedOrgs = Map().set(
         MOCK_ORG.id,
-        MOCK_ORG.toImmutable().update('members', (m :List) => m.push(MOCK_MEMBER_PRINCIPAL.toImmutable()))
+        MOCK_ORG.toImmutable().update('members', (m :List) => m.push(MOCK_USER_PRINCIPAL.toImmutable()))
       );
       expect(state.get('orgs').hashCode()).toEqual(expectedOrgs.hashCode());
       expect(state.get('orgs').equals(expectedOrgs)).toEqual(true);
@@ -247,7 +247,7 @@ describe('OrgsReducer', () => {
 
     // the structure of this object isn't 100% accurate, but it's enough to make things work
     const mockOrgMember = fromJS({
-      principal: MOCK_MEMBER_PRINCIPAL.toImmutable(),
+      principal: MOCK_USER_PRINCIPAL.toImmutable(),
       roles: [],
     });
 
@@ -256,7 +256,7 @@ describe('OrgsReducer', () => {
       .setIn(['orgMembers', MOCK_ORG.id], List().push(mockOrgMember));
 
     const requestActionValue = {
-      memberId: MOCK_MEMBER_PRINCIPAL.id,
+      memberId: MOCK_USER_PRINCIPAL.id,
       organizationId: MOCK_ORG.id,
       roleId: MOCK_ORG_ROLE.id,
     };
@@ -471,7 +471,7 @@ describe('OrgsReducer', () => {
 
     // the structure of this object isn't 100% accurate, but it's enough to make things work
     const mockOrgMember = fromJS({
-      principal: MOCK_MEMBER_PRINCIPAL.toImmutable(),
+      principal: MOCK_USER_PRINCIPAL.toImmutable(),
       roles: [MOCK_ORG_ROLE.toImmutable()],
     });
 
@@ -480,7 +480,7 @@ describe('OrgsReducer', () => {
       .setIn(['orgMembers', MOCK_ORG.id], List().push(mockOrgMember));
 
     const requestActionValue = {
-      memberId: MOCK_MEMBER_PRINCIPAL.id,
+      memberId: MOCK_USER_PRINCIPAL.id,
       organizationId: MOCK_ORG.id,
       roleId: MOCK_ORG_ROLE.id,
     };
