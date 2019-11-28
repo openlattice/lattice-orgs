@@ -5,7 +5,6 @@
 import {
   all,
   call,
-  delay,
   put,
   select,
   takeEvery,
@@ -36,13 +35,11 @@ import {
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
-  SEARCH_MEMBERS_TO_ADD_TO_ORG,
   addConnection,
   getOrganizationACLs,
   getOrganizationDetails,
   getOrgsAndPermissions,
   removeConnection,
-  searchMembersToAddToOrg,
 } from './OrgsActions';
 
 const LOG = new Logger('OrgsSagas');
@@ -74,8 +71,8 @@ const {
 } = OrganizationsApiSagas;
 const { getAcl } = PermissionsApiActions;
 const { getAclWorker } = PermissionsApiSagas;
-const { getSecurablePrincipal, searchAllUsers } = PrincipalsApiActions;
-const { getSecurablePrincipalWorker, searchAllUsersWorker } = PrincipalsApiSagas;
+const { getSecurablePrincipal } = PrincipalsApiActions;
+const { getSecurablePrincipalWorker } = PrincipalsApiSagas;
 
 /*
  *
@@ -372,46 +369,6 @@ function* removeConnectionWatcher() :Generator<*, *, *> {
   yield takeLatest(REMOVE_CONNECTION, removeConnectionWorker);
 }
 
-/*
- *
- * OrgsActions.searchMembersToAddToOrg
- *
- */
-
-function* searchMembersToAddToOrgWorker(action :SequenceAction) :Generator<*, *, *> {
-
-  try {
-    yield put(searchMembersToAddToOrg.request(action.id, action.value));
-
-    const { organizationId, query } = action.value;
-    if (!isValidUUID(organizationId)) {
-      throw new Error('organizationId must be a valid UUID');
-    }
-
-    yield delay(1000);
-
-    let searchResults = List();
-    if (query.length > 1) {
-      const response = yield call(searchAllUsersWorker, searchAllUsers(query));
-      if (response.error) throw response.error;
-      searchResults = fromJS(response.data);
-    }
-    yield put(searchMembersToAddToOrg.success(action.id, searchResults));
-  }
-  catch (error) {
-    LOG.error(action.type, error);
-    yield put(searchMembersToAddToOrg.failure(action.id));
-  }
-  finally {
-    yield put(searchMembersToAddToOrg.finally(action.id));
-  }
-}
-
-function* searchMembersToAddToOrgWatcher() :Generator<*, *, *> {
-
-  yield takeLatest(SEARCH_MEMBERS_TO_ADD_TO_ORG, searchMembersToAddToOrgWorker);
-}
-
 export {
   addConnectionWatcher,
   addConnectionWorker,
@@ -423,6 +380,4 @@ export {
   getOrgsAndPermissionsWorker,
   removeConnectionWatcher,
   removeConnectionWorker,
-  searchMembersToAddToOrgWatcher,
-  searchMembersToAddToOrgWorker,
 };

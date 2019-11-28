@@ -41,7 +41,7 @@ const MOCK_ORG :Organization = (new OrganizationBuilder())
   .setId(MOCK_ORG_ID)
   .setMembers([
     (new PrincipalBuilder())
-      .setId('MockOrgMemberPrincipal')
+      .setId('MockOrgMemberPrincipalId')
       .setType(PrincipalTypes.USER)
       .build()
   ])

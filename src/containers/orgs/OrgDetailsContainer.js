@@ -19,7 +19,6 @@ import {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
-import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as OrgsActions from './OrgsActions';
@@ -38,14 +37,8 @@ import { Logger } from '../../utils';
 import { isNonEmptyString } from '../../utils/LangUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
-const {
-  ADD_MEMBER_TO_ORG,
-  DELETE_ORGANIZATION,
-} = OrganizationsApiActions;
-
-const {
-  GET_ORGANIZATION_DETAILS,
-} = OrgsActions;
+const { GET_ORGANIZATION_DETAILS } = OrgsActions;
+const { DELETE_ORGANIZATION } = OrganizationsApiActions;
 
 const OrgDescriptionSegment = styled(CardSegment)`
   justify-content: space-between;
@@ -69,7 +62,6 @@ type Props = {
     resetRequestState :(actionType :string) => void;
   };
   isOwner :boolean;
-  match :Match;
   org :Map;
   requestStates :{
     ADD_MEMBER_TO_ORG :RequestState;
@@ -101,13 +93,7 @@ class OrgDetailsContainer extends Component<Props, State> {
 
   componentDidUpdate(prevProps :Props) {
 
-    const { actions, match, requestStates } = this.props;
-    const orgId :?UUID = getIdFromMatch(match);
-
-    if (prevProps.requestStates[ADD_MEMBER_TO_ORG] === RequestStates.PENDING
-        && requestStates[ADD_MEMBER_TO_ORG] === RequestStates.SUCCESS) {
-      actions.getOrganizationDetails(orgId);
-    }
+    const { actions, requestStates } = this.props;
 
     if (prevProps.requestStates[DELETE_ORGANIZATION] === RequestStates.PENDING
         && requestStates[DELETE_ORGANIZATION] === RequestStates.SUCCESS) {
@@ -300,7 +286,6 @@ const mapStateToProps = (state :Map, props :Object) => {
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
     orgs: state.getIn(['orgs', 'orgs'], Map()),
     requestStates: {
-      [ADD_MEMBER_TO_ORG]: state.getIn(['orgs', ADD_MEMBER_TO_ORG, 'requestState']),
       [DELETE_ORGANIZATION]: state.getIn(['orgs', DELETE_ORGANIZATION, 'requestState']),
       [GET_ORGANIZATION_DETAILS]: state.getIn(['orgs', GET_ORGANIZATION_DETAILS, 'requestState']),
     },

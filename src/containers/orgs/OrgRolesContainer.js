@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
-import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
+import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   ActionModal,
   Card,
@@ -36,7 +36,6 @@ const { PrincipalTypes } = Types;
 
 const { GET_ORGANIZATION_ACLS } = OrgsActions;
 const { ADD_ROLE_TO_MEMBER, REMOVE_ROLE_FROM_MEMBER } = OrganizationsApiActions;
-const { GET_ALL_USERS } = PrincipalsApiActions;
 
 const RoleAssignmentsGrid = styled.div`
   display: grid;
@@ -457,11 +456,9 @@ const mapStateToProps = (state :Map, props :Object) => {
     orgMembers: state.getIn(['orgs', 'orgMembers', orgId], List()),
     requestStates: {
       [ADD_ROLE_TO_MEMBER]: state.getIn(['orgs', ADD_ROLE_TO_MEMBER, 'requestState']),
-      [GET_ALL_USERS]: state.getIn(['users', GET_ALL_USERS, 'requestState']),
       [GET_ORGANIZATION_ACLS]: state.getIn(['orgs', GET_ORGANIZATION_ACLS, 'requestState']),
       [REMOVE_ROLE_FROM_MEMBER]: state.getIn(['orgs', REMOVE_ROLE_FROM_MEMBER, 'requestState']),
     },
-    users: state.getIn(['users', 'users'], Map()),
   };
 };
 
