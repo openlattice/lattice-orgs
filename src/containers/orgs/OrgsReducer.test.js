@@ -16,7 +16,6 @@ import {
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
-  SEARCH_MEMBERS_TO_ADD_TO_ORG,
 } from './OrgsActions';
 
 const {
@@ -48,11 +47,18 @@ const {
   UPDATE_ORG_DESCRIPTION,
   UPDATE_ORG_TITLE,
   UPDATE_ROLE_GRANT,
+  addMemberToOrganization,
   addRoleToMember,
   createRole,
   deleteRole,
+  removeMemberFromOrganization,
   removeRoleFromMember,
 } = OrganizationsApiActions;
+
+const MOCK_USER_PRINCIPAL :Principal = (new PrincipalBuilder())
+  .setId('MockUserPrincipalId')
+  .setType(PrincipalTypes.USER)
+  .build();
 
 describe('OrgsReducer', () => {
 
@@ -118,9 +124,6 @@ describe('OrgsReducer', () => {
       [REVOKE_TRUST_FROM_ORG]: {
         requestState: RequestStates.STANDBY,
       },
-      [SEARCH_MEMBERS_TO_ADD_TO_ORG]: {
-        requestState: RequestStates.STANDBY,
-      },
       [UPDATE_ORG_DESCRIPTION]: {
         requestState: RequestStates.STANDBY,
       },
@@ -131,7 +134,6 @@ describe('OrgsReducer', () => {
         requestState: RequestStates.STANDBY,
       },
       isOwnerOfOrgIds: [],
-      memberSearchResults: {},
       newlyCreatedOrgId: undefined,
       orgACLs: {},
       orgEntitySets: {},
@@ -140,16 +142,113 @@ describe('OrgsReducer', () => {
     });
   });
 
-  describe(ADD_ROLE_TO_MEMBER, () => {
+  describe(ADD_MEMBER_TO_ORG, () => {
 
-    const mockMemberPrincipal :Principal = (new PrincipalBuilder())
-      .setId('MockOrgMemberPrincipalId')
-      .setType(PrincipalTypes.USER)
-      .build();
+    // the structure of this object isn't 100% accurate, but it's enough to make things work
+    const existingOrgMember = fromJS({
+      principal: {
+        principal: MOCK_ORG.members[0].toImmutable(),
+      },
+      profile: {
+        user_id: MOCK_ORG.members[0].id,
+      },
+    });
 
     // the structure of this object isn't 100% accurate, but it's enough to make things work
     const mockOrgMember = fromJS({
-      principal: mockMemberPrincipal.toImmutable(),
+      principal: {
+        principal: MOCK_USER_PRINCIPAL.toImmutable(),
+      },
+      profile: {
+        user_id: MOCK_USER_PRINCIPAL.id,
+      },
+    });
+
+    const initialState = INITIAL_STATE
+      .setIn(['orgs', MOCK_ORG.id], MOCK_ORG.toImmutable())
+      .setIn(['orgMembers', MOCK_ORG.id], List().push(existingOrgMember));
+
+    const requestActionValue = {
+      memberId: MOCK_USER_PRINCIPAL.id,
+      organizationId: MOCK_ORG.id,
+    };
+
+    test(addMemberToOrganization.REQUEST, () => {
+
+      const { id } = addMemberToOrganization();
+      const requestAction = addMemberToOrganization.request(id, requestActionValue);
+      const state = reducer(initialState, requestAction);
+
+      expect(state.getIn([ADD_MEMBER_TO_ORG, 'requestState'])).toEqual(RequestStates.PENDING);
+      expect(state.getIn([ADD_MEMBER_TO_ORG, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+      expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
+      expect(state.get('orgMembers').equals(initialState.get('orgMembers'))).toEqual(true);
+    });
+
+    test(addMemberToOrganization.SUCCESS, () => {
+
+      const { id } = addMemberToOrganization();
+      const requestAction = addMemberToOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, addMemberToOrganization.success(id));
+
+      expect(state.getIn([ADD_MEMBER_TO_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([ADD_MEMBER_TO_ORG, id])).toEqual(requestAction);
+
+      const expectedOrgs = Map().set(
+        MOCK_ORG.id,
+        MOCK_ORG.toImmutable().update('members', (m :List) => m.push(MOCK_USER_PRINCIPAL.toImmutable()))
+      );
+      expect(state.get('orgs').hashCode()).toEqual(expectedOrgs.hashCode());
+      expect(state.get('orgs').equals(expectedOrgs)).toEqual(true);
+
+      const expectedOrgMembers = Map().set(
+        MOCK_ORG.id,
+        initialState.getIn(['orgMembers', MOCK_ORG.id]).push(mockOrgMember),
+      );
+      expect(state.get('orgMembers').hashCode()).toEqual(expectedOrgMembers.hashCode());
+      expect(state.get('orgMembers').equals(expectedOrgMembers)).toEqual(true);
+    });
+
+    test(addMemberToOrganization.FAILURE, () => {
+
+      const { id } = addMemberToOrganization();
+      const requestAction = addMemberToOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, addMemberToOrganization.failure(id));
+
+      expect(state.getIn([ADD_MEMBER_TO_ORG, 'requestState'])).toEqual(RequestStates.FAILURE);
+      expect(state.getIn([ADD_MEMBER_TO_ORG, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+      expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
+      expect(state.get('orgMembers').equals(initialState.get('orgMembers'))).toEqual(true);
+    });
+
+    test(addMemberToOrganization.FINALLY, () => {
+
+      const { id } = addMemberToOrganization();
+      const requestAction = addMemberToOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+
+      state = reducer(state, addMemberToOrganization.success(id));
+      expect(state.getIn([ADD_MEMBER_TO_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([ADD_MEMBER_TO_ORG, id])).toEqual(requestAction);
+
+      state = reducer(state, addMemberToOrganization.finally(id));
+      expect(state.getIn([ADD_MEMBER_TO_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.hasIn([ADD_MEMBER_TO_ORG, id])).toEqual(false);
+    });
+
+  });
+
+  describe(ADD_ROLE_TO_MEMBER, () => {
+
+    // the structure of this object isn't 100% accurate, but it's enough to make things work
+    const mockOrgMember = fromJS({
+      principal: MOCK_USER_PRINCIPAL.toImmutable(),
       roles: [],
     });
 
@@ -158,7 +257,7 @@ describe('OrgsReducer', () => {
       .setIn(['orgMembers', MOCK_ORG.id], List().push(mockOrgMember));
 
     const requestActionValue = {
-      memberId: mockMemberPrincipal.id,
+      memberId: MOCK_USER_PRINCIPAL.id,
       organizationId: MOCK_ORG.id,
       roleId: MOCK_ORG_ROLE.id,
     };
@@ -369,16 +468,107 @@ describe('OrgsReducer', () => {
 
   });
 
-  describe(REMOVE_ROLE_FROM_MEMBER, () => {
+  describe(REMOVE_MEMBER_FROM_ORG, () => {
 
-    const mockMemberPrincipal :Principal = (new PrincipalBuilder())
-      .setId('MockOrgMemberPrincipalId')
-      .setType(PrincipalTypes.USER)
-      .build();
+    // the structure of this object isn't 100% accurate, but it's enough to make things work
+    const existingOrgMembers = fromJS([
+      {
+        principal: {
+          principal: MOCK_ORG.members[0].toImmutable(),
+        },
+        profile: {
+          user_id: MOCK_ORG.members[0].id,
+        },
+      },
+      {
+        principal: {
+          principal: MOCK_USER_PRINCIPAL.toImmutable(),
+        },
+        profile: {
+          user_id: MOCK_USER_PRINCIPAL.id,
+        },
+      }
+    ]);
+
+    const initialState = INITIAL_STATE
+      .setIn(['orgs', MOCK_ORG.id], MOCK_ORG.toImmutable())
+      .setIn(['orgMembers', MOCK_ORG.id], existingOrgMembers);
+
+    const requestActionValue = {
+      memberId: MOCK_USER_PRINCIPAL.id,
+      organizationId: MOCK_ORG.id,
+    };
+
+    test(removeMemberFromOrganization.REQUEST, () => {
+
+      const { id } = removeMemberFromOrganization();
+      const requestAction = removeMemberFromOrganization.request(id, requestActionValue);
+      const state = reducer(initialState, requestAction);
+
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.PENDING);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+      expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
+      expect(state.get('orgMembers').equals(initialState.get('orgMembers'))).toEqual(true);
+    });
+
+    test(removeMemberFromOrganization.SUCCESS, () => {
+
+      const { id } = removeMemberFromOrganization();
+      const requestAction = removeMemberFromOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, removeMemberFromOrganization.success(id));
+
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+
+      const expectedOrgs = Map().set(MOCK_ORG.id, MOCK_ORG.toImmutable());
+      expect(state.get('orgs').hashCode()).toEqual(expectedOrgs.hashCode());
+      expect(state.get('orgs').equals(expectedOrgs)).toEqual(true);
+
+      const expectedOrgMembers = Map().set(MOCK_ORG.id, List().push(existingOrgMembers.get(0)));
+      expect(state.get('orgMembers').hashCode()).toEqual(expectedOrgMembers.hashCode());
+      expect(state.get('orgMembers').equals(expectedOrgMembers)).toEqual(true);
+    });
+
+    test(removeMemberFromOrganization.FAILURE, () => {
+
+      const { id } = removeMemberFromOrganization();
+      const requestAction = removeMemberFromOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, removeMemberFromOrganization.failure(id));
+
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.FAILURE);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+      expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
+      expect(state.get('orgMembers').equals(initialState.get('orgMembers'))).toEqual(true);
+    });
+
+    test(removeMemberFromOrganization.FINALLY, () => {
+
+      const { id } = removeMemberFromOrganization();
+      const requestAction = removeMemberFromOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+
+      state = reducer(state, removeMemberFromOrganization.success(id));
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+
+      state = reducer(state, removeMemberFromOrganization.finally(id));
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.hasIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(false);
+    });
+
+  });
+
+  describe(REMOVE_ROLE_FROM_MEMBER, () => {
 
     // the structure of this object isn't 100% accurate, but it's enough to make things work
     const mockOrgMember = fromJS({
-      principal: mockMemberPrincipal.toImmutable(),
+      principal: MOCK_USER_PRINCIPAL.toImmutable(),
       roles: [MOCK_ORG_ROLE.toImmutable()],
     });
 
@@ -387,7 +577,7 @@ describe('OrgsReducer', () => {
       .setIn(['orgMembers', MOCK_ORG.id], List().push(mockOrgMember));
 
     const requestActionValue = {
-      memberId: mockMemberPrincipal.id,
+      memberId: MOCK_USER_PRINCIPAL.id,
       organizationId: MOCK_ORG.id,
       roleId: MOCK_ORG_ROLE.id,
     };

@@ -20,20 +20,15 @@ const getOrgsAndPermissions :RequestSequence = newRequestSequence(GET_ORGS_AND_P
 const REMOVE_CONNECTION :'REMOVE_CONNECTION' = 'REMOVE_CONNECTION';
 const removeConnection :RequestSequence = newRequestSequence(REMOVE_CONNECTION);
 
-const SEARCH_MEMBERS_TO_ADD_TO_ORG :'SEARCH_MEMBERS_TO_ADD_TO_ORG' = 'SEARCH_MEMBERS_TO_ADD_TO_ORG';
-const searchMembersToAddToOrg :RequestSequence = newRequestSequence(SEARCH_MEMBERS_TO_ADD_TO_ORG);
-
 export {
   ADD_CONNECTION,
   GET_ORGANIZATION_ACLS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
-  SEARCH_MEMBERS_TO_ADD_TO_ORG,
   addConnection,
   getOrganizationACLs,
   getOrganizationDetails,
   getOrgsAndPermissions,
   removeConnection,
-  searchMembersToAddToOrg,
 };
