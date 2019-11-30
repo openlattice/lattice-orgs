@@ -21,12 +21,13 @@ import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as OrgsActions from './OrgsActions';
+import { OrgRoleGrantsSection, OrgRolesSection } from './components';
+
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
-import { OrgRoleGrantsSection, OrgRolesSection } from './components';
 import { SectionGrid } from '../../components';
-import { Logger } from '../../utils';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
+import { Logger } from '../../utils';
 import { isDefined } from '../../utils/LangUtils';
 import { getUserId, getUserProfileLabel } from '../../utils/PersonUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';

@@ -22,6 +22,8 @@ import { RequestStates } from 'redux-reqseq';
 import type { ActionType } from 'lattice';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
+import { ActionControlWithButton, CompactCardSegment } from './styled';
+
 import * as ReduxActions from '../../../core/redux/ReduxActions';
 import * as UsersActions from '../../../core/users/UsersActions';
 import { SectionGrid } from '../../../components';
@@ -30,7 +32,6 @@ import { Logger } from '../../../utils';
 import { isNonEmptyString } from '../../../utils/LangUtils';
 import { getUserId, getUserProfileLabel } from '../../../utils/PersonUtils';
 import type { ResetRequestStateAction } from '../../../core/redux/ReduxActions';
-import { ActionControlWithButton, CompactCardSegment } from './styled';
 
 const { ActionTypes } = Types;
 const { ADD_MEMBER_TO_ORG, REMOVE_MEMBER_FROM_ORG } = OrganizationsApiActions;

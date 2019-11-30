@@ -8,15 +8,20 @@ import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 
 import reducer from './OrgsReducer';
-import { MOCK_ORG, MOCK_ORG_ROLE } from '../../utils/testing/MockData';
-import { genRandomUUID } from '../../utils/testing/MockUtils';
 import {
   ADD_CONNECTION,
+  ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATION_ACLS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
+  REMOVE_ROLE_FROM_ORGANIZATION,
+  addRoleToOrganization,
+  removeRoleFromOrganization,
 } from './OrgsActions';
+
+import { MOCK_ORG, MOCK_ORG_ROLE } from '../../utils/testing/MockData';
+import { genRandomUUID } from '../../utils/testing/MockUtils';
 
 const {
   PrincipalTypes,
@@ -34,9 +39,7 @@ const {
   ADD_MEMBER_TO_ORG,
   ADD_ROLE_TO_MEMBER,
   CREATE_ORGANIZATION,
-  CREATE_ROLE,
   DELETE_ORGANIZATION,
-  DELETE_ROLE,
   GET_ORG_ENTITY_SETS,
   GET_ORG_MEMBERS,
   GRANT_TRUST_TO_ORG,
@@ -49,8 +52,6 @@ const {
   UPDATE_ROLE_GRANT,
   addMemberToOrganization,
   addRoleToMember,
-  createRole,
-  deleteRole,
   removeMemberFromOrganization,
   removeRoleFromMember,
 } = OrganizationsApiActions;
@@ -79,16 +80,13 @@ describe('OrgsReducer', () => {
       [ADD_ROLE_TO_MEMBER]: {
         requestState: RequestStates.STANDBY,
       },
+      [ADD_ROLE_TO_ORGANIZATION]: {
+        requestState: RequestStates.STANDBY,
+      },
       [CREATE_ORGANIZATION]: {
         requestState: RequestStates.STANDBY,
       },
-      [CREATE_ROLE]: {
-        requestState: RequestStates.STANDBY,
-      },
       [DELETE_ORGANIZATION]: {
-        requestState: RequestStates.STANDBY,
-      },
-      [DELETE_ROLE]: {
         requestState: RequestStates.STANDBY,
       },
       [GET_ORGS_AND_PERMISSIONS]: {
@@ -119,6 +117,9 @@ describe('OrgsReducer', () => {
         requestState: RequestStates.STANDBY,
       },
       [REMOVE_ROLE_FROM_MEMBER]: {
+        requestState: RequestStates.STANDBY,
+      },
+      [REMOVE_ROLE_FROM_ORGANIZATION]: {
         requestState: RequestStates.STANDBY,
       },
       [REVOKE_TRUST_FROM_ORG]: {
@@ -328,142 +329,83 @@ describe('OrgsReducer', () => {
 
   });
 
-  describe(CREATE_ROLE, () => {
+  describe(ADD_ROLE_TO_ORGANIZATION, () => {
 
-    const mockRole :Role = (new RoleBuilder())
-      .setDescription('MockRoleDescription')
+    const mockNewRole :Role = (new RoleBuilder())
+      .setDescription('MockNewRoleDescription')
       .setId(genRandomUUID())
       // $FlowFixMe
       .setOrganizationId(MOCK_ORG.id)
       .setPrincipal(
         (new PrincipalBuilder())
-          .setId('MockRolePrincipalId')
+          .setId('MockNewRolePrincipalId')
           .setType(PrincipalTypes.USER)
           .build()
       )
-      .setTitle('MockRoleTitle')
+      .setTitle('MockNewRoleTitle')
       .build();
 
-    const initialState = INITIAL_STATE.setIn(['orgs', MOCK_ORG.id], MOCK_ORG.toImmutable());
+    const initialState = INITIAL_STATE
+      .setIn(['orgs', MOCK_ORG.id], MOCK_ORG.toImmutable());
 
-    test(createRole.REQUEST, () => {
+    const requestActionValue = { organizationId: MOCK_ORG.id, roleTitle: mockNewRole.title };
 
-      const { id } = createRole();
-      const requestAction = createRole.request(id, mockRole);
+    test(addRoleToOrganization.REQUEST, () => {
+
+      const { id } = addRoleToOrganization();
+      const requestAction = addRoleToOrganization.request(id, requestActionValue);
       const state = reducer(initialState, requestAction);
 
-      expect(state.getIn([CREATE_ROLE, 'requestState'])).toEqual(RequestStates.PENDING);
-      expect(state.getIn([CREATE_ROLE, id])).toEqual(requestAction);
+      expect(state.getIn([ADD_ROLE_TO_ORGANIZATION, 'requestState'])).toEqual(RequestStates.PENDING);
+      expect(state.getIn([ADD_ROLE_TO_ORGANIZATION, id])).toEqual(requestAction);
       expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
       expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
     });
 
-    test(createRole.SUCCESS, () => {
+    test(addRoleToOrganization.SUCCESS, () => {
 
-      const { id } = createRole();
-      const requestAction = createRole.request(id, mockRole);
+      const { id } = addRoleToOrganization();
+      const requestAction = addRoleToOrganization.request(id, requestActionValue);
       let state = reducer(initialState, requestAction);
-      state = reducer(state, createRole.success(id, mockRole.id));
+      state = reducer(state, addRoleToOrganization.success(id, mockNewRole));
 
-      expect(state.getIn([CREATE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.getIn([CREATE_ROLE, id])).toEqual(requestAction);
+      expect(state.getIn([ADD_ROLE_TO_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([ADD_ROLE_TO_ORGANIZATION, id])).toEqual(requestAction);
 
       const expectedOrgs = Map().set(
         MOCK_ORG.id,
-        MOCK_ORG.toImmutable().setIn(['roles', 1], mockRole.toImmutable()),
+        MOCK_ORG.toImmutable().setIn(['roles', 1], mockNewRole.toImmutable()),
       );
       expect(state.get('orgs').hashCode()).toEqual(expectedOrgs.hashCode());
       expect(state.get('orgs').equals(expectedOrgs)).toEqual(true);
     });
 
-    test(createRole.FAILURE, () => {
+    test(addRoleToOrganization.FAILURE, () => {
 
-      const { id } = createRole();
-      const requestAction = createRole.request(id, mockRole);
+      const { id } = addRoleToOrganization();
+      const requestAction = addRoleToOrganization.request(id, requestActionValue);
       let state = reducer(initialState, requestAction);
-      state = reducer(state, createRole.failure(id));
+      state = reducer(state, addRoleToOrganization.failure(id));
 
-      expect(state.getIn([CREATE_ROLE, 'requestState'])).toEqual(RequestStates.FAILURE);
-      expect(state.getIn([CREATE_ROLE, id])).toEqual(requestAction);
+      expect(state.getIn([ADD_ROLE_TO_ORGANIZATION, 'requestState'])).toEqual(RequestStates.FAILURE);
+      expect(state.getIn([ADD_ROLE_TO_ORGANIZATION, id])).toEqual(requestAction);
       expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
       expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
     });
 
-    test(createRole.FINALLY, () => {
+    test(addRoleToOrganization.FINALLY, () => {
 
-      const { id } = createRole();
-      const requestAction = createRole.request(id, mockRole);
+      const { id } = addRoleToOrganization();
+      const requestAction = addRoleToOrganization.request(id, requestActionValue);
       let state = reducer(initialState, requestAction);
 
-      state = reducer(state, createRole.success(id, mockRole.id));
-      expect(state.getIn([CREATE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.getIn([CREATE_ROLE, id])).toEqual(requestAction);
+      state = reducer(state, addRoleToOrganization.success(id, mockNewRole));
+      expect(state.getIn([ADD_ROLE_TO_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([ADD_ROLE_TO_ORGANIZATION, id])).toEqual(requestAction);
 
-      state = reducer(state, createRole.finally(id));
-      expect(state.getIn([CREATE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.hasIn([CREATE_ROLE, id])).toEqual(false);
-    });
-
-  });
-
-  describe(DELETE_ROLE, () => {
-
-    const initialState = INITIAL_STATE.setIn(['orgs', MOCK_ORG.id], MOCK_ORG.toImmutable());
-    const requestActionValue = { organizationId: MOCK_ORG.id, roleId: MOCK_ORG_ROLE.id };
-
-    test(deleteRole.REQUEST, () => {
-
-      const { id } = deleteRole();
-      const requestAction = deleteRole.request(id, requestActionValue);
-      const state = reducer(initialState, requestAction);
-
-      expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.PENDING);
-      expect(state.getIn([DELETE_ROLE, id])).toEqual(requestAction);
-      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
-      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
-    });
-
-    test(deleteRole.SUCCESS, () => {
-
-      const { id } = deleteRole();
-      const requestAction = deleteRole.request(id, requestActionValue);
-      let state = reducer(initialState, requestAction);
-      state = reducer(state, deleteRole.success(id));
-
-      expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.getIn([DELETE_ROLE, id])).toEqual(requestAction);
-
-      const expectedOrgs = Map().set(MOCK_ORG.id, MOCK_ORG.toImmutable().set('roles', List()));
-      expect(state.get('orgs').hashCode()).toEqual(expectedOrgs.hashCode());
-      expect(state.get('orgs').equals(expectedOrgs)).toEqual(true);
-    });
-
-    test(deleteRole.FAILURE, () => {
-
-      const { id } = deleteRole();
-      const requestAction = deleteRole.request(id, requestActionValue);
-      let state = reducer(initialState, requestAction);
-      state = reducer(state, deleteRole.failure(id));
-
-      expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.FAILURE);
-      expect(state.getIn([DELETE_ROLE, id])).toEqual(requestAction);
-      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
-      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
-    });
-
-    test(deleteRole.FINALLY, () => {
-
-      const { id } = deleteRole();
-      const requestAction = deleteRole.request(id, requestActionValue);
-      let state = reducer(initialState, requestAction);
-
-      state = reducer(state, deleteRole.success(id));
-      expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.getIn([DELETE_ROLE, id])).toEqual(requestAction);
-
-      state = reducer(state, deleteRole.finally(id));
-      expect(state.getIn([DELETE_ROLE, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.hasIn([DELETE_ROLE, id])).toEqual(false);
+      state = reducer(state, addRoleToOrganization.finally(id));
+      expect(state.getIn([ADD_ROLE_TO_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.hasIn([ADD_ROLE_TO_ORGANIZATION, id])).toEqual(false);
     });
 
   });
@@ -644,6 +586,70 @@ describe('OrgsReducer', () => {
       state = reducer(state, removeRoleFromMember.finally(id));
       expect(state.getIn([REMOVE_ROLE_FROM_MEMBER, 'requestState'])).toEqual(RequestStates.SUCCESS);
       expect(state.hasIn([REMOVE_ROLE_FROM_MEMBER, id])).toEqual(false);
+    });
+
+  });
+
+  describe(REMOVE_ROLE_FROM_ORGANIZATION, () => {
+
+    const initialState = INITIAL_STATE
+      .setIn(['orgs', MOCK_ORG.id], MOCK_ORG.toImmutable());
+
+    const requestActionValue = { organizationId: MOCK_ORG.id, roleId: MOCK_ORG_ROLE.id };
+
+    test(removeRoleFromOrganization.REQUEST, () => {
+
+      const { id } = removeRoleFromOrganization();
+      const requestAction = removeRoleFromOrganization.request(id, requestActionValue);
+      const state = reducer(initialState, requestAction);
+
+      expect(state.getIn([REMOVE_ROLE_FROM_ORGANIZATION, 'requestState'])).toEqual(RequestStates.PENDING);
+      expect(state.getIn([REMOVE_ROLE_FROM_ORGANIZATION, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+    });
+
+    test(removeRoleFromOrganization.SUCCESS, () => {
+
+      const { id } = removeRoleFromOrganization();
+      const requestAction = removeRoleFromOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, removeRoleFromOrganization.success(id));
+
+      expect(state.getIn([REMOVE_ROLE_FROM_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([REMOVE_ROLE_FROM_ORGANIZATION, id])).toEqual(requestAction);
+
+      const expectedOrgs = Map().set(MOCK_ORG.id, MOCK_ORG.toImmutable().set('roles', List()));
+      expect(state.get('orgs').hashCode()).toEqual(expectedOrgs.hashCode());
+      expect(state.get('orgs').equals(expectedOrgs)).toEqual(true);
+    });
+
+    test(removeRoleFromOrganization.FAILURE, () => {
+
+      const { id } = removeRoleFromOrganization();
+      const requestAction = removeRoleFromOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+      state = reducer(state, removeRoleFromOrganization.failure(id));
+
+      expect(state.getIn([REMOVE_ROLE_FROM_ORGANIZATION, 'requestState'])).toEqual(RequestStates.FAILURE);
+      expect(state.getIn([REMOVE_ROLE_FROM_ORGANIZATION, id])).toEqual(requestAction);
+      expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
+      expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
+    });
+
+    test(removeRoleFromOrganization.FINALLY, () => {
+
+      const { id } = removeRoleFromOrganization();
+      const requestAction = removeRoleFromOrganization.request(id, requestActionValue);
+      let state = reducer(initialState, requestAction);
+
+      state = reducer(state, removeRoleFromOrganization.success(id));
+      expect(state.getIn([REMOVE_ROLE_FROM_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([REMOVE_ROLE_FROM_ORGANIZATION, id])).toEqual(requestAction);
+
+      state = reducer(state, removeRoleFromOrganization.finally(id));
+      expect(state.getIn([REMOVE_ROLE_FROM_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.hasIn([REMOVE_ROLE_FROM_ORGANIZATION, id])).toEqual(false);
     });
 
   });
