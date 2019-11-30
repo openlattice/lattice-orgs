@@ -3,7 +3,6 @@
  */
 
 import { Models, Types } from 'lattice';
-// import type { FQN } from 'lattice';
 
 import { genRandomUUID } from './MockUtils';
 

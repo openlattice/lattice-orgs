@@ -19,14 +19,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { GrantType } from 'lattice';
-import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
+
+import { SelectControlWithButton } from './styled';
 
 import * as ReduxActions from '../../../core/redux/ReduxActions';
 import { ModalBodyMinWidth, SectionGrid } from '../../../components';
-import { getIdFromMatch } from '../../../core/router/RouterUtils';
 import { getRoleSelectOptions } from '../OrgsUtils';
-import { SelectControlWithButton } from './styled';
 
 const { Grant, GrantBuilder } = Models;
 const { GrantTypes } = Types;
@@ -66,7 +65,6 @@ type Props = {
     updateRoleGrant :RequestSequence;
   };
   isOwner :boolean;
-  match :Match;
   org :Map;
   requestStates :{
     UPDATE_ROLE_GRANT :RequestState;
@@ -98,11 +96,9 @@ class OrgRoleGrantsContainer extends Component<Props, State> {
 
   componentDidUpdate(props :Props) {
 
-    const { match, org } = this.props;
-    const orgId :?UUID = getIdFromMatch(match);
-    const prevOrgId :?UUID = getIdFromMatch(props.match);
+    const { org } = this.props;
 
-    if (orgId !== prevOrgId) {
+    if (!org.equals(props.org)) {
       this.setState({
         isVisibleGrantModal: false,
         roleSelectOptions: getRoleSelectOptions(org),
