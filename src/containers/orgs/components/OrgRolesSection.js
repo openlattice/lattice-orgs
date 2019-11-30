@@ -5,9 +5,8 @@
 import React, { Component } from 'react';
 
 import { List, Map } from 'immutable';
-import { Models, Types } from 'lattice';
-import { OrganizationsApiActions } from 'lattice-sagas';
 import {
+  ActionModal,
   Card,
   Input,
   MinusButton,
@@ -18,98 +17,74 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
+import { ActionControlWithButton, CompactCardSegment } from './styled';
+
+import * as OrgsActions from '../OrgsActions';
 import * as ReduxActions from '../../../core/redux/ReduxActions';
-import {
-  ActionControlWithButton,
-  CompactCardSegment,
-  SpinnerOverlayCard,
-} from './styled';
 import { SectionGrid } from '../../../components';
+import { Logger } from '../../../utils';
 import { isNonEmptyString } from '../../../utils/LangUtils';
 import type { ResetRequestStateAction } from '../../../core/redux/ReduxActions';
 
-const {
-  Principal,
-  PrincipalBuilder,
-  Role,
-  RoleBuilder,
-} = Models;
-
-const {
-  PrincipalTypes,
-} = Types;
-
-const {
-  CREATE_ROLE,
-  DELETE_ROLE,
-} = OrganizationsApiActions;
+const { ADD_ROLE_TO_ORGANIZATION, REMOVE_ROLE_FROM_ORGANIZATION } = OrgsActions;
 
 type Props = {
   actions :{
-    createRole :RequestSequence;
-    deleteRole :RequestSequence;
+    addRoleToOrganization :RequestSequence;
+    removeRoleFromOrganization :RequestSequence;
     resetRequestState :ResetRequestStateAction;
   };
   isOwner :boolean;
   org :Map;
   requestStates :{
-    CREATE_ROLE :RequestState;
-    DELETE_ROLE :RequestState;
+    ADD_ROLE_TO_ORGANIZATION :RequestState;
+    REMOVE_ROLE_FROM_ORGANIZATION :RequestState;
   };
 };
 
 type State = {
   isValidRole :boolean;
-  valueOfRole :string;
+  isVisibleAddRoleModal :boolean;
+  isVisibleRemoveRoleModal :boolean;
+  selectedRoleId :?UUID;
+  valueOfRoleTitle :string;
 };
+
+const LOG :Logger = new Logger('OrgRolesSection');
 
 class OrgRolesSection extends Component<Props, State> {
 
   state = {
     isValidRole: true,
-    valueOfRole: '',
+    isVisibleAddRoleModal: false,
+    isVisibleRemoveRoleModal: false,
+    selectedRoleId: undefined,
+    valueOfRoleTitle: '',
   }
 
-  handleOnChangeRole = (event :SyntheticInputEvent<HTMLInputElement>) => {
+  handleOnChangeRoleTitle = (event :SyntheticInputEvent<HTMLInputElement>) => {
 
-    const { isOwner } = this.props;
-    const valueOfRole :string = event.target.value || '';
+    const { org } = this.props;
+    const valueOfRoleTitle :string = event.target.value || '';
 
-    if (isOwner) {
-      // always set isValidRole to true when typing
-      this.setState({ valueOfRole, isValidRole: true });
-    }
+    // always set isValidRole to true when typing, except if the value matches an existing role title
+    this.setState({
+      valueOfRoleTitle,
+      isValidRole: this.isNewRole(org, valueOfRoleTitle),
+    });
   }
 
   handleOnClickAddRole = () => {
 
-    const { actions, isOwner, org } = this.props;
-    const { valueOfRole } = this.state;
+    const { isOwner, org } = this.props;
+    const { valueOfRoleTitle } = this.state;
 
     if (isOwner) {
-      if (!isNonEmptyString(valueOfRole)) {
-        // set to false only when the button was clicked
-        this.setState({ isValidRole: false });
-        return;
-      }
-
-      const principal :Principal = (new PrincipalBuilder())
-        .setType(PrincipalTypes.ROLE)
-        .setId(`${org.get('id')}|${valueOfRole.replace(/\W/g, '')}`)
-        .build();
-
-      const newRole :Role = (new RoleBuilder())
-        .setOrganizationId(org.get('id'))
-        .setPrincipal(principal)
-        .setTitle(valueOfRole)
-        .build();
-
-      const isNewRole :boolean = org.get('roles', List())
-        .filter((role :Map) => role.getIn(['principal', 'id']) === newRole.principal.id)
-        .isEmpty();
-
-      if (isNewRole) {
-        actions.createRole(newRole);
+      if (isNonEmptyString(valueOfRoleTitle) && this.isNewRole(org, valueOfRoleTitle)) {
+        this.setState({
+          isVisibleAddRoleModal: true,
+          isVisibleRemoveRoleModal: false,
+        });
       }
       else {
         // set isValidRole to false only when the button was clicked
@@ -118,34 +93,146 @@ class OrgRolesSection extends Component<Props, State> {
     }
   }
 
-  handleOnClickRemoveRole = (role :Map) => {
+  handleOnClickRemoveRole = (event :SyntheticEvent<HTMLElement>) => {
+
+    const { currentTarget } = event;
+    if (currentTarget instanceof HTMLElement) {
+      const { dataset } = currentTarget;
+      if (isNonEmptyString(dataset.roleId)) {
+        this.setState({
+          isVisibleAddRoleModal: false,
+          isVisibleRemoveRoleModal: true,
+          selectedRoleId: dataset.roleId,
+        });
+      }
+      else {
+        LOG.warn('target is missing expected data attributes: roleId', currentTarget);
+      }
+    }
+    else {
+      LOG.warn('target is not an HTMLElement', currentTarget);
+    }
+  }
+
+  handleOnKeyDownRoleTitle = (event :SyntheticKeyboardEvent<HTMLInputElement>) => {
+
+    switch (event.key) {
+      case 'Enter':
+        this.handleOnClickAddRole();
+        break;
+      default:
+        break;
+    }
+  }
+
+  isNewRole = (org :Map, roleTitle :string) => {
+
+    return org
+      .get('roles', List())
+      .filter((role :Map) => role.get('title') === roleTitle)
+      .isEmpty();
+  }
+
+  closeModal = () => {
+
+    const { actions, requestStates } = this.props;
+
+    if (requestStates[ADD_ROLE_TO_ORGANIZATION] === RequestStates.STANDBY
+        || requestStates[REMOVE_ROLE_FROM_ORGANIZATION] === RequestStates.STANDBY) {
+      this.setState({
+        isVisibleAddRoleModal: false,
+        isVisibleRemoveRoleModal: false,
+      });
+      return;
+    }
+
+    this.setState({
+      isValidRole: true,
+      isVisibleAddRoleModal: false,
+      isVisibleRemoveRoleModal: false,
+      selectedRoleId: undefined,
+      valueOfRoleTitle: '',
+    });
+
+    // the timeout avoids rendering the modal with new state before the transition animation finishes
+    setTimeout(() => {
+      actions.resetRequestState(ADD_ROLE_TO_ORGANIZATION);
+      actions.resetRequestState(REMOVE_ROLE_FROM_ORGANIZATION);
+    }, 1000);
+  }
+
+  addRoleToOrganization = () => {
 
     const { actions, isOwner, org } = this.props;
+    const { valueOfRoleTitle } = this.state;
 
     if (isOwner) {
-      actions.deleteRole({
+      actions.addRoleToOrganization({
         organizationId: org.get('id'),
-        roleId: role.get('id'),
+        roleTitle: valueOfRoleTitle,
       });
     }
+  }
+
+  removeRoleFromOrganization = () => {
+
+    const { actions, isOwner, org } = this.props;
+    const { selectedRoleId } = this.state;
+
+    if (isOwner) {
+      actions.removeRoleFromOrganization({
+        organizationId: org.get('id'),
+        roleId: selectedRoleId,
+      });
+    }
+  }
+
+  renderAddRoleModal = () => {
+
+    const { requestStates } = this.props;
+    const { isVisibleAddRoleModal } = this.state;
+
+    return (
+      <ActionModal
+          isVisible={isVisibleAddRoleModal}
+          onClickPrimary={this.addRoleToOrganization}
+          onClose={this.closeModal}
+          requestState={requestStates[ADD_ROLE_TO_ORGANIZATION]}
+          textTitle="Add Role To Organization" />
+    );
+  }
+
+  renderRemoveRoleModal = () => {
+
+    const { requestStates } = this.props;
+    const { isVisibleRemoveRoleModal } = this.state;
+
+    return (
+      <ActionModal
+          isVisible={isVisibleRemoveRoleModal}
+          onClickPrimary={this.removeRoleFromOrganization}
+          onClose={this.closeModal}
+          requestState={requestStates[REMOVE_ROLE_FROM_ORGANIZATION]}
+          textTitle="Remove Role From Organization" />
+    );
   }
 
   render() {
 
     const { isOwner, org, requestStates } = this.props;
-    const { isValidRole } = this.state;
+    const { isValidRole, valueOfRoleTitle } = this.state;
 
-    const roles = org.get('roles', List());
-    const roleCardSegments = roles.map((role :Map) => (
-      <CompactCardSegment key={role.get('id')}>
-        <span title={role.get('title')}>{role.get('title')}</span>
-        {
-          isOwner && (
-            <MinusButton mode="negative" onClick={() => this.handleOnClickRemoveRole(role)} />
-          )
-        }
-      </CompactCardSegment>
-    ));
+    const roleCardSegments = org.get('roles', List())
+      .map((role :Map) => (
+        <CompactCardSegment key={role.get('id')}>
+          <span title={role.get('title')}>{role.get('title')}</span>
+          <MinusButton
+              disabled={!isOwner}
+              data-role-id={role.get('id')}
+              mode="negative"
+              onClick={this.handleOnClickRemoveRole} />
+        </CompactCardSegment>
+      ));
 
     return (
       <SectionGrid>
@@ -156,10 +243,12 @@ class OrgRolesSection extends Component<Props, State> {
               <ActionControlWithButton>
                 <Input
                     invalid={!isValidRole}
-                    onChange={this.handleOnChangeRole}
-                    placeholder="Add a new role" />
+                    onChange={this.handleOnChangeRoleTitle}
+                    onKeyDown={this.handleOnKeyDownRoleTitle}
+                    placeholder="Add a new role"
+                    value={valueOfRoleTitle} />
                 <PlusButton
-                    isLoading={requestStates[CREATE_ROLE] === RequestStates.PENDING}
+                    isLoading={requestStates[ADD_ROLE_TO_ORGANIZATION] === RequestStates.PENDING}
                     mode="positive"
                     onClick={this.handleOnClickAddRole} />
               </ActionControlWithButton>
@@ -176,12 +265,9 @@ class OrgRolesSection extends Component<Props, State> {
                 <Card>{roleCardSegments}</Card>
               )
           }
-          {
-            !roleCardSegments.isEmpty() && requestStates[DELETE_ROLE] === RequestStates.PENDING && (
-              <SpinnerOverlayCard />
-            )
-          }
         </div>
+        {this.renderAddRoleModal()}
+        {this.renderRemoveRoleModal()}
       </SectionGrid>
     );
   }
@@ -189,15 +275,15 @@ class OrgRolesSection extends Component<Props, State> {
 
 const mapStateToProps = (state :Map) => ({
   requestStates: {
-    [CREATE_ROLE]: state.getIn(['orgs', CREATE_ROLE, 'requestState']),
-    [DELETE_ROLE]: state.getIn(['orgs', DELETE_ROLE, 'requestState']),
+    [ADD_ROLE_TO_ORGANIZATION]: state.getIn(['orgs', ADD_ROLE_TO_ORGANIZATION, 'requestState']),
+    [REMOVE_ROLE_FROM_ORGANIZATION]: state.getIn(['orgs', REMOVE_ROLE_FROM_ORGANIZATION, 'requestState']),
   },
 });
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
-    createRole: OrganizationsApiActions.createRole,
-    deleteRole: OrganizationsApiActions.deleteRole,
+    addRoleToOrganization: OrgsActions.addRoleToOrganization,
+    removeRoleFromOrganization: OrgsActions.removeRoleFromOrganization,
     resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)
 });

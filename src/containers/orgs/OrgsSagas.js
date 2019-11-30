@@ -27,20 +27,25 @@ import type { $AxiosError } from 'axios';
 import type { AclObject } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import Logger from '../../utils/Logger';
-import { isValidUUID } from '../../utils/ValidationUtils';
 import {
   ADD_CONNECTION,
+  ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATION_ACLS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
+  REMOVE_ROLE_FROM_ORGANIZATION,
   addConnection,
+  addRoleToOrganization,
   getOrganizationACLs,
   getOrganizationDetails,
   getOrgsAndPermissions,
   removeConnection,
+  removeRoleFromOrganization,
 } from './OrgsActions';
+
+import { Logger } from '../../utils';
+import { isValidUUID } from '../../utils/ValidationUtils';
 
 const LOG = new Logger('OrgsSagas');
 
@@ -49,6 +54,8 @@ const {
   AccessCheckBuilder,
   Principal,
   PrincipalBuilder,
+  Role,
+  RoleBuilder,
 } = Models;
 const { PermissionTypes, PrincipalTypes } = Types;
 
@@ -56,6 +63,8 @@ const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 const {
   addConnections,
+  createRole,
+  deleteRole,
   getAllOrganizations,
   getOrganization,
   getOrganizationIntegrationAccount,
@@ -64,6 +73,8 @@ const {
 } = OrganizationsApiActions;
 const {
   addConnectionsWorker,
+  createRoleWorker,
+  deleteRoleWorker,
   getAllOrganizationsWorker,
   getOrganizationWorker,
   getOrganizationIntegrationAccountWorker,
@@ -114,6 +125,59 @@ function* addConnectionWorker(action :SequenceAction) :Generator<*, *, *> {
 function* addConnectionWatcher() :Generator<*, *, *> {
 
   yield takeLatest(ADD_CONNECTION, addConnectionWorker);
+}
+
+/*
+ *
+ * OrgsActions.addRoleToOrganization
+ *
+ */
+
+function* addRoleToOrganizationWorker(action :SequenceAction) :Generator<*, *, *> {
+
+  try {
+    yield put(addRoleToOrganization.request(action.id, action.value));
+
+    const {
+      organizationId,
+      roleTitle,
+    } :{|
+      organizationId :UUID;
+      roleTitle :string;
+    |} = action.value;
+
+    const principal :Principal = (new PrincipalBuilder())
+      .setId(`${organizationId}|${roleTitle.replace(/\W/g, '')}`)
+      .setType(PrincipalTypes.ROLE)
+      .build();
+
+    const roleBuilder :RoleBuilder = (new RoleBuilder())
+      .setOrganizationId(organizationId)
+      .setPrincipal(principal)
+      .setTitle(roleTitle);
+
+    const response = yield call(createRoleWorker, createRole(roleBuilder.build()));
+    if (response.error) throw response.error;
+
+    const roleId :UUID = response.data;
+    const role :Role = roleBuilder
+      .setId(roleId)
+      .build();
+
+    yield put(addRoleToOrganization.success(action.id, role));
+  }
+  catch (error) {
+    LOG.error(action.type, error);
+    yield put(addRoleToOrganization.failure(action.id));
+  }
+  finally {
+    yield put(addRoleToOrganization.finally(action.id));
+  }
+}
+
+function* addRoleToOrganizationWatcher() :Generator<*, *, *> {
+
+  yield takeLatest(ADD_ROLE_TO_ORGANIZATION, addRoleToOrganizationWorker);
 }
 
 /*
@@ -369,9 +433,63 @@ function* removeConnectionWatcher() :Generator<*, *, *> {
   yield takeLatest(REMOVE_CONNECTION, removeConnectionWorker);
 }
 
+/*
+ *
+ * OrgsActions.removeRoleFromOrganization
+ *
+ */
+
+function* removeRoleFromOrganizationWorker(action :SequenceAction) :Generator<*, *, *> {
+
+  try {
+    yield put(removeRoleFromOrganization.request(action.id, action.value));
+
+    const {
+      organizationId,
+      roleId,
+    } :{|
+      organizationId :UUID;
+      roleId :UUID;
+    |} = action.value;
+
+    if (!isValidUUID(organizationId)) {
+      throw new Error('organizationId must be a valid UUID');
+    }
+
+    if (!isValidUUID(roleId)) {
+      throw new Error('roleId must be a valid UUID');
+    }
+
+    const organization :Map = yield select((state) => state.getIn(['orgs', 'orgs', organizationId]), Map());
+    const roleIndex :number = organization.get('roles', List()).findIndex((role :Map) => role.get('id') === roleId);
+    if (roleIndex === -1) {
+      throw new Error(`role ${roleId} does not belong to organization ${organizationId}`);
+    }
+
+    const response = yield call(deleteRoleWorker, deleteRole({ organizationId, roleId }));
+    if (response.error) throw response.error;
+
+    yield put(removeRoleFromOrganization.success(action.id));
+  }
+  catch (error) {
+    LOG.error(action.type, error);
+    yield put(removeRoleFromOrganization.failure(action.id));
+  }
+  finally {
+    yield put(removeRoleFromOrganization.finally(action.id));
+  }
+}
+
+function* removeRoleFromOrganizationWatcher() :Generator<*, *, *> {
+
+  yield takeLatest(REMOVE_ROLE_FROM_ORGANIZATION, removeRoleFromOrganizationWorker);
+}
+
 export {
   addConnectionWatcher,
   addConnectionWorker,
+  addRoleToOrganizationWatcher,
+  addRoleToOrganizationWorker,
   getOrganizationACLsWatcher,
   getOrganizationACLsWorker,
   getOrganizationDetailsWatcher,
@@ -380,4 +498,6 @@ export {
   getOrgsAndPermissionsWorker,
   removeConnectionWatcher,
   removeConnectionWorker,
+  removeRoleFromOrganizationWatcher,
+  removeRoleFromOrganizationWorker,
 };
