@@ -170,6 +170,7 @@ class OrgRolesSection extends Component<Props, State> {
           selectedRoleId: undefined,
           valueOfRoleTitle: '',
         });
+        // the timeout avoids rendering the modal with new state before the transition animation finishes
         setTimeout(() => {
           actions.resetRequestState(ADD_ROLE_TO_ORGANIZATION);
         }, 1000);
