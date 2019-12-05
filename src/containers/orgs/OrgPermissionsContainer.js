@@ -458,11 +458,6 @@ class OrgPermissionsContainer extends Component<Props, State> {
             Read
           </SelectableHeader>
           <SelectableHeader
-              isSelected={selectedPermission === PermissionTypes.LINK}
-              onClick={() => this.selectPermission(PermissionTypes.LINK)}>
-            Link
-          </SelectableHeader>
-          <SelectableHeader
               isSelected={selectedPermission === PermissionTypes.DISCOVER}
               onClick={() => this.selectPermission(PermissionTypes.DISCOVER)}>
             Discover
