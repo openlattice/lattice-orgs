@@ -77,7 +77,12 @@ class OrgRolesSection extends Component<Props, State> {
   handleOnClickAddRole = () => {
 
     const { isOwner, org } = this.props;
-    const { valueOfRoleTitle } = this.state;
+    const { isVisibleAddRoleModal, isVisibleRemoveRoleModal, valueOfRoleTitle } = this.state;
+
+    if (isVisibleAddRoleModal || isVisibleRemoveRoleModal) {
+      // don't open modal while another modal is open, which can happen via keyboard tabbing in the bg
+      return;
+    }
 
     if (isOwner) {
       if (isNonEmptyString(valueOfRoleTitle) && this.isNewRole(org, valueOfRoleTitle)) {
@@ -94,6 +99,13 @@ class OrgRolesSection extends Component<Props, State> {
   }
 
   handleOnClickRemoveRole = (event :SyntheticEvent<HTMLElement>) => {
+
+    const { isVisibleAddRoleModal, isVisibleRemoveRoleModal } = this.state;
+
+    if (isVisibleAddRoleModal || isVisibleRemoveRoleModal) {
+      // don't open modal while another modal is open, which can happen via keyboard tabbing in the bg
+      return;
+    }
 
     const { currentTarget } = event;
     if (currentTarget instanceof HTMLElement) {
@@ -136,22 +148,39 @@ class OrgRolesSection extends Component<Props, State> {
   closeModal = () => {
 
     const { actions, requestStates } = this.props;
+    const { isVisibleAddRoleModal } = this.state;
 
-    if (requestStates[ADD_ROLE_TO_ORGANIZATION] === RequestStates.STANDBY
-        || requestStates[REMOVE_ROLE_FROM_ORGANIZATION] === RequestStates.STANDBY) {
-      this.setState({
-        isVisibleAddRoleModal: false,
-        isVisibleRemoveRoleModal: false,
-      });
+    if (isVisibleAddRoleModal) {
+      /*
+       * the "add" modal needs special handling. we want to keep "valueOfRoleTitle" if the modal was simply just
+       * closed, i.e. the add action was not taken. we want to clear "valueOfRoleTitle" only when the add action
+       * was actually taken
+       */
+      if (requestStates[ADD_ROLE_TO_ORGANIZATION] === RequestStates.STANDBY) {
+        // clicking "cancel" instead of "confirm", i.e. closing the modal without taking action
+        this.setState({
+          isVisibleAddRoleModal: false,
+        });
+      }
+      else {
+        // clicking "close" after having clicked "confirm", i.e. closing the modal after taking action
+        this.setState({
+          isValidRole: true,
+          isVisibleAddRoleModal: false,
+          selectedRoleId: undefined,
+          valueOfRoleTitle: '',
+        });
+        // the timeout avoids rendering the modal with new state before the transition animation finishes
+        setTimeout(() => {
+          actions.resetRequestState(ADD_ROLE_TO_ORGANIZATION);
+        }, 1000);
+      }
       return;
     }
 
     this.setState({
-      isValidRole: true,
       isVisibleAddRoleModal: false,
       isVisibleRemoveRoleModal: false,
-      selectedRoleId: undefined,
-      valueOfRoleTitle: '',
     });
 
     // the timeout avoids rendering the modal with new state before the transition animation finishes

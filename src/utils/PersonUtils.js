@@ -71,7 +71,24 @@ function getUserProfileLabel(user :any) :string {
   return label || '';
 }
 
+function sortByProfileLabel(user1 :any, user2 :any) {
+
+  const label1 :string = getUserProfileLabel(user1);
+  const label2 :string = getUserProfileLabel(user2);
+
+  if (label1 < label2) {
+    return -1;
+  }
+
+  if (label1 > label2) {
+    return 1;
+  }
+
+  return 0;
+}
+
 export {
   getUserId,
   getUserProfileLabel,
+  sortByProfileLabel,
 };

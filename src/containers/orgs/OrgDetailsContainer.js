@@ -22,8 +22,6 @@ import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as OrgsActions from './OrgsActions';
-import * as ReduxActions from '../../core/redux/ReduxActions';
-import * as RoutingActions from '../../core/router/RoutingActions';
 import {
   OrgDescriptionSection,
   OrgDomainsSection,
@@ -31,6 +29,9 @@ import {
   OrgMembersSection,
   OrgTrustedOrgsSection,
 } from './components';
+
+import * as ReduxActions from '../../core/redux/ReduxActions';
+import * as RoutingActions from '../../core/router/RoutingActions';
 import { CardSegmentNoBorder, SectionGrid } from '../../components';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
 import { Logger } from '../../utils';

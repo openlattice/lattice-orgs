@@ -4,7 +4,7 @@
 
 import React, { Component } from 'react';
 
-import { List, Map, Set } from 'immutable';
+import { List, Map, OrderedSet } from 'immutable';
 import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
@@ -30,14 +30,20 @@ import { SectionGrid } from '../../../components';
 import { INITIAL_SEARCH_RESULTS } from '../../../core/redux/ReduxConstants';
 import { Logger } from '../../../utils';
 import { isNonEmptyString } from '../../../utils/LangUtils';
-import { getUserId, getUserProfileLabel } from '../../../utils/PersonUtils';
+import { getUserId, getUserProfileLabel, sortByProfileLabel } from '../../../utils/PersonUtils';
 import type { ResetRequestStateAction } from '../../../core/redux/ReduxActions';
 
 const { ActionTypes } = Types;
 const { ADD_MEMBER_TO_ORG, REMOVE_MEMBER_FROM_ORG } = OrganizationsApiActions;
 const { SEARCH_ALL_USERS } = PrincipalsApiActions;
 
+type OwnProps = {|
+  isOwner :boolean;
+  org :Map;
+|};
+
 type Props = {
+  ...OwnProps;
   actions :{
     addMemberToOrganization :RequestSequence;
     removeMemberFromOrganization :RequestSequence;
@@ -45,9 +51,7 @@ type Props = {
     resetUserSearchResults :() => void;
     searchAllUsers :RequestSequence;
   };
-  isOwner :boolean;
-  org :Map;
-  orgMembers :Map;
+  memberIds :OrderedSet;
   requestStates :{
     ADD_MEMBER_TO_ORG :RequestState;
     REMOVE_MEMBER_FROM_ORG :RequestState;
@@ -210,9 +214,9 @@ class OrgMembersSection extends Component<Props, State> {
     }
   }
 
-  renderUserSearchResults = (existingUserIds :Set<string>) => {
+  renderUserSearchResults = () => {
 
-    const { userSearchResults } = this.props;
+    const { memberIds, userSearchResults } = this.props;
     const { valueOfSearchQuery } = this.state;
 
     if (INITIAL_SEARCH_RESULTS.equals(userSearchResults) || !isNonEmptyString(valueOfSearchQuery)) {
@@ -224,7 +228,7 @@ class OrgMembersSection extends Component<Props, State> {
       .filter((user :Map) => {
         const thisUserInfo :Object = AuthUtils.getUserInfo() || { id: '' };
         const userId :string = getUserId(user);
-        return userId !== thisUserInfo.id && !existingUserIds.has(userId);
+        return userId !== thisUserInfo.id && !memberIds.has(userId);
       })
       .map((user :Map) => this.renderUserCardSegment(getUserId(user), ActionTypes.ADD));
 
@@ -309,14 +313,9 @@ class OrgMembersSection extends Component<Props, State> {
 
     const {
       isOwner,
-      org,
-      orgMembers,
+      memberIds,
       requestStates,
     } = this.props;
-
-    const memberIds :Set<string> = Set().withMutations((set :Set) => {
-      orgMembers.get(org.get('id'), List()).map((member :Map) => set.add(getUserId(member)));
-    });
 
     const memberCardSegments = memberIds.map(
       (memberId :string) => this.renderUserCardSegment(memberId, ActionTypes.REMOVE)
@@ -345,7 +344,7 @@ class OrgMembersSection extends Component<Props, State> {
             </div>
           )
         }
-        {this.renderUserSearchResults(memberIds)}
+        {this.renderUserSearchResults()}
         <div>
           {
             memberCardSegments.isEmpty()
@@ -364,16 +363,25 @@ class OrgMembersSection extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state :Map<*, *>) => ({
-  orgMembers: state.getIn(['orgs', 'orgMembers'], Map()),
-  requestStates: {
-    [ADD_MEMBER_TO_ORG]: state.getIn(['orgs', ADD_MEMBER_TO_ORG, 'requestState']),
-    [REMOVE_MEMBER_FROM_ORG]: state.getIn(['orgs', REMOVE_MEMBER_FROM_ORG, 'requestState']),
-    [SEARCH_ALL_USERS]: state.getIn(['users', SEARCH_ALL_USERS, 'requestState']),
-  },
-  users: state.getIn(['users', 'users'], Map()),
-  userSearchResults: state.getIn(['users', 'userSearchResults'], Map()),
-});
+const mapStateToProps = (state :Map<*, *>, props :OwnProps) => {
+
+  const orgId :UUID = props.org.get('id');
+  const memberIds :OrderedSet<string> = state.getIn(['orgs', 'orgMembers', orgId], List())
+    .sort(sortByProfileLabel)
+    .map((member :Map) => getUserId(member))
+    .toOrderedSet();
+
+  return {
+    memberIds,
+    requestStates: {
+      [ADD_MEMBER_TO_ORG]: state.getIn(['orgs', ADD_MEMBER_TO_ORG, 'requestState']),
+      [REMOVE_MEMBER_FROM_ORG]: state.getIn(['orgs', REMOVE_MEMBER_FROM_ORG, 'requestState']),
+      [SEARCH_ALL_USERS]: state.getIn(['users', SEARCH_ALL_USERS, 'requestState']),
+    },
+    users: state.getIn(['users', 'users'], Map()),
+    userSearchResults: state.getIn(['users', 'userSearchResults'], Map()),
+  };
+};
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
