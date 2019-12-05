@@ -79,7 +79,6 @@ function* updateUserPermissionWorker(action :SequenceAction) :Generator<*, *, *>
         PermissionTypes.OWNER,
         PermissionTypes.WRITE,
         PermissionTypes.READ,
-        PermissionTypes.LINK,
         PermissionTypes.DISCOVER,
       ]
       : [permissionType];
