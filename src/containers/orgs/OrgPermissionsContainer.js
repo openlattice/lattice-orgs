@@ -5,7 +5,7 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
-import { List, Map, Set } from 'immutable';
+import { List, Map, OrderedSet } from 'immutable';
 import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
@@ -479,7 +479,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
     const { orgACLs, requestStates } = this.props;
     const { selectedAclKey, selectedPermission } = this.state;
 
-    const userIdsWithPermissions :Set<string> = Set().withMutations((set :Set) => {
+    const userIdsWithPermissions :OrderedSet<string> = OrderedSet().withMutations((set :OrderedSet) => {
       // an empty "selectedAclKey" is treated as org + roles, i.e. everything
       if (selectedAclKey.isEmpty()) {
 
