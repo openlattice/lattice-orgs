@@ -155,7 +155,7 @@ const INITIAL_STATE :Map = fromJS({
   orgs: Map(),
 });
 
-export default function orgsReducer(state :Map = INITIAL_STATE, action :Object) {
+export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
 

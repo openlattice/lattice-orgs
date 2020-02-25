@@ -22,6 +22,7 @@ function getUserId(user :any) :string {
 
   if (!isNonEmptyString(userId)) {
     // com.openlattice.directory.pojo.Auth0UserBasic
+    // com.auth0.json.mgmt.users.User
     userId = get(user, 'user_id', '');
   }
 
