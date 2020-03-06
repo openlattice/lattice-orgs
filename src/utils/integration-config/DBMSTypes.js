@@ -20,13 +20,6 @@ const DBMS_TYPES = {
     port: 0,
     sqlStatement: 'SELECT * FROM <metaTableGoesHere>',
   },
-  'Microsoft SQL Server 2000': {
-    connection: 'sqlserver',
-    connectionSuffix: '',
-    driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
-    port: 1433,
-    sqlStatement: 'SELECT name FROM sys.sysobjects where xtype = \'U\' ) dh ',
-  },
   'PointBase Embedded Server': {
     connection: 'pointbase',
     connectionSuffix: '',
@@ -104,6 +97,13 @@ const DBMS_TYPES = {
     port: 9001,
     sqlStatement: 'SELECT * FROM <metaTableGoesHere>',
   },
+  'Microsoft SQL Server 2000 (Microsoft Driver)': {
+    connection: 'sqlserver',
+    connectionSuffix: '',
+    driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+    port: 1433,
+    sqlStatement: 'SELECT name FROM sys.sysobjects where xtype = \'U\' ) dh ',
+  },
   'Microsoft SQL Server (Weblogic driver)': {
     connection: 'weblogic',
     connectionSuffix: '',
@@ -122,13 +122,6 @@ const DBMS_TYPES = {
     connection: 'inetdae',
     connectionSuffix: '',
     driver: 'com.inet.tds.TdsDriver',
-    port: 1433,
-    sqlStatement: 'SELECT * FROM <metaTableGoesHere>',
-  },
-  'Microsoft SQL Server 2000 (Microsoft Driver)': {
-    connection: 'microsoft',
-    connectionSuffix: '',
-    driver: 'com.microsoft.jdbc.sqlserver.SQLServerDriver',
     port: 1433,
     sqlStatement: 'SELECT * FROM <metaTableGoesHere>',
   },
