@@ -99,8 +99,8 @@ const DBMS_TYPES = {
   },
   'Microsoft SQL Server 2000 (Microsoft Driver)': {
     connection: 'sqlserver',
-    connectionSuffix: '',
-    driver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+    connectionSuffix: '<removeDBhere>;databaseName=<putDBhere>',
+    driver: 'com.microsoft.jdbc.sqlserver.SQLServerDriver',
     port: 1433,
     sqlStatement: 'SELECT name FROM sys.sysobjects where xtype = \'U\' ) dh ',
   },
