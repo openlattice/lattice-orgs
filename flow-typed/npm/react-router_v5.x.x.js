@@ -1,5 +1,5 @@
-// flow-typed signature: 6fc01eb9181f2145910817c4b79d7df7
-// flow-typed version: a027b02c08/react-router_v5.x.x/flow_>=v0.104.x
+// flow-typed signature: 38d16d2099bb076f9f375a333a268246
+// flow-typed version: 45d63d67fa/react-router_v5.x.x/flow_>=v0.104.x
 
 declare module "react-router" {
   // NOTE: many of these are re-exported by react-router-dom and
@@ -9,8 +9,6 @@ declare module "react-router" {
     pathname: string,
     search: string,
     hash: string,
-    state?: any,
-    key?: string,
     ...
   };
 
@@ -18,7 +16,6 @@ declare module "react-router" {
     pathname?: string,
     search?: string,
     hash?: string,
-    state?: any,
     ...
   };
 
@@ -40,9 +37,6 @@ declare module "react-router" {
     block(
       callback: string | (location: Location, action: HistoryAction) => ?string
     ): () => void,
-    // createMemoryHistory
-    index?: number,
-    entries?: Array<Location>,
     ...
   };
 
@@ -142,7 +136,7 @@ declare module "react-router" {
   declare export function useHistory(): $PropertyType<ContextRouter, 'history'>;
   declare export function useLocation(): $PropertyType<ContextRouter, 'location'>;
   declare export function useParams(): $PropertyType<$PropertyType<ContextRouter, 'match'>, 'params'>;
-  declare export function useRouteMatch(path?: string): $PropertyType<ContextRouter, 'match'>;
+  declare export function useRouteMatch(path?: MatchPathOptions | string | string[]): $PropertyType<ContextRouter, 'match'>;
 
   declare export function generatePath(pattern?: string, params?: {...}): string;
 

@@ -5,7 +5,12 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
-import { List, Map, Set } from 'immutable';
+import {
+  List,
+  Map,
+  OrderedSet,
+  Set,
+} from 'immutable';
 import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
@@ -28,6 +33,8 @@ import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as OrgsActions from './OrgsActions';
+import { ActionControlWithButton, CompactCardSegment } from './components/styled';
+
 import * as PermissionsActions from '../../core/permissions/PermissionsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
@@ -37,7 +44,6 @@ import { getIdFromMatch } from '../../core/router/RouterUtils';
 import { Logger } from '../../utils';
 import { isNonEmptyString } from '../../utils/LangUtils';
 import { getUserId, getUserProfileLabel } from '../../utils/PersonUtils';
-import { ActionControlWithButton, CompactCardSegment } from './components/styled';
 import type { ResetRequestStateAction } from '../../core/redux/ReduxActions';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
@@ -479,7 +485,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
     const { orgACLs, requestStates } = this.props;
     const { selectedAclKey, selectedPermission } = this.state;
 
-    const userIdsWithPermissions :Set<string> = Set().withMutations((set :Set) => {
+    const userIdsWithPermissions :OrderedSet<string> = OrderedSet().withMutations((set :OrderedSet) => {
       // an empty "selectedAclKey" is treated as org + roles, i.e. everything
       if (selectedAclKey.isEmpty()) {
 

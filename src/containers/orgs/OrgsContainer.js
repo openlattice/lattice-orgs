@@ -118,6 +118,7 @@ const OrgDescription = styled.p`
 /* stylelint-enable */
 
 const Error = styled.div`
+  margin-top: 50px;
   text-align: center;
 `;
 
