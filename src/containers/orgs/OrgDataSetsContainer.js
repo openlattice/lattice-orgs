@@ -22,6 +22,8 @@ import { RequestStates } from 'redux-reqseq';
 import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
+import * as OrgsActions from './OrgsActions';
+
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
@@ -29,12 +31,13 @@ import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS, PURPLES } = Colors;
 
+const { GET_ORGANIZATION_DATA_SETS } = OrgsActions;
 const { GET_ALL_ENTITY_SETS } = EntitySetsApiActions;
 const { GET_ORG_ENTITY_SETS } = OrganizationsApiActions;
 
-const SUB_TITLE = `
-These entity sets belong to this organization, and can be materialized by anyone with materialize permissions.
-`;
+// const SUB_TITLE = `
+// These entity sets belong to this organization, and can be materialized by anyone with materialize permissions.
+// `;
 
 const AUDIT_OPTION = { label: 'Audit', value: 'AUDIT' };
 const EXTERNAL_OPTION = { label: 'External', value: 'EXTERNAL' };
@@ -54,14 +57,14 @@ const Title = styled.h2`
   margin: 0 0 16px 0;
 `;
 
-const SubTitle = styled.p`
-  margin: 0;
-`;
+// const SubTitle = styled.p`
+//   margin: 0;
+// `;
 
-const EntitySetType = styled.h3`
+const DataSetType = styled.h3`
   color: ${({ isActive }) => (isActive ? PURPLES[1] : NEUTRALS[1])};
   cursor: pointer;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
   font-size: 18px;
   font-weight: normal;
   margin: 20px 30px 20px 0;
@@ -71,10 +74,10 @@ const EntitySetType = styled.h3`
   }
 `;
 
-const EntitySetSelectionWrapper = styled.div`
+const DataSetSelectionWrapper = styled.div`
   align-items: center;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   margin-bottom: 30px;
 `;
 
@@ -125,6 +128,7 @@ const Error = styled.div`
 
 type Props = {
   actions :{
+    getOrganizationDataSets :RequestSequence;
     getOrganizationEntitySets :RequestSequence;
     goToRoot :GoToRoot;
     resetRequestState :(actionType :string) => void;
@@ -132,9 +136,11 @@ type Props = {
   entitySets :List;
   entitySetsIndexMap :Map;
   match :Match;
+  orgDataSets :Map;
   orgEntitySets :Map;
   requestStates :{
     GET_ALL_ENTITY_SETS :RequestState;
+    GET_ORGANIZATION_DATA_SETS :RequestState;
     GET_ORG_ENTITY_SETS :RequestState;
   };
 };
@@ -142,9 +148,10 @@ type Props = {
 type State = {
   entitySetFilters :Object[];
   showAssociationEntitySets :boolean;
+  showStandardizedDataSets :boolean;
 };
 
-class OrgEntitySetsContainer extends Component<Props, State> {
+class OrgDataSetsContainer extends Component<Props, State> {
 
   constructor(props :Props) {
 
@@ -152,6 +159,7 @@ class OrgEntitySetsContainer extends Component<Props, State> {
     this.state = {
       entitySetFilters: [INTERNAL_OPTION],
       showAssociationEntitySets: false,
+      showStandardizedDataSets: true,
     };
   }
 
@@ -160,6 +168,7 @@ class OrgEntitySetsContainer extends Component<Props, State> {
     const { actions, match } = this.props;
     const orgId :?UUID = getIdFromMatch(match);
     actions.getOrganizationEntitySets(orgId);
+    actions.getOrganizationDataSets(orgId);
   }
 
   componentDidUpdate(prevProps :Props) {
@@ -186,6 +195,16 @@ class OrgEntitySetsContainer extends Component<Props, State> {
   selectRegularEntitySets = () => {
 
     this.setState({ showAssociationEntitySets: false });
+  }
+
+  selectStandardizedDataSets = () => {
+
+    this.setState({ showStandardizedDataSets: true });
+  }
+
+  selectUnstandardizedDataSets = () => {
+
+    this.setState({ showStandardizedDataSets: false });
   }
 
   filterEntitySets = () => {
@@ -239,23 +258,23 @@ class OrgEntitySetsContainer extends Component<Props, State> {
     const filteredEntitySets :List = this.filterEntitySets();
 
     return (
-      <CardSegment vertical>
-        <EntitySetSelectionWrapper>
-          <EntitySetType
+      <>
+        <DataSetSelectionWrapper>
+          <DataSetType
               isActive={!showAssociationEntitySets}
               onClick={this.selectRegularEntitySets}>
             Regular Entity Sets
-          </EntitySetType>
-          <EntitySetType
+          </DataSetType>
+          <DataSetType
               isActive={showAssociationEntitySets}
               onClick={this.selectAssociationEntitySets}>
             Association Entity Sets
-          </EntitySetType>
+          </DataSetType>
           <CheckboxSelect
               defaultValue={entitySetFilters}
               options={ES_SELECT_OPTIONS}
               onChange={this.handleOnChangeSelect} />
-        </EntitySetSelectionWrapper>
+        </DataSetSelectionWrapper>
         {
           filteredEntitySets.isEmpty() && (
             <p>No EntitySets matching the selected filters.</p>
@@ -278,39 +297,91 @@ class OrgEntitySetsContainer extends Component<Props, State> {
             ))
           }
         </CardGrid>
-      </CardSegment>
+      </>
+    );
+  }
+
+  renderDataSetsSegment = () => {
+
+    const { orgDataSets } = this.props;
+
+    return (
+      <>
+        {
+          orgDataSets.isEmpty() && (
+            <p>No data sets.</p>
+          )
+        }
+        <CardGrid>
+          {
+            orgDataSets.map((entitySet :Map) => (
+              <Card key={entitySet.get('id')}>
+                <CardSegment padding="0">
+                  <IconWrapper>
+                    <FontAwesomeIcon icon={faListAlt} />
+                  </IconWrapper>
+                  <EntitySetInfoWrapper>
+                    <h4>{entitySet.get('title', entitySet.get('id'))}</h4>
+                    <span>{entitySet.get('name', '')}</span>
+                  </EntitySetInfoWrapper>
+                </CardSegment>
+              </Card>
+            ))
+          }
+        </CardGrid>
+      </>
     );
   }
 
   render() {
 
     const { requestStates } = this.props;
+    const { showStandardizedDataSets } = this.state;
 
     const isPending = requestStates[GET_ALL_ENTITY_SETS] === RequestStates.PENDING
-      || requestStates[GET_ORG_ENTITY_SETS] === RequestStates.PENDING;
+      || requestStates[GET_ORG_ENTITY_SETS] === RequestStates.PENDING
+      || requestStates[GET_ORGANIZATION_DATA_SETS] === RequestStates.PENDING;
 
     const isSuccess = requestStates[GET_ALL_ENTITY_SETS] === RequestStates.SUCCESS
-      && requestStates[GET_ORG_ENTITY_SETS] === RequestStates.SUCCESS;
+      && requestStates[GET_ORG_ENTITY_SETS] === RequestStates.SUCCESS
+      && requestStates[GET_ORGANIZATION_DATA_SETS] === RequestStates.SUCCESS;
 
     const isFailure = requestStates[GET_ALL_ENTITY_SETS] === RequestStates.FAILURE
-      || requestStates[GET_ORG_ENTITY_SETS] === RequestStates.FAILURE;
+      || requestStates[GET_ORG_ENTITY_SETS] === RequestStates.FAILURE
+      || requestStates[GET_ORGANIZATION_DATA_SETS] === RequestStates.FAILURE;
 
     return (
       <Card>
         <CardSegment noBleed vertical>
-          <Title>Entity Sets</Title>
-          <SubTitle>{SUB_TITLE}</SubTitle>
-        </CardSegment>
-        {
-          isPending && (
-            <CardSegment vertical>
+          <Title>Data Sets</Title>
+          {
+            isPending && (
               <Spinner size="2x" />
-            </CardSegment>
-          )
-        }
-        {
-          isSuccess && this.renderEntitySetsSegment()
-        }
+            )
+          }
+          {
+            isSuccess && (
+              <DataSetSelectionWrapper>
+                <DataSetType
+                    isActive={showStandardizedDataSets}
+                    onClick={this.selectStandardizedDataSets}>
+                  Standardized
+                </DataSetType>
+                <DataSetType
+                    isActive={!showStandardizedDataSets}
+                    onClick={this.selectUnstandardizedDataSets}>
+                  Unstandardized
+                </DataSetType>
+              </DataSetSelectionWrapper>
+            )
+          }
+          {
+            isSuccess && showStandardizedDataSets && this.renderEntitySetsSegment()
+          }
+          {
+            isSuccess && !showStandardizedDataSets && this.renderDataSetsSegment()
+          }
+        </CardSegment>
         {
           isFailure && (
             <CardSegment>
@@ -338,9 +409,11 @@ const mapStateToProps = (state :Map, props :Object) => {
     entitySetsIndexMap: state.getIn(['edm', 'entitySetsIndexMap'], Map()),
     isOwner: state.hasIn(['orgs', 'isOwnerOfOrgIds', orgId], false),
     org: state.getIn(['orgs', 'orgs', orgId], Map()),
+    orgDataSets: state.getIn(['orgs', 'orgDataSets', orgId], Map()),
     orgEntitySets: state.getIn(['orgs', 'orgEntitySets', orgId], Map()),
     requestStates: {
       [GET_ALL_ENTITY_SETS]: state.getIn(['edm', GET_ALL_ENTITY_SETS, 'requestState']),
+      [GET_ORGANIZATION_DATA_SETS]: state.getIn(['orgs', GET_ORGANIZATION_DATA_SETS, 'requestState']),
       [GET_ORG_ENTITY_SETS]: state.getIn(['orgs', GET_ORG_ENTITY_SETS, 'requestState']),
     },
   };
@@ -349,10 +422,11 @@ const mapStateToProps = (state :Map, props :Object) => {
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
     getOrganizationEntitySets: OrganizationsApiActions.getOrganizationEntitySets,
+    getOrganizationDataSets: OrgsActions.getOrganizationDataSets,
     goToRoot: RoutingActions.goToRoot,
     resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)
 });
 
 // $FlowFixMe
-export default connect(mapStateToProps, mapActionsToProps)(OrgEntitySetsContainer);
+export default connect(mapStateToProps, mapActionsToProps)(OrgDataSetsContainer);
