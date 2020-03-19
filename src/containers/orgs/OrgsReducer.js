@@ -17,6 +17,7 @@ import {
   ADD_CONNECTION,
   ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATION_ACLS,
+  GET_ORGANIZATION_DATA_SETS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
@@ -24,6 +25,7 @@ import {
   addConnection,
   addRoleToOrganization,
   getOrganizationACLs,
+  getOrganizationDataSets,
   getOrganizationDetails,
   getOrgsAndPermissions,
   removeConnection,
@@ -108,6 +110,9 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORGANIZATION_ACLS]: {
     requestState: RequestStates.STANDBY,
   },
+  [GET_ORGANIZATION_DATA_SETS]: {
+    requestState: RequestStates.STANDBY,
+  },
   [GET_ORGANIZATION_DETAILS]: {
     requestState: RequestStates.STANDBY,
   },
@@ -150,6 +155,7 @@ const INITIAL_STATE :Map = fromJS({
   isOwnerOfOrgIds: Set(),
   newlyCreatedOrgId: undefined,
   orgACLs: Map(),
+  orgDataSets: Map(),
   orgEntitySets: Map(),
   orgMembers: Map(),
   orgs: Map(),
@@ -428,6 +434,27 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           .set('orgs', Map())
           .setIn([GET_ORGS_AND_PERMISSIONS, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([GET_ORGS_AND_PERMISSIONS, seqAction.id]),
+      });
+    }
+
+    case getOrganizationDataSets.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return getOrganizationDataSets.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([GET_ORGANIZATION_DATA_SETS, 'requestState'], RequestStates.PENDING)
+          .setIn([GET_ORGANIZATION_DATA_SETS, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([GET_ORGANIZATION_DATA_SETS, seqAction.id]);
+          if (storedSeqAction) {
+            const organizationId :UUID = storedSeqAction.value;
+            return state
+              .setIn(['orgDataSets', organizationId], fromJS(seqAction.value))
+              .setIn([GET_ORGANIZATION_DATA_SETS, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([GET_ORGANIZATION_DATA_SETS, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([GET_ORGANIZATION_DATA_SETS, seqAction.id]),
       });
     }
 

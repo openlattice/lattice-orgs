@@ -4,7 +4,7 @@
 
 import isEmail from 'validator/lib/isEmail';
 
-import { isNonEmptyArray } from './LangUtils';
+import { isNonEmptyArray, isNonEmptyString } from './LangUtils';
 
 type ValidatorFn = (value :any) => boolean;
 
@@ -35,7 +35,7 @@ function validateNonEmptyArray(value :any[], validatorFn :ValidatorFn) :boolean 
 
 function isValidUUID(value :any) :boolean %checks {
 
-  return value && BASE_UUID_PATTERN.test(value);
+  return isNonEmptyString(value) && BASE_UUID_PATTERN.test(value);
 }
 
 function isValidUUIDArray(uuids :any[]) :boolean %checks {

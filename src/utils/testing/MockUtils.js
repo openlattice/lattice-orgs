@@ -2,7 +2,7 @@
  * @flow
  */
 
-import randomUUID from 'uuid/v4';
+import { v4 as uuid } from 'uuid';
 
 function genRandomBoolean() :boolean {
 
@@ -18,7 +18,7 @@ function genRandomString() :string {
 
 function genRandomUUID() :UUID {
 
-  return randomUUID();
+  return uuid();
 }
 
 export {

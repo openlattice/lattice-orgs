@@ -65,6 +65,7 @@ export default function* sagas() :Generator<*, *, *> {
     fork(OrgsSagas.addConnectionWatcher),
     fork(OrgsSagas.addRoleToOrganizationWatcher),
     fork(OrgsSagas.getOrganizationACLsWatcher),
+    fork(OrgsSagas.getOrganizationDataSetsWatcher),
     fork(OrgsSagas.getOrganizationDetailsWatcher),
     fork(OrgsSagas.getOrgsAndPermissionsWatcher),
     fork(OrgsSagas.removeConnectionWatcher),

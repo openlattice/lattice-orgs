@@ -18,7 +18,7 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import OrgAdminContainer from './OrgAdminContainer';
 import OrgDetailsContainer from './OrgDetailsContainer';
-import OrgEntitySetsContainer from './OrgEntitySetsContainer';
+import OrgDataSetsContainer from './OrgDataSetsContainer';
 import OrgPermissionsContainer from './OrgPermissionsContainer';
 import OrgRolesContainer from './OrgRolesContainer';
 import * as OrgsActions from './OrgsActions';
@@ -158,8 +158,8 @@ class OrgContainer extends Component<Props> {
           <OrgNavLink exact to={Routes.ORG_ROLES.replace(Routes.ID_PARAM, orgId)}>
             Roles
           </OrgNavLink>
-          <OrgNavLink exact to={Routes.ORG_ENTITY_SETS.replace(Routes.ID_PARAM, orgId)}>
-            Entity Sets
+          <OrgNavLink exact to={Routes.ORG_DATA_SETS.replace(Routes.ID_PARAM, orgId)}>
+            Data Sets
           </OrgNavLink>
           {
             AuthUtils.isAdmin() && (
@@ -171,7 +171,7 @@ class OrgContainer extends Component<Props> {
         </Tabs>
         <Switch>
           <Route exact path={Routes.ORG} component={OrgDetailsContainer} />
-          <Route path={Routes.ORG_ENTITY_SETS} component={OrgEntitySetsContainer} />
+          <Route path={Routes.ORG_DATA_SETS} component={OrgDataSetsContainer} />
           <Route path={Routes.ORG_ROLES} component={OrgRolesContainer} />
           {
             isOwner && (
