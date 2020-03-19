@@ -12,6 +12,7 @@ import {
   ADD_CONNECTION,
   ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATION_ACLS,
+  GET_ORGANIZATION_DATA_SETS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
@@ -95,6 +96,9 @@ describe('OrgsReducer', () => {
       [GET_ORGANIZATION_ACLS]: {
         requestState: RequestStates.STANDBY,
       },
+      [GET_ORGANIZATION_DATA_SETS]: {
+        requestState: RequestStates.STANDBY,
+      },
       [GET_ORGANIZATION_DETAILS]: {
         requestState: RequestStates.STANDBY,
       },
@@ -137,6 +141,7 @@ describe('OrgsReducer', () => {
       isOwnerOfOrgIds: [],
       newlyCreatedOrgId: undefined,
       orgACLs: {},
+      orgDataSets: {},
       orgEntitySets: {},
       orgMembers: {},
       orgs: {},

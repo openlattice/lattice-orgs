@@ -110,6 +110,9 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORGANIZATION_ACLS]: {
     requestState: RequestStates.STANDBY,
   },
+  [GET_ORGANIZATION_DATA_SETS]: {
+    requestState: RequestStates.STANDBY,
+  },
   [GET_ORGANIZATION_DETAILS]: {
     requestState: RequestStates.STANDBY,
   },
