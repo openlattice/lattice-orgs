@@ -17,17 +17,19 @@ import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import OrgAdminContainer from './OrgAdminContainer';
-import OrgDetailsContainer from './OrgDetailsContainer';
 import OrgDataSetsContainer from './OrgDataSetsContainer';
+import OrgDetailsContainer from './OrgDetailsContainer';
 import OrgPermissionsContainer from './OrgPermissionsContainer';
 import OrgRolesContainer from './OrgRolesContainer';
 import * as OrgsActions from './OrgsActions';
+import { OrgTitleSection } from './components';
+
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
-import { OrgTitleSection } from './components';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
 import { isValidUUID } from '../../utils/ValidationUtils';
+import { DataSetContainer } from '../data';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS } = Colors;

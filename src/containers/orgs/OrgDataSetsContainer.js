@@ -25,9 +25,10 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 import * as OrgsActions from './OrgsActions';
 
 import * as ReduxActions from '../../core/redux/ReduxActions';
+import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
-import type { GoToRoot } from '../../core/router/RoutingActions';
+import type { GoToRoot, GoToRoute } from '../../core/router/RoutingActions';
 
 const { NEUTRALS, PURPLES } = Colors;
 
@@ -131,6 +132,7 @@ type Props = {
     getOrganizationDataSets :RequestSequence;
     getOrganizationEntitySets :RequestSequence;
     goToRoot :GoToRoot;
+    goToRoute :GoToRoute;
     resetRequestState :(actionType :string) => void;
   };
   entitySets :List;
@@ -179,6 +181,19 @@ class OrgDataSetsContainer extends Component<Props, State> {
 
     if (orgId !== prevOrgId) {
       actions.getOrganizationEntitySets(orgId);
+    }
+  }
+
+  goToDataSet = (event :SyntheticEvent<HTMLElement>) => {
+
+    const { actions, match } = this.props;
+    const { currentTarget } = event;
+    const { id: dataSetId } = currentTarget;
+    const orgId :?UUID = getIdFromMatch(match);
+    if (orgId) {
+      actions.goToRoute(
+        Routes.DATA_SET.replace(Routes.ORG_ID_PARAM, orgId).replace(Routes.DATA_SET_ID_PARAM, dataSetId)
+      );
     }
   }
 
@@ -314,19 +329,24 @@ class OrgDataSetsContainer extends Component<Props, State> {
         }
         <CardGrid>
           {
-            orgDataSets.map((entitySet :Map) => (
-              <Card key={entitySet.get('id')}>
-                <CardSegment padding="0">
-                  <IconWrapper>
-                    <FontAwesomeIcon icon={faListAlt} />
-                  </IconWrapper>
-                  <EntitySetInfoWrapper>
-                    <h4>{entitySet.get('title', entitySet.get('id'))}</h4>
-                    <span>{entitySet.get('name', '')}</span>
-                  </EntitySetInfoWrapper>
-                </CardSegment>
-              </Card>
-            ))
+            orgDataSets.map((dataSet :Map) => {
+              const id = dataSet.getIn(['table', 'id']);
+              const name = dataSet.getIn(['table', 'name']);
+              const title = dataSet.getIn(['table', 'title']);
+              return (
+                <Card id={id} key={id} onClick={this.goToDataSet}>
+                  <CardSegment padding="0">
+                    <IconWrapper>
+                      <FontAwesomeIcon icon={faListAlt} />
+                    </IconWrapper>
+                    <EntitySetInfoWrapper>
+                      <h4>{title}</h4>
+                      <span>{name}</span>
+                    </EntitySetInfoWrapper>
+                  </CardSegment>
+                </Card>
+              );
+            })
           }
         </CardGrid>
       </>
@@ -421,9 +441,10 @@ const mapStateToProps = (state :Map, props :Object) => {
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
-    getOrganizationEntitySets: OrganizationsApiActions.getOrganizationEntitySets,
     getOrganizationDataSets: OrgsActions.getOrganizationDataSets,
+    getOrganizationEntitySets: OrganizationsApiActions.getOrganizationEntitySets,
     goToRoot: RoutingActions.goToRoot,
+    goToRoute: RoutingActions.goToRoute,
     resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)
 });

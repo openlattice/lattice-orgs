@@ -28,13 +28,15 @@ import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
+import * as AppActions from './AppActions';
+
 import OpenLatticeIcon from '../../assets/images/ol_icon.png';
 import OrgContainer from '../orgs/OrgContainer';
 import OrgsContainer from '../orgs/OrgsContainer';
-import * as AppActions from './AppActions';
 import * as Routes from '../../core/router/Routes';
 // import { GOOGLE_TRACKING_ID } from '../../core/tracking/google/GoogleAnalytics';
 import { isNonEmptyString } from '../../utils/LangUtils';
+import { DataSetContainer } from '../data';
 
 // declare var gtag :?Function;
 
@@ -80,6 +82,13 @@ class AppContainer extends Component<Props> {
     if (requestStates[INITIALIZE_APPLICATION] === RequestStates.SUCCESS) {
       return (
         <Switch>
+          {/* HACK: this is hacky, gotta rewrite it */}
+          <Route exact path={Routes.ORG_DATA_SETS} component={OrgContainer} />
+          <Route exact path={Routes.ORG_ROLES} component={OrgContainer} />
+          <Route exact path={Routes.ORG_PERMISSIONS} component={OrgContainer} />
+          <Route exact path={Routes.ORG_ADMIN} component={OrgContainer} />
+          <Route path={Routes.DATA_SET} component={DataSetContainer} />
+          {/* END HACK */}
           <Route path={Routes.ORG} component={OrgContainer} />
           <Route path={Routes.ORGS} component={OrgsContainer} />
           <Redirect to={Routes.ORGS} />
