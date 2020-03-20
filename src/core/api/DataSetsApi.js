@@ -46,7 +46,7 @@ function getDataSets(organizationId :UUID) :Promise<*> {
 
   return axios
     .create(axiosConfigObj)
-    .get(`/${organizationId}/external-database-table`)
+    .get(`/${organizationId}/external-database-table/external-database-column`)
     .then((axiosResponse) => axiosResponse.data)
     .catch((error :Error) => {
       LOG.error(error);
