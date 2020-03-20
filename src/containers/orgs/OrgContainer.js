@@ -29,7 +29,6 @@ import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
 import { isValidUUID } from '../../utils/ValidationUtils';
-import { DataSetContainer } from '../data';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS } = Colors;

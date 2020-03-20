@@ -6,22 +6,15 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
-import { AuthUtils } from 'lattice-auth';
 import {
   Breadcrumbs,
   Card,
   CardSegment,
-  Colors,
-  Spinner,
   Table,
 } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
-import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
-import { RequestStates } from 'redux-reqseq';
-import type { Match } from 'react-router';
-import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
@@ -30,8 +23,6 @@ import { SectionGrid } from '../../components';
 import { getParamFromMatch } from '../../core/router/RouterUtils';
 import { isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot, GoToRoute } from '../../core/router/RoutingActions';
-
-const { NEUTRALS } = Colors;
 
 const CrumbsWrapper = styled.div`
   margin: 20px 0 50px 0;
@@ -75,7 +66,6 @@ type Props = {
     goToRoute :GoToRoute;
   };
   dataSet :Map;
-  match :Match;
   org :Map;
   requestStates :{
   };
@@ -88,7 +78,6 @@ class DataSetContainer extends Component<Props> {
     const {
       actions,
       dataSet,
-      match,
       org,
     } = this.props;
     const orgId = org.get('id');
