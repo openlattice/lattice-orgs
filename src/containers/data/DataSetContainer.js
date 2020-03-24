@@ -60,6 +60,8 @@ const TABLE_HEADERS = [
   },
 ];
 
+const ROWS_PER_PAGE = [5, 10, 20];
+
 type Props = {
   actions :{
     goToRoot :GoToRoot;
@@ -126,7 +128,12 @@ class DataSetContainer extends Component<Props> {
             </SectionGrid>
           </CardSegment>
           <CardSegment noBleed vertical>
-            <Table data={data} headers={TABLE_HEADERS} />
+            <Table
+                data={data}
+                headers={TABLE_HEADERS}
+                paginated
+                rowsPerPageOptions={ROWS_PER_PAGE}
+                totalRows={data.count()} />
           </CardSegment>
         </Card>
       </>
