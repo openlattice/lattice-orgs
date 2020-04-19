@@ -182,14 +182,6 @@ class OrgDetailsContainer extends Component<Props, State> {
   renderIntegrationSegment = () => {
 
     const { isOwner, org } = this.props;
-    if (!isOwner) {
-      return null;
-    }
-
-    const integration :Map = org.get('integration', Map());
-    if (integration.isEmpty()) {
-      return null;
-    }
 
     return (
       <CardSegment noBleed vertical>
