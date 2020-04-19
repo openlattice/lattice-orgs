@@ -60,7 +60,7 @@ const TABLE_HEADERS = [
   },
 ];
 
-const ROWS_PER_PAGE = [5, 10, 20];
+const ROWS_PER_PAGE = [20, 50, 100];
 
 type Props = {
   actions :{
