@@ -176,57 +176,61 @@ class OrgIntegrationSection extends Component<Props, State> {
       </Modal>
     );
   }
-    
-  renderDatabaseUrl = () => {
-    const { org } = this.props;
-    const orgIdClean = org.get('id').replace(/-/g, '');
-    
-    return (
-      <SectionGrid>
-        <h2>Database Details</h2>
-        <h5>JDBC URL</h5>
-        <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
-      </SectionGrid>      
-    )
-    
+renderDatabaseUrl = () => {
+  const { org } = this.props;
+  const orgIdClean = org.get("id").replace(/-/g, "");
+
+  return (
+    <SectionGrid>
+      <h2>Database Details</h2>
+      <h5>JDBC URL</h5>
+      <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
+    </SectionGrid>
+  );
+};
+
+renderDatabaseCredentials = () => {
+  const { isOwner, org } = this.props;
+
+  if (!isOwner) {
+    return null;
   }
-  
-  renderDatabaseCredentials = () => {
-    const { isOwner, org } = this.props;
 
-    if (!isOwner) {
-      return null;
-    }
+  const integration: Map = org.get("integration", Map());
+  if (integration.isEmpty()) {
+    return null;
+  }
 
-    const integration :Map = org.get('integration', Map());
-    if (integration.isEmpty()) {
-      return null;
-    }
-
-    return (
-      <>
+  return (
+    <>
       <SectionGrid>
         <h5>USER</h5>
-        <pre>{org.getIn(['integration', 'user'], '')}</pre>
-        <h5>CREDENTIAL</h5>        
+        <pre>{org.getIn(["integration", "user"], "")}</pre>
+        <h5>CREDENTIAL</h5>
       </SectionGrid>
       <SectionGrid columns={2}>
-        <div style={{ marginTop: '4px' }}>
+        <div style={{ marginTop: "4px" }}>
           <ActionControlWithButton>
-            <Input disabled type="password" value="********************************" />
+            <Input
+              disabled
+              type="password"
+              value="********************************"
+            />
             <CopyButton onClick={this.handleOnClickCopyCredential} />
           </ActionControlWithButton>
         </div>
       </SectionGrid>
       <SectionGrid columns={2}>
         <div>
-          <Button mode="primary" onClick={this.openModal}>Generate Integration Configuration File</Button>
+          <Button mode="primary" onClick={this.openModal}>
+            Generate Integration Configuration File
+          </Button>
         </div>
       </SectionGrid>
-      {this.renderGenerateConfigModal()}      
-      </>
-    )
-  }
+      {this.renderGenerateConfigModal()}
+    </>
+  );
+};
 
   render() {
 
