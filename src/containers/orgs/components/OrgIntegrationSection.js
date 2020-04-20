@@ -163,8 +163,8 @@ class OrgIntegrationSection extends Component<Props, State> {
           isVisible={isVisibleGenerateConfigModal}
           onClickPrimary={this.handleOnClickGenerate}
           onClose={this.closeModal}
-          textPrimary='Generate'
-          textTitle='Generate Integration Configuration File'
+          textPrimary="Generate"
+          textTitle="Generate Integration Configuration File"
           viewportScrolling>
         <Form
             formData={formData.toJS()}
@@ -197,6 +197,7 @@ renderDatabaseCredentials = () => {
   }
 
   const integration: Map = org.get('integration', Map());
+  
   if (integration.isEmpty()) {
     return null;
   }
@@ -213,8 +214,8 @@ renderDatabaseCredentials = () => {
           <ActionControlWithButton>
             <Input
                 disabled
-                type='password'
-                value='********************************'
+                type="password"
+                value="********************************"
             />
             <CopyButton onClick={this.handleOnClickCopyCredential} />
           </ActionControlWithButton>
@@ -222,23 +223,23 @@ renderDatabaseCredentials = () => {
       </SectionGrid>
       <SectionGrid columns={2}>
         <div>
-          <Button mode='primary' onClick={this.openModal}>
+          <Button mode="primary" onClick={this.openModal}>
             Generate Integration Configuration File
           </Button>
         </div>
       </SectionGrid>
       {this.renderGenerateConfigModal()}
-    </>
-    );
-  };
+  </>
+  );
+};
 
-  render() {
-    return (
-      <>
-        {this.renderDatabaseUrl()}
-        {this.renderDatabaseCredentials()}
-    </>
-    );
+render() {
+  return (
+    <>
+      {this.renderDatabaseUrl()}
+      {this.renderDatabaseCredentials()}
+  </>
+  );
   }
 }
 
