@@ -163,8 +163,8 @@ class OrgIntegrationSection extends Component<Props, State> {
           isVisible={isVisibleGenerateConfigModal}
           onClickPrimary={this.handleOnClickGenerate}
           onClose={this.closeModal}
-          textPrimary="Generate"
-          textTitle="Generate Integration Configuration File"
+          textPrimary='Generate'
+          textTitle='Generate Integration Configuration File'
           viewportScrolling>
         <Form
             formData={formData.toJS()}
@@ -178,7 +178,7 @@ class OrgIntegrationSection extends Component<Props, State> {
   }
 renderDatabaseUrl = () => {
   const { org } = this.props;
-  const orgIdClean = org.get("id").replace(/-/g, "");
+  const orgIdClean = org.get('id').replace(/-/g, '');
 
   return (
     <SectionGrid>
@@ -196,7 +196,7 @@ renderDatabaseCredentials = () => {
     return null;
   }
 
-  const integration: Map = org.get("integration", Map());
+  const integration: Map = org.get('integration', Map());
   if (integration.isEmpty()) {
     return null;
   }
@@ -205,16 +205,16 @@ renderDatabaseCredentials = () => {
     <>
       <SectionGrid>
         <h5>USER</h5>
-        <pre>{org.getIn(["integration", "user"], "")}</pre>
+        <pre>{org.getIn(['integration', 'user'], '')}</pre>
         <h5>CREDENTIAL</h5>
       </SectionGrid>
       <SectionGrid columns={2}>
-        <div style={{ marginTop: "4px" }}>
+        <div style={{ marginTop: '4px' }}>
           <ActionControlWithButton>
             <Input
-              disabled
-              type="password"
-              value="********************************"
+                disabled
+                type='password'
+                value='********************************'
             />
             <CopyButton onClick={this.handleOnClickCopyCredential} />
           </ActionControlWithButton>
@@ -222,19 +222,17 @@ renderDatabaseCredentials = () => {
       </SectionGrid>
       <SectionGrid columns={2}>
         <div>
-          <Button mode="primary" onClick={this.openModal}>
+          <Button mode='primary' onClick={this.openModal}>
             Generate Integration Configuration File
           </Button>
         </div>
       </SectionGrid>
       {this.renderGenerateConfigModal()}
     </>
-  );
-};
+    );
+  };
 
   render() {
-
-
     return (
       <>
         {this.renderDatabaseUrl()}
