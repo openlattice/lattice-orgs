@@ -196,8 +196,7 @@ renderDatabaseCredentials = () => {
     return null;
   }
 
-  const integration: Map = org.get('integration', Map());
-  
+  const integration: Map = org.get('integration', Map());  
   if (integration.isEmpty()) {
     return null;
   }
@@ -230,16 +229,16 @@ renderDatabaseCredentials = () => {
       </SectionGrid>
       {this.renderGenerateConfigModal()}
   </>
-  );
+    );
 };
 
 render() {
   return (
     <>
-      {this.renderDatabaseUrl()}
-      {this.renderDatabaseCredentials()}
-  </>
-  );
+    {this.renderDatabaseUrl()}
+    {this.renderDatabaseCredentials()}
+    </>
+    );
   }
 }
 
