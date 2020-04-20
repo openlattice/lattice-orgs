@@ -196,7 +196,7 @@ renderDatabaseCredentials = () => {
     return null;
   }
 
-  const integration: Map = org.get('integration', Map());  
+  const integration:Map = org.get('integration', Map());
   if (integration.isEmpty()) {
     return null;
   }
@@ -205,16 +205,16 @@ renderDatabaseCredentials = () => {
     <>
       <SectionGrid>
         <h5>USER</h5>
-        <pre>{org.getIn(['integration', 'user'], '')}</pre>
+        <pre>{org.getIn(["integration", "user"], "")}</pre>
         <h5>CREDENTIAL</h5>
       </SectionGrid>
       <SectionGrid columns={2}>
-        <div style={{ marginTop: '4px' }}>
+        <div style={{ marginTop: "4px" }}>
           <ActionControlWithButton>
             <Input
-                disabled
-                type="password"
-                value="********************************"
+              disabled
+              type="password"
+              value="********************************"
             />
             <CopyButton onClick={this.handleOnClickCopyCredential} />
           </ActionControlWithButton>
@@ -228,8 +228,9 @@ renderDatabaseCredentials = () => {
         </div>
       </SectionGrid>
       {this.renderGenerateConfigModal()}
-  </>
-    );
+    </>
+  );
+
 };
 
 render() {
