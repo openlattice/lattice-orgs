@@ -7,10 +7,7 @@ import React, { Component } from 'react';
 import { Map, fromJS } from 'immutable';
 import { Form } from 'lattice-fabricate';
 import {
-  Button,
-  CopyButton,
-  Input,
-  Modal,
+  Button, CopyButton, Input, Modal
 } from 'lattice-ui-kit';
 
 import DBMSTypes from '../../../utils/integration-config/DBMSTypes';
@@ -25,33 +22,33 @@ const dataSchema = {
       properties: {
         targetServer: {
           title: 'Target Server',
-          type: 'string',
+          type: 'string'
         },
         targetDatabase: {
           title: 'Target Database',
-          type: 'string',
+          type: 'string'
         },
         targetDBMS: {
           enum: Object.keys(DBMSTypes),
           title: 'Target DBMS',
-          type: 'string',
+          type: 'string'
         },
         targetPort: {
           title: 'Target Port',
-          type: 'number',
-        },
+          type: 'number'
+        }
       },
       title: '',
-      type: 'object',
-    },
+      type: 'object'
+    }
   },
   title: '',
-  type: 'object',
+  type: 'object'
 };
 
 const uiSchema = {
   fields: {
-    classNames: 'column-span-12',
+    classNames: 'column-span-12'
   }
 };
 
@@ -60,50 +57,47 @@ const INITIAL_FORM_DATA = fromJS({
     targetDBMS: '',
     targetDatabase: '',
     targetPort: 5432,
-    targetServer: '',
+    targetServer: ''
   }
 });
 
 type FormData = {
-  fields :{
-    targetDBMS :?string;
-    targetDatabase :?string;
-    targetPort :?number;
-    targetServer :?string;
-  };
+  fields:{
+    targetDBMS:?string,
+    targetDatabase:?string,
+    targetPort:?number,
+    targetServer:?string
+  }
 };
 
 type Props = {
-  isOwner :boolean;
-  org :Map;
+  isOwner:boolean,
+  org:Map
 };
 
 type State = {
-  formData :Map;
-  isVisibleGenerateConfigModal :boolean;
+  formData:Map,
+  isVisibleGenerateConfigModal:boolean
 };
 
 class OrgIntegrationSection extends Component<Props, State> {
-  constructor(props: Props) {
+  constructor(props:Props) {
     super(props);
 
     this.state = {
       formData: INITIAL_FORM_DATA,
-      isVisibleGenerateConfigModal: false,
+      isVisibleGenerateConfigModal: false
     };
   }
 
-  handleOnChangeForm = ({ formData }: { formData: FormData }) => {
+  handleOnChangeForm = ({ formData }:{ formData:FormData }) => {
     const { formData: stateFormData } = this.state;
 
     let newFormData = fromJS(formData);
     if (isNonEmptyString(formData.fields.targetDBMS)) {
-      if (
-        stateFormData.getIn(["fields", "targetDBMS"]) !==
-        newFormData.getIn(["fields", "targetDBMS"])
-      ) {
-        const dbms: Object = DBMSTypes[formData.fields.targetDBMS];
-        newFormData = newFormData.setIn(["fields", "targetPort"], dbms.port);
+      if (stateFormData.getIn(['fields', 'targetDBMS']) !== newFormData.getIn(['fields', 'targetDBMS'])) {
+        const dbms:Object = DBMSTypes[formData.fields.targetDBMS];
+        newFormData = newFormData.setIn(['fields', 'targetPort'], dbms.port);
       }
     }
 
@@ -116,9 +110,7 @@ class OrgIntegrationSection extends Component<Props, State> {
     if (isOwner) {
       // TODO: consider using https://github.com/zenorocha/clipboard.js
       if (navigator.clipboard) {
-        navigator.clipboard.writeText(
-          org.getIn(["integration", "credential"], "")
-        );
+        navigator.clipboard.writeText(org.getIn(['integration', 'credential'], ''));
       }
     }
   };
@@ -128,27 +120,27 @@ class OrgIntegrationSection extends Component<Props, State> {
     const { formData } = this.state;
 
     generateIntegrationConfigFile({
-      orgId: org.get("id"),
-      orgName: org.get("title"),
-      orgPassword: org.getIn(["integration", "credential"]),
-      orgUsername: org.getIn(["integration", "user"]),
-      targetDatabase: formData.getIn(["fields", "targetDatabase"]),
-      targetPort: formData.getIn(["fields", "targetPort"]),
-      targetServer: formData.getIn(["fields", "targetServer"]),
-      targetDBMS: formData.getIn(["fields", "targetDBMS"]),
+      orgId: org.get('id'),
+      orgName: org.get('title'),
+      orgPassword: org.getIn(['integration', 'credential']),
+      orgUsername: org.getIn(['integration', 'user']),
+      targetDatabase: formData.getIn(['fields', 'targetDatabase']),
+      targetPort: formData.getIn(['fields', 'targetPort']),
+      targetServer: formData.getIn(['fields', 'targetServer']),
+      targetDBMS: formData.getIn(['fields', 'targetDBMS'])
     });
   };
 
   closeModal = () => {
     this.setState({
       formData: INITIAL_FORM_DATA,
-      isVisibleGenerateConfigModal: false,
+      isVisibleGenerateConfigModal: false
     });
   };
 
   openModal = () => {
     this.setState({
-      isVisibleGenerateConfigModal: true,
+      isVisibleGenerateConfigModal: true
     });
   };
 
@@ -157,27 +149,25 @@ class OrgIntegrationSection extends Component<Props, State> {
 
     return (
       <Modal
-        isVisible={isVisibleGenerateConfigModal}
-        onClickPrimary={this.handleOnClickGenerate}
-        onClose={this.closeModal}
-        textPrimary="Generate"
-        textTitle="Generate Integration Configuration File"
-        viewportScrolling
-      >
+          isVisible={isVisibleGenerateConfigModal}
+          onClickPrimary={this.handleOnClickGenerate}
+          onClose={this.closeModal}
+          textPrimary="Generate"
+          textTitle="Generate Integration Configuration File"
+          viewportScrolling>
         <Form
-          formData={formData.toJS()}
-          hideSubmit
-          noPadding
-          onChange={this.handleOnChangeForm}
-          schema={dataSchema}
-          uiSchema={uiSchema}
-        />
+            formData={formData.toJS()}
+            hideSubmit
+            noPadding
+            onChange={this.handleOnChangeForm}
+            schema={dataSchema}
+            uiSchema={uiSchema} />
       </Modal>
     );
   };
   renderDatabaseUrl = () => {
     const { org } = this.props;
-    const orgIdClean = org.get("id").replace(/-/g, "");
+    const orgIdClean = org.get('id').replace(/-/g, '');
 
     return (
       <SectionGrid>
@@ -195,7 +185,8 @@ class OrgIntegrationSection extends Component<Props, State> {
       return null;
     }
 
-    const integration: Map = org.get("integration", Map());
+    const integration:Map = org.get('integration', Map());
+
     if (integration.isEmpty()) {
       return null;
     }
@@ -210,11 +201,7 @@ class OrgIntegrationSection extends Component<Props, State> {
         <SectionGrid columns={2}>
           <div style={{ marginTop: '4px' }}>
             <ActionControlWithButton>
-              <Input
-                disabled
-                type="password"
-                value="********************************"
-              />
+              <Input disabled type="password" value="********************************" />
               <CopyButton onClick={this.handleOnClickCopyCredential} />
             </ActionControlWithButton>
           </div>
