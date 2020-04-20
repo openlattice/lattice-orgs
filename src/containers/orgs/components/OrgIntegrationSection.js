@@ -7,7 +7,10 @@ import React, { Component } from 'react';
 import { Map, fromJS } from 'immutable';
 import { Form } from 'lattice-fabricate';
 import {
-  Button, CopyButton, Input, Modal
+  Button,
+  CopyButton,
+  Input,
+  Modal,
 } from 'lattice-ui-kit';
 
 import DBMSTypes from '../../../utils/integration-config/DBMSTypes';
@@ -22,33 +25,33 @@ const dataSchema = {
       properties: {
         targetServer: {
           title: 'Target Server',
-          type: 'string'
+          type: 'string',
         },
         targetDatabase: {
           title: 'Target Database',
-          type: 'string'
+          type: 'string',
         },
         targetDBMS: {
           enum: Object.keys(DBMSTypes),
           title: 'Target DBMS',
-          type: 'string'
+          type: 'string',
         },
         targetPort: {
           title: 'Target Port',
-          type: 'number'
-        }
+          type: 'number',
+        },
       },
       title: '',
-      type: 'object'
-    }
+      type: 'object',
+    },
   },
   title: '',
-  type: 'object'
+  type: 'object',
 };
 
 const uiSchema = {
   fields: {
-    classNames: 'column-span-12'
+    classNames: 'column-span-12',
   }
 };
 
@@ -57,54 +60,58 @@ const INITIAL_FORM_DATA = fromJS({
     targetDBMS: '',
     targetDatabase: '',
     targetPort: 5432,
-    targetServer: ''
+    targetServer: '',
   }
 });
 
 type FormData = {
-  fields:{
-    targetDBMS:?string,
-    targetDatabase:?string,
-    targetPort:?number,
-    targetServer:?string
-  }
+  fields :{
+    targetDBMS :?string;
+    targetDatabase :?string;
+    targetPort :?number;
+    targetServer :?string;
+  };
 };
 
 type Props = {
-  isOwner:boolean,
-  org:Map
+  isOwner :boolean;
+  org :Map;
 };
 
 type State = {
-  formData:Map,
-  isVisibleGenerateConfigModal:boolean
+  formData :Map;
+  isVisibleGenerateConfigModal :boolean;
 };
 
 class OrgIntegrationSection extends Component<Props, State> {
-  constructor(props:Props) {
+
+  constructor(props :Props) {
+
     super(props);
 
     this.state = {
       formData: INITIAL_FORM_DATA,
-      isVisibleGenerateConfigModal: false
+      isVisibleGenerateConfigModal: false,
     };
   }
 
-  handleOnChangeForm = ({ formData }:{ formData:FormData }) => {
+  handleOnChangeForm = ({ formData } :{ formData :FormData }) => {
+
     const { formData: stateFormData } = this.state;
 
     let newFormData = fromJS(formData);
     if (isNonEmptyString(formData.fields.targetDBMS)) {
       if (stateFormData.getIn(['fields', 'targetDBMS']) !== newFormData.getIn(['fields', 'targetDBMS'])) {
-        const dbms:Object = DBMSTypes[formData.fields.targetDBMS];
+        const dbms :Object = DBMSTypes[formData.fields.targetDBMS];
         newFormData = newFormData.setIn(['fields', 'targetPort'], dbms.port);
       }
     }
 
     this.setState({ formData: newFormData });
-  };
+  }
 
   handleOnClickCopyCredential = () => {
+
     const { isOwner, org } = this.props;
 
     if (isOwner) {
@@ -113,9 +120,10 @@ class OrgIntegrationSection extends Component<Props, State> {
         navigator.clipboard.writeText(org.getIn(['integration', 'credential'], ''));
       }
     }
-  };
+  }
 
   handleOnClickGenerate = () => {
+
     const { org } = this.props;
     const { formData } = this.state;
 
@@ -127,24 +135,27 @@ class OrgIntegrationSection extends Component<Props, State> {
       targetDatabase: formData.getIn(['fields', 'targetDatabase']),
       targetPort: formData.getIn(['fields', 'targetPort']),
       targetServer: formData.getIn(['fields', 'targetServer']),
-      targetDBMS: formData.getIn(['fields', 'targetDBMS'])
+      targetDBMS: formData.getIn(['fields', 'targetDBMS']),
     });
-  };
+  }
 
   closeModal = () => {
+
     this.setState({
       formData: INITIAL_FORM_DATA,
-      isVisibleGenerateConfigModal: false
+      isVisibleGenerateConfigModal: false,
     });
-  };
+  }
 
   openModal = () => {
+
     this.setState({
-      isVisibleGenerateConfigModal: true
+      isVisibleGenerateConfigModal: true,
     });
-  };
+  }
 
   renderGenerateConfigModal = () => {
+
     const { formData, isVisibleGenerateConfigModal } = this.state;
 
     return (
@@ -164,68 +175,71 @@ class OrgIntegrationSection extends Component<Props, State> {
             uiSchema={uiSchema} />
       </Modal>
     );
-  };
-  renderDatabaseUrl = () => {
-    const { org } = this.props;
-    const orgIdClean = org.get('id').replace(/-/g, '');
-
-    return (
-      <SectionGrid>
-        <h2>Database Details</h2>
-        <h5>JDBC URL</h5>
-        <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
-      </SectionGrid>
-    );
-  };
-
-  renderDatabaseCredentials = () => {
-    const { isOwner, org } = this.props;
-
-    if (!isOwner) {
-      return null;
-    }
-
-    const integration:Map = org.get('integration', Map());
-
-    if (integration.isEmpty()) {
-      return null;
-    }
-
-    return (
-      <>
-        <SectionGrid>
-          <h5>USER</h5>
-          <pre>{org.getIn(['integration', 'user'], '')}</pre>
-          <h5>CREDENTIAL</h5>
-        </SectionGrid>
-        <SectionGrid columns={2}>
-          <div style={{ marginTop: '4px' }}>
-            <ActionControlWithButton>
-              <Input disabled type="password" value="********************************" />
-              <CopyButton onClick={this.handleOnClickCopyCredential} />
-            </ActionControlWithButton>
-          </div>
-        </SectionGrid>
-        <SectionGrid columns={2}>
-          <div>
-            <Button mode="primary" onClick={this.openModal}>
-              Generate Integration Configuration File
-            </Button>
-          </div>
-        </SectionGrid>
-        {this.renderGenerateConfigModal()}
-      </>
-    );
-  };
-
-  render() {
-    return (
-      <>
-        {this.renderDatabaseUrl()}
-        {this.renderDatabaseCredentials()}
-      </>
-    );
   }
+renderDatabaseUrl = () => {
+  const { org } = this.props;
+  const orgIdClean = org.get('id').replace(/-/g, '');
+
+  return (
+    <SectionGrid>
+      <h2>Database Details</h2>
+      <h5>JDBC URL</h5>
+      <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
+    </SectionGrid>
+  );
+};
+
+renderDatabaseCredentials = () => {
+  const { isOwner, org } = this.props;
+
+  if (!isOwner) {
+    return null;
+  }
+
+  const integration:Map = org.get('integration', Map());
+
+  if (integration.isEmpty()) {
+    return null;
+  }
+
+  return (
+    <>
+      <SectionGrid>
+        <h5>USER</h5>
+        <pre>{org.getIn(['integration', 'user'], '')}</pre>
+        <h5>CREDENTIAL</h5>
+      </SectionGrid>
+      <SectionGrid columns={2}>
+        <div style={{ marginTop: '4px' }}>
+          <ActionControlWithButton>
+            <Input
+                disabled
+                type="password"
+                value="********************************" />
+            <CopyButton onClick={this.handleOnClickCopyCredential} />
+          </ActionControlWithButton>
+        </div>
+      </SectionGrid>
+      <SectionGrid columns={2}>
+        <div>
+          <Button mode="primary" onClick={this.openModal}>
+            Generate Integration Configuration File
+          </Button>
+        </div>
+      </SectionGrid>
+      {this.renderGenerateConfigModal()}
+    </>
+  );
+};
+
+render() {
+  return (
+    <>
+      {this.renderDatabaseUrl()}
+      {this.renderDatabaseCredentials()}
+    </>
+  );
+}
 }
 
 export default OrgIntegrationSection;
