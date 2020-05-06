@@ -179,11 +179,14 @@ class OrgIntegrationSection extends Component<Props, State> {
 
   renderDatabaseUrl = () => {
     const { org } = this.props;
-    const orgIdClean = org.get('id').replace(/-/g, '');
+    const orgId = org.get('id');
+    const orgIdClean = orgId.replace(/-/g, '');
 
     return (
       <SectionGrid>
         <h2>Database Details</h2>
+        <h5>Organization ID</h5>
+        <pre>{orgId}</pre>
         <h5>JDBC URL</h5>
         <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
       </SectionGrid>
