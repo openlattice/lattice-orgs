@@ -14,14 +14,16 @@ import {
   PrincipalsApiActions,
   PrincipalsApiSagas,
 } from 'lattice-sagas';
+import { Logger } from 'lattice-utils';
+import type { Saga } from '@redux-saga/core';
 import type { SequenceAction } from 'redux-reqseq';
 
-import Logger from '../../utils/Logger';
 import { INITIALIZE_APPLICATION, initializeApplication } from './AppActions';
-import { getOrgsAndPermissions } from '../orgs/OrgsActions';
-import { getOrgsAndPermissionsWorker } from '../orgs/OrgsSagas';
+
 import { getEntityDataModelTypes } from '../../core/edm/EDMActions';
 import { getEntityDataModelTypesWorker } from '../../core/edm/EDMSagas';
+import { getOrgsAndPermissions } from '../orgs/OrgsActions';
+import { getOrgsAndPermissionsWorker } from '../orgs/OrgsSagas';
 
 const LOG = new Logger('AppSagas');
 
@@ -37,7 +39,7 @@ const { getAllUsersWorker } = PrincipalsApiSagas;
  *
  */
 
-function* initializeApplicationWorker(action :SequenceAction) :Generator<*, *, *> {
+function* initializeApplicationWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(initializeApplication.request(action.id));
@@ -71,7 +73,7 @@ function* initializeApplicationWorker(action :SequenceAction) :Generator<*, *, *
   }
 }
 
-function* initializeApplicationWatcher() :Generator<*, *, *> {
+function* initializeApplicationWatcher() :Saga<*> {
 
   yield takeEvery(INITIALIZE_APPLICATION, initializeApplicationWorker);
 }

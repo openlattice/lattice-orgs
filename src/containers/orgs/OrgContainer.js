@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { Map } from 'immutable';
 import { AuthUtils } from 'lattice-auth';
 import { Colors, Spinner } from 'lattice-ui-kit';
+import { ValidationUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
@@ -28,10 +29,10 @@ import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
-import { isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS } = Colors;
+const { isValidUUID } = ValidationUtils;
 
 const {
   GET_ORGANIZATION_DETAILS,

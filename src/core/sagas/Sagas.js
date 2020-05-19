@@ -29,7 +29,7 @@ export default function* sagas() :Generator<*, *, *> {
 
     // "lattice-sagas" sagas
     fork(EntitySetsApiSagas.getAllEntitySetsWatcher),
-    fork(OrganizationsApiSagas.addDomainToOrganizationWatcher),
+    fork(OrganizationsApiSagas.addDomainsToOrganizationWatcher),
     fork(OrganizationsApiSagas.addMemberToOrganizationWatcher),
     fork(OrganizationsApiSagas.addRoleToMemberWatcher),
     fork(OrganizationsApiSagas.createOrganizationWatcher),
@@ -42,7 +42,7 @@ export default function* sagas() :Generator<*, *, *> {
     fork(OrganizationsApiSagas.getOrganizationIntegrationAccountWatcher),
     fork(OrganizationsApiSagas.getOrganizationMembersWatcher),
     fork(OrganizationsApiSagas.grantTrustToOrganizationWatcher),
-    fork(OrganizationsApiSagas.removeDomainFromOrganizationWatcher),
+    fork(OrganizationsApiSagas.removeDomainsFromOrganizationWatcher),
     fork(OrganizationsApiSagas.removeMemberFromOrganizationWatcher),
     fork(OrganizationsApiSagas.removeRoleFromMemberWatcher),
     fork(OrganizationsApiSagas.revokeTrustFromOrganizationWatcher),

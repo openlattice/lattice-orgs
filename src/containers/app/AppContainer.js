@@ -16,6 +16,7 @@ import {
   Sizes,
   Spinner,
 } from 'lattice-ui-kit';
+import { LangUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import {
   Redirect,
@@ -35,13 +36,13 @@ import OrgContainer from '../orgs/OrgContainer';
 import OrgsContainer from '../orgs/OrgsContainer';
 import * as Routes from '../../core/router/Routes';
 // import { GOOGLE_TRACKING_ID } from '../../core/tracking/google/GoogleAnalytics';
-import { isNonEmptyString } from '../../utils/LangUtils';
 import { DataSetContainer } from '../data';
 
 // declare var gtag :?Function;
 
 const { INITIALIZE_APPLICATION } = AppActions;
 const { APP_CONTENT_WIDTH } = Sizes;
+const { isNonEmptyString } = LangUtils;
 
 const Error = styled.div`
   text-align: center;

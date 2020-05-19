@@ -4,8 +4,9 @@
 
 import { get } from 'immutable';
 import { AuthUtils } from 'lattice-auth';
+import { LangUtils } from 'lattice-utils';
 
-import { isDefined, isNonEmptyString } from './LangUtils';
+const { isDefined, isNonEmptyString } = LangUtils;
 
 function getUserId(user :any) :string {
 

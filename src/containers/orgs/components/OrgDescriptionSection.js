@@ -6,19 +6,20 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
-import { OrganizationsApiActions } from 'lattice-sagas';
 import { Form } from 'lattice-fabricate';
+import { OrganizationsApiActions } from 'lattice-sagas';
 import { Colors, EditButton } from 'lattice-ui-kit';
+import { LangUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as ReduxActions from '../../../core/redux/ReduxActions';
-import { isNonEmptyString } from '../../../utils/LangUtils';
 
 const { NEUTRALS } = Colors;
-const { UPDATE_ORG_DESCRIPTION } = OrganizationsApiActions;
+const { UPDATE_ORGANIZATION_DESCRIPTION } = OrganizationsApiActions;
+const { isNonEmptyString } = LangUtils;
 
 const EditButtonAligned = styled(EditButton)`
   align-self: flex-start;
@@ -63,7 +64,7 @@ type Props = {
   isOwner :boolean;
   org :Map;
   requestStates :{
-    UPDATE_ORG_DESCRIPTION :RequestState;
+    UPDATE_ORGANIZATION_DESCRIPTION :RequestState;
   };
 };
 
@@ -92,8 +93,8 @@ class OrgDescriptionSection extends Component<Props, State> {
 
     const { requestStates } = this.props;
 
-    if (requestStates[UPDATE_ORG_DESCRIPTION] === RequestStates.SUCCESS
-        && prevProps.requestStates[UPDATE_ORG_DESCRIPTION] === RequestStates.PENDING) {
+    if (requestStates[UPDATE_ORGANIZATION_DESCRIPTION] === RequestStates.SUCCESS
+        && prevProps.requestStates[UPDATE_ORGANIZATION_DESCRIPTION] === RequestStates.PENDING) {
       this.resetState();
     }
   }
@@ -146,7 +147,7 @@ class OrgDescriptionSection extends Component<Props, State> {
       return (
         <Form
             formData={data}
-            isSubmitting={requestStates[UPDATE_ORG_DESCRIPTION] === RequestStates.PENDING}
+            isSubmitting={requestStates[UPDATE_ORGANIZATION_DESCRIPTION] === RequestStates.PENDING}
             noPadding
             onChange={this.handleOnChange}
             onDiscard={this.resetState}
@@ -177,7 +178,7 @@ class OrgDescriptionSection extends Component<Props, State> {
 
 const mapStateToProps = (state :Map) => ({
   requestStates: {
-    [UPDATE_ORG_DESCRIPTION]: state.getIn(['orgs', UPDATE_ORG_DESCRIPTION, 'requestState']),
+    [UPDATE_ORGANIZATION_DESCRIPTION]: state.getIn(['orgs', UPDATE_ORGANIZATION_DESCRIPTION, 'requestState']),
   },
 });
 

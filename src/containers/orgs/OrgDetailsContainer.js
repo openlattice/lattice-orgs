@@ -16,6 +16,7 @@ import {
   IconButton,
   Input,
 } from 'lattice-ui-kit';
+import { LangUtils, Logger } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
@@ -34,12 +35,11 @@ import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { CardSegmentNoBorder, SectionGrid } from '../../components';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
-import { Logger } from '../../utils';
-import { isNonEmptyString } from '../../utils/LangUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { GET_ORGANIZATION_DETAILS } = OrgsActions;
 const { DELETE_ORGANIZATION } = OrganizationsApiActions;
+const { isNonEmptyString } = LangUtils;
 
 const OrgDescriptionSegment = styled(CardSegment)`
   justify-content: space-between;
@@ -77,7 +77,7 @@ type State = {
   isVisibleDeleteModal :boolean;
 };
 
-const LOG :Logger = new Logger('OrgDetailsContainer');
+const LOG = new Logger('OrgDetailsContainer');
 
 class OrgDetailsContainer extends Component<Props, State> {
 

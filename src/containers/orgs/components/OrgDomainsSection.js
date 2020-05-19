@@ -12,24 +12,26 @@ import {
   MinusButton,
   PlusButton,
 } from 'lattice-ui-kit';
+import { LangUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
-import * as ReduxActions from '../../../core/redux/ReduxActions';
 import {
   ActionControlWithButton,
   CompactCardSegment,
   SpinnerOverlayCard,
 } from './styled';
-import { SectionGrid } from '../../../components';
-import { isNonEmptyString } from '../../../utils/LangUtils';
-import { isValidEmailDomain } from '../../../utils/ValidationUtils';
 
+import * as ReduxActions from '../../../core/redux/ReduxActions';
+import { SectionGrid } from '../../../components';
+import { isValidEmailDomain } from '../OrgsUtils';
+
+const { isNonEmptyString } = LangUtils;
 const {
-  ADD_DOMAIN_TO_ORG,
-  REMOVE_DOMAIN_FROM_ORG,
+  ADD_DOMAINS_TO_ORGANIZATION,
+  REMOVE_DOMAINS_FROM_ORGANIZATION,
 } = OrganizationsApiActions;
 
 const DOMAINS_SUB_TITLE = `
@@ -38,15 +40,15 @@ Users from these domains will automatically be approved when requesting to join 
 
 type Props = {
   actions :{
-    addDomainToOrganization :RequestSequence;
-    removeDomainFromOrganization :RequestSequence;
+    addDomainsToOrganization :RequestSequence;
+    removeDomainsFromOrganization :RequestSequence;
     resetRequestState :(actionType :string) => void;
   };
   isOwner :boolean;
   org :Map;
   requestStates :{
-    ADD_DOMAIN_TO_ORG :RequestState;
-    REMOVE_DOMAIN_FROM_ORG :RequestState;
+    ADD_DOMAINS_TO_ORGANIZATION :RequestState;
+    REMOVE_DOMAINS_FROM_ORGANIZATION :RequestState;
   };
 };
 
@@ -89,7 +91,7 @@ class OrgDomainsSection extends Component<Props, State> {
       const isNewDomain :boolean = !org.get('emails', List()).includes(valueOfDomain);
 
       if (isValidDomain && isNewDomain) {
-        actions.addDomainToOrganization({ domain: valueOfDomain, organizationId: org.get('id') });
+        actions.addDomainsToOrganization({ domains: [valueOfDomain], organizationId: org.get('id') });
       }
       else {
         // set to false only when the button was clicked
@@ -103,8 +105,8 @@ class OrgDomainsSection extends Component<Props, State> {
     const { actions, isOwner, org } = this.props;
 
     if (isOwner) {
-      actions.removeDomainFromOrganization({
-        domain,
+      actions.removeDomainsFromOrganization({
+        domains: [domain],
         organizationId: org.get('id'),
       });
     }
@@ -144,7 +146,7 @@ class OrgDomainsSection extends Component<Props, State> {
                     placeholder="Add a new domain"
                     onChange={this.handleOnChangeDomain} />
                 <PlusButton
-                    isLoading={requestStates[ADD_DOMAIN_TO_ORG] === RequestStates.PENDING}
+                    isLoading={requestStates[ADD_DOMAINS_TO_ORGANIZATION] === RequestStates.PENDING}
                     mode="positive"
                     onClick={this.handleOnClickAddDomain} />
               </ActionControlWithButton>
@@ -162,7 +164,9 @@ class OrgDomainsSection extends Component<Props, State> {
               )
           }
           {
-            !domainCardSegments.isEmpty() && requestStates[REMOVE_DOMAIN_FROM_ORG] === RequestStates.PENDING && (
+            !domainCardSegments.isEmpty()
+            && requestStates[REMOVE_DOMAINS_FROM_ORGANIZATION] === RequestStates.PENDING
+            && (
               <SpinnerOverlayCard />
             )
           }
@@ -174,15 +178,15 @@ class OrgDomainsSection extends Component<Props, State> {
 
 const mapStateToProps = (state :Map) => ({
   requestStates: {
-    [ADD_DOMAIN_TO_ORG]: state.getIn(['orgs', ADD_DOMAIN_TO_ORG, 'requestState']),
-    [REMOVE_DOMAIN_FROM_ORG]: state.getIn(['orgs', REMOVE_DOMAIN_FROM_ORG, 'requestState']),
+    [ADD_DOMAINS_TO_ORGANIZATION]: state.getIn(['orgs', ADD_DOMAINS_TO_ORGANIZATION, 'requestState']),
+    [REMOVE_DOMAINS_FROM_ORGANIZATION]: state.getIn(['orgs', REMOVE_DOMAINS_FROM_ORGANIZATION, 'requestState']),
   },
 });
 
 const mapActionsToProps = (dispatch :Function) => ({
   actions: bindActionCreators({
-    addDomainToOrganization: OrganizationsApiActions.addDomainToOrganization,
-    removeDomainFromOrganization: OrganizationsApiActions.removeDomainFromOrganization,
+    addDomainsToOrganization: OrganizationsApiActions.addDomainsToOrganization,
+    removeDomainsFromOrganization: OrganizationsApiActions.removeDomainsFromOrganization,
     resetRequestState: ReduxActions.resetRequestState,
   }, dispatch)
 });

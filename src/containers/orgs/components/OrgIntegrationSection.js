@@ -12,12 +12,15 @@ import {
   Input,
   Modal,
 } from 'lattice-ui-kit';
+import { LangUtils } from 'lattice-utils';
+
+import { ActionControlWithButton } from './styled';
 
 import DBMSTypes from '../../../utils/integration-config/DBMSTypes';
-import { ActionControlWithButton } from './styled';
 import { SectionGrid } from '../../../components';
-import { isNonEmptyString } from '../../../utils/LangUtils';
 import { generateIntegrationConfigFile } from '../../../utils/integration-config/IntegrationConfigUtils';
+
+const { isNonEmptyString } = LangUtils;
 
 const dataSchema = {
   properties: {

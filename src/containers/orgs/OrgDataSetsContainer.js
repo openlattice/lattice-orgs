@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { faListAlt } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
+import { Models } from 'lattice';
 import { EntitySetsApiActions, OrganizationsApiActions } from 'lattice-sagas';
 import {
   Card,
@@ -19,6 +20,7 @@ import {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
+import type { EntitySetFlagType } from 'lattice';
 import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
@@ -31,10 +33,11 @@ import { getIdFromMatch } from '../../core/router/RouterUtils';
 import type { GoToRoot, GoToRoute } from '../../core/router/RoutingActions';
 
 const { NEUTRALS, PURPLES } = Colors;
+const { EntitySet } = Models;
 
 const { GET_ORGANIZATION_DATA_SETS } = OrgsActions;
 const { GET_ALL_ENTITY_SETS } = EntitySetsApiActions;
-const { GET_ORG_ENTITY_SETS } = OrganizationsApiActions;
+const { GET_ORGANIZATION_ENTITY_SETS } = OrganizationsApiActions;
 
 // const SUB_TITLE = `
 // These entity sets belong to this organization, and can be materialized by anyone with materialize permissions.
@@ -135,7 +138,7 @@ type Props = {
     goToRoute :GoToRoute;
     resetRequestState :(actionType :string) => void;
   };
-  entitySets :List;
+  entitySets :List<EntitySet>;
   entitySetsIndexMap :Map;
   match :Match;
   orgDataSets :Map;
@@ -143,7 +146,7 @@ type Props = {
   requestStates :{
     GET_ALL_ENTITY_SETS :RequestState;
     GET_ORGANIZATION_DATA_SETS :RequestState;
-    GET_ORG_ENTITY_SETS :RequestState;
+    GET_ORGANIZATION_ENTITY_SETS :RequestState;
   };
 };
 
@@ -232,12 +235,12 @@ class OrgDataSetsContainer extends Component<Props, State> {
       .map((entitySetId :UUID) => {
         const { entitySets, entitySetsIndexMap } = this.props;
         const entitySetIndex = entitySetsIndexMap.get(entitySetId);
-        return entitySets.get(entitySetIndex, Map());
+        return entitySets.get(entitySetIndex);
       })
-      .filter((entitySet :Map) => {
+      .filter((entitySet :EntitySet) => {
 
-        const orgEntitySetFlags :List = orgEntitySets.get(entitySet.get('id'), List());
-        const entitySetFlags :List = entitySet.get('flags', List());
+        const orgEntitySetFlags :EntitySetFlagType[] = orgEntitySets.get(entitySet.id, []);
+        const entitySetFlags :EntitySetFlagType[] = entitySet.flags || [];
 
         let filtersMatchEntitySet :boolean = false;
         if (orgEntitySetFlags.includes('INTERNAL') && entitySetFilters.includes(INTERNAL_OPTION)) {
@@ -270,7 +273,7 @@ class OrgDataSetsContainer extends Component<Props, State> {
   renderEntitySetsSegment = () => {
 
     const { entitySetFilters, showAssociationEntitySets } = this.state;
-    const filteredEntitySets :List = this.filterEntitySets();
+    const filteredEntitySets :List<EntitySet> = this.filterEntitySets();
 
     return (
       <>
@@ -297,15 +300,15 @@ class OrgDataSetsContainer extends Component<Props, State> {
         }
         <CardGrid>
           {
-            filteredEntitySets.map((entitySet :Map) => (
-              <Card key={entitySet.get('id')}>
+            filteredEntitySets.map((entitySet :EntitySet) => (
+              <Card key={entitySet.id}>
                 <CardSegment padding="0">
                   <IconWrapper>
                     <FontAwesomeIcon icon={faListAlt} />
                   </IconWrapper>
                   <EntitySetInfoWrapper>
-                    <h4>{entitySet.get('title', entitySet.get('id'))}</h4>
-                    <span>{entitySet.get('name', '')}</span>
+                    <h4>{entitySet.title || entitySet.id}</h4>
+                    <span>{entitySet.name}</span>
                   </EntitySetInfoWrapper>
                 </CardSegment>
               </Card>
@@ -359,15 +362,15 @@ class OrgDataSetsContainer extends Component<Props, State> {
     const { showStandardizedDataSets } = this.state;
 
     const isPending = requestStates[GET_ALL_ENTITY_SETS] === RequestStates.PENDING
-      || requestStates[GET_ORG_ENTITY_SETS] === RequestStates.PENDING
+      || requestStates[GET_ORGANIZATION_ENTITY_SETS] === RequestStates.PENDING
       || requestStates[GET_ORGANIZATION_DATA_SETS] === RequestStates.PENDING;
 
     const isSuccess = requestStates[GET_ALL_ENTITY_SETS] === RequestStates.SUCCESS
-      && requestStates[GET_ORG_ENTITY_SETS] === RequestStates.SUCCESS
+      && requestStates[GET_ORGANIZATION_ENTITY_SETS] === RequestStates.SUCCESS
       && requestStates[GET_ORGANIZATION_DATA_SETS] === RequestStates.SUCCESS;
 
     const isFailure = requestStates[GET_ALL_ENTITY_SETS] === RequestStates.FAILURE
-      || requestStates[GET_ORG_ENTITY_SETS] === RequestStates.FAILURE
+      || requestStates[GET_ORGANIZATION_ENTITY_SETS] === RequestStates.FAILURE
       || requestStates[GET_ORGANIZATION_DATA_SETS] === RequestStates.FAILURE;
 
     return (
@@ -434,7 +437,7 @@ const mapStateToProps = (state :Map, props :Object) => {
     requestStates: {
       [GET_ALL_ENTITY_SETS]: state.getIn(['edm', GET_ALL_ENTITY_SETS, 'requestState']),
       [GET_ORGANIZATION_DATA_SETS]: state.getIn(['orgs', GET_ORGANIZATION_DATA_SETS, 'requestState']),
-      [GET_ORG_ENTITY_SETS]: state.getIn(['orgs', GET_ORG_ENTITY_SETS, 'requestState']),
+      [GET_ORGANIZATION_ENTITY_SETS]: state.getIn(['orgs', GET_ORGANIZATION_ENTITY_SETS, 'requestState']),
     },
   };
 };
