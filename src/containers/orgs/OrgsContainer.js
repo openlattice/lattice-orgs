@@ -5,8 +5,8 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/pro-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
@@ -21,28 +21,27 @@ import {
   Label,
   Spinner,
 } from 'lattice-ui-kit';
+import { LangUtils, Logger, ValidationUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as OrgsActions from './OrgsActions';
-import * as Routes from '../../core/router/Routes';
+
 import * as ReduxActions from '../../core/redux/ReduxActions';
+import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { ModalBodyMinWidth } from '../../components';
-import { Logger } from '../../utils';
-import { isNonEmptyString } from '../../utils/LangUtils';
-import { isValidUUID } from '../../utils/ValidationUtils';
 import type { ResetRequestStateAction } from '../../core/redux/ReduxActions';
 import type { GoToRoute } from '../../core/router/RoutingActions';
-
-const LOG = new Logger('OrgsContainer');
 
 const { NEUTRALS } = Colors;
 
 const { OrganizationBuilder, PrincipalBuilder } = Models;
 const { PrincipalTypes } = Types;
+const { isNonEmptyString } = LangUtils;
+const { isValidUUID } = ValidationUtils;
 
 const { GET_ORGS_AND_PERMISSIONS } = OrgsActions;
 const { CREATE_ORGANIZATION } = OrganizationsApiActions;
@@ -141,6 +140,8 @@ type State = {
   isVisibleNewOrgModal :boolean;
   newOrgTitle :string;
 };
+
+const LOG = new Logger('OrgsContainer');
 
 class OrgsContainer extends Component<Props, State> {
 

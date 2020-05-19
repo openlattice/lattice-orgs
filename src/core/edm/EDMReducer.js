@@ -5,17 +5,17 @@
 import { List, Map, fromJS } from 'immutable';
 import { Models } from 'lattice';
 import { EntitySetsApiActions } from 'lattice-sagas';
+import { Logger } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { EntitySetObject, EntityTypeObject, PropertyTypeObject } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import Logger from '../../utils/Logger';
 import {
   GET_EDM_TYPES,
   getEntityDataModelTypes,
 } from './EDMActions';
 
-const LOG :Logger = new Logger('EDMReducer');
+const LOG = new Logger('EDMReducer');
 
 const {
   EntitySetBuilder,
@@ -58,20 +58,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
           rawEntityTypes.forEach((et :EntityTypeObject, index :number) => {
             try {
-              const entityType = new EntityTypeBuilder()
-                .setBaseType(et.baseType)
-                .setCategory(et.category)
-                .setDescription(et.description)
-                .setId(et.id)
-                .setKey(et.key)
-                .setPropertyTags(et.propertyTags)
-                .setPropertyTypes(et.properties)
-                .setSchemas(et.schemas)
-                .setShards(et.shards)
-                .setTitle(et.title)
-                .setType(et.type)
-                .build();
-              entityTypes.push(entityType.toImmutable());
+              const entityType = (new EntityTypeBuilder(et)).build();
+              entityTypes.push(entityType);
               entityTypesIndexMap.set(entityType.id, index);
               entityTypesIndexMap.set(entityType.type, index);
             }
@@ -87,20 +75,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
           rawPropertyTypes.forEach((pt :PropertyTypeObject, index :number) => {
             try {
-              const propertyType = new PropertyTypeBuilder()
-                .setAnalyzer(pt.analyzer)
-                .setDataType(pt.datatype)
-                .setDescription(pt.description)
-                .setEnumValues(pt.enumValues)
-                .setId(pt.id)
-                .setIndexType(pt.indexType)
-                .setMultiValued(pt.multiValued)
-                .setPii(pt.pii)
-                .setSchemas(pt.schemas)
-                .setTitle(pt.title)
-                .setType(pt.type)
-                .build();
-              propertyTypes.push(propertyType.toImmutable());
+              const propertyType = (new PropertyTypeBuilder(pt)).build();
+              propertyTypes.push(propertyType);
               propertyTypesIndexMap.set(propertyType.id, index);
               propertyTypesIndexMap.set(propertyType.type, index);
             }
@@ -142,18 +118,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
           rawEntitySets.forEach((es :EntitySetObject, index :number) => {
             try {
-              const entitySet = new EntitySetBuilder()
-                .setContacts(es.contacts)
-                .setDescription(es.description)
-                .setEntityTypeId(es.entityTypeId)
-                .setFlags(es.flags)
-                .setId(es.id)
-                .setLinkedEntitySets(es.linkedEntitySets)
-                .setName(es.name)
-                .setOrganizationId(es.organizationId)
-                .setTitle(es.title)
-                .build();
-              entitySets.push(entitySet.toImmutable());
+              const entitySet = (new EntitySetBuilder(es)).build();
+              entitySets.push(entitySet);
               entitySetsIndexMap.set(entitySet.id, index);
               entitySetsIndexMap.set(entitySet.name, index);
             }

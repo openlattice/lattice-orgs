@@ -4,8 +4,7 @@
 
 import axios from 'axios';
 import { AuthUtils } from 'lattice-auth';
-
-import { Logger } from '../../utils';
+import { Logger } from 'lattice-utils';
 
 const LOG = new Logger('DataSetsApi');
 

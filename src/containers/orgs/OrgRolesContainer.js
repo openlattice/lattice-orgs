@@ -15,6 +15,7 @@ import {
   Checkbox,
   Colors,
 } from 'lattice-ui-kit';
+import { LangUtils, Logger } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import type { Match } from 'react-router';
@@ -27,13 +28,12 @@ import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { SectionGrid } from '../../components';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
-import { Logger } from '../../utils';
-import { isDefined } from '../../utils/LangUtils';
 import { getUserId, getUserProfileLabel } from '../../utils/PersonUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS, PURPLES } = Colors;
 const { PrincipalTypes } = Types;
+const { isDefined } = LangUtils;
 
 const { GET_ORGANIZATION_ACLS } = OrgsActions;
 const { ADD_ROLE_TO_MEMBER, REMOVE_ROLE_FROM_MEMBER } = OrganizationsApiActions;
@@ -138,7 +138,7 @@ type State = {
   selectedUserId :?string;
 };
 
-const LOG :Logger = new Logger('OrgRolesContainer');
+const LOG = new Logger('OrgRolesContainer');
 
 class OrgRolesContainer extends Component<Props, State> {
 

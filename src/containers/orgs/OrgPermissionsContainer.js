@@ -25,6 +25,7 @@ import {
   SearchInput,
   Spinner,
 } from 'lattice-ui-kit';
+import { LangUtils, Logger } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
@@ -41,14 +42,13 @@ import * as RoutingActions from '../../core/router/RoutingActions';
 import * as UsersActions from '../../core/users/UsersActions';
 import { INITIAL_SEARCH_RESULTS } from '../../core/redux/ReduxConstants';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
-import { Logger } from '../../utils';
-import { isNonEmptyString } from '../../utils/LangUtils';
 import { getUserId, getUserProfileLabel } from '../../utils/PersonUtils';
 import type { ResetRequestStateAction } from '../../core/redux/ReduxActions';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { NEUTRALS, PURPLES } = Colors;
 const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
+const { isNonEmptyString } = LangUtils;
 
 const { GET_ALL_USERS, SEARCH_ALL_USERS } = PrincipalsApiActions;
 const { GET_ORGANIZATION_ACLS } = OrgsActions;
@@ -168,7 +168,7 @@ type State = {
   valueOfSearchQuery :?string;
 };
 
-const LOG :Logger = new Logger('OrgPermissionsContainer');
+const LOG = new Logger('OrgPermissionsContainer');
 
 class OrgPermissionsContainer extends Component<Props, State> {
 

@@ -12,6 +12,7 @@ import {
   MinusButton,
   PlusButton,
 } from 'lattice-ui-kit';
+import { LangUtils, Logger } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
@@ -22,11 +23,10 @@ import { ActionControlWithButton, CompactCardSegment } from './styled';
 import * as OrgsActions from '../OrgsActions';
 import * as ReduxActions from '../../../core/redux/ReduxActions';
 import { SectionGrid } from '../../../components';
-import { Logger } from '../../../utils';
-import { isNonEmptyString } from '../../../utils/LangUtils';
 import type { ResetRequestStateAction } from '../../../core/redux/ReduxActions';
 
 const { ADD_ROLE_TO_ORGANIZATION, REMOVE_ROLE_FROM_ORGANIZATION } = OrgsActions;
+const { isNonEmptyString } = LangUtils;
 
 type Props = {
   actions :{
@@ -50,7 +50,7 @@ type State = {
   valueOfRoleTitle :string;
 };
 
-const LOG :Logger = new Logger('OrgRolesSection');
+const LOG = new Logger('OrgRolesSection');
 
 class OrgRolesSection extends Component<Props, State> {
 

@@ -36,20 +36,20 @@ const {
 } = Models;
 
 const {
-  ADD_DOMAIN_TO_ORG,
-  ADD_MEMBER_TO_ORG,
+  ADD_DOMAINS_TO_ORGANIZATION,
+  ADD_MEMBER_TO_ORGANIZATION,
   ADD_ROLE_TO_MEMBER,
   CREATE_ORGANIZATION,
   DELETE_ORGANIZATION,
-  GET_ORG_ENTITY_SETS,
-  GET_ORG_MEMBERS,
-  GRANT_TRUST_TO_ORG,
-  REMOVE_DOMAIN_FROM_ORG,
-  REMOVE_MEMBER_FROM_ORG,
+  GET_ORGANIZATION_ENTITY_SETS,
+  GET_ORGANIZATION_MEMBERS,
+  GRANT_TRUST_TO_ORGANIZATION,
+  REMOVE_DOMAINS_FROM_ORGANIZATION,
+  REMOVE_MEMBER_FROM_ORGANIZATION,
   REMOVE_ROLE_FROM_MEMBER,
-  REVOKE_TRUST_FROM_ORG,
-  UPDATE_ORG_DESCRIPTION,
-  UPDATE_ORG_TITLE,
+  REVOKE_TRUST_FROM_ORGANIZATION,
+  UPDATE_ORGANIZATION_DESCRIPTION,
+  UPDATE_ORGANIZATION_TITLE,
   UPDATE_ROLE_GRANT,
   addMemberToOrganization,
   addRoleToMember,
@@ -72,10 +72,10 @@ describe('OrgsReducer', () => {
       [ADD_CONNECTION]: {
         requestState: RequestStates.STANDBY,
       },
-      [ADD_DOMAIN_TO_ORG]: {
+      [ADD_DOMAINS_TO_ORGANIZATION]: {
         requestState: RequestStates.STANDBY,
       },
-      [ADD_MEMBER_TO_ORG]: {
+      [ADD_MEMBER_TO_ORGANIZATION]: {
         requestState: RequestStates.STANDBY,
       },
       [ADD_ROLE_TO_MEMBER]: {
@@ -102,22 +102,22 @@ describe('OrgsReducer', () => {
       [GET_ORGANIZATION_DETAILS]: {
         requestState: RequestStates.STANDBY,
       },
-      [GET_ORG_ENTITY_SETS]: {
+      [GET_ORGANIZATION_ENTITY_SETS]: {
         requestState: RequestStates.STANDBY,
       },
-      [GET_ORG_MEMBERS]: {
+      [GET_ORGANIZATION_MEMBERS]: {
         requestState: RequestStates.STANDBY,
       },
-      [GRANT_TRUST_TO_ORG]: {
+      [GRANT_TRUST_TO_ORGANIZATION]: {
         requestState: RequestStates.STANDBY,
       },
       [REMOVE_CONNECTION]: {
         requestState: RequestStates.STANDBY,
       },
-      [REMOVE_DOMAIN_FROM_ORG]: {
+      [REMOVE_DOMAINS_FROM_ORGANIZATION]: {
         requestState: RequestStates.STANDBY,
       },
-      [REMOVE_MEMBER_FROM_ORG]: {
+      [REMOVE_MEMBER_FROM_ORGANIZATION]: {
         requestState: RequestStates.STANDBY,
       },
       [REMOVE_ROLE_FROM_MEMBER]: {
@@ -126,13 +126,13 @@ describe('OrgsReducer', () => {
       [REMOVE_ROLE_FROM_ORGANIZATION]: {
         requestState: RequestStates.STANDBY,
       },
-      [REVOKE_TRUST_FROM_ORG]: {
+      [REVOKE_TRUST_FROM_ORGANIZATION]: {
         requestState: RequestStates.STANDBY,
       },
-      [UPDATE_ORG_DESCRIPTION]: {
+      [UPDATE_ORGANIZATION_DESCRIPTION]: {
         requestState: RequestStates.STANDBY,
       },
-      [UPDATE_ORG_TITLE]: {
+      [UPDATE_ORGANIZATION_TITLE]: {
         requestState: RequestStates.STANDBY,
       },
       [UPDATE_ROLE_GRANT]: {
@@ -148,7 +148,7 @@ describe('OrgsReducer', () => {
     });
   });
 
-  describe(ADD_MEMBER_TO_ORG, () => {
+  describe(ADD_MEMBER_TO_ORGANIZATION, () => {
 
     // the structure of this object isn't 100% accurate, but it's enough to make things work
     const existingOrgMember = fromJS({
@@ -185,8 +185,8 @@ describe('OrgsReducer', () => {
       const requestAction = addMemberToOrganization.request(id, requestActionValue);
       const state = reducer(initialState, requestAction);
 
-      expect(state.getIn([ADD_MEMBER_TO_ORG, 'requestState'])).toEqual(RequestStates.PENDING);
-      expect(state.getIn([ADD_MEMBER_TO_ORG, id])).toEqual(requestAction);
+      expect(state.getIn([ADD_MEMBER_TO_ORGANIZATION, 'requestState'])).toEqual(RequestStates.PENDING);
+      expect(state.getIn([ADD_MEMBER_TO_ORGANIZATION, id])).toEqual(requestAction);
       expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
       expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
       expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
@@ -200,8 +200,8 @@ describe('OrgsReducer', () => {
       let state = reducer(initialState, requestAction);
       state = reducer(state, addMemberToOrganization.success(id));
 
-      expect(state.getIn([ADD_MEMBER_TO_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.getIn([ADD_MEMBER_TO_ORG, id])).toEqual(requestAction);
+      expect(state.getIn([ADD_MEMBER_TO_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([ADD_MEMBER_TO_ORGANIZATION, id])).toEqual(requestAction);
 
       const expectedOrgs = Map().set(
         MOCK_ORG.id,
@@ -225,8 +225,8 @@ describe('OrgsReducer', () => {
       let state = reducer(initialState, requestAction);
       state = reducer(state, addMemberToOrganization.failure(id));
 
-      expect(state.getIn([ADD_MEMBER_TO_ORG, 'requestState'])).toEqual(RequestStates.FAILURE);
-      expect(state.getIn([ADD_MEMBER_TO_ORG, id])).toEqual(requestAction);
+      expect(state.getIn([ADD_MEMBER_TO_ORGANIZATION, 'requestState'])).toEqual(RequestStates.FAILURE);
+      expect(state.getIn([ADD_MEMBER_TO_ORGANIZATION, id])).toEqual(requestAction);
       expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
       expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
       expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
@@ -240,12 +240,12 @@ describe('OrgsReducer', () => {
       let state = reducer(initialState, requestAction);
 
       state = reducer(state, addMemberToOrganization.success(id));
-      expect(state.getIn([ADD_MEMBER_TO_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.getIn([ADD_MEMBER_TO_ORG, id])).toEqual(requestAction);
+      expect(state.getIn([ADD_MEMBER_TO_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([ADD_MEMBER_TO_ORGANIZATION, id])).toEqual(requestAction);
 
       state = reducer(state, addMemberToOrganization.finally(id));
-      expect(state.getIn([ADD_MEMBER_TO_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.hasIn([ADD_MEMBER_TO_ORG, id])).toEqual(false);
+      expect(state.getIn([ADD_MEMBER_TO_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.hasIn([ADD_MEMBER_TO_ORGANIZATION, id])).toEqual(false);
     });
 
   });
@@ -415,7 +415,7 @@ describe('OrgsReducer', () => {
 
   });
 
-  describe(REMOVE_MEMBER_FROM_ORG, () => {
+  describe(REMOVE_MEMBER_FROM_ORGANIZATION, () => {
 
     // the structure of this object isn't 100% accurate, but it's enough to make things work
     const existingOrgMembers = fromJS([
@@ -452,8 +452,8 @@ describe('OrgsReducer', () => {
       const requestAction = removeMemberFromOrganization.request(id, requestActionValue);
       const state = reducer(initialState, requestAction);
 
-      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.PENDING);
-      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORGANIZATION, 'requestState'])).toEqual(RequestStates.PENDING);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORGANIZATION, id])).toEqual(requestAction);
       expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
       expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
       expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
@@ -467,8 +467,8 @@ describe('OrgsReducer', () => {
       let state = reducer(initialState, requestAction);
       state = reducer(state, removeMemberFromOrganization.success(id));
 
-      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORGANIZATION, id])).toEqual(requestAction);
 
       const expectedOrgs = Map().set(MOCK_ORG.id, MOCK_ORG.toImmutable());
       expect(state.get('orgs').hashCode()).toEqual(expectedOrgs.hashCode());
@@ -486,8 +486,8 @@ describe('OrgsReducer', () => {
       let state = reducer(initialState, requestAction);
       state = reducer(state, removeMemberFromOrganization.failure(id));
 
-      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.FAILURE);
-      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORGANIZATION, 'requestState'])).toEqual(RequestStates.FAILURE);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORGANIZATION, id])).toEqual(requestAction);
       expect(state.get('orgs').hashCode()).toEqual(initialState.get('orgs').hashCode());
       expect(state.get('orgs').equals(initialState.get('orgs'))).toEqual(true);
       expect(state.get('orgMembers').hashCode()).toEqual(initialState.get('orgMembers').hashCode());
@@ -501,12 +501,12 @@ describe('OrgsReducer', () => {
       let state = reducer(initialState, requestAction);
 
       state = reducer(state, removeMemberFromOrganization.success(id));
-      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(requestAction);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORGANIZATION, id])).toEqual(requestAction);
 
       state = reducer(state, removeMemberFromOrganization.finally(id));
-      expect(state.getIn([REMOVE_MEMBER_FROM_ORG, 'requestState'])).toEqual(RequestStates.SUCCESS);
-      expect(state.hasIn([REMOVE_MEMBER_FROM_ORG, id])).toEqual(false);
+      expect(state.getIn([REMOVE_MEMBER_FROM_ORGANIZATION, 'requestState'])).toEqual(RequestStates.SUCCESS);
+      expect(state.hasIn([REMOVE_MEMBER_FROM_ORGANIZATION, id])).toEqual(false);
     });
 
   });

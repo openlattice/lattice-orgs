@@ -12,21 +12,24 @@ import {
   MinusButton,
   PlusButton,
 } from 'lattice-ui-kit';
+import { LangUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
-import * as OrgsActions from '../OrgsActions';
-import * as ReduxActions from '../../../core/redux/ReduxActions';
 import {
   ActionControlWithButton,
   CompactCardSegment,
   SpinnerOverlayCard,
 } from './styled';
+
+import * as OrgsActions from '../OrgsActions';
+import * as ReduxActions from '../../../core/redux/ReduxActions';
 import { SectionGrid } from '../../../components';
-import { isNonEmptyString } from '../../../utils/LangUtils';
 import type { ResetRequestStateAction } from '../../../core/redux/ReduxActions';
+
+const { isNonEmptyString } = LangUtils;
 
 const {
   ADD_CONNECTION,

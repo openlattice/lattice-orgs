@@ -20,12 +20,6 @@ const INVALID_PARAMS = [
 ];
 /* eslint-enable */
 
-const INVALID_PARAMS_NOT_DEFINED = [
-  undefined,
-  null,
-];
-
 export {
   INVALID_PARAMS,
-  INVALID_PARAMS_NOT_DEFINED,
 };
