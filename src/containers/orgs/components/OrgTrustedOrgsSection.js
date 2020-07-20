@@ -15,14 +15,16 @@ import {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
+import type { UUID } from 'lattice';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
-import * as ReduxActions from '../../../core/redux/ReduxActions';
 import {
   CompactCardSegment,
   SelectControlWithButton,
   SpinnerOverlayCard,
 } from './styled';
+
+import * as ReduxActions from '../../../core/redux/ReduxActions';
 import { SectionGrid } from '../../../components';
 
 const {

@@ -26,7 +26,7 @@ import {
 import { Logger, ValidationUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { $AxiosError } from 'axios';
-import type { AclObject } from 'lattice';
+import type { AclObject, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {

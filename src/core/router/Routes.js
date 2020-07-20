@@ -7,7 +7,6 @@ const ORG_ID_PARAM :':orgId' = ':orgId';
 const DATA_SET_ID_PARAM :':dataSetId' = ':dataSetId';
 
 const ROOT :string = '/';
-const LOGIN :string = '/login';
 const ORGS :string = '/orgs';
 
 const ORG :string = `${ORGS}/${ID_PARAM}`;
@@ -22,7 +21,6 @@ export {
   DATA_SET,
   DATA_SET_ID_PARAM,
   ID_PARAM,
-  LOGIN,
   ORG,
   ORGS,
   ORG_ADMIN,

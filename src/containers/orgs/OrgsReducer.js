@@ -11,6 +11,7 @@ import {
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
+import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
