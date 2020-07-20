@@ -3,6 +3,7 @@
  */
 
 import { v4 as uuid } from 'uuid';
+import type { UUID } from 'lattice';
 
 function genRandomBoolean() :boolean {
 

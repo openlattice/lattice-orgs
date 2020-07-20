@@ -5,6 +5,7 @@
 import axios from 'axios';
 import { AuthUtils } from 'lattice-auth';
 import { Logger } from 'lattice-utils';
+import type { UUID } from 'lattice';
 
 const LOG = new Logger('DataSetsApi');
 
@@ -33,6 +34,10 @@ function getDataSets(organizationId :UUID) :Promise<*> {
   }
 
   const authToken = AuthUtils.getAuthToken();
+  if (!authToken) {
+    return Promise.reject();
+  }
+
   const axiosConfigObj :Object = {
     baseURL: `${baseUrl}/datastore/organization-database`,
     headers: {

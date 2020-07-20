@@ -10,6 +10,7 @@ import { Card, CardSegment } from 'lattice-ui-kit';
 import { ValidationUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
+import type { UUID } from 'lattice';
 import type { Match } from 'react-router';
 
 import { OrgConnectionsSection } from './components';

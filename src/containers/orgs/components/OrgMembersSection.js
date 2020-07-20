@@ -20,7 +20,7 @@ import { LangUtils, Logger } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
-import type { ActionType } from 'lattice';
+import type { ActionType, UUID } from 'lattice';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import { ActionControlWithButton, CompactCardSegment } from './styled';
