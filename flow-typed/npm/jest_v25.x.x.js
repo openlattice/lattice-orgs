@@ -1,5 +1,5 @@
-// flow-typed signature: 87510e2b267ef11bf9268e18a6c80045
-// flow-typed version: dc072f12af/jest_v25.x.x/flow_>=v0.104.x
+// flow-typed signature: ddbe7dbe6749c5424c3c33cbe6fc900f
+// flow-typed version: 7afca48d86/jest_v25.x.x/flow_>=v0.104.x
 
 type JestMockFn<TArguments: $ReadOnlyArray<*>, TReturn> = {
  (...args: TArguments): TReturn,
@@ -243,7 +243,7 @@ type DomTestingLibraryType = {
  toHaveClass(...classNames: string[]): void,
  toHaveFocus(): void,
  toHaveFormValues(expectedValues: { [name: string]: any, ... }): void,
- toHaveStyle(css: string | { [name: string]: any, ... }): void, 
+ toHaveStyle(css: string | { [name: string]: any, ... }): void,
  toHaveTextContent(
    text: string | RegExp,
    options?: {| normalizeWhitespace: boolean |}
@@ -839,7 +839,7 @@ type JestObjectType = {
   * Returns the actual module instead of a mock, bypassing all checks on
   * whether the module should receive a mock implementation or not.
   */
- requireActual(moduleName: string): any,
+ requireActual<T>(m: $Flow$ModuleRef<T> | string): T,
  /**
   * Returns a mock module instead of the actual module, bypassing all checks
   * on whether the module should be required normally or not.
@@ -930,8 +930,8 @@ type JestObjectType = {
 type JestSpyType = { calls: JestCallsType, ... };
 
 type JestDoneFn = {|
- (): void,
- fail: (error: Error) => void,
+  (error?: Error): void,
+  fail: (error: Error) => void,
 |};
 
 /** Runs this function after every test inside this context */
