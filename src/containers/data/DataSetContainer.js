@@ -16,6 +16,7 @@ import { ValidationUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
+import type { UUID } from 'lattice';
 
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';

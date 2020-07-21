@@ -18,7 +18,7 @@ import {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
-import type { GrantType } from 'lattice';
+import type { GrantType, UUID } from 'lattice';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import { SelectControlWithButton } from './styled';
@@ -26,6 +26,7 @@ import { SelectControlWithButton } from './styled';
 import * as ReduxActions from '../../../core/redux/ReduxActions';
 import { ModalBodyMinWidth, SectionGrid } from '../../../components';
 import { getRoleSelectOptions } from '../OrgsUtils';
+import type { ReactSelectOption } from '../../../types';
 
 const { Grant, GrantBuilder } = Models;
 const { GrantTypes } = Types;

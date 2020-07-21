@@ -20,7 +20,7 @@ import {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
-import type { EntitySetFlagType } from 'lattice';
+import type { EntitySetFlagType, UUID } from 'lattice';
 import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 

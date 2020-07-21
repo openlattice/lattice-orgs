@@ -13,7 +13,7 @@ import { Models, Types } from 'lattice';
 import { PermissionsApiActions, PermissionsApiSagas } from 'lattice-sagas';
 import { Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
-import type { ActionType, PermissionType } from 'lattice';
+import type { ActionType, PermissionType, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {

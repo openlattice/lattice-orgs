@@ -5,6 +5,8 @@
 import isEmail from 'validator/lib/isEmail';
 import { List, Map, get } from 'immutable';
 
+import type { ReactSelectOption } from '../../types';
+
 const getRoleSelectOptions = (org :Map) :ReactSelectOption[] => {
 
   const roles :List = get(org, 'roles', List());
