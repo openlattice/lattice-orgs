@@ -6,12 +6,7 @@ import React, { Component } from 'react';
 
 import { List, Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import {
-  Card,
-  MinusButton,
-  PlusButton,
-  Select,
-} from 'lattice-ui-kit';
+import { Card, Select } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
@@ -25,7 +20,7 @@ import {
 } from './styled';
 
 import * as ReduxActions from '../../../core/redux/ReduxActions';
-import { SectionGrid } from '../../../components';
+import { MinusButton, PlusButton, SectionGrid } from '../../../components';
 
 const {
   GRANT_TRUST_TO_ORGANIZATION,
@@ -164,7 +159,7 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
         <span title={trustedOrg.get('title')}>{trustedOrg.get('title')}</span>
         {
           isOwner && (
-            <MinusButton mode="negative" onClick={() => this.handleOnClickRevokeTrustFromOrg(trustedOrg)} />
+            <MinusButton onClick={() => this.handleOnClickRevokeTrustFromOrg(trustedOrg)} />
           )
         }
       </CompactCardSegment>
@@ -191,7 +186,6 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
                     value={selectedOption} />
                 <PlusButton
                     isLoading={requestStates[GRANT_TRUST_TO_ORGANIZATION] === RequestStates.PENDING}
-                    mode="positive"
                     onClick={this.handleOnClickGrantTrustToOrg} />
               </SelectControlWithButton>
             </div>

@@ -6,15 +6,15 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
-import { OrganizationsApiActions } from 'lattice-sagas';
 import { Form } from 'lattice-fabricate';
-import { EditButton } from 'lattice-ui-kit';
+import { OrganizationsApiActions } from 'lattice-sagas';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as ReduxActions from '../../../core/redux/ReduxActions';
+import { EditButton } from '../../../components';
 
 const { UPDATE_ORGANIZATION_TITLE } = OrganizationsApiActions;
 

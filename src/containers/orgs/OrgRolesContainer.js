@@ -32,7 +32,7 @@ import { getIdFromMatch } from '../../core/router/RouterUtils';
 import { getUserId, getUserProfileLabel } from '../../utils/PersonUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
-const { NEUTRALS, PURPLES } = Colors;
+const { NEUTRAL, PURPLE } = Colors;
 const { PrincipalTypes } = Types;
 const { isDefined } = LangUtils;
 
@@ -45,7 +45,7 @@ const RoleAssignmentsGrid = styled.div`
   grid-template-columns: auto 1fr;
 
   > section:first-child {
-    border-right: 1px solid ${NEUTRALS[4]};
+    border-right: 1px solid ${NEUTRAL.N200};
     max-width: 400px;
     min-width: 300px;
     padding-right: 30px;
@@ -53,7 +53,7 @@ const RoleAssignmentsGrid = styled.div`
 `;
 
 const ItemText = styled.span`
-  color: ${({ isSelected }) => (isSelected ? PURPLES[1] : NEUTRALS[1])};
+  color: ${({ isSelected }) => (isSelected ? PURPLE.P300 : NEUTRAL.N500)};
   cursor: pointer;
   flex: 1 1 auto;
   overflow: hidden;
@@ -62,7 +62,7 @@ const ItemText = styled.span`
   white-space: nowrap;
 
   &:hover {
-    color: ${({ isSelected }) => (isSelected ? PURPLES[1] : NEUTRALS[0])};
+    color: ${({ isSelected }) => (isSelected ? PURPLE.P300 : NEUTRAL.N700)};
   }
 `;
 
@@ -73,8 +73,8 @@ const RoleAssignmentsSection = styled.section`
   position: relative;
 
   > div {
-    border-bottom: 1px solid ${NEUTRALS[4]};
-    border-top: 1px solid ${NEUTRALS[4]};
+    border-bottom: 1px solid ${NEUTRAL.N200};
+    border-top: 1px solid ${NEUTRAL.N200};
     margin-bottom: -1px;
 
     &:first-child {
@@ -425,7 +425,7 @@ class OrgRolesContainer extends Component<Props, State> {
         <CardSegment noBleed>
           <OrgRolesSection isOwner={isOwner} org={org} />
         </CardSegment>
-        <CardSegment noBleed vertical>
+        <CardSegment noBleed>
           <SectionGrid>
             <h2>Role Assignments</h2>
             <RoleAssignmentsGrid>

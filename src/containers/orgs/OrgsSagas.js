@@ -33,7 +33,6 @@ import {
   ADD_CONNECTION,
   ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATION_ACLS,
-  GET_ORGANIZATION_DATA_SETS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
@@ -41,14 +40,11 @@ import {
   addConnection,
   addRoleToOrganization,
   getOrganizationACLs,
-  getOrganizationDataSets,
   getOrganizationDetails,
   getOrgsAndPermissions,
   removeConnection,
   removeRoleFromOrganization,
 } from './OrgsActions';
-
-import * as DataSetsApi from '../../core/api/DataSetsApi';
 
 const LOG = new Logger('OrgsSagas');
 
@@ -251,41 +247,6 @@ function* getOrganizationACLsWorker(action :SequenceAction) :Saga<*> {
 function* getOrganizationACLsWatcher() :Saga<*> {
 
   yield takeEvery(GET_ORGANIZATION_ACLS, getOrganizationACLsWorker);
-}
-
-/*
- *
- * OrgsActions.getOrganizationDataSets
- *
- */
-
-function* getOrganizationDataSetsWorker(action :SequenceAction) :Saga<*> {
-
-  try {
-    yield put(getOrganizationDataSets.request(action.id, action.value));
-
-    const organizationId :UUID = action.value;
-    if (!isValidUUID(organizationId)) {
-      throw new Error('organizationId must be a valid UUID');
-    }
-
-    const response = yield call(DataSetsApi.getDataSets, organizationId);
-    if (response.error) throw response.error;
-
-    yield put(getOrganizationDataSets.success(action.id, response));
-  }
-  catch (error) {
-    LOG.error(action.type, error);
-    yield put(getOrganizationDataSets.failure(action.id));
-  }
-  finally {
-    yield put(getOrganizationDataSets.finally(action.id));
-  }
-}
-
-function* getOrganizationDataSetsWatcher() :Saga<*> {
-
-  yield takeEvery(GET_ORGANIZATION_DATA_SETS, getOrganizationDataSetsWorker);
 }
 
 /*
@@ -531,8 +492,6 @@ export {
   addRoleToOrganizationWorker,
   getOrganizationACLsWatcher,
   getOrganizationACLsWorker,
-  getOrganizationDataSetsWatcher,
-  getOrganizationDataSetsWorker,
   getOrganizationDetailsWatcher,
   getOrganizationDetailsWorker,
   getOrgsAndPermissionsWatcher,

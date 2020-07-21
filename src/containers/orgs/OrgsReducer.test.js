@@ -4,7 +4,7 @@
 
 import { List, Map, fromJS } from 'immutable';
 import { Models, Types } from 'lattice';
-import { OrganizationsApiActions } from 'lattice-sagas';
+import { DataSetsApiActions, OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 
 import reducer from './OrgsReducer';
@@ -12,7 +12,6 @@ import {
   ADD_CONNECTION,
   ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATION_ACLS,
-  GET_ORGANIZATION_DATA_SETS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
@@ -34,6 +33,8 @@ const {
   Role,
   RoleBuilder,
 } = Models;
+
+const { GET_ORGANIZATION_DATA_SETS } = DataSetsApiActions;
 
 const {
   ADD_DOMAINS_TO_ORGANIZATION,
