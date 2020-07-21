@@ -32,7 +32,6 @@ const { getAllEntitySetsWorker } = EntitySetsApiSagas;
 const { getAllUsers } = PrincipalsApiActions;
 const { getAllUsersWorker } = PrincipalsApiSagas;
 
-
 /*
  *
  * AppActions.initializeApplication()
