@@ -23,9 +23,8 @@ describe('AppSagas', () => {
     testWatcherSagaShouldTakeEvery(
       initializeApplicationWatcher,
       initializeApplicationWorker,
-      INITIALIZE_APPLICATION
+      INITIALIZE_APPLICATION,
     );
   });
-
 
 });

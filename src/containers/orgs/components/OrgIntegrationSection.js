@@ -236,7 +236,6 @@ class OrgIntegrationSection extends Component<Props, State> {
 
   render() {
 
-
     return (
       <>
         {this.renderDatabaseUrl()}
