@@ -11,14 +11,16 @@ import { Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   ActionModal,
+  Button,
   Card,
   CardSegment,
-  IconButton,
   Input,
 } from 'lattice-ui-kit';
+import { LangUtils, Logger } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
+import type { UUID } from 'lattice';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as OrgsActions from './OrgsActions';
@@ -34,18 +36,17 @@ import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { CardSegmentNoBorder, SectionGrid } from '../../components';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
-import { Logger } from '../../utils';
-import { isNonEmptyString } from '../../utils/LangUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
 const { GET_ORGANIZATION_DETAILS } = OrgsActions;
 const { DELETE_ORGANIZATION } = OrganizationsApiActions;
+const { isNonEmptyString } = LangUtils;
 
 const OrgDescriptionSegment = styled(CardSegment)`
   justify-content: space-between;
 `;
 
-const DeleteOrgButton = styled(IconButton)`
+const DeleteOrgButton = styled(Button)`
   align-self: center;
   margin: 20px 0 50px 0;
   width: 300px;
@@ -77,7 +78,7 @@ type State = {
   isVisibleDeleteModal :boolean;
 };
 
-const LOG :Logger = new Logger('OrgDetailsContainer');
+const LOG = new Logger('OrgDetailsContainer');
 
 class OrgDetailsContainer extends Component<Props, State> {
 
@@ -173,7 +174,7 @@ class OrgDetailsContainer extends Component<Props, State> {
     }
 
     return (
-      <OrgDescriptionSegment noBleed>
+      <OrgDescriptionSegment noBleed vertical={false}>
         <OrgDescriptionSection isOwner={isOwner} org={org} />
       </OrgDescriptionSegment>
     );
@@ -184,7 +185,7 @@ class OrgDetailsContainer extends Component<Props, State> {
     const { isOwner, org } = this.props;
 
     return (
-      <CardSegment noBleed vertical>
+      <CardSegment noBleed>
         <OrgIntegrationSection isOwner={isOwner} org={org} />
       </CardSegment>
     );
@@ -195,7 +196,7 @@ class OrgDetailsContainer extends Component<Props, State> {
     const { isOwner, org } = this.props;
 
     return (
-      <CardSegment noBleed vertical>
+      <CardSegment noBleed>
         <SectionGrid columns={2}>
           <OrgDomainsSection isOwner={isOwner} org={org} />
           <OrgTrustedOrgsSection isOwner={isOwner} org={org} />
@@ -209,7 +210,7 @@ class OrgDetailsContainer extends Component<Props, State> {
     const { isOwner, org } = this.props;
 
     return (
-      <CardSegmentNoBorder noBleed vertical>
+      <CardSegmentNoBorder noBleed>
         <OrgMembersSection isOwner={isOwner} org={org} />
       </CardSegmentNoBorder>
     );
@@ -230,7 +231,7 @@ class OrgDetailsContainer extends Component<Props, State> {
           <span>Are you absolutely sure you want to delete this organization?</span>
           <br />
           <span>To confirm, please type the organization name.</span>
-          <Input invalid={!isValidConfirmation} onChange={this.handleOnChangeDeleteConfirmation} />
+          <Input error={!isValidConfirmation} onChange={this.handleOnChangeDeleteConfirmation} />
         </>
       ),
       [RequestStates.FAILURE]: (
@@ -239,8 +240,8 @@ class OrgDetailsContainer extends Component<Props, State> {
     };
 
     return (
-      <CardSegment noBleed vertical>
-        <DeleteOrgButton icon={TrashIcon} mode="negative" onClick={this.openDeleteModal}>
+      <CardSegment noBleed>
+        <DeleteOrgButton color="error" icon={TrashIcon} onClick={this.openDeleteModal}>
           <span>Delete Organization</span>
         </DeleteOrgButton>
         <ActionModal

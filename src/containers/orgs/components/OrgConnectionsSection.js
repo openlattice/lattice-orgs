@@ -6,27 +6,25 @@ import React, { Component } from 'react';
 
 import { List, Map } from 'immutable';
 import { AuthUtils } from 'lattice-auth';
-import {
-  Card,
-  Input,
-  MinusButton,
-  PlusButton,
-} from 'lattice-ui-kit';
+import { Card, Input } from 'lattice-ui-kit';
+import { LangUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
-import * as OrgsActions from '../OrgsActions';
-import * as ReduxActions from '../../../core/redux/ReduxActions';
 import {
   ActionControlWithButton,
   CompactCardSegment,
   SpinnerOverlayCard,
 } from './styled';
-import { SectionGrid } from '../../../components';
-import { isNonEmptyString } from '../../../utils/LangUtils';
+
+import * as OrgsActions from '../OrgsActions';
+import * as ReduxActions from '../../../core/redux/ReduxActions';
+import { MinusButton, PlusButton, SectionGrid } from '../../../components';
 import type { ResetRequestStateAction } from '../../../core/redux/ReduxActions';
+
+const { isNonEmptyString } = LangUtils;
 
 const {
   ADD_CONNECTION,
@@ -144,7 +142,7 @@ class OrgConnectionsSection extends Component<Props, State> {
         <span title={connection}>{connection}</span>
         {
           isOwner && (
-            <MinusButton mode="negative" onClick={() => this.handleOnClickRemoveConnection(connection)} />
+            <MinusButton onClick={() => this.handleOnClickRemoveConnection(connection)} />
           )
         }
       </CompactCardSegment>
@@ -158,12 +156,11 @@ class OrgConnectionsSection extends Component<Props, State> {
             <div>
               <ActionControlWithButton>
                 <Input
-                    invalid={!isValidConnection}
+                    error={!isValidConnection}
                     onChange={this.handleOnChangeConnection}
                     placeholder="Add a new connection" />
                 <PlusButton
                     isLoading={requestStates[ADD_CONNECTION] === RequestStates.PENDING}
-                    mode="positive"
                     onClick={this.handleOnClickAddConnection} />
               </ActionControlWithButton>
             </div>

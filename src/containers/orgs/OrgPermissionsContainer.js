@@ -19,16 +19,14 @@ import {
   Card,
   CardSegment,
   Colors,
-  MinusButton,
-  PlusButton,
-  SearchButton,
   SearchInput,
   Spinner,
 } from 'lattice-ui-kit';
+import { LangUtils, Logger } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
-import type { ActionType, PermissionType } from 'lattice';
+import type { ActionType, PermissionType, UUID } from 'lattice';
 import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
@@ -39,16 +37,16 @@ import * as PermissionsActions from '../../core/permissions/PermissionsActions';
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import * as UsersActions from '../../core/users/UsersActions';
+import { MinusButton, PlusButton, SearchButton } from '../../components';
 import { INITIAL_SEARCH_RESULTS } from '../../core/redux/ReduxConstants';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
-import { Logger } from '../../utils';
-import { isNonEmptyString } from '../../utils/LangUtils';
 import { getUserId, getUserProfileLabel } from '../../utils/PersonUtils';
 import type { ResetRequestStateAction } from '../../core/redux/ReduxActions';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
-const { NEUTRALS, PURPLES } = Colors;
+const { NEUTRAL, PURPLE } = Colors;
 const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
+const { isNonEmptyString } = LangUtils;
 
 const { GET_ALL_USERS, SEARCH_ALL_USERS } = PrincipalsApiActions;
 const { GET_ORGANIZATION_ACLS } = OrgsActions;
@@ -61,7 +59,7 @@ const Title = styled.h2`
 `;
 
 const PermissionsManagementSection = styled.section`
-  border-left: 1px solid ${NEUTRALS[4]};
+  border-left: 1px solid ${NEUTRAL.N200};
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -100,7 +98,7 @@ const SelectionSection = styled.section`
     }
 
     > h4 {
-      color: ${NEUTRALS[2]};
+      color: ${NEUTRAL.N300};
       font-size: 16px;
       font-weight: normal;
       margin: 0;
@@ -109,14 +107,14 @@ const SelectionSection = styled.section`
 `;
 
 const SelectableHeader = styled.h3`
-  color: ${({ isSelected }) => (isSelected ? PURPLES[1] : NEUTRALS[1])};
+  color: ${({ isSelected }) => (isSelected ? PURPLE.P300 : NEUTRAL.N500)};
   cursor: pointer;
   font-size: 18px;
   font-weight: normal;
   margin: 0;
 
   &:hover {
-    color: ${({ isSelected }) => (isSelected ? PURPLES[1] : NEUTRALS[0])};
+    color: ${({ isSelected }) => (isSelected ? PURPLE.P300 : NEUTRAL.N700)};
   }
 `;
 
@@ -126,7 +124,7 @@ const PermissionsHeader = styled.div`
 `;
 
 const Unauthorized = styled.div`
-  border-left: 1px solid ${NEUTRALS[4]};
+  border-left: 1px solid ${NEUTRAL.N200};
   padding: 0 0 0 30px;
 `;
 
@@ -168,7 +166,7 @@ type State = {
   valueOfSearchQuery :?string;
 };
 
-const LOG :Logger = new Logger('OrgPermissionsContainer');
+const LOG = new Logger('OrgPermissionsContainer');
 
 class OrgPermissionsContainer extends Component<Props, State> {
 
@@ -588,7 +586,6 @@ class OrgPermissionsContainer extends Component<Props, State> {
           <PlusButton
               disabled={!isOwner}
               data-user-id={userId}
-              mode="positive"
               onClick={this.handleOnClickAddPermission} />
         </CompactCardSegment>
       );
@@ -666,7 +663,7 @@ class OrgPermissionsContainer extends Component<Props, State> {
         <CardSegment noBleed>
           <Title>Organization and Role Permissions</Title>
         </CardSegment>
-        <CardSegment>
+        <CardSegment vertical={false}>
           {this.renderSelectionSection()}
           {isAuthorized && this.renderPermissionsManagementSection()}
           {!isAuthorized && this.renderUnauthorizedAccess()}

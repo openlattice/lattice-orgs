@@ -13,9 +13,14 @@ import {
   AppContentWrapper,
   AppHeaderWrapper,
   AppNavigationWrapper,
-  Sizes,
+  LatticeLuxonUtils,
+  MuiPickersUtilsProvider,
   Spinner,
+  StylesProvider,
+  ThemeProvider,
+  lightTheme,
 } from 'lattice-ui-kit';
+import { LangUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import {
   Redirect,
@@ -30,18 +35,14 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as AppActions from './AppActions';
 
-import OpenLatticeIcon from '../../assets/images/ol_icon.png';
+import OpenLatticeIcon from '../../assets/svg/icons/ol-icon.svg';
 import OrgContainer from '../orgs/OrgContainer';
 import OrgsContainer from '../orgs/OrgsContainer';
 import * as Routes from '../../core/router/Routes';
-// import { GOOGLE_TRACKING_ID } from '../../core/tracking/google/GoogleAnalytics';
-import { isNonEmptyString } from '../../utils/LangUtils';
 import { DataSetContainer } from '../data';
 
-// declare var gtag :?Function;
-
 const { INITIALIZE_APPLICATION } = AppActions;
-const { APP_CONTENT_WIDTH } = Sizes;
+const { isNonEmptyString } = LangUtils;
 
 const Error = styled.div`
   text-align: center;
@@ -69,10 +70,6 @@ class AppContainer extends Component<Props> {
 
     const { actions } = this.props;
     actions.logout();
-
-    // if (isFunction(gtag)) {
-    //   gtag('config', GOOGLE_TRACKING_ID, { user_id: undefined, send_page_view: false });
-    // }
   }
 
   renderAppContent = () => {
@@ -121,16 +118,22 @@ class AppContainer extends Component<Props> {
     }
 
     return (
-      <AppContainerWrapper>
-        <AppHeaderWrapper appIcon={OpenLatticeIcon} appTitle="OpenLattice" logout={this.logout} user={user}>
-          <AppNavigationWrapper>
-            <NavLink to={Routes.ORGS} />
-          </AppNavigationWrapper>
-        </AppHeaderWrapper>
-        <AppContentWrapper contentWidth={APP_CONTENT_WIDTH}>
-          { this.renderAppContent() }
-        </AppContentWrapper>
-      </AppContainerWrapper>
+      <ThemeProvider theme={lightTheme}>
+        <MuiPickersUtilsProvider utils={LatticeLuxonUtils}>
+          <StylesProvider injectFirst>
+            <AppContainerWrapper>
+              <AppHeaderWrapper appIcon={OpenLatticeIcon} appTitle="Organizations" logout={this.logout} user={user}>
+                <AppNavigationWrapper>
+                  <NavLink to={Routes.ORGS} />
+                </AppNavigationWrapper>
+              </AppHeaderWrapper>
+              <AppContentWrapper>
+                { this.renderAppContent() }
+              </AppContentWrapper>
+            </AppContainerWrapper>
+          </StylesProvider>
+        </MuiPickersUtilsProvider>
+      </ThemeProvider>
     );
   }
 }

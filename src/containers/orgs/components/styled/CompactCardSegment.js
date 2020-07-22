@@ -2,7 +2,9 @@ import styled from 'styled-components';
 
 import { CardSegment } from 'lattice-ui-kit';
 
-const CompactCardSegment = styled(CardSegment)`
+const CompactCardSegment = styled(CardSegment).attrs(() => ({
+  vertical: false,
+}))`
   align-items: center;
   justify-content: space-between;
   min-height: 48px;

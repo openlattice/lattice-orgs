@@ -8,14 +8,11 @@ import {
   put,
   takeEvery,
 } from '@redux-saga/core/effects';
-import {
-  EntityDataModelApiActions,
-  EntityDataModelApiSagas,
-} from 'lattice-sagas';
+import { EntityDataModelApiActions, EntityDataModelApiSagas } from 'lattice-sagas';
+import { LangUtils, Logger } from 'lattice-utils';
+import type { Saga } from '@redux-saga/core';
 import type { SequenceAction } from 'redux-reqseq';
 
-import Logger from '../../utils/Logger';
-import { isDefined } from '../../utils/LangUtils';
 import {
   GET_EDM_TYPES,
   getEntityDataModelTypes,
@@ -23,6 +20,7 @@ import {
 
 const LOG = new Logger('EDMSagas');
 
+const { isDefined } = LangUtils;
 const { getAllEntityTypes, getAllPropertyTypes } = EntityDataModelApiActions;
 const { getAllEntityTypesWorker, getAllPropertyTypesWorker } = EntityDataModelApiSagas;
 
@@ -32,7 +30,7 @@ const { getAllEntityTypesWorker, getAllPropertyTypesWorker } = EntityDataModelAp
  *
  */
 
-function* getEntityDataModelTypesWorker(action :SequenceAction) :Generator<*, *, *> {
+function* getEntityDataModelTypesWorker(action :SequenceAction) :Saga<*> {
 
   const workerResponse :Object = {};
 
@@ -68,7 +66,7 @@ function* getEntityDataModelTypesWorker(action :SequenceAction) :Generator<*, *,
   return workerResponse;
 }
 
-function* getEntityDataModelTypesWatcher() :Generator<*, *, *> {
+function* getEntityDataModelTypesWatcher() :Saga<*> {
 
   yield takeEvery(GET_EDM_TYPES, getEntityDataModelTypesWorker);
 }

@@ -7,14 +7,18 @@ import React from 'react';
 import { Map } from 'immutable';
 import { AuthUtils } from 'lattice-auth';
 import { Card, CardSegment } from 'lattice-ui-kit';
+import { ValidationUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router';
+import type { UUID } from 'lattice';
 import type { Match } from 'react-router';
+
+import { OrgConnectionsSection } from './components';
 
 import * as Routes from '../../core/router/Routes';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
-import { isValidUUID } from '../../utils/ValidationUtils';
-import { OrgConnectionsSection } from './components';
+
+const { isValidUUID } = ValidationUtils;
 
 type Props = {
   isOwner :boolean;
@@ -28,7 +32,7 @@ const OrgAdminContainer = (props :Props) => {
 
   if (!AuthUtils.isAdmin()) {
     const orgId :?UUID = getIdFromMatch(match);
-    if (isValidUUID(orgId)) {
+    if (orgId && isValidUUID(orgId)) {
       return <Redirect to={Routes.ORG.replace(Routes.ID_PARAM, orgId)} />;
     }
     return <Redirect to={Routes.ROOT} />;

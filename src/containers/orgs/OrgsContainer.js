@@ -5,8 +5,8 @@
 import React, { Component } from 'react';
 
 import styled from 'styled-components';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/pro-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
@@ -21,28 +21,28 @@ import {
   Label,
   Spinner,
 } from 'lattice-ui-kit';
+import { LangUtils, Logger, ValidationUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
+import type { UUID } from 'lattice';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as OrgsActions from './OrgsActions';
-import * as Routes from '../../core/router/Routes';
+
 import * as ReduxActions from '../../core/redux/ReduxActions';
+import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { ModalBodyMinWidth } from '../../components';
-import { Logger } from '../../utils';
-import { isNonEmptyString } from '../../utils/LangUtils';
-import { isValidUUID } from '../../utils/ValidationUtils';
 import type { ResetRequestStateAction } from '../../core/redux/ReduxActions';
 import type { GoToRoute } from '../../core/router/RoutingActions';
 
-const LOG = new Logger('OrgsContainer');
-
-const { NEUTRALS } = Colors;
+const { NEUTRAL } = Colors;
 
 const { OrganizationBuilder, PrincipalBuilder } = Models;
 const { PrincipalTypes } = Types;
+const { isNonEmptyString } = LangUtils;
+const { isValidUUID } = ValidationUtils;
 
 const { GET_ORGS_AND_PERMISSIONS } = OrgsActions;
 const { CREATE_ORGANIZATION } = OrganizationsApiActions;
@@ -67,8 +67,8 @@ const CardGrid = styled.div`
   grid-template-columns: 1fr 1fr; /* the goal is to have 2 equal-width columns */
   margin-top: 50px;
 
-  ${Card} {
-    min-width: 0; /* setting min-width ensures cards do not overflow the grid column */
+  > div {
+    min-width: 0;
   }
 `;
 
@@ -101,7 +101,7 @@ const UserIcon = styled(FontAwesomeIcon).attrs({
 
 /* stylelint-disable value-no-vendor-prefix, property-no-vendor-prefix */
 const OrgDescription = styled.p`
-  color: ${NEUTRALS[1]};
+  color: ${NEUTRAL.N500};
   font-size: 14px;
   font-weight: normal;
   margin: 0;
@@ -141,6 +141,8 @@ type State = {
   isVisibleNewOrgModal :boolean;
   newOrgTitle :string;
 };
+
+const LOG = new Logger('OrgsContainer');
 
 class OrgsContainer extends Component<Props, State> {
 
@@ -274,7 +276,7 @@ class OrgsContainer extends Component<Props, State> {
           <Label htmlFor="new-org-title">Organization title*</Label>
           <Input
               id="new-org-title"
-              invalid={!isValidOrgTitle}
+              error={!isValidOrgTitle}
               onChange={this.handleOnChangeNewOrgTitle}
               value={newOrgTitle} />
         </ModalBodyMinWidth>
@@ -321,7 +323,7 @@ class OrgsContainer extends Component<Props, State> {
       <>
         <TitleSection>
           <h1>Organizations</h1>
-          <Button mode="primary" onClick={this.openNewOrgModal}>Create Organization</Button>
+          <Button color="primary" onClick={this.openNewOrgModal}>Create Organization</Button>
         </TitleSection>
         {
           orgs.isEmpty()

@@ -15,8 +15,10 @@ import {
   Checkbox,
   Colors,
 } from 'lattice-ui-kit';
+import { LangUtils, Logger } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import type { UUID } from 'lattice';
 import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
@@ -27,13 +29,12 @@ import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { SectionGrid } from '../../components';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
-import { Logger } from '../../utils';
-import { isDefined } from '../../utils/LangUtils';
 import { getUserId, getUserProfileLabel } from '../../utils/PersonUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
-const { NEUTRALS, PURPLES } = Colors;
+const { NEUTRAL, PURPLE } = Colors;
 const { PrincipalTypes } = Types;
+const { isDefined } = LangUtils;
 
 const { GET_ORGANIZATION_ACLS } = OrgsActions;
 const { ADD_ROLE_TO_MEMBER, REMOVE_ROLE_FROM_MEMBER } = OrganizationsApiActions;
@@ -44,7 +45,7 @@ const RoleAssignmentsGrid = styled.div`
   grid-template-columns: auto 1fr;
 
   > section:first-child {
-    border-right: 1px solid ${NEUTRALS[4]};
+    border-right: 1px solid ${NEUTRAL.N200};
     max-width: 400px;
     min-width: 300px;
     padding-right: 30px;
@@ -52,7 +53,7 @@ const RoleAssignmentsGrid = styled.div`
 `;
 
 const ItemText = styled.span`
-  color: ${({ isSelected }) => (isSelected ? PURPLES[1] : NEUTRALS[1])};
+  color: ${({ isSelected }) => (isSelected ? PURPLE.P300 : NEUTRAL.N500)};
   cursor: pointer;
   flex: 1 1 auto;
   overflow: hidden;
@@ -61,19 +62,16 @@ const ItemText = styled.span`
   white-space: nowrap;
 
   &:hover {
-    color: ${({ isSelected }) => (isSelected ? PURPLES[1] : NEUTRALS[0])};
+    color: ${({ isSelected }) => (isSelected ? PURPLE.P300 : NEUTRAL.N700)};
   }
 `;
 
 const RoleAssignmentsSection = styled.section`
-  align-items: flex-start;
-  display: grid;
-  grid-auto-rows: min-content;
   position: relative;
 
   > div {
-    border-bottom: 1px solid ${NEUTRALS[4]};
-    border-top: 1px solid ${NEUTRALS[4]};
+    border-bottom: 1px solid ${NEUTRAL.N200};
+    border-top: 1px solid ${NEUTRAL.N200};
     margin-bottom: -1px;
 
     &:first-child {
@@ -138,7 +136,7 @@ type State = {
   selectedUserId :?string;
 };
 
-const LOG :Logger = new Logger('OrgRolesContainer');
+const LOG = new Logger('OrgRolesContainer');
 
 class OrgRolesContainer extends Component<Props, State> {
 
@@ -424,7 +422,7 @@ class OrgRolesContainer extends Component<Props, State> {
         <CardSegment noBleed>
           <OrgRolesSection isOwner={isOwner} org={org} />
         </CardSegment>
-        <CardSegment noBleed vertical>
+        <CardSegment noBleed>
           <SectionGrid>
             <h2>Role Assignments</h2>
             <RoleAssignmentsGrid>

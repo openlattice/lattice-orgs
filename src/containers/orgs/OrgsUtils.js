@@ -2,7 +2,10 @@
  * @flow
  */
 
+import isEmail from 'validator/lib/isEmail';
 import { List, Map, get } from 'immutable';
+
+import type { ReactSelectOption } from '../../types';
 
 const getRoleSelectOptions = (org :Map) :ReactSelectOption[] => {
 
@@ -15,6 +18,12 @@ const getRoleSelectOptions = (org :Map) :ReactSelectOption[] => {
   return roleSelectOptions;
 };
 
+function isValidEmailDomain(value :any) :boolean %checks {
+
+  return isEmail(`test@${value}`);
+}
+
 export {
   getRoleSelectOptions,
+  isValidEmailDomain,
 };

@@ -23,15 +23,16 @@ import {
   PrincipalsApiActions,
   PrincipalsApiSagas,
 } from 'lattice-sagas';
+import { Logger, ValidationUtils } from 'lattice-utils';
+import type { Saga } from '@redux-saga/core';
 import type { $AxiosError } from 'axios';
-import type { AclObject } from 'lattice';
+import type { AclObject, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
   ADD_CONNECTION,
   ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATION_ACLS,
-  GET_ORGANIZATION_DATA_SETS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
@@ -39,16 +40,11 @@ import {
   addConnection,
   addRoleToOrganization,
   getOrganizationACLs,
-  getOrganizationDataSets,
   getOrganizationDetails,
   getOrgsAndPermissions,
   removeConnection,
   removeRoleFromOrganization,
 } from './OrgsActions';
-
-import * as DataSetsApi from '../../core/api/DataSetsApi';
-import { Logger } from '../../utils';
-import { isValidUUID } from '../../utils/ValidationUtils';
 
 const LOG = new Logger('OrgsSagas');
 
@@ -61,27 +57,28 @@ const {
   RoleBuilder,
 } = Models;
 const { PermissionTypes, PrincipalTypes } = Types;
+const { isValidUUID } = ValidationUtils;
 
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 const {
-  addConnections,
+  addConnectionsToOrganization,
   createRole,
   deleteRole,
   getAllOrganizations,
   getOrganization,
   getOrganizationIntegrationAccount,
   getOrganizationMembers,
-  removeConnections,
+  removeConnectionsFromOrganization,
 } = OrganizationsApiActions;
 const {
-  addConnectionsWorker,
+  addConnectionsToOrganizationWorker,
   createRoleWorker,
   deleteRoleWorker,
   getAllOrganizationsWorker,
   getOrganizationWorker,
   getOrganizationIntegrationAccountWorker,
-  removeConnectionsWorker,
+  removeConnectionsFromOrganizationWorker,
 } = OrganizationsApiSagas;
 const { getAcl } = PermissionsApiActions;
 const { getAclWorker } = PermissionsApiSagas;
@@ -94,7 +91,7 @@ const { getSecurablePrincipalWorker } = PrincipalsApiSagas;
  *
  */
 
-function* addConnectionWorker(action :SequenceAction) :Generator<*, *, *> {
+function* addConnectionWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(addConnection.request(action.id, action.value));
@@ -109,8 +106,8 @@ function* addConnectionWorker(action :SequenceAction) :Generator<*, *, *> {
     }
 
     const response = yield call(
-      addConnectionsWorker,
-      addConnections({ organizationId, connections: [connection] })
+      addConnectionsToOrganizationWorker,
+      addConnectionsToOrganization({ organizationId, connections: [connection] })
     );
     if (response.error) throw response.error;
 
@@ -125,7 +122,7 @@ function* addConnectionWorker(action :SequenceAction) :Generator<*, *, *> {
   }
 }
 
-function* addConnectionWatcher() :Generator<*, *, *> {
+function* addConnectionWatcher() :Saga<*> {
 
   yield takeLatest(ADD_CONNECTION, addConnectionWorker);
 }
@@ -136,7 +133,7 @@ function* addConnectionWatcher() :Generator<*, *, *> {
  *
  */
 
-function* addRoleToOrganizationWorker(action :SequenceAction) :Generator<*, *, *> {
+function* addRoleToOrganizationWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(addRoleToOrganization.request(action.id, action.value));
@@ -178,7 +175,7 @@ function* addRoleToOrganizationWorker(action :SequenceAction) :Generator<*, *, *
   }
 }
 
-function* addRoleToOrganizationWatcher() :Generator<*, *, *> {
+function* addRoleToOrganizationWatcher() :Saga<*> {
 
   yield takeLatest(ADD_ROLE_TO_ORGANIZATION, addRoleToOrganizationWorker);
 }
@@ -189,7 +186,7 @@ function* addRoleToOrganizationWatcher() :Generator<*, *, *> {
  *
  */
 
-function* getOrganizationACLsWorker(action :SequenceAction) :Generator<*, *, *> {
+function* getOrganizationACLsWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(getOrganizationACLs.request(action.id, action.value));
@@ -247,44 +244,9 @@ function* getOrganizationACLsWorker(action :SequenceAction) :Generator<*, *, *> 
   }
 }
 
-function* getOrganizationACLsWatcher() :Generator<*, *, *> {
+function* getOrganizationACLsWatcher() :Saga<*> {
 
   yield takeEvery(GET_ORGANIZATION_ACLS, getOrganizationACLsWorker);
-}
-
-/*
- *
- * OrgsActions.getOrganizationDataSets
- *
- */
-
-function* getOrganizationDataSetsWorker(action :SequenceAction) :Generator<*, *, *> {
-
-  try {
-    yield put(getOrganizationDataSets.request(action.id, action.value));
-
-    const organizationId :UUID = action.value;
-    if (!isValidUUID(organizationId)) {
-      throw new Error('organizationId must be a valid UUID');
-    }
-
-    const response = yield call(DataSetsApi.getDataSets, organizationId);
-    if (response.error) throw response.error;
-
-    yield put(getOrganizationDataSets.success(action.id, response));
-  }
-  catch (error) {
-    LOG.error(action.type, error);
-    yield put(getOrganizationDataSets.failure(action.id));
-  }
-  finally {
-    yield put(getOrganizationDataSets.finally(action.id));
-  }
-}
-
-function* getOrganizationDataSetsWatcher() :Generator<*, *, *> {
-
-  yield takeEvery(GET_ORGANIZATION_DATA_SETS, getOrganizationDataSetsWorker);
 }
 
 /*
@@ -293,7 +255,7 @@ function* getOrganizationDataSetsWatcher() :Generator<*, *, *> {
  *
  */
 
-function* getOrganizationDetailsWorker(action :SequenceAction) :Generator<*, *, *> {
+function* getOrganizationDetailsWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(getOrganizationDetails.request(action.id, action.value));
@@ -360,7 +322,7 @@ function* getOrganizationDetailsWorker(action :SequenceAction) :Generator<*, *, 
   }
 }
 
-function* getOrganizationDetailsWatcher() :Generator<*, *, *> {
+function* getOrganizationDetailsWatcher() :Saga<*> {
 
   yield takeEvery(GET_ORGANIZATION_DETAILS, getOrganizationDetailsWorker);
 }
@@ -371,7 +333,7 @@ function* getOrganizationDetailsWatcher() :Generator<*, *, *> {
  *
  */
 
-function* getOrgsAndPermissionsWorker(action :SequenceAction) :Generator<*, *, *> {
+function* getOrgsAndPermissionsWorker(action :SequenceAction) :Saga<*> {
 
   const workerResponse :Object = {};
 
@@ -424,7 +386,7 @@ function* getOrgsAndPermissionsWorker(action :SequenceAction) :Generator<*, *, *
   return workerResponse;
 }
 
-function* getOrgsAndPermissionsWatcher() :Generator<*, *, *> {
+function* getOrgsAndPermissionsWatcher() :Saga<*> {
 
   yield takeEvery(GET_ORGS_AND_PERMISSIONS, getOrgsAndPermissionsWorker);
 }
@@ -435,7 +397,7 @@ function* getOrgsAndPermissionsWatcher() :Generator<*, *, *> {
  *
  */
 
-function* removeConnectionWorker(action :SequenceAction) :Generator<*, *, *> {
+function* removeConnectionWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(removeConnection.request(action.id, action.value));
@@ -450,8 +412,8 @@ function* removeConnectionWorker(action :SequenceAction) :Generator<*, *, *> {
     }
 
     const response = yield call(
-      removeConnectionsWorker,
-      removeConnections({ organizationId, connections: [connection] })
+      removeConnectionsFromOrganizationWorker,
+      removeConnectionsFromOrganization({ organizationId, connections: [connection] })
     );
     if (response.error) throw response.error;
 
@@ -466,7 +428,7 @@ function* removeConnectionWorker(action :SequenceAction) :Generator<*, *, *> {
   }
 }
 
-function* removeConnectionWatcher() :Generator<*, *, *> {
+function* removeConnectionWatcher() :Saga<*> {
 
   yield takeLatest(REMOVE_CONNECTION, removeConnectionWorker);
 }
@@ -477,7 +439,7 @@ function* removeConnectionWatcher() :Generator<*, *, *> {
  *
  */
 
-function* removeRoleFromOrganizationWorker(action :SequenceAction) :Generator<*, *, *> {
+function* removeRoleFromOrganizationWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(removeRoleFromOrganization.request(action.id, action.value));
@@ -518,7 +480,7 @@ function* removeRoleFromOrganizationWorker(action :SequenceAction) :Generator<*,
   }
 }
 
-function* removeRoleFromOrganizationWatcher() :Generator<*, *, *> {
+function* removeRoleFromOrganizationWatcher() :Saga<*> {
 
   yield takeLatest(REMOVE_ROLE_FROM_ORGANIZATION, removeRoleFromOrganizationWorker);
 }
@@ -530,8 +492,6 @@ export {
   addRoleToOrganizationWorker,
   getOrganizationACLsWatcher,
   getOrganizationACLsWorker,
-  getOrganizationDataSetsWatcher,
-  getOrganizationDataSetsWorker,
   getOrganizationDetailsWatcher,
   getOrganizationDetailsWorker,
   getOrgsAndPermissionsWatcher,

@@ -6,17 +6,17 @@ import React, { Component } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
-import { OrganizationsApiActions } from 'lattice-sagas';
 import { Form } from 'lattice-fabricate';
-import { EditButton } from 'lattice-ui-kit';
+import { OrganizationsApiActions } from 'lattice-sagas';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as ReduxActions from '../../../core/redux/ReduxActions';
+import { EditButton } from '../../../components';
 
-const { UPDATE_ORG_TITLE } = OrganizationsApiActions;
+const { UPDATE_ORGANIZATION_TITLE } = OrganizationsApiActions;
 
 const dataSchema = {
   properties: {
@@ -65,7 +65,7 @@ type Props = {
   isOwner :boolean;
   org :Map;
   requestStates :{
-    UPDATE_ORG_TITLE :RequestState;
+    UPDATE_ORGANIZATION_TITLE :RequestState;
   };
 };
 
@@ -94,8 +94,8 @@ class OrgDescriptionSection extends Component<Props, State> {
 
     const { requestStates } = this.props;
 
-    if (requestStates[UPDATE_ORG_TITLE] === RequestStates.SUCCESS
-        && prevProps.requestStates[UPDATE_ORG_TITLE] === RequestStates.PENDING) {
+    if (requestStates[UPDATE_ORGANIZATION_TITLE] === RequestStates.SUCCESS
+        && prevProps.requestStates[UPDATE_ORGANIZATION_TITLE] === RequestStates.PENDING) {
       this.resetState();
     }
   }
@@ -153,7 +153,7 @@ class OrgDescriptionSection extends Component<Props, State> {
       return (
         <FormMinusMargin
             formData={data}
-            isSubmitting={requestStates[UPDATE_ORG_TITLE] === RequestStates.PENDING}
+            isSubmitting={requestStates[UPDATE_ORGANIZATION_TITLE] === RequestStates.PENDING}
             onChange={this.handleOnChange}
             onDiscard={this.resetState}
             onSubmit={this.handleOnClickSubmit}
@@ -177,7 +177,7 @@ class OrgDescriptionSection extends Component<Props, State> {
 
 const mapStateToProps = (state :Map) => ({
   requestStates: {
-    [UPDATE_ORG_TITLE]: state.getIn(['orgs', UPDATE_ORG_TITLE, 'requestState']),
+    [UPDATE_ORGANIZATION_TITLE]: state.getIn(['orgs', UPDATE_ORGANIZATION_TITLE, 'requestState']),
   },
 });
 

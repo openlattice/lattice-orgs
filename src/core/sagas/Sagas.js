@@ -5,11 +5,13 @@
 import { all, fork } from '@redux-saga/core/effects';
 import { AuthSagas } from 'lattice-auth';
 import {
+  DataSetsApiSagas,
   EntitySetsApiSagas,
   OrganizationsApiSagas,
   PermissionsApiSagas,
   PrincipalsApiSagas,
 } from 'lattice-sagas';
+import type { Saga } from '@redux-saga/core';
 
 import * as EDMSagas from '../edm/EDMSagas';
 import * as RoutingSagas from '../router/RoutingSagas';
@@ -17,7 +19,7 @@ import { AppSagas } from '../../containers/app';
 import { OrgsSagas } from '../../containers/orgs';
 import { PermissionsSagas } from '../permissions';
 
-export default function* sagas() :Generator<*, *, *> {
+export default function* sagas() :Saga<*> {
 
   yield all([
     // "lattice-auth" sagas
@@ -28,8 +30,9 @@ export default function* sagas() :Generator<*, *, *> {
     fork(AuthSagas.watchLogout),
 
     // "lattice-sagas" sagas
+    fork(DataSetsApiSagas.getOrganizationDataSetsWatcher),
     fork(EntitySetsApiSagas.getAllEntitySetsWatcher),
-    fork(OrganizationsApiSagas.addDomainToOrganizationWatcher),
+    fork(OrganizationsApiSagas.addDomainsToOrganizationWatcher),
     fork(OrganizationsApiSagas.addMemberToOrganizationWatcher),
     fork(OrganizationsApiSagas.addRoleToMemberWatcher),
     fork(OrganizationsApiSagas.createOrganizationWatcher),
@@ -42,7 +45,7 @@ export default function* sagas() :Generator<*, *, *> {
     fork(OrganizationsApiSagas.getOrganizationIntegrationAccountWatcher),
     fork(OrganizationsApiSagas.getOrganizationMembersWatcher),
     fork(OrganizationsApiSagas.grantTrustToOrganizationWatcher),
-    fork(OrganizationsApiSagas.removeDomainFromOrganizationWatcher),
+    fork(OrganizationsApiSagas.removeDomainsFromOrganizationWatcher),
     fork(OrganizationsApiSagas.removeMemberFromOrganizationWatcher),
     fork(OrganizationsApiSagas.removeRoleFromMemberWatcher),
     fork(OrganizationsApiSagas.revokeTrustFromOrganizationWatcher),
@@ -65,7 +68,6 @@ export default function* sagas() :Generator<*, *, *> {
     fork(OrgsSagas.addConnectionWatcher),
     fork(OrgsSagas.addRoleToOrganizationWatcher),
     fork(OrgsSagas.getOrganizationACLsWatcher),
-    fork(OrgsSagas.getOrganizationDataSetsWatcher),
     fork(OrgsSagas.getOrganizationDetailsWatcher),
     fork(OrgsSagas.getOrgsAndPermissionsWatcher),
     fork(OrgsSagas.removeConnectionWatcher),

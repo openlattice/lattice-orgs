@@ -12,17 +12,20 @@ import {
   CardSegment,
   Table,
 } from 'lattice-ui-kit';
+import { ValidationUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { NavLink } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
+import type { UUID } from 'lattice';
 
 import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { SectionGrid } from '../../components';
 import { getParamFromMatch } from '../../core/router/RouterUtils';
-import { isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot, GoToRoute } from '../../core/router/RoutingActions';
+
+const { isValidUUID } = ValidationUtils;
 
 const CrumbsWrapper = styled.div`
   margin: 20px 0 50px 0;
@@ -121,13 +124,13 @@ class DataSetContainer extends Component<Props> {
           </Breadcrumbs>
         </CrumbsWrapper>
         <Card>
-          <CardSegment noBleed vertical>
+          <CardSegment noBleed>
             <SectionGrid>
               <h2>Description</h2>
               <h4>{dataSet.getIn(['table', 'description'])}</h4>
             </SectionGrid>
           </CardSegment>
-          <CardSegment noBleed vertical>
+          <CardSegment noBleed>
             <Table
                 data={data}
                 headers={TABLE_HEADERS}

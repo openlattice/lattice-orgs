@@ -8,11 +8,13 @@ import styled from 'styled-components';
 import { Map } from 'immutable';
 import { AuthUtils } from 'lattice-auth';
 import { Colors, Spinner } from 'lattice-ui-kit';
+import { ValidationUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
+import type { UUID } from 'lattice';
 import type { Match } from 'react-router';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
@@ -28,10 +30,10 @@ import * as ReduxActions from '../../core/redux/ReduxActions';
 import * as Routes from '../../core/router/Routes';
 import * as RoutingActions from '../../core/router/RoutingActions';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
-import { isValidUUID } from '../../utils/ValidationUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
-const { NEUTRALS } = Colors;
+const { NEUTRAL, PURPLE } = Colors;
+const { isValidUUID } = ValidationUtils;
 
 const {
   GET_ORGANIZATION_DETAILS,
@@ -46,7 +48,7 @@ const Tabs = styled.div`
 const OrgNavLink = styled(NavLink)`
   align-items: center;
   border-bottom: 2px solid transparent;
-  color: ${NEUTRALS[1]};
+  color: ${NEUTRAL.N500};
   font-size: 18px;
   font-weight: 500;
   line-height: 70px;
@@ -59,15 +61,15 @@ const OrgNavLink = styled(NavLink)`
   }
 
   &:hover {
-    color: ${NEUTRALS[0]};
+    color: ${NEUTRAL.N700};
     cursor: pointer;
     outline: none;
     text-decoration: none;
   }
 
   &.active {
-    border-bottom: 2px solid #674fef;
-    color: #674fef;
+    border-bottom: 2px solid ${PURPLE.P300};
+    color: ${PURPLE.P300};
   }
 `;
 

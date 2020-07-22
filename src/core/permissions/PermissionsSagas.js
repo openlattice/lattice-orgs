@@ -11,10 +11,11 @@ import {
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { PermissionsApiActions, PermissionsApiSagas } from 'lattice-sagas';
-import type { ActionType, PermissionType } from 'lattice';
+import { Logger } from 'lattice-utils';
+import type { Saga } from '@redux-saga/core';
+import type { ActionType, PermissionType, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import Logger from '../../utils/Logger';
 import {
   UPDATE_USER_PERMISSION,
   updateUserPermission,
@@ -48,7 +49,7 @@ const { updateAclsWorker } = PermissionsApiSagas;
  *
  */
 
-function* updateUserPermissionWorker(action :SequenceAction) :Generator<*, *, *> {
+function* updateUserPermissionWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(updateUserPermission.request(action.id, action.value));
@@ -124,7 +125,7 @@ function* updateUserPermissionWorker(action :SequenceAction) :Generator<*, *, *>
   }
 }
 
-function* updateUserPermissionWatcher() :Generator<*, *, *> {
+function* updateUserPermissionWatcher() :Saga<*> {
 
   yield takeEvery(UPDATE_USER_PERMISSION, updateUserPermissionWorker);
 }

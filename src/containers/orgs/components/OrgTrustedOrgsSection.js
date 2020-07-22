@@ -6,28 +6,25 @@ import React, { Component } from 'react';
 
 import { List, Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import {
-  Card,
-  MinusButton,
-  PlusButton,
-  Select,
-} from 'lattice-ui-kit';
+import { Card, Select } from 'lattice-ui-kit';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { RequestStates } from 'redux-reqseq';
+import type { UUID } from 'lattice';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
-import * as ReduxActions from '../../../core/redux/ReduxActions';
 import {
   CompactCardSegment,
   SelectControlWithButton,
   SpinnerOverlayCard,
 } from './styled';
-import { SectionGrid } from '../../../components';
+
+import * as ReduxActions from '../../../core/redux/ReduxActions';
+import { MinusButton, PlusButton, SectionGrid } from '../../../components';
 
 const {
-  GRANT_TRUST_TO_ORG,
-  REVOKE_TRUST_FROM_ORG,
+  GRANT_TRUST_TO_ORGANIZATION,
+  REVOKE_TRUST_FROM_ORGANIZATION,
 } = OrganizationsApiActions;
 
 const TRUSTED_ORGS_SUB_TITLE = `
@@ -44,8 +41,8 @@ type Props = {
   org :Map;
   orgs :Map;
   requestStates :{
-    GRANT_TRUST_TO_ORG :RequestState;
-    REVOKE_TRUST_FROM_ORG :RequestState;
+    GRANT_TRUST_TO_ORGANIZATION :RequestState;
+    REVOKE_TRUST_FROM_ORGANIZATION :RequestState;
   };
   trustedOrgs :Map;
 };
@@ -72,8 +69,8 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
 
     const { requestStates } = this.props;
 
-    if (requestStates[GRANT_TRUST_TO_ORG] === RequestStates.SUCCESS
-        && prevProps.requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING) {
+    if (requestStates[GRANT_TRUST_TO_ORGANIZATION] === RequestStates.SUCCESS
+        && prevProps.requestStates[GRANT_TRUST_TO_ORGANIZATION] === RequestStates.PENDING) {
       this.setState({ selectedOption: null });
     }
   }
@@ -162,7 +159,7 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
         <span title={trustedOrg.get('title')}>{trustedOrg.get('title')}</span>
         {
           isOwner && (
-            <MinusButton mode="negative" onClick={() => this.handleOnClickRevokeTrustFromOrg(trustedOrg)} />
+            <MinusButton onClick={() => this.handleOnClickRevokeTrustFromOrg(trustedOrg)} />
           )
         }
       </CompactCardSegment>
@@ -182,14 +179,13 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
               <SelectControlWithButton>
                 <Select
                     isClearable
-                    isLoading={requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING}
+                    isLoading={requestStates[GRANT_TRUST_TO_ORGANIZATION] === RequestStates.PENDING}
                     options={notYetTrustedOrgs}
                     onChange={this.handleOnChangeTrustedOrg}
                     placeholder="Select an organization to trust"
                     value={selectedOption} />
                 <PlusButton
-                    isLoading={requestStates[GRANT_TRUST_TO_ORG] === RequestStates.PENDING}
-                    mode="positive"
+                    isLoading={requestStates[GRANT_TRUST_TO_ORGANIZATION] === RequestStates.PENDING}
                     onClick={this.handleOnClickGrantTrustToOrg} />
               </SelectControlWithButton>
             </div>
@@ -206,7 +202,7 @@ class OrgTrustedOrgsSection extends Component<Props, State> {
               )
           }
           {
-            !orgCardSegments.isEmpty() && requestStates[REVOKE_TRUST_FROM_ORG] === RequestStates.PENDING && (
+            !orgCardSegments.isEmpty() && requestStates[REVOKE_TRUST_FROM_ORGANIZATION] === RequestStates.PENDING && (
               <SpinnerOverlayCard />
             )
           }
@@ -226,8 +222,8 @@ const mapStateToProps = (state :Map, props) => {
     orgs,
     trustedOrgs,
     requestStates: {
-      [GRANT_TRUST_TO_ORG]: state.getIn(['orgs', GRANT_TRUST_TO_ORG, 'requestState']),
-      [REVOKE_TRUST_FROM_ORG]: state.getIn(['orgs', REVOKE_TRUST_FROM_ORG, 'requestState']),
+      [GRANT_TRUST_TO_ORGANIZATION]: state.getIn(['orgs', GRANT_TRUST_TO_ORGANIZATION, 'requestState']),
+      [REVOKE_TRUST_FROM_ORGANIZATION]: state.getIn(['orgs', REVOKE_TRUST_FROM_ORGANIZATION, 'requestState']),
     },
   };
 };
