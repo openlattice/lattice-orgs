@@ -67,9 +67,6 @@ const ItemText = styled.span`
 `;
 
 const RoleAssignmentsSection = styled.section`
-  align-items: flex-start;
-  display: grid;
-  grid-auto-rows: min-content;
   position: relative;
 
   > div {
