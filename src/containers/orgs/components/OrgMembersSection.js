@@ -8,14 +8,7 @@ import { List, Map, OrderedSet } from 'immutable';
 import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
-import {
-  ActionModal,
-  Card,
-  MinusButton,
-  PlusButton,
-  SearchButton,
-  SearchInput,
-} from 'lattice-ui-kit';
+import { ActionModal, Card, SearchInput } from 'lattice-ui-kit';
 import { LangUtils, Logger } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -27,7 +20,12 @@ import { ActionControlWithButton, CompactCardSegment } from './styled';
 
 import * as ReduxActions from '../../../core/redux/ReduxActions';
 import * as UsersActions from '../../../core/users/UsersActions';
-import { SectionGrid } from '../../../components';
+import {
+  MinusButton,
+  PlusButton,
+  SearchButton,
+  SectionGrid,
+} from '../../../components';
 import { INITIAL_SEARCH_RESULTS } from '../../../core/redux/ReduxConstants';
 import { getUserId, getUserProfileLabel, sortByProfileLabel } from '../../../utils/PersonUtils';
 import type { ResetRequestStateAction } from '../../../core/redux/ReduxActions';
@@ -257,7 +255,6 @@ class OrgMembersSection extends Component<Props, State> {
           <PlusButton
               disabled={!isOwner}
               data-user-id={userId}
-              mode="positive"
               onClick={this.handleOnClickAddMember} />
         </CompactCardSegment>
       );
@@ -270,7 +267,6 @@ class OrgMembersSection extends Component<Props, State> {
           <MinusButton
               disabled={!isOwner}
               data-user-id={userId}
-              mode="negative"
               onClick={this.handleOnClickRemoveMember} />
         </CompactCardSegment>
       );

@@ -8,7 +8,7 @@ import styled from 'styled-components';
 import { Map } from 'immutable';
 import { Form } from 'lattice-fabricate';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import { Colors, EditButton } from 'lattice-ui-kit';
+import { Colors } from 'lattice-ui-kit';
 import { LangUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -16,8 +16,9 @@ import { RequestStates } from 'redux-reqseq';
 import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import * as ReduxActions from '../../../core/redux/ReduxActions';
+import { EditButton } from '../../../components';
 
-const { NEUTRALS } = Colors;
+const { NEUTRAL } = Colors;
 const { UPDATE_ORGANIZATION_DESCRIPTION } = OrganizationsApiActions;
 const { isNonEmptyString } = LangUtils;
 
@@ -51,7 +52,7 @@ const OrgDescriptionHeader = styled.h3`
 `;
 
 const NoDescription = styled.i`
-  color: ${NEUTRALS[1]};
+  color: ${NEUTRAL.N500};
   font-size: 16px;
   font-weight: normal;
 `;

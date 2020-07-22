@@ -14,9 +14,6 @@ const addRoleToOrganization :RequestSequence = newRequestSequence(ADD_ROLE_TO_OR
 const GET_ORGANIZATION_ACLS :'GET_ORGANIZATION_ACLS' = 'GET_ORGANIZATION_ACLS';
 const getOrganizationACLs :RequestSequence = newRequestSequence(GET_ORGANIZATION_ACLS);
 
-const GET_ORGANIZATION_DATA_SETS :'GET_ORGANIZATION_DATA_SETS' = 'GET_ORGANIZATION_DATA_SETS';
-const getOrganizationDataSets :RequestSequence = newRequestSequence(GET_ORGANIZATION_DATA_SETS);
-
 const GET_ORGANIZATION_DETAILS :'GET_ORGANIZATION_DETAILS' = 'GET_ORGANIZATION_DETAILS';
 const getOrganizationDetails :RequestSequence = newRequestSequence(GET_ORGANIZATION_DETAILS);
 
@@ -33,7 +30,6 @@ export {
   ADD_CONNECTION,
   ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATION_ACLS,
-  GET_ORGANIZATION_DATA_SETS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
@@ -41,7 +37,6 @@ export {
   addConnection,
   addRoleToOrganization,
   getOrganizationACLs,
-  getOrganizationDataSets,
   getOrganizationDetails,
   getOrgsAndPermissions,
   removeConnection,

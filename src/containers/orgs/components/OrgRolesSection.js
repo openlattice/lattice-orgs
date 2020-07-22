@@ -5,13 +5,7 @@
 import React, { Component } from 'react';
 
 import { List, Map } from 'immutable';
-import {
-  ActionModal,
-  Card,
-  Input,
-  MinusButton,
-  PlusButton,
-} from 'lattice-ui-kit';
+import { ActionModal, Card, Input } from 'lattice-ui-kit';
 import { LangUtils, Logger } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -23,7 +17,7 @@ import { ActionControlWithButton, CompactCardSegment } from './styled';
 
 import * as OrgsActions from '../OrgsActions';
 import * as ReduxActions from '../../../core/redux/ReduxActions';
-import { SectionGrid } from '../../../components';
+import { MinusButton, PlusButton, SectionGrid } from '../../../components';
 import type { ResetRequestStateAction } from '../../../core/redux/ReduxActions';
 
 const { ADD_ROLE_TO_ORGANIZATION, REMOVE_ROLE_FROM_ORGANIZATION } = OrgsActions;
@@ -259,7 +253,6 @@ class OrgRolesSection extends Component<Props, State> {
           <MinusButton
               disabled={!isOwner}
               data-role-id={role.get('id')}
-              mode="negative"
               onClick={this.handleOnClickRemoveRole} />
         </CompactCardSegment>
       ));
@@ -272,14 +265,13 @@ class OrgRolesSection extends Component<Props, State> {
             <div>
               <ActionControlWithButton>
                 <Input
-                    invalid={!isValidRole}
+                    error={!isValidRole}
                     onChange={this.handleOnChangeRoleTitle}
                     onKeyDown={this.handleOnKeyDownRoleTitle}
                     placeholder="Add a new role"
                     value={valueOfRoleTitle} />
                 <PlusButton
                     isLoading={requestStates[ADD_ROLE_TO_ORGANIZATION] === RequestStates.PENDING}
-                    mode="positive"
                     onClick={this.handleOnClickAddRole} />
               </ActionControlWithButton>
             </div>

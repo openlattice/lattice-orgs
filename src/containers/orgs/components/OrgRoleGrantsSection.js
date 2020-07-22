@@ -11,7 +11,6 @@ import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   ActionModal,
   Creatable,
-  EditButton,
   Select,
   Table,
 } from 'lattice-ui-kit';
@@ -24,7 +23,7 @@ import type { RequestSequence, RequestState } from 'redux-reqseq';
 import { SelectControlWithButton } from './styled';
 
 import * as ReduxActions from '../../../core/redux/ReduxActions';
-import { ModalBodyMinWidth, SectionGrid } from '../../../components';
+import { EditButton, ModalBodyMinWidth, SectionGrid } from '../../../components';
 import { getRoleSelectOptions } from '../OrgsUtils';
 import type { ReactSelectOption } from '../../../types';
 

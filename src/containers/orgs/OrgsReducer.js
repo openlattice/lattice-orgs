@@ -9,7 +9,7 @@ import {
   fromJS,
 } from 'immutable';
 import { Models, Types } from 'lattice';
-import { OrganizationsApiActions } from 'lattice-sagas';
+import { DataSetsApiActions, OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
@@ -18,7 +18,6 @@ import {
   ADD_CONNECTION,
   ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATION_ACLS,
-  GET_ORGANIZATION_DATA_SETS,
   GET_ORGANIZATION_DETAILS,
   GET_ORGS_AND_PERMISSIONS,
   REMOVE_CONNECTION,
@@ -26,7 +25,6 @@ import {
   addConnection,
   addRoleToOrganization,
   getOrganizationACLs,
-  getOrganizationDataSets,
   getOrganizationDetails,
   getOrgsAndPermissions,
   removeConnection,
@@ -46,6 +44,8 @@ const {
 } = Models;
 
 const { PermissionTypes, PrincipalTypes } = Types;
+
+const { GET_ORGANIZATION_DATA_SETS, getOrganizationDataSets } = DataSetsApiActions;
 
 const {
   ADD_DOMAINS_TO_ORGANIZATION,
@@ -444,7 +444,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
         SUCCESS: () => {
           const storedSeqAction :SequenceAction = state.getIn([GET_ORGANIZATION_DATA_SETS, seqAction.id]);
           if (storedSeqAction) {
-            const organizationId :UUID = storedSeqAction.value;
+            const { organizationId } = storedSeqAction.value;
             return state
               .setIn(['orgDataSets', organizationId], fromJS(seqAction.value))
               .setIn([GET_ORGANIZATION_DATA_SETS, 'requestState'], RequestStates.SUCCESS);

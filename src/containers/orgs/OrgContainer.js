@@ -32,7 +32,7 @@ import * as RoutingActions from '../../core/router/RoutingActions';
 import { getIdFromMatch } from '../../core/router/RouterUtils';
 import type { GoToRoot } from '../../core/router/RoutingActions';
 
-const { NEUTRALS } = Colors;
+const { NEUTRAL, PURPLE } = Colors;
 const { isValidUUID } = ValidationUtils;
 
 const {
@@ -48,7 +48,7 @@ const Tabs = styled.div`
 const OrgNavLink = styled(NavLink)`
   align-items: center;
   border-bottom: 2px solid transparent;
-  color: ${NEUTRALS[1]};
+  color: ${NEUTRAL.N500};
   font-size: 18px;
   font-weight: 500;
   line-height: 70px;
@@ -61,15 +61,15 @@ const OrgNavLink = styled(NavLink)`
   }
 
   &:hover {
-    color: ${NEUTRALS[0]};
+    color: ${NEUTRAL.N700};
     cursor: pointer;
     outline: none;
     text-decoration: none;
   }
 
   &.active {
-    border-bottom: 2px solid #674fef;
-    color: #674fef;
+    border-bottom: 2px solid ${PURPLE.P300};
+    color: ${PURPLE.P300};
   }
 `;
 

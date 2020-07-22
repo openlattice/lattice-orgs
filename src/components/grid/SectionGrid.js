@@ -1,7 +1,7 @@
 import styled, { css } from 'styled-components';
 import { Colors } from 'lattice-ui-kit';
 
-const { NEUTRALS } = Colors;
+const { NEUTRAL } = Colors;
 
 const SectionGrid = styled.section`
   display: grid;
@@ -43,21 +43,21 @@ const SectionGrid = styled.section`
   }
 
   > h4 {
-    color: ${NEUTRALS[1]};
+    color: ${NEUTRAL.N500};
     font-size: 16px;
     font-weight: normal;
     margin: 16px 0 0 0;
   }
 
   > h5 {
-    color: ${NEUTRALS[1]};
+    color: ${NEUTRAL.N500};
     font-size: 14px;
     font-weight: normal;
     margin: 16px 0 0 0;
   }
 
   i {
-    color: ${NEUTRALS[1]};
+    color: ${NEUTRAL.N500};
     font-size: 16px;
     font-weight: normal;
     margin: 32px 0 0 0;

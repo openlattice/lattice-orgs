@@ -37,7 +37,7 @@ import { ModalBodyMinWidth } from '../../components';
 import type { ResetRequestStateAction } from '../../core/redux/ReduxActions';
 import type { GoToRoute } from '../../core/router/RoutingActions';
 
-const { NEUTRALS } = Colors;
+const { NEUTRAL } = Colors;
 
 const { OrganizationBuilder, PrincipalBuilder } = Models;
 const { PrincipalTypes } = Types;
@@ -67,8 +67,8 @@ const CardGrid = styled.div`
   grid-template-columns: 1fr 1fr; /* the goal is to have 2 equal-width columns */
   margin-top: 50px;
 
-  ${Card} {
-    min-width: 0; /* setting min-width ensures cards do not overflow the grid column */
+  > div {
+    min-width: 0;
   }
 `;
 
@@ -101,7 +101,7 @@ const UserIcon = styled(FontAwesomeIcon).attrs({
 
 /* stylelint-disable value-no-vendor-prefix, property-no-vendor-prefix */
 const OrgDescription = styled.p`
-  color: ${NEUTRALS[1]};
+  color: ${NEUTRAL.N500};
   font-size: 14px;
   font-weight: normal;
   margin: 0;
@@ -276,7 +276,7 @@ class OrgsContainer extends Component<Props, State> {
           <Label htmlFor="new-org-title">Organization title*</Label>
           <Input
               id="new-org-title"
-              invalid={!isValidOrgTitle}
+              error={!isValidOrgTitle}
               onChange={this.handleOnChangeNewOrgTitle}
               value={newOrgTitle} />
         </ModalBodyMinWidth>
@@ -323,7 +323,7 @@ class OrgsContainer extends Component<Props, State> {
       <>
         <TitleSection>
           <h1>Organizations</h1>
-          <Button mode="primary" onClick={this.openNewOrgModal}>Create Organization</Button>
+          <Button color="primary" onClick={this.openNewOrgModal}>Create Organization</Button>
         </TitleSection>
         {
           orgs.isEmpty()

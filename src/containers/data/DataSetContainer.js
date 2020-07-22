@@ -124,13 +124,13 @@ class DataSetContainer extends Component<Props> {
           </Breadcrumbs>
         </CrumbsWrapper>
         <Card>
-          <CardSegment noBleed vertical>
+          <CardSegment noBleed>
             <SectionGrid>
               <h2>Description</h2>
               <h4>{dataSet.getIn(['table', 'description'])}</h4>
             </SectionGrid>
           </CardSegment>
-          <CardSegment noBleed vertical>
+          <CardSegment noBleed>
             <Table
                 data={data}
                 headers={TABLE_HEADERS}

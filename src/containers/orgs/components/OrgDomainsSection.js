@@ -6,12 +6,7 @@ import React, { Component } from 'react';
 
 import { List, Map } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import {
-  Card,
-  Input,
-  MinusButton,
-  PlusButton,
-} from 'lattice-ui-kit';
+import { Card, Input } from 'lattice-ui-kit';
 import { LangUtils } from 'lattice-utils';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -25,7 +20,7 @@ import {
 } from './styled';
 
 import * as ReduxActions from '../../../core/redux/ReduxActions';
-import { SectionGrid } from '../../../components';
+import { MinusButton, PlusButton, SectionGrid } from '../../../components';
 import { isValidEmailDomain } from '../OrgsUtils';
 
 const { isNonEmptyString } = LangUtils;
@@ -123,7 +118,7 @@ class OrgDomainsSection extends Component<Props, State> {
         <span title={emailDomain}>{emailDomain}</span>
         {
           isOwner && (
-            <MinusButton mode="negative" onClick={() => this.handleOnClickRemoveDomain(emailDomain)} />
+            <MinusButton onClick={() => this.handleOnClickRemoveDomain(emailDomain)} />
           )
         }
       </CompactCardSegment>
@@ -142,12 +137,11 @@ class OrgDomainsSection extends Component<Props, State> {
             <div>
               <ActionControlWithButton>
                 <Input
-                    invalid={!isValidDomain}
+                    error={!isValidDomain}
                     placeholder="Add a new domain"
                     onChange={this.handleOnChangeDomain} />
                 <PlusButton
                     isLoading={requestStates[ADD_DOMAINS_TO_ORGANIZATION] === RequestStates.PENDING}
-                    mode="positive"
                     onClick={this.handleOnClickAddDomain} />
               </ActionControlWithButton>
             </div>

@@ -6,18 +6,13 @@ import React, { Component } from 'react';
 
 import { Map, fromJS } from 'immutable';
 import { Form } from 'lattice-fabricate';
-import {
-  Button,
-  CopyButton,
-  Input,
-  Modal,
-} from 'lattice-ui-kit';
+import { Button, Input, Modal } from 'lattice-ui-kit';
 import { LangUtils } from 'lattice-utils';
 
 import { ActionControlWithButton } from './styled';
 
 import DBMSTypes from '../../../utils/integration-config/DBMSTypes';
-import { SectionGrid } from '../../../components';
+import { CopyButton, SectionGrid } from '../../../components';
 import { generateIntegrationConfigFile } from '../../../utils/integration-config/IntegrationConfigUtils';
 
 const { isNonEmptyString } = LangUtils;
@@ -226,7 +221,7 @@ class OrgIntegrationSection extends Component<Props, State> {
         </SectionGrid>
         <SectionGrid columns={2}>
           <div>
-            <Button mode="primary" onClick={this.openModal}>Generate Integration Configuration File</Button>
+            <Button onClick={this.openModal}>Generate Integration Configuration File</Button>
           </div>
         </SectionGrid>
         {this.renderGenerateConfigModal()}
