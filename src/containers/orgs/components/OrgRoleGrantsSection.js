@@ -35,10 +35,15 @@ type GrantTypeSelectOption = {|
   value :GrantType;
 |};
 
-const GRANT_TYPE_SELECT_OPTIONS :GrantTypeSelectOption[] = Object.keys(GrantTypes).map((gtKey :string) => ({
-  label: GrantTypes[gtKey],
-  value: GrantTypes[gtKey],
-}));
+const GRANT_TYPE_SELECT_OPTIONS :GrantTypeSelectOption[] = [
+  { label: GrantTypes.ATTRIBUTES, value: GrantTypes.ATTRIBUTES },
+  { label: GrantTypes.AUTOMATIC, value: GrantTypes.AUTOMATIC },
+  { label: GrantTypes.CLAIM, value: GrantTypes.CLAIM },
+  { label: GrantTypes.EMAIL_DOMAIN, value: GrantTypes.EMAIL_DOMAIN },
+  { label: GrantTypes.GROUPS, value: GrantTypes.GROUPS },
+  { label: GrantTypes.MANUAL, value: GrantTypes.MANUAL },
+  { label: GrantTypes.ROLES, value: GrantTypes.ROLES },
+];
 
 const { UPDATE_ROLE_GRANT } = OrganizationsApiActions;
 
@@ -173,7 +178,8 @@ class OrgRoleGrantsContainer extends Component<Props, State> {
       return;
     }
 
-    const roleGrant :Map = org.getIn(['grants', selectedRoleId], Map());
+    // for now, there can only be one grant per role
+    const roleGrant :Map = org.getIn(['grants', selectedRoleId], Map()).first(Map());
     const selectedGrantMappings :string[] = roleGrant.get('mappings', List()).toJS();
     const selectedGrantType :GrantType = roleGrant.get('grantType');
 
@@ -264,8 +270,9 @@ class OrgRoleGrantsContainer extends Component<Props, State> {
 
     const { org } = this.props;
     const { roleSelectOptions, selectedRoleId } = this.state;
-    const roleGrant :Map = org.getIn(['grants', selectedRoleId], Map());
 
+    // for now, there can only be one grant per role
+    const roleGrant :Map = org.getIn(['grants', selectedRoleId], Map()).first(Map());
     const data = [{
       button: <EditButton onClick={this.openModal} />,
       grantType: roleGrant.get('grantType'),
