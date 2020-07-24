@@ -64,14 +64,9 @@ export default function* sagas() :Saga<*> {
     // EDMSagas
     fork(EDMSagas.getEntityDataModelTypesWatcher),
 
-    // OrgsSagas
-    fork(OrgsSagas.addConnectionWatcher),
-    fork(OrgsSagas.addRoleToOrganizationWatcher),
-    fork(OrgsSagas.getOrganizationACLsWatcher),
-    fork(OrgsSagas.getOrganizationDetailsWatcher),
-    fork(OrgsSagas.getOrgsAndPermissionsWatcher),
-    fork(OrgsSagas.removeConnectionWatcher),
-    fork(OrgsSagas.removeRoleFromOrganizationWatcher),
+    // OrgSagas
+    fork(OrgsSagas.initializeOrganizationWatcher),
+    fork(OrgsSagas.getOrganizationsAndAuthorizationsWatcher),
 
     // PermissionsSagas
     fork(PermissionsSagas.updateUserPermissionWatcher),

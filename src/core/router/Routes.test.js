@@ -11,7 +11,11 @@ describe('routes', () => {
   });
 
   test('should export the correct ORG path', () => {
-    expect(Routes.ORG).toEqual('/orgs/:id');
+    expect(Routes.ORG).toEqual('/orgs/:organizationId');
+  });
+
+  test('should export the correct ORG_MEMBERS path', () => {
+    expect(Routes.ORG_MEMBERS).toEqual('/orgs/:organizationId/members');
   });
 
 });

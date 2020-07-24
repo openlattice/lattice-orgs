@@ -3,13 +3,13 @@
  */
 
 const RESET_REQUEST_STATE :'RESET_REQUEST_STATE' = 'RESET_REQUEST_STATE';
-declare type ResetRequestStateAction = (actionType :string) => {|
-  actionType :string;
+type ResetRequestStateAction = (path :string[]) => {|
+  path :string[];
   type :typeof RESET_REQUEST_STATE;
 |};
 
-const resetRequestState :ResetRequestStateAction = (actionType :string) => ({
-  actionType,
+const resetRequestState :ResetRequestStateAction = (path :string[]) => ({
+  path,
   type: RESET_REQUEST_STATE,
 });
 
