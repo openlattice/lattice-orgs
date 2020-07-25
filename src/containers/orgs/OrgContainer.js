@@ -29,9 +29,10 @@ type Props = {
 
 const OrgContainer = ({ isOwner, organization, organizationId } :Props) => {
 
-  const orgMembersPath = Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId);
-  const renderMembersContainer = () => (
-    <OrgMembersContainer isOwner={isOwner} organizationId={organizationId} />
+  const orgPath = Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId);
+  // const membersPath = Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId);
+  const renderPeopleContainer = () => (
+    <OrgMembersContainer isOwner={isOwner} organization={organization} organizationId={organizationId} />
   );
 
   return (
@@ -51,11 +52,12 @@ const OrgContainer = ({ isOwner, organization, organizationId } :Props) => {
       </AppContentWrapper>
       <AppContentWrapper bgColor="white" padding="0">
         <AppNavigationWrapper borderless>
-          <NavLink exact to={orgMembersPath}>Members</NavLink>
+          <NavLink to={orgPath}>People</NavLink>
         </AppNavigationWrapper>
       </AppContentWrapper>
       <Switch>
-        <Route exact path={Routes.ORG_MEMBERS} render={renderMembersContainer} />
+        <Route path={Routes.ORG_MEMBERS} render={renderPeopleContainer} />
+        <Route path={Routes.ORG} render={renderPeopleContainer} />
       </Switch>
     </>
   );

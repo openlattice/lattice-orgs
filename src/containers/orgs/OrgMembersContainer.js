@@ -4,8 +4,9 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 
+import styled from 'styled-components';
+import { faTrash, faUserPlus } from '@fortawesome/pro-light-svg-icons';
 import { List, Map, Set } from 'immutable';
-import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
@@ -13,24 +14,25 @@ import {
   AppContentWrapper,
   Card,
   CardSegment,
-  Label,
+  CardStack,
+  ChoiceGroup,
+  Radio,
   Spinner,
 } from 'lattice-ui-kit';
 import { LangUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { UUID } from 'lattice';
+import type { Organization, Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { UserCardSegment } from './components';
+import { MemberCard, UserActionCardSegment } from './components';
 
-import { Header, SearchForm } from '../../components';
+import { SearchForm } from '../../components';
 import { ReduxActions } from '../../core/redux';
 import { INITIAL_SEARCH_RESULTS, MEMBERS, REDUCERS } from '../../core/redux/constants';
 import { UsersActions } from '../../core/users';
 import { PersonUtils } from '../../utils';
 
-const { ActionTypes } = Types;
 const {
   ADD_MEMBER_TO_ORGANIZATION,
   GET_ORGANIZATION_MEMBERS,
@@ -45,16 +47,38 @@ const {
 } = PrincipalsApiActions;
 
 const { isNonEmptyString } = LangUtils;
-const { getUserId } = PersonUtils;
+const { filterUser, getUserId } = PersonUtils;
 const { resetRequestState } = ReduxActions;
 const { resetUserSearchResults } = UsersActions;
 
+const ContainerGrid = styled.div`
+  display: grid;
+  grid-gap: 48px;
+  grid-template-columns: 1fr 3fr;
+`;
+
+const SelectionSection = styled.section`
+  max-width: 288px;
+`;
+
+const PeopleSection = styled.section`
+  display: grid;
+  grid-auto-rows: min-content;
+  grid-gap: 32px;
+`;
+
+const PeopleSectionControls = styled.div`
+  display: grid;
+  grid-gap: 8px;
+`;
+
 type Props = {
   isOwner :boolean;
+  organization :Organization;
   organizationId :UUID;
 };
 
-const OrgMembersContainer = ({ isOwner, organizationId } :Props) => {
+const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) => {
 
   const dispatch = useDispatch();
   const [isVisibleAddModal, setIsVisibleAddModal] = useState(false);
@@ -68,11 +92,20 @@ const OrgMembersContainer = ({ isOwner, organizationId } :Props) => {
   const searchAllUsersRS :?RequestState = useRequestState([REDUCERS.USERS, SEARCH_ALL_USERS]);
 
   const members :List = useSelector((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId], List()));
-  const userSearchResults :Map = useSelector((s) => s.getIn([REDUCERS.USERS, 'userSearchResults'], Map()));
+
+  const filteredMembers :List = useMemo(() => {
+    if (isNonEmptyString(searchQuery)) {
+      return members.filter((member :Map) => filterUser(member, searchQuery));
+    }
+    return members;
+  }, [members, searchQuery]);
 
   const memberIds :Set<UUID> = useMemo(() => (
     members.map((member) => getUserId(member)).toSet()
   ), [members]);
+
+  const userSearchResults :Map = useSelector((s) => s.getIn([REDUCERS.USERS, 'userSearchResults'], Map()));
+  const searchAttempt = !INITIAL_SEARCH_RESULTS.equals(userSearchResults) && isNonEmptyString(searchQuery);
 
   const nonMembers = useMemo(() => (
     userSearchResults
@@ -93,14 +126,6 @@ const OrgMembersContainer = ({ isOwner, organizationId } :Props) => {
   useEffect(() => () => {
     dispatch(resetUserSearchResults());
   }, []);
-
-  if (getOrganizationMembersRS === RequestStates.PENDING) {
-    return (
-      <AppContentWrapper>
-        <Spinner size="2x" />
-      </AppContentWrapper>
-    );
-  }
 
   const handleOnChangeUserSearch = (valueOfSearchQuery :string) => {
     if (!isNonEmptyString(valueOfSearchQuery)) {
@@ -132,6 +157,7 @@ const OrgMembersContainer = ({ isOwner, organizationId } :Props) => {
       );
     }
     setSelectedUserId();
+    setSearchQuery();
   };
 
   const removeMember = () => {
@@ -165,68 +191,81 @@ const OrgMembersContainer = ({ isOwner, organizationId } :Props) => {
     }
   };
 
-  const searchAttempt = !INITIAL_SEARCH_RESULTS.equals(userSearchResults) && isNonEmptyString(searchQuery);
+  const memberCards = useMemo(() => (
+    filteredMembers.map((member) => (
+      <MemberCard
+          actions={[{
+            color: 'error',
+            faIcon: faTrash,
+            onClick: handleOnClickRemoveMember,
+          }]}
+          isOwner={isOwner}
+          key={member.hashCode()}
+          member={member}
+          organizationId={organizationId} />
+    ))
+  ), [filteredMembers, isOwner, organizationId]);
+
+  if (getOrganizationMembersRS === RequestStates.PENDING) {
+    return (
+      <AppContentWrapper>
+        <Spinner size="2x" />
+      </AppContentWrapper>
+    );
+  }
 
   return (
     <AppContentWrapper>
-      {
-        isOwner && (
-          <CardSegment borderless padding="0 0 30px 0">
-            <CardSegment borderless padding="0 0 30px 0">
-              <Label>To add members to this organization, search for users in the system.</Label>
-              <SearchForm
-                  isPending={searchAllUsersRS === RequestStates.PENDING}
-                  onChange={handleOnChangeUserSearch}
-                  onSearch={searchUsers}
-                  placeholder="Search users..." />
-            </CardSegment>
+      <ContainerGrid>
+        <SelectionSection>
+          <ChoiceGroup>
+            <Radio defaultChecked label="People" mode="button" name="group" />
             {
-              searchAttempt && nonMembers.isEmpty() && (
-                <CardSegment borderless padding="0">
-                  <i>No users found</i>
-                </CardSegment>
-              )
+              organization.roles.map((role :Role) => (
+                <Radio key={role.id} label={role.title} mode="button" name="group" />
+              ))
             }
-            {
-              searchAttempt && !nonMembers.isEmpty() && (
-                <Card>
-                  {
-                    nonMembers.map((nonMember) => (
-                      <UserCardSegment
-                          action={ActionTypes.ADD}
-                          isOwner={isOwner}
-                          key={nonMember.hashCode()}
-                          onClick={handleOnClickAddMember}
-                          user={nonMember} />
-                    ))
-                  }
-                </Card>
-              )
-            }
-          </CardSegment>
-        )
-      }
-      <Header as="h3">Members</Header>
-      {
-        members.isEmpty()
-          ? (
-            <i>No members</i>
-          )
-          : (
-            <Card>
-              {
-                members.map((member) => (
-                  <UserCardSegment
-                      action={ActionTypes.REMOVE}
-                      isOwner={isOwner}
-                      key={member.hashCode()}
-                      onClick={handleOnClickRemoveMember}
-                      user={member} />
-                ))
-              }
-            </Card>
-          )
-      }
+          </ChoiceGroup>
+        </SelectionSection>
+        <PeopleSection>
+          <PeopleSectionControls>
+            <SearchForm
+                isPending={searchAllUsersRS === RequestStates.PENDING}
+                onChange={handleOnChangeUserSearch}
+                onSearch={searchUsers}
+                placeholder="Filter members or search users..." />
+          </PeopleSectionControls>
+          {
+            searchAttempt && nonMembers.isEmpty() && (
+              <CardSegment borderless padding="0">
+                <i>No users found</i>
+              </CardSegment>
+            )
+          }
+          {
+            searchAttempt && !nonMembers.isEmpty() && (
+              <Card>
+                {
+                  nonMembers.map((nonMember :Map) => (
+                    <UserActionCardSegment
+                        actions={[{
+                          color: 'success',
+                          faIcon: faUserPlus,
+                          onClick: handleOnClickAddMember,
+                        }]}
+                        key={nonMember.hashCode()}
+                        isOwner={isOwner}
+                        user={nonMember} />
+                  ))
+                }
+              </Card>
+            )
+          }
+          <CardStack>
+            {memberCards}
+          </CardStack>
+        </PeopleSection>
+      </ContainerGrid>
       <ActionModal
           isVisible={isVisibleAddModal}
           onClickPrimary={addMember}

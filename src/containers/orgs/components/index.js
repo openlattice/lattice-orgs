@@ -2,4 +2,5 @@
  * @flow
  */
 
-export { default as UserCardSegment } from './UserCardSegment';
+export { default as MemberCard } from './MemberCard';
+export { default as UserActionCardSegment } from './UserActionCardSegment';
