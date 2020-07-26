@@ -6,15 +6,16 @@ import React from 'react';
 
 import { Map } from 'immutable';
 import { Card } from 'lattice-ui-kit';
-import { Logger, ValidationUtils, useGoToRoute } from 'lattice-utils';
+import { Logger, ValidationUtils } from 'lattice-utils';
 import type { UUID } from 'lattice';
 
 import UserActionCardSegment from './UserActionCardSegment';
 import type { UserActionObject } from './types';
 
-import { Routes } from '../../../core/router';
+import { Routes, RoutingActions } from '../../../core/router';
 import { PersonUtils } from '../../../utils';
 
+const { goToRoute } = RoutingActions;
 const { getPrincipalId } = PersonUtils;
 const { isValidUUID } = ValidationUtils;
 
@@ -34,19 +35,24 @@ const MemberCard = ({
   organizationId
 } :Props) => {
 
-  const principalId :?UUID = getPrincipalId(member);
+  const securablePrincipalId :?UUID = getPrincipalId(member);
 
-  if (!isValidUUID(principalId)) {
-    LOG.warn('principalId is not a valid UUID', principalId);
-  }
-
-  const goToMember = useGoToRoute(
-    Routes.ORG_MEMBER.replace(Routes.ORG_ID_PARAM, organizationId).replace(Routes.PRINCIPAL_ID_PARAM, principalId),
-    { member },
-  );
+  const handleOnClick = () => {
+    if (securablePrincipalId && isValidUUID(securablePrincipalId)) {
+      goToRoute(
+        Routes.ORG_MEMBER
+          .replace(Routes.ORG_ID_PARAM, organizationId)
+          .replace(Routes.PRINCIPAL_ID_PARAM, securablePrincipalId),
+        { member },
+      );
+    }
+    else {
+      LOG.warn('securablePrincipalId is not a valid UUID', securablePrincipalId);
+    }
+  };
 
   return (
-    <Card onClick={goToMember}>
+    <Card onClick={handleOnClick}>
       <UserActionCardSegment
           actions={actions}
           isOwner={isOwner}
