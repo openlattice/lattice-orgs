@@ -46,7 +46,7 @@ const UserActionCardSegment = ({
   const handleOnClick = (action :UserActionObject, event :SyntheticInputEvent<HTMLElement>) => {
     event.stopPropagation();
     if (isOwner) {
-      action.onClick(userId);
+      action.onClick(user);
     }
   };
 

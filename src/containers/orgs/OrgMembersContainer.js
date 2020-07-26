@@ -7,10 +7,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { faTrash, faUserPlus } from '@fortawesome/pro-light-svg-icons';
 import { List, Map, Set } from 'immutable';
+import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
-  ActionModal,
   AppContentWrapper,
   Card,
   CardSegment,
@@ -25,21 +25,22 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { MemberCard, UserActionCardSegment } from './components';
+import {
+  AddOrRemoveOrgMemberModal,
+  MemberCard,
+  UserActionCardSegment,
+} from './components';
 
 import { SearchForm } from '../../components';
-import { ReduxActions } from '../../core/redux';
 import { INITIAL_SEARCH_RESULTS, MEMBERS, REDUCERS } from '../../core/redux/constants';
 import { UsersActions } from '../../core/users';
 import { PersonUtils } from '../../utils';
 
+const { ActionTypes } = Types;
+
 const {
-  ADD_MEMBER_TO_ORGANIZATION,
   GET_ORGANIZATION_MEMBERS,
-  REMOVE_MEMBER_FROM_ORGANIZATION,
-  addMemberToOrganization,
   getOrganizationMembers,
-  removeMemberFromOrganization,
 } = OrganizationsApiActions;
 const {
   SEARCH_ALL_USERS,
@@ -48,7 +49,6 @@ const {
 
 const { isNonEmptyString } = LangUtils;
 const { filterUser, getUserId } = PersonUtils;
-const { resetRequestState } = ReduxActions;
 const { resetUserSearchResults } = UsersActions;
 
 const ContainerGrid = styled.div`
@@ -81,14 +81,12 @@ type Props = {
 const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) => {
 
   const dispatch = useDispatch();
-  const [isVisibleAddModal, setIsVisibleAddModal] = useState(false);
-  const [isVisibleRemoveModal, setIsVisibleRemoveModal] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState();
+  const [addOrRemoveOrgMemberAction, setAddOrRemoveOrgMemberAction] = useState();
+  const [isVisibleAddOrRemoveOrgMemberModal, setIsVisibleAddOrRemoveOrgMemberModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState();
   const [searchQuery, setSearchQuery] = useState();
 
   const getOrganizationMembersRS :?RequestState = useRequestState([REDUCERS.ORGS, GET_ORGANIZATION_MEMBERS]);
-  const addMemberRS :?RequestState = useRequestState([REDUCERS.ORGS, ADD_MEMBER_TO_ORGANIZATION]);
-  const removeMemberRS :?RequestState = useRequestState([REDUCERS.ORGS, REMOVE_MEMBER_FROM_ORGANIZATION]);
   const searchAllUsersRS :?RequestState = useRequestState([REDUCERS.USERS, SEARCH_ALL_USERS]);
 
   const members :List = useSelector((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId], List()));
@@ -134,55 +132,23 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
     setSearchQuery(valueOfSearchQuery);
   };
 
-  const handleOnClickAddMember = (userId :string) => {
-    setIsVisibleAddModal(true);
-    setIsVisibleRemoveModal(false);
-    setSelectedUserId(userId);
+  const handleOnClickAddMember = (user :Map | Object) => {
+    setAddOrRemoveOrgMemberAction(ActionTypes.ADD);
+    setIsVisibleAddOrRemoveOrgMemberModal(true);
+    setSelectedUser(user);
   };
 
-  const handleOnClickRemoveMember = (userId :string) => {
-    setIsVisibleAddModal(false);
-    setIsVisibleRemoveModal(true);
-    setSelectedUserId(userId);
-  };
-
-  const addMember = () => {
-    if (isOwner) {
-      dispatch(
-        addMemberToOrganization({
-          organizationId,
-          memberId: selectedUserId,
-          user: nonMembers.find((m) => getUserId(m) === selectedUserId)
-        })
-      );
-    }
-    setSelectedUserId();
-    setSearchQuery();
-  };
-
-  const removeMember = () => {
-    if (isOwner) {
-      dispatch(
-        removeMemberFromOrganization({
-          organizationId,
-          memberId: selectedUserId,
-        })
-      );
-    }
-    setSelectedUserId();
+  const handleOnClickRemoveMember = (user :Map | Object) => {
+    setAddOrRemoveOrgMemberAction(ActionTypes.REMOVE);
+    setIsVisibleAddOrRemoveOrgMemberModal(true);
+    setSelectedUser(user);
   };
 
   const closeModal = () => {
-
-    setIsVisibleAddModal(false);
-    setIsVisibleRemoveModal(false);
-    setSelectedUserId();
-
-    // the timeout avoids rendering the modal with new state before the transition animation finishes
-    setTimeout(() => {
-      dispatch(resetRequestState([ADD_MEMBER_TO_ORGANIZATION]));
-      dispatch(resetRequestState([REMOVE_MEMBER_FROM_ORGANIZATION]));
-    }, 1000);
+    setAddOrRemoveOrgMemberAction();
+    setIsVisibleAddOrRemoveOrgMemberModal(false);
+    setSearchQuery();
+    setSelectedUser();
   };
 
   const searchUsers = () => {
@@ -266,38 +232,15 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
           </CardStack>
         </PeopleSection>
       </ContainerGrid>
-      <ActionModal
-          isVisible={isVisibleAddModal}
-          onClickPrimary={addMember}
+      <AddOrRemoveOrgMemberModal
+          action={addOrRemoveOrgMemberAction}
+          isOwner={isOwner}
+          isVisible={isVisibleAddOrRemoveOrgMemberModal}
           onClose={closeModal}
-          requestState={addMemberRS}
-          textTitle="Add Member To Organization" />
-      <ActionModal
-          isVisible={isVisibleRemoveModal}
-          onClickPrimary={removeMember}
-          onClose={closeModal}
-          requestState={removeMemberRS}
-          textTitle="Remove Member From Organization" />
+          organizationId={organizationId}
+          user={selectedUser} />
     </AppContentWrapper>
   );
 };
-
-// const requestStateComponents = {
-//   [RequestStates.STANDBY]: (
-//     <ModalBodyMinWidth>
-//       <Label htmlFor="new-org-title">Organization title*</Label>
-//       <Input
-//           id="new-org-title"
-//           error={!isValidOrgTitle}
-//           onChange={this.handleOnChangeNewOrgTitle}
-//           value={newOrgTitle} />
-//     </ModalBodyMinWidth>
-//   ),
-//   [RequestStates.FAILURE]: (
-//     <ModalBodyMinWidth>
-//       <span>Failed to create the organization. Please try again.</span>
-//     </ModalBodyMinWidth>
-//   ),
-// };
 
 export default OrgMembersContainer;
