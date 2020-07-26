@@ -7,7 +7,7 @@ describe('routes', () => {
   });
 
   test('should export "PRINCIPAL_ID_PARAM"', () => {
-    expect(Routes.ORG_ID_PARAM).toEqual(':principalId');
+    expect(Routes.PRINCIPAL_ID_PARAM).toEqual(':principalId');
   });
 
   test('should export the correct ROOT path', () => {
