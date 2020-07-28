@@ -139,9 +139,7 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
         }
         else {
           const role = organization.roles.find((r) => r.id === roleId);
-          if (role) {
-            setTargetRole(role);
-          }
+          setTargetRole(role);
         }
       }
     }
