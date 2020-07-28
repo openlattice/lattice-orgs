@@ -2,12 +2,13 @@
  * @flow
  */
 
-import OrgsReducer from './OrgsReducer';
 import * as OrgsActions from './OrgsActions';
-import * as OrgsSagas from './OrgsSagas';
+import * as OrgsSagas from './sagas';
+
+export { default as OrgsReducer } from './OrgsReducer';
+export { default as OrgsRouter } from './OrgsRouter';
 
 export {
   OrgsActions,
-  OrgsReducer,
   OrgsSagas,
 };

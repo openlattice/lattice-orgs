@@ -24,7 +24,10 @@ export default function initializeReduxStore(routerHistory :any) :Object {
   ];
 
   const stateSanitizer = (state) => state
-    .set('edm', 'HIDDEN by stateSanitizer');
+    .setIn(['edm', 'entityTypes'], 'HIDDEN')
+    .setIn(['edm', 'entityTypesIndexMap'], 'HIDDEN')
+    .setIn(['edm', 'propertyTypes'], 'HIDDEN')
+    .setIn(['edm', 'propertyTypesIndexMap'], 'HIDDEN');
 
   /* eslint-disable no-underscore-dangle */
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__

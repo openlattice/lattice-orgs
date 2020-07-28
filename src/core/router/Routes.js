@@ -2,31 +2,28 @@
  * @flow
  */
 
-const ID_PARAM :':id' = ':id';
-const ORG_ID_PARAM :':orgId' = ':orgId';
-const DATA_SET_ID_PARAM :':dataSetId' = ':dataSetId';
-
-const ROOT :string = '/';
-const ORGS :string = '/orgs';
-
-const ORG :string = `${ORGS}/${ID_PARAM}`;
-const ORG_ADMIN :string = `${ORGS}/${ID_PARAM}/admin`;
-const ORG_DATA_SETS :string = `${ORGS}/${ID_PARAM}/datasets`;
-const ORG_PERMISSIONS :string = `${ORGS}/${ID_PARAM}/permissions`;
-const ORG_ROLES :string = `${ORGS}/${ID_PARAM}/roles`;
-
-const DATA_SET :string = `${ORGS}/${ORG_ID_PARAM}/${DATA_SET_ID_PARAM}`;
+const ORG_ID_PARAM :':organizationId' = ':organizationId';
+const PRINCIPAL_ID_PARAM :':principalId' = ':principalId';
 
 export {
-  DATA_SET,
-  DATA_SET_ID_PARAM,
-  ID_PARAM,
+  ORG_ID_PARAM,
+  PRINCIPAL_ID_PARAM,
+};
+
+const ROOT :'/' = '/';
+const ORGS :'/orgs' = '/orgs';
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG :'/orgs/:organizationId' = `${ORGS}/${ORG_ID_PARAM}`;
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_MEMBERS :'/orgs/:organizationId/members' = `${ORGS}/${ORG_ID_PARAM}/members`;
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_MEMBER :'/orgs/:organizationId/members/:principalId' = `${ORG_MEMBERS}/${PRINCIPAL_ID_PARAM}`;
+
+export {
   ORG,
   ORGS,
-  ORG_ADMIN,
-  ORG_DATA_SETS,
-  ORG_ID_PARAM,
-  ORG_PERMISSIONS,
-  ORG_ROLES,
+  ORG_MEMBER,
+  ORG_MEMBERS,
   ROOT,
 };

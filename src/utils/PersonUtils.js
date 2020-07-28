@@ -2,11 +2,28 @@
  * @flow
  */
 
-import { get } from 'immutable';
+import _includes from 'lodash/includes';
+import { get, getIn } from 'immutable';
+import { Constants } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
-import { LangUtils } from 'lattice-utils';
+import { LangUtils, ValidationUtils } from 'lattice-utils';
+import type { UUID } from 'lattice';
 
+const { AT_CLASS } = Constants;
 const { isDefined, isNonEmptyString } = LangUtils;
+const { isValidUUID } = ValidationUtils;
+
+function getPrincipalId(user :any) :?UUID {
+
+  const securablePrincipalClass = getIn(user, ['principal', AT_CLASS]);
+  const principalId :?UUID = getIn(user, ['principal', 'id']);
+
+  if (isValidUUID(principalId) && securablePrincipalClass === 'com.openlattice.authorization.SecurablePrincipal') {
+    return principalId;
+  }
+
+  return undefined;
+}
 
 function getUserId(user :any) :string {
 
@@ -89,7 +106,28 @@ function sortByProfileLabel(user1 :any, user2 :any) {
   return 0;
 }
 
+function filterUser(user :any, filter :string) :boolean {
+
+  const userId :string = getUserId(user);
+  if (filter === userId) {
+    return true;
+  }
+
+  const auth0UserProfile = get(user, 'profile', user);
+  const nickname :string = get(auth0UserProfile, 'nickname', '');
+  const username :string = get(auth0UserProfile, 'username', '');
+  const email :string = get(auth0UserProfile, 'email', '');
+
+  return (
+    _includes(nickname, filter)
+    || _includes(username, filter)
+    || _includes(email, filter)
+  );
+}
+
 export {
+  filterUser,
+  getPrincipalId,
   getUserId,
   getUserProfileLabel,
   sortByProfileLabel,
