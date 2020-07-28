@@ -128,9 +128,9 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
     setSearchQuery(valueOfSearchQuery);
   };
 
-  const handleOnChangeRoleCheckBox = (event :SyntheticEvent<HTMLElement>) => {
+  const handleOnChangeRoleCheckBox = (event :SyntheticEvent<HTMLInputElement>) => {
     const { currentTarget } = event;
-    if (currentTarget instanceof HTMLElement) {
+    if (currentTarget instanceof HTMLInputElement) {
       const { dataset } = currentTarget;
       const roleId :UUID = dataset.roleId;
       if (isValidUUID(roleId)) {
