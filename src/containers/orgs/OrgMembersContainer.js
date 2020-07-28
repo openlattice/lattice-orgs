@@ -5,30 +5,29 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
-import { faTrash, faUserPlus } from '@fortawesome/pro-light-svg-icons';
 import { List, Map, Set } from 'immutable';
 import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
-  Card,
   CardSegment,
   CardStack,
+  Checkbox,
   ChoiceGroup,
-  Radio,
   Spinner,
 } from 'lattice-ui-kit';
-import { LangUtils, useRequestState } from 'lattice-utils';
+import { LangUtils, ValidationUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { Organization, Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import {
+  AddOrRemoveMemberRoleModal,
   AddOrRemoveOrgMemberModal,
   MemberCard,
-  UserActionCardSegment,
+  NonMemberCard,
 } from './components';
 
 import { SearchForm } from '../../components';
@@ -38,17 +37,12 @@ import { PersonUtils } from '../../utils';
 
 const { ActionTypes } = Types;
 
-const {
-  GET_ORGANIZATION_MEMBERS,
-  getOrganizationMembers,
-} = OrganizationsApiActions;
-const {
-  SEARCH_ALL_USERS,
-  searchAllUsers,
-} = PrincipalsApiActions;
+const { GET_ORGANIZATION_MEMBERS, getOrganizationMembers } = OrganizationsApiActions;
+const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 const { isNonEmptyString } = LangUtils;
 const { filterUser, getUserId } = PersonUtils;
+const { isValidUUID } = ValidationUtils;
 const { resetUserSearchResults } = UsersActions;
 
 const ContainerGrid = styled.div`
@@ -81,10 +75,12 @@ type Props = {
 const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) => {
 
   const dispatch = useDispatch();
+
+  const [addOrRemoveMemberRoleAction, setAddOrRemoveMemberRoleAction] = useState();
   const [addOrRemoveOrgMemberAction, setAddOrRemoveOrgMemberAction] = useState();
-  const [isVisibleAddOrRemoveOrgMemberModal, setIsVisibleAddOrRemoveOrgMemberModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState();
   const [searchQuery, setSearchQuery] = useState();
+  const [targetMember, setTargetMember] = useState();
+  const [targetRole, setTargetRole] = useState<Role | void>();
 
   const getOrganizationMembersRS :?RequestState = useRequestState([REDUCERS.ORGS, GET_ORGANIZATION_MEMBERS]);
   const searchAllUsersRS :?RequestState = useRequestState([REDUCERS.USERS, SEARCH_ALL_USERS]);
@@ -132,23 +128,49 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
     setSearchQuery(valueOfSearchQuery);
   };
 
-  const handleOnClickAddMember = (user :Map | Object) => {
+  const handleOnChangeRoleCheckBox = (event :SyntheticEvent<HTMLElement>) => {
+    const { currentTarget } = event;
+    if (currentTarget instanceof HTMLElement) {
+      const { dataset } = currentTarget;
+      const roleId :UUID = dataset.roleId;
+      if (isValidUUID(roleId)) {
+        if (targetRole && targetRole.id === roleId) {
+          setTargetRole();
+        }
+        else {
+          const role = organization.roles.find((r) => r.id === roleId);
+          if (role) {
+            setTargetRole(role);
+          }
+        }
+      }
+    }
+  };
+
+  const handleOnChangeMemberRoleCheckBox = (member :Map, isChecked :boolean) => {
+    setAddOrRemoveMemberRoleAction(isChecked ? ActionTypes.ADD : ActionTypes.REMOVE);
+    setTargetMember(member);
+  };
+
+  const handleOnClickAddMember = (member :Map) => {
     setAddOrRemoveOrgMemberAction(ActionTypes.ADD);
-    setIsVisibleAddOrRemoveOrgMemberModal(true);
-    setSelectedUser(user);
+    setTargetMember(member);
   };
 
-  const handleOnClickRemoveMember = (user :Map | Object) => {
+  const handleOnClickRemoveMember = (member :Map) => {
     setAddOrRemoveOrgMemberAction(ActionTypes.REMOVE);
-    setIsVisibleAddOrRemoveOrgMemberModal(true);
-    setSelectedUser(user);
+    setTargetMember(member);
   };
 
-  const closeModal = () => {
+  const closeAddOrRemoveOrgMemberModal = () => {
     setAddOrRemoveOrgMemberAction();
-    setIsVisibleAddOrRemoveOrgMemberModal(false);
     setSearchQuery();
-    setSelectedUser();
+    setTargetMember();
+  };
+
+  const closeAddOrRemoveMemberRoleModal = () => {
+    setAddOrRemoveMemberRoleAction();
+    setTargetMember();
   };
 
   const searchUsers = () => {
@@ -160,17 +182,15 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
   const memberCards = useMemo(() => (
     filteredMembers.map((member) => (
       <MemberCard
-          actions={[{
-            color: 'error',
-            faIcon: faTrash,
-            onClick: handleOnClickRemoveMember,
-          }]}
           isOwner={isOwner}
           key={member.hashCode()}
           member={member}
-          organizationId={organizationId} />
+          onChangeRoleCheckBox={handleOnChangeMemberRoleCheckBox}
+          onClickRemoveMember={handleOnClickRemoveMember}
+          organizationId={organizationId}
+          roleId={targetRole && targetRole.id} />
     ))
-  ), [filteredMembers, isOwner, organizationId]);
+  ), [filteredMembers, isOwner, organizationId, targetRole]);
 
   if (getOrganizationMembersRS === RequestStates.PENDING) {
     return (
@@ -185,10 +205,15 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
       <ContainerGrid>
         <SelectionSection>
           <ChoiceGroup>
-            <Radio defaultChecked label="People" mode="button" name="group" />
             {
               organization.roles.map((role :Role) => (
-                <Radio key={role.id} label={role.title} mode="button" name="group" />
+                <Checkbox
+                    checked={(targetRole && role.id === targetRole.id) || false}
+                    data-role-id={role.id}
+                    key={role.id}
+                    label={role.title}
+                    mode="button"
+                    onChange={handleOnChangeRoleCheckBox} />
               ))
             }
           </ChoiceGroup>
@@ -210,21 +235,13 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
           }
           {
             searchAttempt && !nonMembers.isEmpty() && (
-              <Card>
-                {
-                  nonMembers.map((nonMember :Map) => (
-                    <UserActionCardSegment
-                        actions={[{
-                          color: 'success',
-                          faIcon: faUserPlus,
-                          onClick: handleOnClickAddMember,
-                        }]}
-                        key={nonMember.hashCode()}
-                        isOwner={isOwner}
-                        user={nonMember} />
-                  ))
-                }
-              </Card>
+              nonMembers.map((nonMember :Map) => (
+                <NonMemberCard
+                    isOwner={isOwner}
+                    key={nonMember.hashCode()}
+                    member={nonMember}
+                    onClickAddMember={handleOnClickAddMember} />
+              ))
             )
           }
           <CardStack>
@@ -232,13 +249,27 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
           </CardStack>
         </PeopleSection>
       </ContainerGrid>
-      <AddOrRemoveOrgMemberModal
-          action={addOrRemoveOrgMemberAction}
-          isOwner={isOwner}
-          isVisible={isVisibleAddOrRemoveOrgMemberModal}
-          onClose={closeModal}
-          organizationId={organizationId}
-          user={selectedUser} />
+      {
+        targetMember && !targetRole && (
+          <AddOrRemoveOrgMemberModal
+              action={addOrRemoveOrgMemberAction}
+              isOwner={isOwner}
+              member={targetMember}
+              onClose={closeAddOrRemoveOrgMemberModal}
+              organizationId={organizationId} />
+        )
+      }
+      {
+        targetMember && targetRole && (
+          <AddOrRemoveMemberRoleModal
+              action={addOrRemoveMemberRoleAction}
+              isOwner={isOwner}
+              member={targetMember}
+              onClose={closeAddOrRemoveMemberRoleModal}
+              organizationId={organizationId}
+              role={targetRole} />
+        )
+      }
     </AppContentWrapper>
   );
 };
