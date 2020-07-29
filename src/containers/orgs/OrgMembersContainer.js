@@ -5,7 +5,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
-import { List, Map, Set, get, getIn } from 'immutable';
+import { List, Map, Set } from 'immutable';
 import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
@@ -35,13 +35,13 @@ import { INITIAL_SEARCH_RESULTS, MEMBERS, REDUCERS } from '../../core/redux/cons
 import { UsersActions } from '../../core/users';
 import { PersonUtils } from '../../utils';
 
-const { ActionTypes, PrincipalTypes } = Types;
+const { ActionTypes } = Types;
 
 const { GET_ORGANIZATION_MEMBERS, getOrganizationMembers } = OrganizationsApiActions;
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 const { isNonEmptyString } = LangUtils;
-const { filterUser, getUserId, getUserProfileLabel } = PersonUtils;
+const { filterUser, getUserId, sortByProfileLabel } = PersonUtils;
 const { isValidUUID } = ValidationUtils;
 const { resetUserSearchResults } = UsersActions;
 
@@ -88,15 +88,7 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
   const organizationMembers :List = useSelector((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId], List()));
 
   const sortedMembers :List = useMemo(() => (
-    organizationMembers.sort((member1 :Map, member2 :Map) => {
-      const userId1 :string = getUserId(member1);
-      const userId2 :string = getUserId(member2);
-      const userProfileLabel1 :string = getUserProfileLabel(member1) || userId1;
-      const userProfileLabel2 :string = getUserProfileLabel(member2) || userId2;
-      if (userProfileLabel1 < userProfileLabel2) return -1;
-      if (userProfileLabel1 > userProfileLabel2) return 1;
-      return 0;
-    })
+    organizationMembers.sort(sortByProfileLabel)
   ), [organizationMembers]);
 
   const sortedFilteredMembers :List = useMemo(() => {
