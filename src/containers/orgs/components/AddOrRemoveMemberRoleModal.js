@@ -55,11 +55,13 @@ const AddOrRemoveMemberRoleModal = ({
   const addRoleRS :?RequestState = useRequestState([REDUCERS.ORGS, ADD_ROLE_TO_MEMBER]);
   const removeRoleRS :?RequestState = useRequestState([REDUCERS.ORGS, REMOVE_ROLE_FROM_MEMBER]);
 
-  let actionRS :?RequestState;
+  let actionRS :RequestState;
   if (action === ActionTypes.ADD) {
+    // $FlowFixMe - ActionModal
     actionRS = addRoleRS;
   }
   else if (action === ActionTypes.REMOVE) {
+    // $FlowFixMe - ActionModal
     actionRS = removeRoleRS;
   }
 
