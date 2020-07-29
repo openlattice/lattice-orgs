@@ -5,7 +5,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
-import { List, Map, Set } from 'immutable';
+import { List, Map, Set, get, getIn } from 'immutable';
 import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
@@ -35,13 +35,13 @@ import { INITIAL_SEARCH_RESULTS, MEMBERS, REDUCERS } from '../../core/redux/cons
 import { UsersActions } from '../../core/users';
 import { PersonUtils } from '../../utils';
 
-const { ActionTypes } = Types;
+const { ActionTypes, PrincipalTypes } = Types;
 
 const { GET_ORGANIZATION_MEMBERS, getOrganizationMembers } = OrganizationsApiActions;
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 const { isNonEmptyString } = LangUtils;
-const { filterUser, getUserId } = PersonUtils;
+const { filterUser, getUserId, getUserProfileLabel } = PersonUtils;
 const { isValidUUID } = ValidationUtils;
 const { resetUserSearchResults } = UsersActions;
 
@@ -85,18 +85,30 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
   const getOrganizationMembersRS :?RequestState = useRequestState([REDUCERS.ORGS, GET_ORGANIZATION_MEMBERS]);
   const searchAllUsersRS :?RequestState = useRequestState([REDUCERS.USERS, SEARCH_ALL_USERS]);
 
-  const members :List = useSelector((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId], List()));
+  const organizationMembers :List = useSelector((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId], List()));
 
-  const filteredMembers :List = useMemo(() => {
-    if (isNonEmptyString(searchQuery)) {
-      return members.filter((member :Map) => filterUser(member, searchQuery));
+  const sortedMembers :List = useMemo(() => (
+    organizationMembers.sort((member1 :Map, member2 :Map) => {
+      const userId1 :string = getUserId(member1);
+      const userId2 :string = getUserId(member2);
+      const userProfileLabel1 :string = getUserProfileLabel(member1) || userId1;
+      const userProfileLabel2 :string = getUserProfileLabel(member2) || userId2;
+      if (userProfileLabel1 < userProfileLabel2) return -1;
+      if (userProfileLabel1 > userProfileLabel2) return 1;
+      return 0;
+    })
+  ), [organizationMembers]);
+
+  const sortedFilteredMembers :List = useMemo(() => {
+    if (isNonEmptyString(searchQuery) && searchQuery.length > 3) {
+      return sortedMembers.filter((member :Map) => filterUser(member, searchQuery));
     }
-    return members;
-  }, [members, searchQuery]);
+    return sortedMembers;
+  }, [sortedMembers, searchQuery]);
 
   const memberIds :Set<UUID> = useMemo(() => (
-    members.map((member) => getUserId(member)).toSet()
-  ), [members]);
+    organizationMembers.map((member) => getUserId(member)).toSet()
+  ), [organizationMembers]);
 
   const userSearchResults :Map = useSelector((s) => s.getIn([REDUCERS.USERS, 'userSearchResults'], Map()));
   const searchAttempt = !INITIAL_SEARCH_RESULTS.equals(userSearchResults) && isNonEmptyString(searchQuery);
@@ -178,7 +190,7 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
   };
 
   const memberCards = useMemo(() => (
-    filteredMembers.map((member) => (
+    sortedFilteredMembers.map((member) => (
       <MemberCard
           isOwner={isOwner}
           key={member.hashCode()}
@@ -188,7 +200,7 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
           organizationId={organizationId}
           roleId={targetRole && targetRole.id} />
     ))
-  ), [filteredMembers, isOwner, organizationId, targetRole]);
+  ), [isOwner, organizationId, sortedFilteredMembers, targetRole]);
 
   if (getOrganizationMembersRS === RequestStates.PENDING) {
     return (
