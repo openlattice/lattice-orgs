@@ -53,11 +53,13 @@ const AddOrRemoveOrgMemberModal = ({
   const addMemberRS :?RequestState = useRequestState([REDUCERS.ORGS, ADD_MEMBER_TO_ORGANIZATION]);
   const removeMemberRS :?RequestState = useRequestState([REDUCERS.ORGS, REMOVE_MEMBER_FROM_ORGANIZATION]);
 
-  let actionRS :?RequestState;
+  let actionRS :RequestState;
   if (action === ActionTypes.ADD) {
+    // $FlowFixMe - ActionModal
     actionRS = addMemberRS;
   }
   else if (action === ActionTypes.REMOVE) {
+    // $FlowFixMe - ActionModal
     actionRS = removeMemberRS;
   }
 
