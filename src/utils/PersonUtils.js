@@ -92,8 +92,10 @@ function getUserProfileLabel(user :any) :string {
 
 function sortByProfileLabel(user1 :any, user2 :any) {
 
-  const label1 :string = getUserProfileLabel(user1);
-  const label2 :string = getUserProfileLabel(user2);
+  const userId1 :string = getUserId(user1);
+  const userId2 :string = getUserId(user2);
+  const label1 :string = getUserProfileLabel(user1) || userId1;
+  const label2 :string = getUserProfileLabel(user2) || userId2;
 
   if (label1 < label2) {
     return -1;
