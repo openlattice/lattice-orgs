@@ -8,7 +8,7 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   AuthorizationsApiActions,
@@ -78,7 +78,7 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       isOwner = authorizations[0].permissions[PermissionTypes.OWNER] === true;
     }
 
-    let members :Map = yield select((s) => s.getIn([REDUCERS.ORGS, MEMBERS]));
+    let members :Map = yield select((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId], List()));
     if (!members || members.isEmpty()) {
       const response :WorkerResponse = yield call(
         getOrganizationMembersWorker,
