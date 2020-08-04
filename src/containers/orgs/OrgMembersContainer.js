@@ -37,7 +37,7 @@ import { PersonUtils } from '../../utils';
 
 const { ActionTypes } = Types;
 
-const { GET_ORGANIZATION_MEMBERS, getOrganizationMembers } = OrganizationsApiActions;
+const { GET_ORGANIZATION_MEMBERS } = OrganizationsApiActions;
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 const { isNonEmptyString } = LangUtils;
@@ -114,12 +114,6 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
       })
       .toList()
   ), [memberIds, userSearchResults]);
-
-  useEffect(() => {
-    // TODO: this is called on every mount
-    // TODO: move this to initializeOrganization
-    dispatch(getOrganizationMembers(organizationId));
-  }, [dispatch, organizationId]);
 
   useEffect(() => () => {
     dispatch(resetUserSearchResults());

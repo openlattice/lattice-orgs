@@ -3,9 +3,6 @@
  */
 
 import styled, { css } from 'styled-components';
-import { Colors } from 'lattice-ui-kit';
-
-const { NEUTRAL } = Colors;
 
 const FONT_SIZE = {
   h1: '36px',

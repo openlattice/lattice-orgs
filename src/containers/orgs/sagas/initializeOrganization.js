@@ -8,7 +8,7 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-// import { fromJS, getIn } from 'immutable';
+import { Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   AuthorizationsApiActions,
@@ -22,7 +22,12 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { IS_OWNER, ORGANIZATIONS, REDUCERS } from '../../../core/redux/constants';
+import {
+  IS_OWNER,
+  MEMBERS,
+  ORGANIZATIONS,
+  REDUCERS,
+} from '../../../core/redux/constants';
 import { AxiosUtils } from '../../../utils';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../OrgsActions';
 import type { AuthorizationObject } from '../../../types';
@@ -39,8 +44,8 @@ const { PermissionTypes } = Types;
 
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
-const { getOrganization } = OrganizationsApiActions;
-const { getOrganizationWorker } = OrganizationsApiSagas;
+const { getOrganization, getOrganizationMembers } = OrganizationsApiActions;
+const { getOrganizationWorker, getOrganizationMembersWorker } = OrganizationsApiSagas;
 
 function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
@@ -53,7 +58,6 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
     let organization :?Organization = yield select((s) => s.getIn([REDUCERS.ORGS, ORGANIZATIONS, organizationId]));
 
     // TODO: expire stored data
-    // TODO: org members
     if (!organization) {
 
       const response1 :WorkerResponse = yield call(getOrganizationWorker, getOrganization(organizationId));
@@ -72,6 +76,16 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
       const authorizations :AuthorizationObject[] = response2.data;
       isOwner = authorizations[0].permissions[PermissionTypes.OWNER] === true;
+    }
+
+    let members :Map = yield select((s) => s.getIn([REDUCERS.ORGS, MEMBERS]));
+    if (!members || members.isEmpty()) {
+      const response :WorkerResponse = yield call(
+        getOrganizationMembersWorker,
+        getOrganizationMembers(organizationId),
+      );
+      if (response.error) throw response.error;
+      members = response.data;
     }
 
     yield put(initializeOrganization.success(action.id, { isOwner, organization }));
