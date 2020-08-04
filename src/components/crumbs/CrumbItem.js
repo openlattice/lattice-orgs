@@ -9,7 +9,7 @@ const CrumbItem = styled.span`
   font-size: 12px;
   font-weight: 500;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: ${({ toUpperCase = true }) => (toUpperCase ? 'uppercase' : 'none')};
 `;
 
 export default CrumbItem;
