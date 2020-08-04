@@ -7,7 +7,7 @@ import React from 'react';
 import { faUserPlus } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map } from 'immutable';
-import { Button, Card } from 'lattice-ui-kit';
+import { Card, IconButton } from 'lattice-ui-kit';
 
 import { SpaceBetweenCardSegment } from '../../../components';
 import { PersonUtils } from '../../../utils';
@@ -40,13 +40,9 @@ const NonMemberCard = ({
     <Card>
       <SpaceBetweenCardSegment vertical={false}>
         <span title={userProfileLabel}>{userProfileLabel}</span>
-        <Button
-            color="success"
-            disabled={!isOwner}
-            onClick={handleOnClickAddMember}
-            variant="text">
+        <IconButton color="success" disabled={!isOwner} onClick={handleOnClickAddMember}>
           <FontAwesomeIcon fixedWidth icon={faUserPlus} />
-        </Button>
+        </IconButton>
       </SpaceBetweenCardSegment>
     </Card>
   );

@@ -13,7 +13,7 @@ import {
   getIn,
 } from 'immutable';
 import { Types } from 'lattice';
-import { Button, Card, Checkbox } from 'lattice-ui-kit';
+import { IconButton, Card, Checkbox } from 'lattice-ui-kit';
 import { Logger, ValidationUtils } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import type { UUID } from 'lattice';
@@ -108,13 +108,9 @@ const MemberCard = ({
           }
           {
             !roleId && (
-              <Button
-                  color="error"
-                  disabled={!isOwner}
-                  onClick={handleOnClickRemoveMember}
-                  variant="text">
+              <IconButton color="error" disabled={!isOwner} onClick={handleOnClickRemoveMember}>
                 <FontAwesomeIcon fixedWidth icon={faTrash} />
-              </Button>
+              </IconButton>
             )
           }
         </div>
