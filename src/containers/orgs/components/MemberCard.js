@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 
 import { faTrash } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -49,6 +49,7 @@ const MemberCard = ({
 } :Props) => {
 
   const dispatch = useDispatch();
+  const roleCheckBoxRef = useRef();
 
   const userId :string = getUserId(member);
   const userProfileLabel :string = getUserProfileLabel(member) || userId;
@@ -64,7 +65,10 @@ const MemberCard = ({
 
   let handleOnClick;
   if (securablePrincipalId && isValidUUID(securablePrincipalId)) {
-    handleOnClick = () => {
+    handleOnClick = (event :SyntheticEvent<HTMLElement>) => {
+      if (event.target === roleCheckBoxRef.current) {
+        return;
+      }
       dispatch(
         goToRoute(
           Routes.ORG_MEMBER
@@ -103,7 +107,8 @@ const MemberCard = ({
               <Checkbox
                   checked={isRoleAssignedToMember}
                   disabled={!isOwner}
-                  onChange={handleOnChangeRoleCheckBox} />
+                  onChange={handleOnChangeRoleCheckBox}
+                  ref={roleCheckBoxRef} />
             )
           }
           {
