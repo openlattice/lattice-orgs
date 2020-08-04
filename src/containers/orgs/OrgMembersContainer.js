@@ -231,13 +231,17 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
           }
           {
             searchAttempt && !nonMembers.isEmpty() && (
-              nonMembers.map((nonMember :Map) => (
-                <NonMemberCard
-                    isOwner={isOwner}
-                    key={nonMember.hashCode()}
-                    member={nonMember}
-                    onClickAddMember={handleOnClickAddMember} />
-              ))
+              <CardStack>
+                {
+                  nonMembers.map((nonMember :Map) => (
+                    <NonMemberCard
+                        isOwner={isOwner}
+                        key={nonMember.hashCode()}
+                        member={nonMember}
+                        onClickAddMember={handleOnClickAddMember} />
+                  ))
+                }
+              </CardStack>
             )
           }
           <CardStack>
