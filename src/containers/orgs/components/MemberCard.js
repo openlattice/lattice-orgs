@@ -112,7 +112,7 @@ const MemberCard = ({
             )
           }
           {
-            !roleId && (
+            isOwner && !roleId && (
               <IconButton color="error" disabled={!isOwner} onClick={handleOnClickRemoveMember}>
                 <FontAwesomeIcon fixedWidth icon={faTrash} />
               </IconButton>
