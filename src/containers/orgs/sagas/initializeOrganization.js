@@ -3,12 +3,13 @@
  */
 
 import {
+  all,
   call,
   put,
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { List, Map } from 'immutable';
+import { Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   AuthorizationsApiActions,
@@ -23,7 +24,7 @@ import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
-  IS_OWNER,
+  ENTITY_SETS,
   MEMBERS,
   ORGANIZATIONS,
   REDUCERS,
@@ -44,8 +45,16 @@ const { PermissionTypes } = Types;
 
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
-const { getOrganization, getOrganizationMembers } = OrganizationsApiActions;
-const { getOrganizationWorker, getOrganizationMembersWorker } = OrganizationsApiSagas;
+const {
+  getOrganization,
+  getOrganizationEntitySets,
+  getOrganizationMembers,
+} = OrganizationsApiActions;
+const {
+  getOrganizationEntitySetsWorker,
+  getOrganizationMembersWorker,
+  getOrganizationWorker,
+} = OrganizationsApiSagas;
 
 function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
@@ -54,38 +63,67 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     const organizationId :UUID = action.value;
 
-    let isOwner :?boolean = yield select((s) => s.getIn([REDUCERS.ORGS, IS_OWNER, organizationId], false));
     let organization :?Organization = yield select((s) => s.getIn([REDUCERS.ORGS, ORGANIZATIONS, organizationId]));
+    const members :?Map = yield select((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId]));
+    const entitySets :?Map = yield select((s) => s.getIn([REDUCERS.ORGS, ENTITY_SETS, organizationId]));
 
-    // TODO: expire stored data
+    // TODO - figure out how to "expire" stored data
+    let getOrganizationCall = call(() => {});
     if (!organization) {
-
-      const response1 :WorkerResponse = yield call(getOrganizationWorker, getOrganization(organizationId));
-      if (response1.error) throw response1.error;
-      organization = (new OrganizationBuilder(response1.data)).build();
-
-      const accessChecks :AccessCheck[] = [
-        (new AccessCheckBuilder())
-          .setAclKey([organizationId])
-          .setPermissions([PermissionTypes.OWNER])
-          .build()
-      ];
-
-      const response2 :WorkerResponse = yield call(getAuthorizationsWorker, getAuthorizations(accessChecks));
-      if (response2.error) throw response2.error;
-
-      const authorizations :AuthorizationObject[] = response2.data;
-      isOwner = authorizations[0].permissions[PermissionTypes.OWNER] === true;
+      getOrganizationCall = call(getOrganizationWorker, getOrganization(organizationId));
     }
 
-    let members :Map = yield select((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId], List()));
-    if (!members || members.isEmpty()) {
-      const response :WorkerResponse = yield call(
-        getOrganizationMembersWorker,
-        getOrganizationMembers(organizationId),
-      );
-      if (response.error) throw response.error;
-      members = response.data;
+    // TODO - figure out how to "expire" stored data
+    let getOrganizationMembersCall = call(() => {});
+    if (!members) {
+      getOrganizationMembersCall = call(getOrganizationMembersWorker, getOrganizationMembers(organizationId));
+    }
+
+    // TODO - figure out how to "expire" stored data
+    let getOrganizationEntitySetsCall = call(() => {});
+    if (!entitySets) {
+      getOrganizationEntitySetsCall = call(getOrganizationEntitySetsWorker, getOrganizationEntitySets(organizationId));
+    }
+
+    const accessChecks :AccessCheck[] = [
+      (new AccessCheckBuilder())
+        .setAclKey([organizationId])
+        .setPermissions([PermissionTypes.OWNER])
+        .build()
+    ];
+    const getAuthorizationsCall = call(getAuthorizationsWorker, getAuthorizations(accessChecks));
+
+    // OPTIMIZATION - perhaps spawn() getOrganizationEntitySets as it's not immediately required
+    const [
+      getOrganizationResponse,
+      getOrganizationMembersResponse,
+      getOrganizationEntitySetsResponse,
+      getAuthorizationsResponse,
+    ] :Array<?WorkerResponse> = yield all([
+      getOrganizationCall,
+      getOrganizationMembersCall,
+      getOrganizationEntitySetsCall,
+      getAuthorizationsCall,
+    ]);
+
+    if (getOrganizationResponse) {
+      if (getOrganizationResponse.error) throw getOrganizationResponse.error;
+      organization = (new OrganizationBuilder(getOrganizationResponse.data)).build();
+    }
+
+    if (getOrganizationMembersResponse && getOrganizationMembersResponse.error) {
+      throw getOrganizationMembersResponse.error;
+    }
+
+    if (getOrganizationEntitySetsResponse && getOrganizationEntitySetsResponse.error) {
+      throw getOrganizationEntitySetsResponse.error;
+    }
+
+    let isOwner = false;
+    if (getAuthorizationsResponse) {
+      if (getAuthorizationsResponse.error) throw getAuthorizationsResponse.error;
+      const authorizations :AuthorizationObject[] = getAuthorizationsResponse.data;
+      isOwner = authorizations[0].permissions[PermissionTypes.OWNER] === true;
     }
 
     yield put(initializeOrganization.success(action.id, { isOwner, organization }));

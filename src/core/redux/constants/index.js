@@ -30,6 +30,7 @@ export {
   REDUCERS,
 };
 
+export const ENTITY_SETS :'entitySets' = 'entitySets';
 export const ERROR :'error' = 'error';
 export const IS_OWNER :'isOwner' = 'isOwner';
 export const MEMBERS :'members' = 'members';

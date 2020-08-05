@@ -37,7 +37,7 @@ const OrgContainer = ({ isOwner, organization, organizationId } :Props) => {
 
   return (
     <>
-      <AppContentWrapper bgColor="white" borderless>
+      <AppContentWrapper borderless>
         <div>
           <Header as="h2">
             <FontAwesomeIcon fixedWidth icon={faLandmark} size="sm" style={{ marginRight: '20px' }} />
