@@ -19,6 +19,7 @@ import OrgsContainer from './OrgsContainer';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from './OrgsActions';
 
 import { BasicErrorComponent } from '../../components';
+import { ReduxActions } from '../../core/redux';
 import {
   IS_OWNER,
   MEMBERS,
@@ -28,6 +29,8 @@ import {
 import { Routes } from '../../core/router';
 import { PersonUtils } from '../../utils';
 
+const { resetRequestState } = ReduxActions;
+
 const { getPrincipalId } = PersonUtils;
 const { getParamFromMatch } = RoutingUtils;
 
@@ -35,16 +38,16 @@ const OrgsRouter = () => {
 
   const dispatch = useDispatch();
 
+  let memberSPID :?UUID;
   let organizationId :?UUID;
-  let memberSecurablePrincipalId :?UUID;
 
   const matchOrganization = useRouteMatch(Routes.ORG);
   const matchOrganizationMember = useRouteMatch(Routes.ORG_MEMBER);
 
   // check matchOrganizationMember first because it's more specific than matchOrganization
   if (matchOrganizationMember) {
+    memberSPID = getParamFromMatch(matchOrganizationMember, Routes.PRINCIPAL_ID_PARAM);
     organizationId = getParamFromMatch(matchOrganization, Routes.ORG_ID_PARAM);
-    memberSecurablePrincipalId = getParamFromMatch(matchOrganizationMember, Routes.PRINCIPAL_ID_PARAM);
   }
   else if (matchOrganization) {
     organizationId = getParamFromMatch(matchOrganization, Routes.ORG_ID_PARAM);
@@ -56,15 +59,23 @@ const OrgsRouter = () => {
   const organization :?Organization = useSelector((s) => s.getIn([REDUCERS.ORGS, ORGANIZATIONS, organizationId]));
 
   const members :Map = useSelector((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId], Map()));
-  const member :?Map = members.find((m :Map) => getPrincipalId(m) === memberSecurablePrincipalId);
+  const member :?Map = members.find((m :Map) => getPrincipalId(m) === memberSPID);
 
   useEffect(() => {
+    // reset INITIALIZE_ORGANIZATION RequestState when the org id changes
+    dispatch(resetRequestState([INITIALIZE_ORGANIZATION]));
     if (organizationId) {
       dispatch(initializeOrganization(organizationId));
     }
   }, [dispatch, organizationId]);
 
-  if (initializeOrganizationRS === RequestStates.PENDING) {
+  // NOTE: this conditional is important as it helps avoid an unnecessary render of OrgContainer before
+  // initializeOrganization() has a chance to set the RequestState to PENDING, and is dependent on the
+  // dispatch(resetRequestState([INITIALIZE_ORGANIZATION])) above
+  if (
+    organizationId
+    && (initializeOrganizationRS === RequestStates.STANDBY || initializeOrganizationRS === RequestStates.PENDING)
+  ) {
     return (
       <AppContentWrapper>
         <Spinner size="2x" />

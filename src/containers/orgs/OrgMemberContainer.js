@@ -76,7 +76,7 @@ const OrgMemberContainer = ({ member, organization, organizationId } :Props) => 
             <CardStack>
               {
                 roles.map((role :Map) => (
-                  <Card>
+                  <Card key={role.get('id')}>
                     <CardSegment padding="8px 16px" vertical={false}>
                       <RoleTitle>{role.get('title')}</RoleTitle>
                     </CardSegment>
