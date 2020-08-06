@@ -6,12 +6,11 @@ import { Map, fromJS } from 'immutable';
 import { ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 
-const { REQUEST_STATE } = ReduxConstants;
+const { EDM, REQUEST_STATE } = ReduxConstants;
 
 const APP :'app' = 'app';
 const AUTH :'auth' = 'auth';
 const DATA :'data' = 'data';
-const EDM :'edm' = 'edm';
 const ORGS :'orgs' = 'orgs';
 const PERMISSIONS :'permissions' = 'permissions';
 const USERS :'users' = 'users';
@@ -30,6 +29,7 @@ export {
   REDUCERS,
 };
 
+export const ENTITY_SETS :'entitySets' = 'entitySets';
 export const ERROR :'error' = 'error';
 export const IS_OWNER :'isOwner' = 'isOwner';
 export const MEMBERS :'members' = 'members';

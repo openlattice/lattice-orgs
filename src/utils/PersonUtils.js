@@ -90,6 +90,38 @@ function getUserProfileLabel(user :any) :string {
   return label || '';
 }
 
+type UserProfile = {
+  familyName :string;
+  givenName :string;
+  name :string;
+};
+
+function getUserProfile(user :any) :UserProfile {
+
+  const auth0UserProfile = get(user, 'profile', user);
+
+  let familyName = get(auth0UserProfile, 'family_name');
+  if (!isNonEmptyString(familyName)) {
+    familyName = '';
+  }
+
+  let givenName = get(auth0UserProfile, 'given_name');
+  if (!isNonEmptyString(givenName)) {
+    givenName = '';
+  }
+
+  let name = get(auth0UserProfile, 'name');
+  if (!isNonEmptyString(name)) {
+    name = '';
+  }
+
+  return {
+    familyName,
+    givenName,
+    name,
+  };
+}
+
 function sortByProfileLabel(user1 :any, user2 :any) {
 
   const userId1 :string = getUserId(user1);
@@ -131,6 +163,7 @@ export {
   filterUser,
   getPrincipalId,
   getUserId,
+  getUserProfile,
   getUserProfileLabel,
   sortByProfileLabel,
 };

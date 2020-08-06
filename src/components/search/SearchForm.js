@@ -4,9 +4,9 @@
 import React from 'react';
 
 import styled from 'styled-components';
-import { SearchInput } from 'lattice-ui-kit';
-
-import { SearchButton } from '../buttons';
+import { faSearch } from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { IconButton, SearchInput } from 'lattice-ui-kit';
 
 const FormGrid = styled.form`
   display: grid;
@@ -29,18 +29,16 @@ const SearchForm = ({
 } :Props) => {
 
   const handleOnChangeUserSearch = (event :SyntheticInputEvent<HTMLInputElement>) => {
+    event.stopPropagation();
     onChange(event.target.value || '');
   };
 
   return (
     <FormGrid>
-      <SearchInput
-          onChange={handleOnChangeUserSearch}
-          placeholder={placeholder} />
-      <SearchButton
-          isLoading={isPending}
-          onClick={onSearch}
-          type="submit" />
+      <SearchInput onChange={handleOnChangeUserSearch} placeholder={placeholder} />
+      <IconButton isLoading={isPending} onClick={onSearch} type="submit">
+        <FontAwesomeIcon fixedWidth icon={faSearch} />
+      </IconButton>
     </FormGrid>
   );
 };

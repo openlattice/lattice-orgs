@@ -7,8 +7,8 @@ import { ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 
 import {
-  UPDATE_USER_PERMISSION,
-  updateUserPermission,
+  GET_ENTITY_SETS_WITH_PERMISSIONS,
+  getEntitySetsWithPermissions,
 } from './PermissionsActions';
 
 import { ReduxActions } from '../redux';
@@ -18,7 +18,7 @@ const { RESET_REQUEST_STATE } = ReduxActions;
 const { REQUEST_STATE } = ReduxConstants;
 
 const INITIAL_STATE :Map = fromJS({
-  [UPDATE_USER_PERMISSION]: RS_INITIAL_STATE,
+  [GET_ENTITY_SETS_WITH_PERMISSIONS]: RS_INITIAL_STATE,
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
@@ -35,11 +35,11 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return state;
     }
 
-    case updateUserPermission.case(action.type): {
-      return updateUserPermission.reducer(state, action, {
-        REQUEST: () => state.setIn([UPDATE_USER_PERMISSION, REQUEST_STATE], RequestStates.PENDING),
-        SUCCESS: () => state.setIn([UPDATE_USER_PERMISSION, REQUEST_STATE], RequestStates.SUCCESS),
-        FAILURE: () => state.setIn([UPDATE_USER_PERMISSION, REQUEST_STATE], RequestStates.FAILURE),
+    case getEntitySetsWithPermissions.case(action.type): {
+      return getEntitySetsWithPermissions.reducer(state, action, {
+        REQUEST: () => state.setIn([GET_ENTITY_SETS_WITH_PERMISSIONS, REQUEST_STATE], RequestStates.PENDING),
+        SUCCESS: () => state.setIn([GET_ENTITY_SETS_WITH_PERMISSIONS, REQUEST_STATE], RequestStates.SUCCESS),
+        FAILURE: () => state.setIn([GET_ENTITY_SETS_WITH_PERMISSIONS, REQUEST_STATE], RequestStates.FAILURE),
       });
     }
 

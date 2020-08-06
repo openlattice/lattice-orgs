@@ -5,18 +5,24 @@
 import React from 'react';
 
 import styled from 'styled-components';
-import { faUser } from '@fortawesome/pro-solid-svg-icons';
+import { faUserFriends } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Card, CardSegment } from 'lattice-ui-kit';
+import { Card, CardSegment, Colors } from 'lattice-ui-kit';
 import { useGoToRoute } from 'lattice-utils';
 import type { Organization, UUID } from 'lattice';
 
 import { Routes } from '../../core/router';
 import { Header } from '../headers';
 
-const UserIcon = styled(FontAwesomeIcon).attrs({
-  icon: faUser
-})`
+const { NEUTRAL } = Colors;
+
+const OrgSummarySection = styled.div`
+  color: ${NEUTRAL.N800};
+  display: grid;
+  grid-gap: 8px;
+`;
+
+const MembersIcon = styled(FontAwesomeIcon).attrs({ icon: faUserFriends })`
   margin-right: 10px;
 `;
 
@@ -36,11 +42,13 @@ const SimpleOrganizationCard = ({ organization } :Props) => {
     <Card id={organizationId} onClick={goToOrganization}>
       <CardSegment>
         <Header align="start" as="h3">{organization.title}</Header>
-        <div>
-          <UserIcon />
-          <span>{organization.members.length}</span>
-        </div>
-        <div>{organization.description}</div>
+        <OrgSummarySection>
+          <div>
+            <MembersIcon />
+            <span>{organization.members.length}</span>
+          </div>
+          <div>{organization.description}</div>
+        </OrgSummarySection>
       </CardSegment>
     </Card>
   );
