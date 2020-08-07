@@ -16,10 +16,8 @@ import type { RequestState } from 'redux-reqseq';
 
 import { ModalBodyMinWidth } from '../../../components';
 import { ReduxActions } from '../../../core/redux';
-import { REDUCERS } from '../../../core/redux/constants';
+import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { PersonUtils } from '../../../utils';
-
-const { ActionTypes } = Types;
 
 const {
   ADD_MEMBER_TO_ORGANIZATION,
@@ -30,6 +28,7 @@ const {
 
 const { getUserId, getUserProfileLabel } = PersonUtils;
 const { resetRequestState } = ReduxActions;
+const { ActionTypes } = Types;
 
 type Props = {
   action :?ActionType;
@@ -50,8 +49,8 @@ const AddOrRemoveOrgMemberModal = ({
 } :Props) => {
 
   const dispatch = useDispatch();
-  const addMemberRS :?RequestState = useRequestState([REDUCERS.ORGS, ADD_MEMBER_TO_ORGANIZATION]);
-  const removeMemberRS :?RequestState = useRequestState([REDUCERS.ORGS, REMOVE_MEMBER_FROM_ORGANIZATION]);
+  const addMemberRS :?RequestState = useRequestState([ORGANIZATIONS, ADD_MEMBER_TO_ORGANIZATION]);
+  const removeMemberRS :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_MEMBER_FROM_ORGANIZATION]);
 
   let actionRS :RequestState;
   if (action === ActionTypes.ADD) {

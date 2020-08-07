@@ -6,7 +6,14 @@ import { connectRouter } from 'connected-react-router/immutable';
 import { AuthReducer } from 'lattice-auth';
 import { combineReducers } from 'redux-immutable';
 
-import { REDUCERS } from './constants';
+import {
+  APP,
+  AUTH,
+  EDM,
+  ORGANIZATIONS,
+  PERMISSIONS,
+  USERS,
+} from './constants';
 
 import { AppReducer } from '../../containers/app';
 import { OrgsReducer } from '../../containers/orgs';
@@ -17,12 +24,12 @@ import { UsersReducer } from '../users';
 export default function reduxReducer(routerHistory :any) {
 
   return combineReducers({
-    [REDUCERS.APP]: AppReducer,
-    [REDUCERS.AUTH]: AuthReducer,
-    [REDUCERS.EDM]: EDMReducer,
-    [REDUCERS.ORGS]: OrgsReducer,
-    [REDUCERS.PERMISSIONS]: PermissionsReducer,
-    [REDUCERS.USERS]: UsersReducer,
+    [APP]: AppReducer,
+    [AUTH]: AuthReducer,
+    [EDM]: EDMReducer,
+    [ORGANIZATIONS]: OrgsReducer,
+    [PERMISSIONS]: PermissionsReducer,
+    [USERS]: UsersReducer,
     router: connectRouter(routerHistory),
   });
 }

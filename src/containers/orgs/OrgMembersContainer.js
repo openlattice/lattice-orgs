@@ -31,15 +31,19 @@ import {
 } from './components';
 
 import { SearchForm } from '../../components';
-import { INITIAL_SEARCH_RESULTS, MEMBERS, REDUCERS } from '../../core/redux/constants';
+import {
+  INITIAL_SEARCH_RESULTS,
+  MEMBERS,
+  ORGANIZATIONS,
+  USERS,
+} from '../../core/redux/constants';
 import { UsersActions } from '../../core/users';
 import { PersonUtils } from '../../utils';
-
-const { ActionTypes } = Types;
 
 const { GET_ORGANIZATION_MEMBERS } = OrganizationsApiActions;
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
+const { ActionTypes } = Types;
 const { isNonEmptyString } = LangUtils;
 const { filterUser, getUserId, sortByProfileLabel } = PersonUtils;
 const { isValidUUID } = ValidationUtils;
@@ -82,10 +86,10 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
   const [targetMember, setTargetMember] = useState();
   const [targetRole, setTargetRole] = useState<Role | void>();
 
-  const getOrganizationMembersRS :?RequestState = useRequestState([REDUCERS.ORGS, GET_ORGANIZATION_MEMBERS]);
-  const searchAllUsersRS :?RequestState = useRequestState([REDUCERS.USERS, SEARCH_ALL_USERS]);
+  const getOrganizationMembersRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_MEMBERS]);
+  const searchAllUsersRS :?RequestState = useRequestState([USERS, SEARCH_ALL_USERS]);
 
-  const organizationMembers :List = useSelector((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId], List()));
+  const organizationMembers :List = useSelector((s) => s.getIn([ORGANIZATIONS, MEMBERS, organizationId], List()));
 
   const sortedMembers :List = useMemo(() => (
     organizationMembers.sort(sortByProfileLabel)
@@ -102,7 +106,7 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
     organizationMembers.map((member) => getUserId(member)).toSet()
   ), [organizationMembers]);
 
-  const userSearchResults :Map = useSelector((s) => s.getIn([REDUCERS.USERS, 'userSearchResults'], Map()));
+  const userSearchResults :Map = useSelector((s) => s.getIn([USERS, 'userSearchResults'], Map()));
   const searchAttempt = !INITIAL_SEARCH_RESULTS.equals(userSearchResults) && isNonEmptyString(searchQuery);
 
   const nonMembers = useMemo(() => (

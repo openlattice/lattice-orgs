@@ -17,18 +17,13 @@ import {
   OrganizationsApiActions,
   OrganizationsApiSagas,
 } from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { Logger, ReduxUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  ENTITY_SETS,
-  MEMBERS,
-  ORGANIZATIONS,
-  REDUCERS,
-} from '../../../core/redux/constants';
+import { ENTITY_SETS, MEMBERS, ORGANIZATIONS } from '../../../core/redux/constants';
 import { AxiosUtils } from '../../../utils';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../OrgsActions';
 import type { AuthorizationObject } from '../../../types';
@@ -42,6 +37,7 @@ const {
   OrganizationBuilder,
 } = Models;
 const { PermissionTypes } = Types;
+const { selectOrganization } = ReduxUtils;
 
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
@@ -63,9 +59,9 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     const organizationId :UUID = action.value;
 
-    let organization :?Organization = yield select((s) => s.getIn([REDUCERS.ORGS, ORGANIZATIONS, organizationId]));
-    const members :?Map = yield select((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId]));
-    const entitySets :?Map = yield select((s) => s.getIn([REDUCERS.ORGS, ENTITY_SETS, organizationId]));
+    let organization :?Organization = yield select(selectOrganization(organizationId));
+    const members :?Map = yield select((s) => s.getIn([ORGANIZATIONS, MEMBERS, organizationId]));
+    const entitySets :?Map = yield select((s) => s.getIn([ORGANIZATIONS, ENTITY_SETS, organizationId]));
 
     // TODO - figure out how to "expire" stored data
     let getOrganizationCall = call(() => {});

@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
 import { Header, SimpleOrganizationCard } from '../../components';
-import { ORGANIZATIONS, REDUCERS } from '../../core/redux/constants';
+import { ORGANIZATIONS, ORGS } from '../../core/redux/constants';
 
 const CardGrid = styled.div`
   display: grid;
@@ -30,7 +30,7 @@ const CardGrid = styled.div`
 
 const OrgsContainer = () => {
 
-  const organizations :Map<UUID, Organization> = useSelector((s) => s.getIn([REDUCERS.ORGS, ORGANIZATIONS]));
+  const organizations :Map<UUID, Organization> = useSelector((s) => s.getIn([ORGANIZATIONS, ORGS]));
 
   return (
     <AppContentWrapper>
