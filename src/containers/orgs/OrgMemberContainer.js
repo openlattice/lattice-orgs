@@ -27,7 +27,7 @@ import {
   SpaceBetweenCardSegment,
 } from '../../components';
 import { PermissionsActions } from '../../core/permissions';
-import { REDUCERS } from '../../core/redux/constants';
+import { PERMISSIONS } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
 import { PersonUtils } from '../../utils';
 
@@ -62,9 +62,9 @@ const OrgMemberContainer = ({ member, organization, organizationId } :Props) => 
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
 
-  const getEntitySetsWithPermissionsRS :?RequestState = useRequestState([
-    REDUCERS.PERMISSIONS, GET_ENTITY_SETS_WITH_PERMISSIONS
-  ]);
+  const getEntitySetsWithPermissionsRS :?RequestState = useRequestState(
+    [PERMISSIONS, GET_ENTITY_SETS_WITH_PERMISSIONS]
+  );
 
   const orgPath = Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId);
 

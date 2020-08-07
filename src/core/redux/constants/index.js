@@ -6,34 +6,27 @@ import { Map, fromJS } from 'immutable';
 import { ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 
-const { EDM, REQUEST_STATE } = ReduxConstants;
-
-const APP :'app' = 'app';
-const AUTH :'auth' = 'auth';
-const DATA :'data' = 'data';
-const ORGS :'orgs' = 'orgs';
-const PERMISSIONS :'permissions' = 'permissions';
-const USERS :'users' = 'users';
-
-const REDUCERS = {
+export const {
   APP,
   AUTH,
   DATA,
   EDM,
+  ENTITY_SETS,
+  ENTITY_SETS_INDEX_MAP,
+  ENTITY_TYPES,
+  ENTITY_TYPES_INDEX_MAP,
+  ERROR,
+  MEMBERS,
+  ORGANIZATIONS,
   ORGS,
   PERMISSIONS,
+  PROPERTY_TYPES,
+  PROPERTY_TYPES_INDEX_MAP,
+  REQUEST_STATE,
   USERS,
-};
+} = ReduxConstants;
 
-export {
-  REDUCERS,
-};
-
-export const ENTITY_SETS :'entitySets' = 'entitySets';
-export const ERROR :'error' = 'error';
 export const IS_OWNER :'isOwner' = 'isOwner';
-export const MEMBERS :'members' = 'members';
-export const ORGANIZATIONS :'organizations' = 'organizations';
 
 // TODO: does this belong here?
 export const INITIAL_SEARCH_RESULTS :Map = fromJS({ initial: true });

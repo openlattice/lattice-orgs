@@ -4,13 +4,12 @@
 
 import { Map, fromJS } from 'immutable';
 import { PrincipalsApiActions } from 'lattice-sagas';
-import { ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { RESET_USER_SEARCH_RESULTS } from './UsersActions';
 
-import { INITIAL_SEARCH_RESULTS, RS_INITIAL_STATE } from '../redux/constants';
+import { INITIAL_SEARCH_RESULTS, REQUEST_STATE, RS_INITIAL_STATE } from '../redux/constants';
 
 const {
   GET_ALL_USERS,
@@ -18,8 +17,6 @@ const {
   getAllUsers,
   searchAllUsers,
 } = PrincipalsApiActions;
-
-const { REQUEST_STATE } = ReduxConstants;
 
 const INITIAL_STATE :Map = fromJS({
   [GET_ALL_USERS]: RS_INITIAL_STATE,

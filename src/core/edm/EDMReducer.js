@@ -5,7 +5,7 @@
 import { List, Map, fromJS } from 'immutable';
 import { Models } from 'lattice';
 import { EntitySetsApiActions } from 'lattice-sagas';
-import { Logger, ReduxConstants } from 'lattice-utils';
+import { Logger } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { EntitySet, EntityTypeObject, PropertyTypeObject } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
@@ -15,7 +15,12 @@ import {
   getEntityDataModelTypes,
 } from './EDMActions';
 
-import { RS_INITIAL_STATE } from '../redux/constants';
+import {
+  ENTITY_SETS,
+  ENTITY_SETS_INDEX_MAP,
+  REQUEST_STATE,
+  RS_INITIAL_STATE,
+} from '../redux/constants';
 
 const LOG = new Logger('EDMReducer');
 
@@ -31,12 +36,6 @@ const {
   getEntitySet,
   getEntitySets,
 } = EntitySetsApiActions;
-
-const {
-  ENTITY_SETS,
-  ENTITY_SETS_INDEX_MAP,
-  REQUEST_STATE,
-} = ReduxConstants;
 
 const INITIAL_STATE :Map = fromJS({
   // actions

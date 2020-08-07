@@ -28,7 +28,7 @@ import { INITIALIZE_APPLICATION, initializeApplication } from './AppActions';
 
 import { OpenLatticeIconSVG } from '../../assets/svg/icons';
 import { BasicErrorComponent } from '../../components';
-import { REDUCERS } from '../../core/redux/constants';
+import { APP } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
 import { OrgsRouter } from '../orgs';
 
@@ -53,7 +53,7 @@ const AppContainer = () => {
     dispatch(initializeApplication());
   }, [dispatch]);
 
-  const initAppRS :?RequestState = useRequestState([REDUCERS.APP, INITIALIZE_APPLICATION]);
+  const initAppRS :?RequestState = useRequestState([APP, INITIALIZE_APPLICATION]);
 
   const userInfo = AuthUtils.getUserInfo() || {};
   let user :?string = null;

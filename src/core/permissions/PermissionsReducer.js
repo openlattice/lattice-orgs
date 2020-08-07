@@ -3,7 +3,6 @@
  */
 
 import { Map, fromJS } from 'immutable';
-import { ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 
 import {
@@ -12,10 +11,9 @@ import {
 } from './PermissionsActions';
 
 import { ReduxActions } from '../redux';
-import { ERROR, RS_INITIAL_STATE } from '../redux/constants';
+import { ERROR, REQUEST_STATE, RS_INITIAL_STATE } from '../redux/constants';
 
 const { RESET_REQUEST_STATE } = ReduxActions;
-const { REQUEST_STATE } = ReduxConstants;
 
 const INITIAL_STATE :Map = fromJS({
   [GET_ENTITY_SETS_WITH_PERMISSIONS]: RS_INITIAL_STATE,

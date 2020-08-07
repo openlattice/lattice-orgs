@@ -6,7 +6,7 @@ import React, { useEffect } from 'react';
 
 import { Map } from 'immutable';
 import { AppContentWrapper, Spinner } from 'lattice-ui-kit';
-import { RoutingUtils, useRequestState } from 'lattice-utils';
+import { ReduxUtils, RoutingUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch, useRouteMatch } from 'react-router';
 import { RequestStates } from 'redux-reqseq';
@@ -20,18 +20,13 @@ import { INITIALIZE_ORGANIZATION, initializeOrganization } from './OrgsActions';
 
 import { BasicErrorComponent } from '../../components';
 import { ReduxActions } from '../../core/redux';
-import {
-  IS_OWNER,
-  MEMBERS,
-  ORGANIZATIONS,
-  REDUCERS,
-} from '../../core/redux/constants';
+import { IS_OWNER, MEMBERS, ORGANIZATIONS } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
 import { PersonUtils } from '../../utils';
 
-const { resetRequestState } = ReduxActions;
-
 const { getPrincipalId } = PersonUtils;
+const { resetRequestState } = ReduxActions;
+const { selectOrganization } = ReduxUtils;
 const { getParamFromMatch } = RoutingUtils;
 
 const OrgsRouter = () => {
@@ -53,12 +48,11 @@ const OrgsRouter = () => {
     organizationId = getParamFromMatch(matchOrganization, Routes.ORG_ID_PARAM);
   }
 
-  const initializeOrganizationRS :?RequestState = useRequestState([REDUCERS.ORGS, INITIALIZE_ORGANIZATION]);
+  const initializeOrganizationRS :?RequestState = useRequestState([ORGANIZATIONS, INITIALIZE_ORGANIZATION]);
+  const organization :?Organization = useSelector(selectOrganization(organizationId));
 
-  const isOwner :boolean = useSelector((s) => s.getIn([REDUCERS.ORGS, IS_OWNER, organizationId]));
-  const organization :?Organization = useSelector((s) => s.getIn([REDUCERS.ORGS, ORGANIZATIONS, organizationId]));
-
-  const members :Map = useSelector((s) => s.getIn([REDUCERS.ORGS, MEMBERS, organizationId], Map()));
+  const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organizationId]));
+  const members :Map = useSelector((s) => s.getIn([ORGANIZATIONS, MEMBERS, organizationId], Map()));
   const member :?Map = members.find((m :Map) => getPrincipalId(m) === memberSPID);
 
   useEffect(() => {
@@ -112,8 +106,8 @@ const OrgsRouter = () => {
 
   return (
     <Switch>
-      <Route exact path={Routes.ORG} render={renderOrgContainer} />
       <Route exact path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
+      <Route path={Routes.ORG} render={renderOrgContainer} />
       <Route path={Routes.ORGS} component={OrgsContainer} />
     </Switch>
   );

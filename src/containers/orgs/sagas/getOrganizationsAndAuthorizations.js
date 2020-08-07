@@ -20,8 +20,6 @@ import { AxiosUtils } from '../../../utils';
 import { GET_ORGANIZATIONS_AND_AUTHORIZATIONS, getOrganizationsAndAuthorizations } from '../OrgsActions';
 import type { AuthorizationObject } from '../../../types';
 
-const LOG = new Logger('OrgsSagas');
-
 const { AccessCheck, AccessCheckBuilder } = Models;
 const { PermissionTypes } = Types;
 
@@ -29,6 +27,8 @@ const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 const { getAllOrganizations } = OrganizationsApiActions;
 const { getAllOrganizationsWorker } = OrganizationsApiSagas;
+
+const LOG = new Logger('OrgsSagas');
 
 function* getOrganizationsAndAuthorizationsWorker(action :SequenceAction) :Saga<WorkerResponse> {
 

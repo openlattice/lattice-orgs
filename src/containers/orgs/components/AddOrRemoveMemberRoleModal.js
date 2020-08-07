@@ -16,10 +16,8 @@ import type { RequestState } from 'redux-reqseq';
 
 import { ModalBodyMinWidth } from '../../../components';
 import { ReduxActions } from '../../../core/redux';
-import { REDUCERS } from '../../../core/redux/constants';
+import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { PersonUtils } from '../../../utils';
-
-const { ActionTypes } = Types;
 
 const {
   ADD_ROLE_TO_MEMBER,
@@ -30,6 +28,7 @@ const {
 
 const { getUserId, getUserProfileLabel } = PersonUtils;
 const { resetRequestState } = ReduxActions;
+const { ActionTypes } = Types;
 
 type Props = {
   action :?ActionType;
@@ -52,16 +51,14 @@ const AddOrRemoveMemberRoleModal = ({
 } :Props) => {
 
   const dispatch = useDispatch();
-  const addRoleRS :?RequestState = useRequestState([REDUCERS.ORGS, ADD_ROLE_TO_MEMBER]);
-  const removeRoleRS :?RequestState = useRequestState([REDUCERS.ORGS, REMOVE_ROLE_FROM_MEMBER]);
+  const addRoleRS :?RequestState = useRequestState([ORGANIZATIONS, ADD_ROLE_TO_MEMBER]);
+  const removeRoleRS :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_ROLE_FROM_MEMBER]);
 
-  let actionRS :RequestState;
+  let actionRS :?RequestState;
   if (action === ActionTypes.ADD) {
-    // $FlowFixMe - ActionModal
     actionRS = addRoleRS;
   }
   else if (action === ActionTypes.REMOVE) {
-    // $FlowFixMe - ActionModal
     actionRS = removeRoleRS;
   }
 
