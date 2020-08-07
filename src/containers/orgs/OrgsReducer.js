@@ -5,16 +5,19 @@
 import { List, Map, fromJS } from 'immutable';
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import { ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { OrganizationObject, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
+  ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATIONS_AND_AUTHORIZATIONS,
   INITIALIZE_ORGANIZATION,
+  REMOVE_ROLE_FROM_ORGANIZATION,
+  addRoleToOrganization,
   getOrganizationsAndAuthorizations,
   initializeOrganization,
+  removeRoleFromOrganization,
 } from './OrgsActions';
 
 import { ReduxActions } from '../../core/redux';
@@ -23,7 +26,8 @@ import {
   ERROR,
   IS_OWNER,
   MEMBERS,
-  ORGANIZATIONS,
+  ORGS,
+  REQUEST_STATE,
   RS_INITIAL_STATE,
 } from '../../core/redux/constants';
 import { PersonUtils } from '../../utils';
@@ -54,24 +58,25 @@ const {
 } = OrganizationsApiActions;
 
 const { RESET_REQUEST_STATE } = ReduxActions;
-const { REQUEST_STATE } = ReduxConstants;
 const { getUserId } = PersonUtils;
 
 const INITIAL_STATE :Map = fromJS({
   // actions
   [ADD_MEMBER_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [ADD_ROLE_TO_MEMBER]: RS_INITIAL_STATE,
+  [ADD_ROLE_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_MEMBER_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
+  [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   // data
   [ENTITY_SETS]: Map(),
   [IS_OWNER]: Map(),
   [MEMBERS]: Map(),
-  [ORGANIZATIONS]: Map(),
+  [ORGS]: Map(),
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
@@ -108,7 +113,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
               principal: { principal: memberPrincipal.toImmutable() },
             });
 
-            const currentOrg :Organization = state.getIn([ORGANIZATIONS, organizationId]);
+            const currentOrg :Organization = state.getIn([ORGS, organizationId]);
             const updatedOrg :Map = currentOrg
               .toImmutable()
               .update(MEMBERS, (members :List = List()) => members.push(memberPrincipal));
@@ -118,7 +123,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
                 [MEMBERS, organizationId],
                 (members :List = List()) => members.push(orgMemberObject),
               )
-              .setIn([ORGANIZATIONS, organizationId], (new OrganizationBuilder(updatedOrg)).build())
+              .setIn([ORGS, organizationId], (new OrganizationBuilder(updatedOrg)).build())
               .setIn([ADD_MEMBER_TO_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
           }
           return state;
@@ -145,7 +150,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
             const { memberId, organizationId, roleId } = storedSeqAction.value;
 
-            const targetOrg :Organization = state.getIn([ORGANIZATIONS, organizationId]);
+            const targetOrg :Organization = state.getIn([ORGS, organizationId]);
             const targetRole :?Role = targetOrg.roles.find((role) => role.id === roleId);
             const targetMemberIndex :number = state
               .getIn([MEMBERS, organizationId], List())
@@ -169,6 +174,38 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           return state;
         },
         FINALLY: () => state.deleteIn([ADD_ROLE_TO_MEMBER, seqAction.id]),
+      });
+    }
+
+    case addRoleToOrganization.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return addRoleToOrganization.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([ADD_ROLE_TO_ORGANIZATION, REQUEST_STATE], RequestStates.PENDING)
+          .setIn([ADD_ROLE_TO_ORGANIZATION, seqAction.id], seqAction),
+        SUCCESS: () => {
+          if (state.hasIn([ADD_ROLE_TO_ORGANIZATION, seqAction.id])) {
+
+            const role :Role = seqAction.value;
+            const org :Organization = state.getIn([ORGS, role.organizationId]);
+            const updatedRoles = [...org.roles, role];
+            const updatedOrg = (new OrganizationBuilder(org))
+              .setRoles(updatedRoles)
+              .build();
+
+            return state
+              .setIn([ORGS, role.organizationId], updatedOrg)
+              .setIn([ADD_ROLE_TO_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => {
+          if (state.hasIn([ADD_ROLE_TO_ORGANIZATION, seqAction.id])) {
+            return state.setIn([ADD_ROLE_TO_ORGANIZATION, REQUEST_STATE], RequestStates.FAILURE);
+          }
+          return state;
+        },
+        FINALLY: () => state.deleteIn([ADD_ROLE_TO_ORGANIZATION, seqAction.id]),
       });
     }
 
@@ -197,7 +234,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
             return state
               .set(IS_OWNER, isOwnerMap.asImmutable())
-              .set(ORGANIZATIONS, organizationsMap.asImmutable())
+              .set(ORGS, organizationsMap.asImmutable())
               .setIn([GET_ORGANIZATIONS_AND_AUTHORIZATIONS, REQUEST_STATE], RequestStates.SUCCESS);
           }
           return state;
@@ -205,7 +242,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
         FAILURE: () => {
           if (state.hasIn([GET_ORGANIZATIONS_AND_AUTHORIZATIONS, seqAction.id])) {
             return state
-              .set(ORGANIZATIONS, Map())
+              .set(ORGS, Map())
               .setIn([GET_ORGANIZATIONS_AND_AUTHORIZATIONS, REQUEST_STATE], RequestStates.FAILURE);
           }
           return state;
@@ -285,7 +322,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
             const organization = (new OrganizationBuilder(seqAction.value.organization)).build();
             return state
               .setIn([IS_OWNER, organization.id], seqAction.value.isOwner)
-              .setIn([ORGANIZATIONS, organization.id], organization)
+              .setIn([ORGS, organization.id], organization)
               .setIn([INITIALIZE_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
           }
           return state;
@@ -313,7 +350,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           if (storedSeqAction) {
 
             const { memberId, organizationId } = storedSeqAction.value;
-            const currentOrg :Organization = state.getIn([ORGANIZATIONS, organizationId]);
+            const currentOrg :Organization = state.getIn([ORGS, organizationId]);
             const updatedOrg :Map = currentOrg
               .toImmutable()
               .update(
@@ -326,7 +363,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
                 [MEMBERS, organizationId],
                 (members :List = List()) => members.filter((member :Map) => getUserId(member) !== memberId),
               )
-              .setIn([ORGANIZATIONS, organizationId], (new OrganizationBuilder(updatedOrg)).build())
+              .setIn([ORGS, organizationId], (new OrganizationBuilder(updatedOrg)).build())
               .setIn([REMOVE_MEMBER_FROM_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
           }
           return state;
@@ -378,6 +415,44 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           return state;
         },
         FINALLY: () => state.deleteIn([REMOVE_ROLE_FROM_MEMBER, seqAction.id]),
+      });
+    }
+
+    case removeRoleFromOrganization.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return removeRoleFromOrganization.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([REMOVE_ROLE_FROM_ORGANIZATION, REQUEST_STATE], RequestStates.PENDING)
+          .setIn([REMOVE_ROLE_FROM_ORGANIZATION, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([REMOVE_ROLE_FROM_ORGANIZATION, seqAction.id]);
+          if (storedSeqAction) {
+
+            const {
+              organizationId,
+              roleId,
+            } :{|
+              organizationId :UUID;
+              roleId :UUID;
+            |} = storedSeqAction.value;
+
+            const org :Organization = state.getIn([ORGS, organizationId]);
+            const updatedRoles = org.roles.filter((role) => role.id !== roleId);
+            const updatedOrg = (new OrganizationBuilder(org)).setRoles(updatedRoles).build();
+
+            return state
+              .setIn([ORGS, organizationId], updatedOrg)
+              .setIn([REMOVE_ROLE_FROM_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => {
+          if (state.hasIn([REMOVE_ROLE_FROM_ORGANIZATION, seqAction.id])) {
+            return state.setIn([REMOVE_ROLE_FROM_ORGANIZATION, REQUEST_STATE], RequestStates.FAILURE);
+          }
+          return state;
+        },
+        FINALLY: () => state.deleteIn([REMOVE_ROLE_FROM_ORGANIZATION, seqAction.id]),
       });
     }
 
