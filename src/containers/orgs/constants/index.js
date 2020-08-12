@@ -1,3 +1,7 @@
+/*
+ * @flow
+ */
+
 const DBMS_TYPES = {
   'IMC/Pervasive SQL': {
     connection: 'pervasive',
@@ -211,4 +215,22 @@ const DBMS_TYPES = {
   }
 };
 
-export default DBMS_TYPES;
+const TEMPLATE_CONSTANTS = {
+  ORG_ID: '<orgId>',
+  ORG_NAME: '<orgName>',
+  ORG_NAME_CLEAN: '<orgNameClean>',
+  ORG_PASSWORD: '<orgPassword>',
+  ORG_USERNAME: '<orgUsername>',
+  SQL_STATEMENT: '<sqlStatement>',
+  TARGET_CONNECTION: '<targetConnection>',
+  TARGET_CONNECTION_SUFFIX: '<targetConnectionSuffix>',
+  TARGET_DATABASE: '<targetDatabase>',
+  TARGET_PORT: '<targetPort>',
+  TARGET_SERVER: '<targetServer>',
+  TARGET_SQL_DRIVER: '<targetSQLDriver>',
+};
+
+export {
+  DBMS_TYPES,
+  TEMPLATE_CONSTANTS,
+};

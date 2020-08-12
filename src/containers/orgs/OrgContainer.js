@@ -15,6 +15,7 @@ import type { UUID } from 'lattice';
 
 import OrgMembersContainer from './OrgMembersContainer';
 import OrgRolesContainer from './OrgRolesContainer';
+import OrgSettingsContainer from './OrgSettingsContainer';
 
 import { Header } from '../../components';
 import { Routes } from '../../core/router';
@@ -32,6 +33,7 @@ const OrgContainer = ({ isOwner, organization, organizationId } :Props) => {
 
   const orgPath = Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId);
   const rolesPath = Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId);
+  const settingsPath = Routes.ORG_SETTINGS.replace(Routes.ORG_ID_PARAM, organizationId);
 
   const renderPeopleContainer = () => (
     <OrgMembersContainer isOwner={isOwner} organization={organization} organizationId={organizationId} />
@@ -39,6 +41,10 @@ const OrgContainer = ({ isOwner, organization, organizationId } :Props) => {
 
   const renderRolesContainer = () => (
     <OrgRolesContainer isOwner={isOwner} organization={organization} organizationId={organizationId} />
+  );
+
+  const renderSettingsContainer = () => (
+    <OrgSettingsContainer isOwner={isOwner} organization={organization} organizationId={organizationId} />
   );
 
   return (
@@ -58,13 +64,14 @@ const OrgContainer = ({ isOwner, organization, organizationId } :Props) => {
       </AppContentWrapper>
       <AppContentWrapper bgColor="white" padding="0">
         <AppNavigationWrapper borderless>
-          <NavLink to={orgPath}>People</NavLink>
-          <NavLink to={rolesPath}>Roles</NavLink>
+          <NavLink exact to={orgPath}>People</NavLink>
+          <NavLink exact to={rolesPath}>Roles</NavLink>
+          <NavLink exact to={settingsPath}>Settings</NavLink>
         </AppNavigationWrapper>
       </AppContentWrapper>
       <Switch>
-        <Route path={Routes.ORG_MEMBERS} render={renderPeopleContainer} />
         <Route path={Routes.ORG_ROLES} render={renderRolesContainer} />
+        <Route path={Routes.ORG_SETTINGS} render={renderSettingsContainer} />
         <Route path={Routes.ORG} render={renderPeopleContainer} />
       </Switch>
     </>

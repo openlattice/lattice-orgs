@@ -26,6 +26,7 @@ export const {
   USERS,
 } = ReduxConstants;
 
+export const INTEGRATION_ACCOUNTS :'integrationAccounts' = 'integrationAccounts';
 export const IS_OWNER :'isOwner' = 'isOwner';
 
 // TODO: does this belong here?

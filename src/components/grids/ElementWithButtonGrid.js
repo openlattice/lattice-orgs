@@ -12,7 +12,7 @@ const getComputedStyles = ({ fitContent } :Props) => {
 
   let gtc = '1fr auto';
   if (fitContent) {
-    gtc = 'max-content min-content';
+    gtc = 'fit-content(100%) min-content';
   }
 
   return css`
