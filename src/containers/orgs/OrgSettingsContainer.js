@@ -78,6 +78,7 @@ const Pre = styled.pre`
   margin: 0;
   overflow-wrap: break-word;
   white-space: normal;
+  word-break: break-word;
 `;
 
 const GenerateIntegrationConfigButton = styled(Button)`

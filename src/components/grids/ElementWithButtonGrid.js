@@ -23,7 +23,7 @@ const getComputedStyles = ({ fitContent } :Props) => {
 const ElementWithButtonGrid = styled.div`
   align-items: center;
   display: grid;
-  grid-gap: 8px;
+  grid-gap: 16px;
   ${getComputedStyles}
 `;
 
