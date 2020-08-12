@@ -5,6 +5,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
+import { faSearch } from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map, Set } from 'immutable';
 import { Types } from 'lattice';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
@@ -14,6 +16,8 @@ import {
   CardStack,
   Checkbox,
   ChoiceGroup,
+  IconButton,
+  SearchInput,
   Spinner,
 } from 'lattice-ui-kit';
 import { LangUtils, ValidationUtils, useRequestState } from 'lattice-utils';
@@ -29,7 +33,7 @@ import {
   NonMemberCard,
 } from './components';
 
-import { SearchForm } from '../../components';
+import { ElementWithButtonGrid } from '../../components';
 import {
   INITIAL_SEARCH_RESULTS,
   MEMBERS,
@@ -118,7 +122,8 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
     dispatch(resetUserSearchResults());
   }, []);
 
-  const handleOnChangeUserSearch = (valueOfSearchQuery :string) => {
+  const handleOnChangeUserSearch = (event :SyntheticInputEvent<HTMLInputElement>) => {
+    const valueOfSearchQuery = event.target.value || '';
     if (!isNonEmptyString(valueOfSearchQuery)) {
       dispatch(resetUserSearchResults());
     }
@@ -168,7 +173,9 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
     setTargetMember();
   };
 
-  const searchUsers = () => {
+  const handleOnSubmitSearchUsers = (event :SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
     if (isOwner && isNonEmptyString(searchQuery)) {
       dispatch(searchAllUsers(searchQuery));
     }
@@ -215,11 +222,14 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
         </SelectionSection>
         <PeopleSection>
           <PeopleSectionControls>
-            <SearchForm
-                isPending={searchAllUsersRS === RequestStates.PENDING}
-                onChange={handleOnChangeUserSearch}
-                onSearch={searchUsers}
-                placeholder="Filter members or search users..." />
+            <form onSubmit={handleOnSubmitSearchUsers}>
+              <ElementWithButtonGrid>
+                <SearchInput onChange={handleOnChangeUserSearch} placeholder="Filter members or search users..." />
+                <IconButton isLoading={searchAllUsersRS === RequestStates.PENDING} type="submit">
+                  <FontAwesomeIcon fixedWidth icon={faSearch} />
+                </IconButton>
+              </ElementWithButtonGrid>
+            </form>
           </PeopleSectionControls>
           {
             searchAttempt && nonMembers.isEmpty() && (
