@@ -7,7 +7,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { List, Map, Set } from 'immutable';
 import { Types } from 'lattice';
-import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
@@ -111,11 +110,7 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
 
   const nonMembers = useMemo(() => (
     userSearchResults
-      .filter((user :Map) => {
-        const thisUserInfo :Object = AuthUtils.getUserInfo() || {};
-        const userId :string = getUserId(user);
-        return userId !== thisUserInfo.id && !memberIds.has(userId);
-      })
+      .filter((user) => !memberIds.has(getUserId(user)))
       .toList()
   ), [memberIds, userSearchResults]);
 
