@@ -10,10 +10,8 @@ import {
   getEntitySetsWithPermissions,
 } from './PermissionsActions';
 
-import { ReduxActions } from '../redux';
+import { RESET_REQUEST_STATE } from '../redux/actions';
 import { ERROR, REQUEST_STATE, RS_INITIAL_STATE } from '../redux/constants';
-
-const { RESET_REQUEST_STATE } = ReduxActions;
 
 const INITIAL_STATE :Map = fromJS({
   [GET_ENTITY_SETS_WITH_PERMISSIONS]: RS_INITIAL_STATE,
