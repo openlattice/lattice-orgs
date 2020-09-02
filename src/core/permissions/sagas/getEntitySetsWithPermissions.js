@@ -45,7 +45,7 @@ function* getEntitySetsWithPermissionsWorker(action :SequenceAction) :Saga<*> {
     } = action.value;
 
     // TODO - figure out how to "expire" stored data
-    const entitySets :Map<UUID, EntitySet> = yield select(selectEntitySets<EntitySet>(entitySetIds));
+    const entitySets :Map<UUID, EntitySet> = yield select(selectEntitySets(entitySetIds));
     const missingEntitySetIds :Set<UUID> = Set(entitySetIds).subtract(entitySets.keySeq());
 
     // let entitySets = {};
