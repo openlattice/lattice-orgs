@@ -17,6 +17,7 @@ import type { Saga } from '@redux-saga/core';
 import * as EDMSagas from '../edm/EDMSagas';
 import * as RoutingSagas from '../router/RoutingSagas';
 import { AppSagas } from '../../containers/app';
+import { OrgSagas } from '../../containers/org';
 import { OrgsSagas } from '../../containers/orgs';
 import { PermissionsSagas } from '../permissions';
 
@@ -68,10 +69,12 @@ export default function* sagas() :Saga<*> {
     fork(EDMSagas.getEntityDataModelTypesWatcher),
 
     // OrgSagas
-    fork(OrgsSagas.addRoleToOrganizationWatcher),
-    fork(OrgsSagas.initializeOrganizationWatcher),
+    fork(OrgSagas.addRoleToOrganizationWatcher),
+    fork(OrgSagas.initializeOrganizationWatcher),
+    fork(OrgSagas.removeRoleFromOrganizationWatcher),
+
+    // OrgSagas
     fork(OrgsSagas.getOrganizationsAndAuthorizationsWatcher),
-    fork(OrgsSagas.removeRoleFromOrganizationWatcher),
 
     // PermissionsSagas
     fork(PermissionsSagas.getEntitySetsWithPermissionsWatcher),

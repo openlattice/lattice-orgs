@@ -3,7 +3,8 @@ import { List, OrderedMap } from 'immutable';
 
 import { INVALID_PARAMS } from './InvalidParams';
 
-import { ERR_ACTION_VALUE_NOT_DEFINED, ERR_INVALID_ACTION } from '../Errors';
+const ERR_ACTION_VALUE_NOT_DEFINED = 'invalid parameter: action.value is required and must be defined';
+const ERR_INVALID_ACTION = 'invalid parameter: action must be a valid SequenceAction';
 
 export const GENERATOR_FUNCTION_TAG = '[object GeneratorFunction]';
 export const GENERATOR_TAG = '[object Generator]';
