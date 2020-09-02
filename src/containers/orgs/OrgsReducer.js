@@ -10,17 +10,11 @@ import type { OrganizationObject, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
-  ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATIONS_AND_AUTHORIZATIONS,
-  INITIALIZE_ORGANIZATION,
-  REMOVE_ROLE_FROM_ORGANIZATION,
-  addRoleToOrganization,
   getOrganizationsAndAuthorizations,
-  initializeOrganization,
-  removeRoleFromOrganization,
-} from './OrgsActions';
+} from './actions';
 
-import { ReduxActions } from '../../core/redux';
+import { RESET_REQUEST_STATE } from '../../core/redux/actions';
 import {
   ENTITY_SETS,
   ERROR,
@@ -32,6 +26,14 @@ import {
   RS_INITIAL_STATE,
 } from '../../core/redux/constants';
 import { PersonUtils } from '../../utils';
+import {
+  ADD_ROLE_TO_ORGANIZATION,
+  INITIALIZE_ORGANIZATION,
+  REMOVE_ROLE_FROM_ORGANIZATION,
+  addRoleToOrganization,
+  initializeOrganization,
+  removeRoleFromOrganization,
+} from '../org/actions';
 import type { AuthorizationObject } from '../../types';
 
 const {
@@ -60,7 +62,6 @@ const {
   removeRoleFromMember,
 } = OrganizationsApiActions;
 
-const { RESET_REQUEST_STATE } = ReduxActions;
 const { getUserId } = PersonUtils;
 
 const INITIAL_STATE :Map = fromJS({

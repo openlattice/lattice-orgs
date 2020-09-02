@@ -33,15 +33,24 @@ import {
   NonMemberCard,
 } from './components';
 
-import { ElementWithButtonGrid } from '../../components';
+import {
+  CrumbItem,
+  CrumbLink,
+  Crumbs,
+  Divider,
+  ElementWithButtonGrid,
+  Header,
+} from '../../../components';
 import {
   INITIAL_SEARCH_RESULTS,
+  IS_OWNER,
   MEMBERS,
   ORGANIZATIONS,
   USERS,
-} from '../../core/redux/constants';
-import { UsersActions } from '../../core/users';
-import { PersonUtils } from '../../utils';
+} from '../../../core/redux/constants';
+import { Routes } from '../../../core/router';
+import { UsersActions } from '../../../core/users';
+import { PersonUtils } from '../../../utils';
 
 const { GET_ORGANIZATION_MEMBERS } = OrganizationsApiActions;
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
@@ -73,13 +82,15 @@ const PeopleSectionControls = styled.div`
   grid-gap: 8px;
 `;
 
+const MEMBERS_DESCRIPTION = 'People can be granted data permissions on an individual level or by an assigned role.'
+  + ' Click on a role to manage its people or datasets.';
+
 type Props = {
-  isOwner :boolean;
   organization :Organization;
   organizationId :UUID;
 };
 
-const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) => {
+const OrgMembersContainer = ({ organization, organizationId } :Props) => {
 
   const dispatch = useDispatch();
 
@@ -92,6 +103,7 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
   const getOrganizationMembersRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_MEMBERS]);
   const searchAllUsersRS :?RequestState = useRequestState([USERS, SEARCH_ALL_USERS]);
 
+  const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organizationId]));
   const organizationMembers :List = useSelector((s) => s.getIn([ORGANIZATIONS, MEMBERS, organizationId], List()));
 
   const sortedMembers :List = useMemo(() => (
@@ -202,8 +214,17 @@ const OrgMembersContainer = ({ isOwner, organization, organizationId } :Props) =
     );
   }
 
+  const orgPath = Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId);
+
   return (
     <AppContentWrapper>
+      <Crumbs>
+        <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+        <CrumbItem>Members</CrumbItem>
+      </Crumbs>
+      <Header as="h2">Members</Header>
+      <span>{MEMBERS_DESCRIPTION}</span>
+      <Divider margin={48} />
       <ContainerGrid>
         <SelectionSection>
           <ChoiceGroup>

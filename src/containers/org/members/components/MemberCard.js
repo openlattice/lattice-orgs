@@ -18,9 +18,9 @@ import { Logger, ValidationUtils } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import type { UUID } from 'lattice';
 
-import { SpaceBetweenCardSegment } from '../../../components';
-import { Routes, RoutingActions } from '../../../core/router';
-import { PersonUtils } from '../../../utils';
+import { SpaceBetweenCardSegment } from '../../../../components';
+import { Routes, RoutingActions } from '../../../../core/router';
+import { PersonUtils } from '../../../../utils';
 
 const { PrincipalTypes } = Types;
 

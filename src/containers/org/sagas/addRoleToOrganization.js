@@ -11,7 +11,7 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { ADD_ROLE_TO_ORGANIZATION, addRoleToOrganization } from '../OrgsActions';
+import { ADD_ROLE_TO_ORGANIZATION, addRoleToOrganization } from '../actions';
 
 const {
   Principal,

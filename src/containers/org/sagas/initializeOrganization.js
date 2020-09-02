@@ -25,7 +25,7 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { ENTITY_SETS, MEMBERS, ORGANIZATIONS } from '../../../core/redux/constants';
 import { AxiosUtils } from '../../../utils';
-import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../OrgsActions';
+import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
 import type { AuthorizationObject } from '../../../types';
 
 const LOG = new Logger('OrgsSagas');

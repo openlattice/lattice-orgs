@@ -6,45 +6,32 @@ import React from 'react';
 
 import { faLandmark } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Models } from 'lattice';
 import { AppContentWrapper, AppNavigationWrapper } from 'lattice-ui-kit';
 import { LangUtils } from 'lattice-utils';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import type { UUID } from 'lattice';
+import type { Organization, UUID } from 'lattice';
 
-import OrgMembersContainer from './OrgMembersContainer';
-import OrgRolesContainer from './OrgRolesContainer';
-import OrgSettingsContainer from './OrgSettingsContainer';
+import { OrgSettingsContainer } from './settings';
 
 import { Header } from '../../components';
 import { Routes } from '../../core/router';
 
-const { Organization } = Models;
 const { isNonEmptyString } = LangUtils;
 
 type Props = {
-  isOwner :boolean;
   organization :Organization;
   organizationId :UUID;
 };
 
-const OrgContainer = ({ isOwner, organization, organizationId } :Props) => {
+const OrgContainer = ({ organization, organizationId } :Props) => {
 
-  const orgPath = Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId);
+  const membersPath = Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId);
   const rolesPath = Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId);
   const settingsPath = Routes.ORG_SETTINGS.replace(Routes.ORG_ID_PARAM, organizationId);
 
-  const renderPeopleContainer = () => (
-    <OrgMembersContainer isOwner={isOwner} organization={organization} organizationId={organizationId} />
-  );
-
-  const renderRolesContainer = () => (
-    <OrgRolesContainer isOwner={isOwner} organization={organization} organizationId={organizationId} />
-  );
-
   const renderSettingsContainer = () => (
-    <OrgSettingsContainer isOwner={isOwner} organization={organization} organizationId={organizationId} />
+    <OrgSettingsContainer organization={organization} organizationId={organizationId} />
   );
 
   return (
@@ -64,15 +51,13 @@ const OrgContainer = ({ isOwner, organization, organizationId } :Props) => {
       </AppContentWrapper>
       <AppContentWrapper bgColor="white" padding="0">
         <AppNavigationWrapper borderless>
-          <NavLink exact to={orgPath}>People</NavLink>
+          <NavLink exact to={membersPath}>Members</NavLink>
           <NavLink exact to={rolesPath}>Roles</NavLink>
           <NavLink exact to={settingsPath}>Settings</NavLink>
         </AppNavigationWrapper>
       </AppContentWrapper>
       <Switch>
-        <Route path={Routes.ORG_ROLES} render={renderRolesContainer} />
         <Route path={Routes.ORG_SETTINGS} render={renderSettingsContainer} />
-        <Route path={Routes.ORG} render={renderPeopleContainer} />
       </Switch>
     </>
   );

@@ -17,28 +17,40 @@ import {
   Input,
 } from 'lattice-ui-kit';
 import { LangUtils } from 'lattice-utils';
+import { useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
 import { AddOrRemoveOrgRoleModal } from './components';
 
-import { ElementWithButtonGrid, Header, SpaceBetweenCardSegment } from '../../components';
+import {
+  CrumbItem,
+  CrumbLink,
+  Crumbs,
+  Divider,
+  ElementWithButtonGrid,
+  Header,
+  SpaceBetweenCardSegment,
+} from '../../../components';
+import { IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
+import { Routes } from '../../../core/router';
 
 const { ActionTypes } = Types;
 const { isNonEmptyString } = LangUtils;
 
 type Props = {
-  isOwner :boolean;
   organization :Organization;
   organizationId :UUID;
 };
 
-const OrgRolesContainer = ({ isOwner, organization, organizationId } :Props) => {
+const OrgRolesContainer = ({ organization, organizationId } :Props) => {
 
   const [addOrRemoveOrgRoleAction, setAddOrRemoveOrgRoleAction] = useState();
   const [isValidRoleTitle, setIsValidRoleTitle] = useState(true);
   const [isVisibleAddOrRemoveOrgRoleModal, setIsVisibleAddOrRemoveOrgRoleModal] = useState(false);
   const [roleTitle, setRoleTitle] = useState('');
   const [roleToRemove, setRoleToRemove] = useState();
+
+  const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organizationId]));
 
   const roleTitlesSet :Set<string> = useMemo(() => (
     Set(organization.roles.map((role :Role) => role.title))
@@ -86,9 +98,16 @@ const OrgRolesContainer = ({ isOwner, organization, organizationId } :Props) => 
     setRoleToRemove();
   };
 
+  const orgPath = Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId);
+
   return (
     <AppContentWrapper>
-      <Header as="h3">Roles</Header>
+      <Crumbs>
+        <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+        <CrumbItem>Roles</CrumbItem>
+      </Crumbs>
+      <Header as="h2">Roles</Header>
+      <Divider margin={48} />
       <form onSubmit={handleOnSubmitAddRole}>
         <ElementWithButtonGrid>
           <Input

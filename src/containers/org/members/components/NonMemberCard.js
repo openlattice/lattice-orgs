@@ -9,8 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map } from 'immutable';
 import { Card, IconButton } from 'lattice-ui-kit';
 
-import { SpaceBetweenCardSegment } from '../../../components';
-import { PersonUtils } from '../../../utils';
+import { SpaceBetweenCardSegment } from '../../../../components';
+import { PersonUtils } from '../../../../utils';
 
 const { getUserId, getUserProfileLabel } = PersonUtils;
 

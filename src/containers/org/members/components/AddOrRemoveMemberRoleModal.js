@@ -4,50 +4,54 @@
 
 import React, { useMemo } from 'react';
 
+import { Map } from 'immutable';
 import { Types } from 'lattice';
+import { OrganizationsApiActions } from 'lattice-sagas';
 import { ActionModal } from 'lattice-ui-kit';
 import { Logger, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { ActionType, UUID } from 'lattice';
+import type { ActionType, Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { ModalBodyMinWidth } from '../../../components';
-import { ReduxActions } from '../../../core/redux';
-import { ORGANIZATIONS } from '../../../core/redux/constants';
-import {
-  ADD_ROLE_TO_ORGANIZATION,
-  REMOVE_ROLE_FROM_ORGANIZATION,
-  addRoleToOrganization,
-  removeRoleFromOrganization,
-} from '../OrgsActions';
+import { ModalBodyMinWidth } from '../../../../components';
+import { resetRequestState } from '../../../../core/redux/actions';
+import { ORGANIZATIONS } from '../../../../core/redux/constants';
+import { PersonUtils } from '../../../../utils';
 
-const { resetRequestState } = ReduxActions;
+const {
+  ADD_ROLE_TO_MEMBER,
+  REMOVE_ROLE_FROM_MEMBER,
+  addRoleToMember,
+  removeRoleFromMember,
+} = OrganizationsApiActions;
+
+const { getUserId, getUserProfileLabel } = PersonUtils;
 const { ActionTypes } = Types;
 
 type Props = {
   action :?ActionType;
   isOwner :boolean;
+  member :Map;
   onClose :() => void;
   organizationId :UUID;
-  roleId :?UUID;
-  roleTitle :string;
+  role :Role;
 };
 
-const LOG = new Logger('AddOrRemoveOrgRoleModal');
+const LOG = new Logger('AddOrRemoveMemberRoleModal');
 
-const AddOrRemoveOrgRoleModal = ({
+const AddOrRemoveMemberRoleModal = ({
   action,
   isOwner,
+  member,
   onClose,
   organizationId,
-  roleId,
-  roleTitle,
+  role,
 } :Props) => {
 
   const dispatch = useDispatch();
-  const addRoleRS :?RequestState = useRequestState([ORGANIZATIONS, ADD_ROLE_TO_ORGANIZATION]);
-  const removeRoleRS :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_ROLE_FROM_ORGANIZATION]);
+  const addRoleRS :?RequestState = useRequestState([ORGANIZATIONS, ADD_ROLE_TO_MEMBER]);
+  const removeRoleRS :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_ROLE_FROM_MEMBER]);
 
   let actionRS :?RequestState;
   if (action === ActionTypes.ADD) {
@@ -59,54 +63,58 @@ const AddOrRemoveOrgRoleModal = ({
 
   const modalTitle = useMemo(() => {
     if (action === ActionTypes.ADD) {
-      return 'Add Role To Organization';
+      return 'Add Role To Member';
     }
     if (action === ActionTypes.REMOVE) {
-      return 'Remove Role From Organization';
+      return 'Remove Role From Member';
     }
     return '';
   }, [action]);
 
+  const memberId :string = getUserId(member);
+  const userProfileLabel :string = getUserProfileLabel(member) || memberId;
   const rsComponents = useMemo(() => ({
     [RequestStates.STANDBY]: (
       <ModalBodyMinWidth>
         <span>
           {
             action === ActionTypes.ADD && (
-              `Are you sure you want to add ${roleTitle} to this organization?`
+              `Are you sure you want to add ${role.title} to ${userProfileLabel}?`
             )
           }
           {
             action === ActionTypes.REMOVE && (
-              `Are you sure you want to remove ${roleTitle} from this organization?`
+              `Are you sure you want to remove ${role.title} from ${userProfileLabel}?`
             )
           }
         </span>
       </ModalBodyMinWidth>
     ),
-  }), [action, roleTitle]);
+  }), [action, userProfileLabel, role]);
 
   const handleOnClickPrimary = () => {
     if (isOwner) {
       if (action === ActionTypes.ADD) {
         dispatch(
-          addRoleToOrganization({
+          addRoleToMember({
+            memberId,
             organizationId,
-            roleTitle,
+            roleId: role.id,
           })
         );
       }
       else if (action === ActionTypes.REMOVE) {
         dispatch(
-          removeRoleFromOrganization({
-            roleId,
+          removeRoleFromMember({
+            memberId,
             organizationId,
+            roleId: role.id,
           })
         );
       }
     }
     else {
-      LOG.warn('only owners can change organization members');
+      LOG.warn('only owners can change member roles');
     }
   };
 
@@ -114,8 +122,8 @@ const AddOrRemoveOrgRoleModal = ({
     onClose();
     // the timeout avoids rendering the modal with new state before the transition animation finishes
     setTimeout(() => {
-      dispatch(resetRequestState([ADD_ROLE_TO_ORGANIZATION]));
-      dispatch(resetRequestState([REMOVE_ROLE_FROM_ORGANIZATION]));
+      dispatch(resetRequestState([ADD_ROLE_TO_MEMBER]));
+      dispatch(resetRequestState([REMOVE_ROLE_FROM_MEMBER]));
     }, 1000);
   };
 
@@ -130,4 +138,4 @@ const AddOrRemoveOrgRoleModal = ({
   );
 };
 
-export default AddOrRemoveOrgRoleModal;
+export default AddOrRemoveMemberRoleModal;

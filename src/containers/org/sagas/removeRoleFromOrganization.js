@@ -14,7 +14,7 @@ import type { Saga } from '@redux-saga/core';
 import type { Organization, Role, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { REMOVE_ROLE_FROM_ORGANIZATION, removeRoleFromOrganization } from '../OrgsActions';
+import { REMOVE_ROLE_FROM_ORGANIZATION, removeRoleFromOrganization } from '../actions';
 
 const { deleteRole } = OrganizationsApiActions;
 const { deleteRoleWorker } = OrganizationsApiSagas;

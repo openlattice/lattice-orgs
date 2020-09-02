@@ -21,11 +21,10 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { DBMS_TYPES } from './constants';
-import { generateIntegrationConfig } from './utils';
-
-import { CopyButton, ElementWithButtonGrid, Header } from '../../components';
-import { INTEGRATION_ACCOUNTS, ORGANIZATIONS } from '../../core/redux/constants';
+import { CopyButton, ElementWithButtonGrid, Header } from '../../../components';
+import { INTEGRATION_ACCOUNTS, IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
+import { DBMS_TYPES } from '../constants';
+import { generateIntegrationConfig } from '../utils';
 
 const { GET_ORGANIZATION_INTEGRATION_ACCOUNT, getOrganizationIntegrationAccount } = OrganizationsApiActions;
 
@@ -95,12 +94,11 @@ type FormData = {
 };
 
 type Props = {
-  isOwner :boolean;
   organization :Organization;
   organizationId :UUID;
 };
 
-const OrgSettingsContainer = ({ isOwner, organizationId, organization } :Props) => {
+const OrgSettingsContainer = ({ organizationId, organization } :Props) => {
 
   const dispatch = useDispatch();
 
@@ -109,6 +107,7 @@ const OrgSettingsContainer = ({ isOwner, organizationId, organization } :Props) 
 
   const getIntegrationAccountRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_ACCOUNT]);
 
+  const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organizationId]));
   const integrationAccount :?Map = useSelector((s) => s.getIn([ORGANIZATIONS, INTEGRATION_ACCOUNTS, organizationId]));
   const integrationCredential :string = get(integrationAccount, 'credential', '');
   const integrationUser :string = get(integrationAccount, 'user', '');
