@@ -30,7 +30,8 @@ import { OpenLatticeIconSVG } from '../../assets/svg/icons';
 import { BasicErrorComponent } from '../../components';
 import { APP } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
-import { OrgsRouter } from '../orgs';
+import { OrgRouter } from '../org';
+import { OrgsContainer } from '../orgs';
 
 // import { GOOGLE_TRACKING_ID } from '../../core/tracking/google/GoogleAnalytics';
 
@@ -93,7 +94,8 @@ const AppContainer = () => {
             {
               initAppRS === RequestStates.SUCCESS && (
                 <Switch>
-                  <Route path={Routes.ORGS} component={OrgsRouter} />
+                  <Route path={Routes.ORG} component={OrgRouter} />
+                  <Route path={Routes.ORGS} component={OrgsContainer} />
                   <Redirect to={Routes.ORGS} />
                 </Switch>
               )
