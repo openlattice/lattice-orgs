@@ -85,15 +85,22 @@ const OrgRouter = () => {
   if (initializeOrganizationRS === RequestStates.SUCCESS && organization && organizationId) {
 
     const renderOrgContainer = () => (
-      <OrgContainer organization={organization} organizationId={organizationId} />
+      // NOTE: flow is complaining... why do I have to do this?
+      (organization && organizationId)
+        ? <OrgContainer organization={organization} organizationId={organizationId} />
+        : null
     );
 
     const renderOrgMembersContainer = () => (
-      <OrgMembersContainer organization={organization} organizationId={organizationId} />
+      (organization && organizationId)
+        ? <OrgMembersContainer organization={organization} organizationId={organizationId} />
+        : null
     );
 
     const renderOrgRolesContainer = () => (
-      <OrgRolesContainer organization={organization} organizationId={organizationId} />
+      (organization && organizationId)
+        ? <OrgRolesContainer organization={organization} organizationId={organizationId} />
+        : null
     );
 
     return (
