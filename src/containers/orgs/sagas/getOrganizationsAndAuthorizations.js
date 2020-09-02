@@ -17,7 +17,7 @@ import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { AxiosUtils } from '../../../utils';
-import { GET_ORGANIZATIONS_AND_AUTHORIZATIONS, getOrganizationsAndAuthorizations } from '../OrgsActions';
+import { GET_ORGANIZATIONS_AND_AUTHORIZATIONS, getOrganizationsAndAuthorizations } from '../actions';
 import type { AuthorizationObject } from '../../../types';
 
 const { AccessCheck, AccessCheckBuilder } = Models;
