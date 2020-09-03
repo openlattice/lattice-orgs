@@ -10,6 +10,7 @@ import {
   Button,
   CardStack,
   Input,
+  PaginationToolbar,
 } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
@@ -18,18 +19,32 @@ import { ElementWithButtonGrid, Header, SimpleOrganizationCard } from '../../com
 import { ORGANIZATIONS, ORGS } from '../../core/redux/constants';
 import { CreateOrgModal } from '../org/components';
 
+const MAX_PER_PAGE = 10;
+
 const OrgsContainer = () => {
 
   const [isVisibleAddOrgModal, setIsVisibleCreateOrgModal] = useState(false);
   const [orgFilterQuery, setOrgFilterQuery] = useState('');
+  const [paginationIndex, setPaginationIndex] = useState(0);
+  const [paginationPage, setPaginationPage] = useState(0);
 
   const organizations :Map<UUID, Organization> = useSelector((s) => s.getIn([ORGANIZATIONS, ORGS]));
   const filteredOrganizations = organizations.filter((org :Organization, orgId :UUID) => (
     org && (orgFilterQuery === orgId || org.title.toLowerCase().includes(orgFilterQuery))
   ));
+  const filteredOrganizationsCount = filteredOrganizations.count();
+  const pageOrganizations :Map<UUID, Organization> = filteredOrganizations.slice(
+    paginationIndex,
+    paginationIndex + MAX_PER_PAGE,
+  );
 
   const handleOnChangeOrgFilter = (event :SyntheticInputEvent<HTMLInputElement>) => {
     setOrgFilterQuery(event.target.value || '');
+  };
+
+  const handleOnPageChange = ({ page, start }) => {
+    setPaginationIndex(start);
+    setPaginationPage(page);
   };
 
   return (
@@ -43,10 +58,19 @@ const OrgsContainer = () => {
       </AppContentWrapper>
       <AppContentWrapper>
         {
-          !filteredOrganizations.isEmpty() && (
+          filteredOrganizationsCount > MAX_PER_PAGE && (
+            <PaginationToolbar
+                page={paginationPage}
+                count={filteredOrganizationsCount}
+                onPageChange={handleOnPageChange}
+                rowsPerPage={MAX_PER_PAGE} />
+          )
+        }
+        {
+          !pageOrganizations.isEmpty() && (
             <CardStack>
               {
-                filteredOrganizations.valueSeq().map((org :Organization) => (
+                pageOrganizations.valueSeq().map((org :Organization) => (
                   <SimpleOrganizationCard key={org.id} organization={org} />
                 ))
               }
