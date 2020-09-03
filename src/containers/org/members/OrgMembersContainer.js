@@ -17,6 +17,7 @@ import {
   CardStack,
   Checkbox,
   IconButton,
+  PaginationToolbar,
   SearchInput,
   Spinner,
 } from 'lattice-ui-kit';
@@ -62,6 +63,8 @@ const { filterUser, getUserId, sortByProfileLabel } = PersonUtils;
 const { isValidUUID } = ValidationUtils;
 const { resetUserSearchResults } = UsersActions;
 
+const MAX_PER_PAGE = 20;
+
 const ContainerGrid = styled.div`
   display: grid;
   grid-gap: 48px;
@@ -70,6 +73,7 @@ const ContainerGrid = styled.div`
 
 const RolesSection = styled.div`
   display: grid;
+  grid-auto-rows: min-content;
   grid-gap: 16px;
   grid-template-columns: 1fr;
   max-width: 288px;
@@ -105,6 +109,8 @@ const OrgMembersContainer = ({ organization, organizationId } :Props) => {
   const [addOrRemoveMemberRoleAction, setAddOrRemoveMemberRoleAction] = useState();
   const [addOrRemoveOrgMemberAction, setAddOrRemoveOrgMemberAction] = useState();
   const [isVisibleAddRoleModal, setIsVisibleAddRoleModal] = useState(false);
+  const [paginationIndex, setPaginationIndex] = useState(0);
+  const [paginationPage, setPaginationPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState();
   const [targetMember, setTargetMember] = useState();
   const [targetRole, setTargetRole] = useState<Role | void>();
@@ -148,6 +154,8 @@ const OrgMembersContainer = ({ organization, organizationId } :Props) => {
     if (!isNonEmptyString(valueOfSearchQuery)) {
       dispatch(resetUserSearchResults());
     }
+    setPaginationIndex(0);
+    setPaginationPage(0);
     setSearchQuery(valueOfSearchQuery);
   };
 
@@ -202,8 +210,19 @@ const OrgMembersContainer = ({ organization, organizationId } :Props) => {
     }
   };
 
+  const filteredOrganizationsCount = sortedFilteredMembers.count();
+  const pageMembers = sortedFilteredMembers.slice(
+    paginationIndex,
+    paginationIndex + MAX_PER_PAGE,
+  );
+
+  const handleOnPageChange = ({ page, start }) => {
+    setPaginationIndex(start);
+    setPaginationPage(page);
+  };
+
   const memberCards = useMemo(() => (
-    sortedFilteredMembers.map((member) => (
+    pageMembers.map((member) => (
       <MemberCard
           isOwner={isOwner}
           key={member.hashCode()}
@@ -213,7 +232,7 @@ const OrgMembersContainer = ({ organization, organizationId } :Props) => {
           organizationId={organizationId}
           roleId={targetRole && targetRole.id} />
     ))
-  ), [isOwner, organizationId, sortedFilteredMembers, targetRole]);
+  ), [isOwner, organizationId, pageMembers, targetRole]);
 
   if (getOrganizationMembersRS === RequestStates.PENDING) {
     return (
@@ -292,6 +311,15 @@ const OrgMembersContainer = ({ organization, organizationId } :Props) => {
             )
           }
           <CardStack>
+            {
+              filteredOrganizationsCount > MAX_PER_PAGE && (
+                <PaginationToolbar
+                    page={paginationPage}
+                    count={filteredOrganizationsCount}
+                    onPageChange={handleOnPageChange}
+                    rowsPerPage={MAX_PER_PAGE} />
+              )
+            }
             {memberCards}
           </CardStack>
         </PeopleSection>
