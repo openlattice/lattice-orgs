@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 
+import styled from 'styled-components';
 import { ActionModal, Input, Label } from 'lattice-ui-kit';
 import { LangUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
@@ -15,6 +16,11 @@ import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { CREATE_NEW_ORGANIZATION, createNewOrganization } from '../actions';
 
 const { isNonEmptyString } = LangUtils;
+
+const BodyGrid = styled.div`
+  display: grid;
+  grid-gap: 16px;
+`;
 
 type Props = {
   onClose :() => void;
@@ -62,15 +68,17 @@ const CreateOrgModal = ({ onClose } :Props) => {
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
-      <div>
+      <BodyGrid>
         <span>Enter a title for this organization and an optional description.</span>
-        <br />
-        <br />
-        <Label htmlFor="new-org-title">Title</Label>
-        <Input error={!isValidOrgTitle} onChange={handleOnChangeOrgTitle} />
-        <Label htmlFor="new-org-description">Description</Label>
-        <Input onChange={handleOnChangeOrgDescription} />
-      </div>
+        <div>
+          <Label htmlFor="new-org-title">Title</Label>
+          <Input error={!isValidOrgTitle} onChange={handleOnChangeOrgTitle} />
+        </div>
+        <div>
+          <Label htmlFor="new-org-description">Description</Label>
+          <Input onChange={handleOnChangeOrgDescription} />
+        </div>
+      </BodyGrid>
     ),
     [RequestStates.SUCCESS]: (
       <span>Success!</span>
