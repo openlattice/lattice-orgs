@@ -10,20 +10,15 @@ import type { OrganizationObject, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
-  ADD_ROLE_TO_ORGANIZATION,
   GET_ORGANIZATIONS_AND_AUTHORIZATIONS,
-  INITIALIZE_ORGANIZATION,
-  REMOVE_ROLE_FROM_ORGANIZATION,
-  addRoleToOrganization,
   getOrganizationsAndAuthorizations,
-  initializeOrganization,
-  removeRoleFromOrganization,
-} from './OrgsActions';
+} from './actions';
 
-import { ReduxActions } from '../../core/redux';
+import { RESET_REQUEST_STATE } from '../../core/redux/actions';
 import {
   ENTITY_SETS,
   ERROR,
+  INTEGRATION_ACCOUNTS,
   IS_OWNER,
   MEMBERS,
   ORGS,
@@ -31,6 +26,14 @@ import {
   RS_INITIAL_STATE,
 } from '../../core/redux/constants';
 import { PersonUtils } from '../../utils';
+import {
+  ADD_ROLE_TO_ORGANIZATION,
+  INITIALIZE_ORGANIZATION,
+  REMOVE_ROLE_FROM_ORGANIZATION,
+  addRoleToOrganization,
+  initializeOrganization,
+  removeRoleFromOrganization,
+} from '../org/actions';
 import type { AuthorizationObject } from '../../types';
 
 const {
@@ -46,18 +49,19 @@ const {
   ADD_MEMBER_TO_ORGANIZATION,
   ADD_ROLE_TO_MEMBER,
   GET_ORGANIZATION_ENTITY_SETS,
+  GET_ORGANIZATION_INTEGRATION_ACCOUNT,
   GET_ORGANIZATION_MEMBERS,
   REMOVE_MEMBER_FROM_ORGANIZATION,
   REMOVE_ROLE_FROM_MEMBER,
   addMemberToOrganization,
   addRoleToMember,
   getOrganizationEntitySets,
+  getOrganizationIntegrationAccount,
   getOrganizationMembers,
   removeMemberFromOrganization,
   removeRoleFromMember,
 } = OrganizationsApiActions;
 
-const { RESET_REQUEST_STATE } = ReduxActions;
 const { getUserId } = PersonUtils;
 
 const INITIAL_STATE :Map = fromJS({
@@ -67,6 +71,7 @@ const INITIAL_STATE :Map = fromJS({
   [ADD_ROLE_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_ENTITY_SETS]: RS_INITIAL_STATE,
+  [GET_ORGANIZATION_INTEGRATION_ACCOUNT]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_MEMBER_FROM_ORGANIZATION]: RS_INITIAL_STATE,
@@ -74,6 +79,7 @@ const INITIAL_STATE :Map = fromJS({
   [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   // data
   [ENTITY_SETS]: Map(),
+  [INTEGRATION_ACCOUNTS]: Map(),
   [IS_OWNER]: Map(),
   [MEMBERS]: Map(),
   [ORGS]: Map(),
@@ -278,6 +284,36 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           return state;
         },
         FINALLY: () => state.deleteIn([GET_ORGANIZATION_ENTITY_SETS, seqAction.id]),
+      });
+    }
+
+    case getOrganizationIntegrationAccount.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return getOrganizationIntegrationAccount.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, REQUEST_STATE], RequestStates.PENDING)
+          .setIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :?SequenceAction = state.getIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, seqAction.id]);
+          if (storedSeqAction) {
+            const organizationId :UUID = storedSeqAction.value;
+            return state
+              .setIn([INTEGRATION_ACCOUNTS, organizationId], fromJS(seqAction.value))
+              .setIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, REQUEST_STATE], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => {
+          const storedSeqAction :?SequenceAction = state.getIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, seqAction.id]);
+          if (storedSeqAction) {
+            const organizationId :UUID = storedSeqAction.value;
+            return state
+              .deleteIn([INTEGRATION_ACCOUNTS, organizationId])
+              .setIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, REQUEST_STATE], RequestStates.FAILURE);
+          }
+          return state;
+        },
+        FINALLY: () => state.deleteIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, seqAction.id]),
       });
     }
 
