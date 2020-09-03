@@ -27,7 +27,6 @@ type Props = {
 const OrgContainer = ({ organization, organizationId } :Props) => {
 
   const membersPath = Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId);
-  const rolesPath = Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId);
   const settingsPath = Routes.ORG_SETTINGS.replace(Routes.ORG_ID_PARAM, organizationId);
 
   const renderSettingsContainer = () => (
@@ -52,7 +51,6 @@ const OrgContainer = ({ organization, organizationId } :Props) => {
       <AppContentWrapper bgColor="white" padding="0">
         <AppNavigationWrapper borderless>
           <NavLink exact to={membersPath}>Members</NavLink>
-          <NavLink exact to={rolesPath}>Roles</NavLink>
           <NavLink exact to={settingsPath}>Settings</NavLink>
         </AppNavigationWrapper>
       </AppContentWrapper>

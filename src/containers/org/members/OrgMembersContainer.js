@@ -12,10 +12,10 @@ import { Types } from 'lattice';
 import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
+  Button,
   CardSegment,
   CardStack,
   Checkbox,
-  ChoiceGroup,
   IconButton,
   SearchInput,
   Spinner,
@@ -29,6 +29,7 @@ import type { RequestState } from 'redux-reqseq';
 import {
   AddOrRemoveMemberRoleModal,
   AddOrRemoveOrgMemberModal,
+  AddRoleModal,
   MemberCard,
   NonMemberCard,
 } from './components';
@@ -67,8 +68,15 @@ const ContainerGrid = styled.div`
   grid-template-columns: 1fr 3fr;
 `;
 
-const SelectionSection = styled.section`
+const RolesSection = styled.div`
+  display: grid;
+  grid-gap: 16px;
+  grid-template-columns: 1fr;
   max-width: 288px;
+`;
+
+const RolesSectionHeader = styled(Header)`
+  justify-content: space-between;
 `;
 
 const PeopleSection = styled.section`
@@ -82,7 +90,7 @@ const PeopleSectionControls = styled.div`
   grid-gap: 8px;
 `;
 
-const MEMBERS_DESCRIPTION = 'People can be granted data permissions on an individual level or by an assigned role.'
+const MEMBERS_DESCRIPTION = 'Members can be granted data permissions on an individual level or by an assigned role.'
   + ' Click on a role to manage its people or datasets.';
 
 type Props = {
@@ -96,6 +104,7 @@ const OrgMembersContainer = ({ organization, organizationId } :Props) => {
 
   const [addOrRemoveMemberRoleAction, setAddOrRemoveMemberRoleAction] = useState();
   const [addOrRemoveOrgMemberAction, setAddOrRemoveOrgMemberAction] = useState();
+  const [isVisibleAddRoleModal, setIsVisibleAddRoleModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState();
   const [targetMember, setTargetMember] = useState();
   const [targetRole, setTargetRole] = useState<Role | void>();
@@ -226,21 +235,29 @@ const OrgMembersContainer = ({ organization, organizationId } :Props) => {
       <span>{MEMBERS_DESCRIPTION}</span>
       <Divider margin={48} />
       <ContainerGrid>
-        <SelectionSection>
-          <ChoiceGroup>
+        <RolesSection>
+          <RolesSectionHeader as="h4">
+            <span>Roles</span>
             {
-              organization.roles.map((role :Role) => (
-                <Checkbox
-                    checked={(targetRole && role.id === targetRole.id) || false}
-                    data-role-id={role.id}
-                    key={role.id}
-                    label={role.title}
-                    mode="button"
-                    onChange={handleOnChangeRoleCheckBox} />
-              ))
+              isOwner && (
+                <Button color="primary" onClick={() => setIsVisibleAddRoleModal(true)} variant="text">
+                  + Add Role
+                </Button>
+              )
             }
-          </ChoiceGroup>
-        </SelectionSection>
+          </RolesSectionHeader>
+          {
+            organization.roles.map((role :Role) => (
+              <Checkbox
+                  checked={(targetRole && role.id === targetRole.id) || false}
+                  data-role-id={role.id}
+                  key={role.id}
+                  label={role.title}
+                  mode="button"
+                  onChange={handleOnChangeRoleCheckBox} />
+            ))
+          }
+        </RolesSection>
         <PeopleSection>
           <PeopleSectionControls>
             <form onSubmit={handleOnSubmitSearchUsers}>
@@ -298,6 +315,15 @@ const OrgMembersContainer = ({ organization, organizationId } :Props) => {
               onClose={closeAddOrRemoveMemberRoleModal}
               organizationId={organizationId}
               role={targetRole} />
+        )
+      }
+      {
+        isVisibleAddRoleModal && (
+          <AddRoleModal
+              isOwner={isOwner}
+              onClose={() => setIsVisibleAddRoleModal(false)}
+              organizationId={organizationId}
+              organization={organization} />
         )
       }
     </AppContentWrapper>

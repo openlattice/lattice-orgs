@@ -33,9 +33,11 @@ function* addRoleToOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     const {
       organizationId,
+      roleDescription,
       roleTitle,
     } :{|
       organizationId :UUID;
+      roleDescription :string;
       roleTitle :string;
     |} = action.value;
 
@@ -49,6 +51,7 @@ function* addRoleToOrganizationWorker(action :SequenceAction) :Saga<*> {
       .build();
 
     const roleBuilder :RoleBuilder = (new RoleBuilder())
+      .setDescription(roleDescription)
       .setOrganizationId(organizationId)
       .setPrincipal(principal)
       .setTitle(roleTitle);
