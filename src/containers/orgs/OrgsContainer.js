@@ -2,51 +2,64 @@
  * @flow
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 
-import styled from 'styled-components';
 import { Map } from 'immutable';
-import { AppContentWrapper } from 'lattice-ui-kit';
+import {
+  AppContentWrapper,
+  Button,
+  CardStack,
+  Input,
+} from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
-import { Header, SimpleOrganizationCard } from '../../components';
+import { ElementWithButtonGrid, Header, SimpleOrganizationCard } from '../../components';
 import { ORGANIZATIONS, ORGS } from '../../core/redux/constants';
-
-const CardGrid = styled.div`
-  display: grid;
-  grid-gap: 30px;
-  grid-template-columns: 1fr;
-  margin-top: 50px;
-
-  @media only screen and (min-width: 500px) {
-    grid-template-columns: repeat(auto-fill, minmax(320px, auto));
-  }
-
-  > div {
-    min-width: 0;
-  }
-`;
+import { CreateOrgModal } from '../org/components';
 
 const OrgsContainer = () => {
 
+  const [isVisibleAddOrgModal, setIsVisibleCreateOrgModal] = useState(false);
+  const [orgFilterQuery, setOrgFilterQuery] = useState('');
+
   const organizations :Map<UUID, Organization> = useSelector((s) => s.getIn([ORGANIZATIONS, ORGS]));
+  const filteredOrganizations = organizations.filter((org :Organization, orgId :UUID) => (
+    org && (orgFilterQuery === orgId || org.title.toLowerCase().includes(orgFilterQuery))
+  ));
+
+  const handleOnChangeOrgFilter = (event :SyntheticInputEvent<HTMLInputElement>) => {
+    setOrgFilterQuery(event.target.value || '');
+  };
 
   return (
-    <AppContentWrapper>
-      <Header as="h2">Organizations</Header>
+    <>
+      <AppContentWrapper padding="48px 30px">
+        <Header as="h2">Organizations</Header>
+        <ElementWithButtonGrid>
+          <Input onChange={handleOnChangeOrgFilter} placeholder="Filter organizations" />
+          <Button color="primary" onClick={() => setIsVisibleCreateOrgModal(true)}>+ Create Organization</Button>
+        </ElementWithButtonGrid>
+      </AppContentWrapper>
+      <AppContentWrapper>
+        {
+          !filteredOrganizations.isEmpty() && (
+            <CardStack>
+              {
+                filteredOrganizations.valueSeq().map((org :Organization) => (
+                  <SimpleOrganizationCard key={org.id} organization={org} />
+                ))
+              }
+            </CardStack>
+          )
+        }
+      </AppContentWrapper>
       {
-        !organizations.isEmpty() && (
-          <CardGrid>
-            {
-              organizations.valueSeq().map((org :Organization) => (
-                <SimpleOrganizationCard key={org.id} organization={org} />
-              ))
-            }
-          </CardGrid>
+        isVisibleAddOrgModal && (
+          <CreateOrgModal onClose={() => setIsVisibleCreateOrgModal(false)} />
         )
       }
-    </AppContentWrapper>
+    </>
   );
 };
 
