@@ -23,7 +23,7 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@babel/polyfill": "~7.10.4",
+    "@babel/polyfill": "~7.11.5",
     "@babel/runtime": "~7.11.0",
     "@fortawesome/fontawesome-svg-core": "~1.2.0",
     "@fortawesome/free-solid-svg-icons": "~5.14.0",
@@ -60,7 +60,7 @@
     "validator": "~13.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "~7.10.4",
+    "@babel/cli": "~7.11.6",
     "@babel/core": "~7.11.0",
     "@babel/plugin-proposal-class-properties": "~7.10.4",
     "@babel/plugin-proposal-object-rest-spread": "~7.11.0",
@@ -68,7 +68,7 @@
     "@babel/preset-env": "~7.11.0",
     "@babel/preset-flow": "~7.10.4",
     "@babel/preset-react": "~7.10.4",
-    "@babel/register": "~7.10.4",
+    "@babel/register": "~7.11.5",
     "babel-eslint": "~10.1.0",
     "babel-jest": "~26.3.0",
     "babel-loader": "~8.1.0",
