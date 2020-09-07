@@ -17,13 +17,17 @@ import { Header } from '../headers';
 const { NEUTRAL } = Colors;
 
 const OrgSummarySection = styled.div`
-  color: ${NEUTRAL.N800};
   display: grid;
   grid-gap: 8px;
 `;
 
 const MembersIcon = styled(FontAwesomeIcon).attrs({ icon: faUserFriends })`
   margin-right: 10px;
+`;
+
+const OrgMetaSection = styled.div`
+  color: ${NEUTRAL.N500};
+  font-weight: normal;
 `;
 
 type Props = {
@@ -40,14 +44,14 @@ const SimpleOrganizationCard = ({ organization } :Props) => {
 
   return (
     <Card id={organizationId} onClick={goToOrganization}>
-      <CardSegment>
-        <Header align="start" as="h3">{organization.title}</Header>
+      <CardSegment padding="24px">
+        <Header align="start" as="h4">{organization.title}</Header>
         <OrgSummarySection>
-          <div>
+          <div><span>{organization.description}</span></div>
+          <OrgMetaSection>
             <MembersIcon />
             <span>{organization.members.length}</span>
-          </div>
-          <div>{organization.description}</div>
+          </OrgMetaSection>
         </OrgSummarySection>
       </CardSegment>
     </Card>
