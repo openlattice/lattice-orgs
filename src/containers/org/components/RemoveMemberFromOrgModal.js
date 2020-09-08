@@ -12,8 +12,8 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { resetRequestState } from '../../../../core/redux/actions';
-import { ORGANIZATIONS } from '../../../../core/redux/constants';
+import { resetRequestState } from '../../../core/redux/actions';
+import { ORGANIZATIONS } from '../../../core/redux/constants';
 
 const { REMOVE_MEMBER_FROM_ORGANIZATION, removeMemberFromOrganization } = OrganizationsApiActions;
 

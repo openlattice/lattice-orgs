@@ -9,10 +9,9 @@ import { Button, Checkbox } from 'lattice-ui-kit';
 import { Logger, ValidationUtils } from 'lattice-utils';
 import type { Organization, Role, UUID } from 'lattice';
 
-import AddRoleModal from './AddRoleModal';
-
-import { Header } from '../../../../components';
-import { ERR_INVALID_UUID } from '../../../../utils/constants/errors';
+import { Header } from '../../../components';
+import { ERR_INVALID_UUID } from '../../../utils/constants/errors';
+import { AddRoleModal } from '../components';
 
 const { isValidUUID } = ValidationUtils;
 

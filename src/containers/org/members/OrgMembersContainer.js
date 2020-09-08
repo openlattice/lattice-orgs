@@ -14,7 +14,8 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { MembersSection, RolesSection } from './components';
+import MembersSection from './MembersSection';
+import RolesSection from './RolesSection';
 
 import {
   CrumbItem,

@@ -19,11 +19,10 @@ import {
 import { PersonUtils } from 'lattice-utils';
 import type { Role, UUID } from 'lattice';
 
-import RemoveMemberFromOrgModal from './RemoveMemberFromOrgModal';
-
-import { ElementWithButtonGrid, Header } from '../../../../components';
-import { getUserProfileLabel } from '../../../../utils/PersonUtils';
-import { filterOrganizationMember, isRoleAssignedToMember } from '../../utils';
+import { ElementWithButtonGrid, Header } from '../../../components';
+import { getUserProfileLabel } from '../../../utils/PersonUtils';
+import { RemoveMemberFromOrgModal, RemoveRoleFromMemberModal } from '../components';
+import { filterOrganizationMember, isRoleAssignedToMember } from '../utils';
 
 const { getUserId } = PersonUtils;
 
@@ -68,14 +67,20 @@ const MembersSection = ({
 } :Props) => {
 
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState();
+  const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState();
   const [memberFilterQuery, setMemberFilterQuery] = useState('');
-  const [memberToRemove, setMemberToRemove] = useState();
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
+  const [targetMember, setTargetMember] = useState();
 
   const handleOnClickRemoveMember = (member :Map) => {
-    setMemberToRemove(member);
-    setIsVisibleRemoveMemberFromOrgModal(true);
+    setTargetMember(member);
+    if (selectedRole) {
+      setIsVisibleRemoveRoleFromMemberModal(true);
+    }
+    else {
+      setIsVisibleRemoveMemberFromOrgModal(true);
+    }
   };
 
   const handleOnChangeMemberFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
@@ -91,7 +96,7 @@ const MembersSection = ({
 
   const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
   const thisUserId = thisUserInfo.id;
-  const memberIdToRemove = getUserId(memberToRemove);
+  const targetMemberId = getUserId(targetMember);
 
   let filteredMembers = members;
   let memberSectionHeader = ALL_MEMBERS_HEADER;
@@ -135,12 +140,22 @@ const MembersSection = ({
         })
       }
       {
-        isOwner && isVisibleRemoveMemberFromOrgModal && memberIdToRemove && (
+        isOwner && isVisibleRemoveMemberFromOrgModal && targetMemberId && (
           <RemoveMemberFromOrgModal
-              member={getUserProfileLabel(memberToRemove)}
-              memberId={memberIdToRemove}
+              member={getUserProfileLabel(targetMember)}
+              memberId={targetMemberId}
               onClose={() => setIsVisibleRemoveMemberFromOrgModal(false)}
               organizationId={organizationId} />
+        )
+      }
+      {
+        isOwner && isVisibleRemoveRoleFromMemberModal && targetMemberId && selectedRole && (
+          <RemoveRoleFromMemberModal
+              member={getUserProfileLabel(targetMember)}
+              memberId={targetMemberId}
+              organizationId={organizationId}
+              onClose={() => setIsVisibleRemoveRoleFromMemberModal(false)}
+              roleId={(selectedRole.id :any)} />
         )
       }
     </MembersSectionGrid>
