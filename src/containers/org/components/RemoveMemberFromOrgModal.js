@@ -71,10 +71,7 @@ const RemoveMemberFromOrgModal = ({
         onClose={handleOnClose}
         requestState={removeMemberRS}
         requestStateComponents={rsComponents}
-        textTitle="Confirm Removal">
-      {/* NOTE: this is a temp workaround for the flow issue in LUK */}
-      <br />
-    </ActionModal>
+        textTitle="Confirm Removal" />
   );
 };
 

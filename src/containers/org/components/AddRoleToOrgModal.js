@@ -102,9 +102,7 @@ const AddRoleToOrgModal = ({
         requestState={addRoleRS}
         requestStateComponents={rsComponents}
         textPrimary="Add"
-        textTitle="Add Role">
-      <br />
-    </ActionModal>
+        textTitle="Add Role" />
   );
 };
 
