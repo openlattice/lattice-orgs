@@ -11,7 +11,7 @@ import type { Organization, Role, UUID } from 'lattice';
 
 import { Header } from '../../../components';
 import { ERR_INVALID_UUID } from '../../../utils/constants/errors';
-import { AddRoleModal } from '../components';
+import { AddRoleToOrgModal } from '../components';
 
 const { isValidUUID } = ValidationUtils;
 
@@ -44,7 +44,7 @@ const RolesSection = ({
   organizationId,
 } :Props) => {
 
-  const [isVisibleAddRoleModal, setIsVisibleAddRoleModal] = useState(false);
+  const [isVisibleAddRoleToOrgModal, setIsVisibleAddRoleToOrgModal] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState();
 
   const handleOnChangeRoleCheckBox = (event :SyntheticEvent<HTMLInputElement>) => {
@@ -70,7 +70,7 @@ const RolesSection = ({
         <span>Roles</span>
         {
           isOwner && (
-            <Button color="primary" onClick={() => setIsVisibleAddRoleModal(true)} variant="text">
+            <Button color="primary" onClick={() => setIsVisibleAddRoleToOrgModal(true)} variant="text">
               + Add Role
             </Button>
           )
@@ -88,9 +88,9 @@ const RolesSection = ({
         ))
       }
       {
-        isOwner && isVisibleAddRoleModal && (
-          <AddRoleModal
-              onClose={() => setIsVisibleAddRoleModal(false)}
+        isOwner && isVisibleAddRoleToOrgModal && (
+          <AddRoleToOrgModal
+              onClose={() => setIsVisibleAddRoleToOrgModal(false)}
               organization={organization}
               organizationId={organizationId} />
         )

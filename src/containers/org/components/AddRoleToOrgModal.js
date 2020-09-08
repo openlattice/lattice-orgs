@@ -24,7 +24,7 @@ type Props = {
   organizationId :UUID;
 };
 
-const AddRoleModal = ({
+const AddRoleToOrgModal = ({
   onClose,
   organization,
   organizationId,
@@ -108,4 +108,4 @@ const AddRoleModal = ({
   );
 };
 
-export default AddRoleModal;
+export default AddRoleToOrgModal;
