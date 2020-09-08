@@ -12,6 +12,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import { ModalBodyWidthHack } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { ADD_ROLE_TO_ORGANIZATION, addRoleToOrganization } from '../actions';
@@ -79,6 +80,7 @@ const AddRoleToOrgModal = ({
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <>
+        <ModalBodyWidthHack />
         <Label htmlFor="new-role-title">Title</Label>
         <Input
             disabled={addRoleRS === RequestStates.PENDING}
@@ -90,6 +92,18 @@ const AddRoleToOrgModal = ({
             disabled={addRoleRS === RequestStates.PENDING}
             id="new-role-description"
             onChange={handleOnChangeRoleDescription} />
+      </>
+    ),
+    [RequestStates.SUCCESS]: (
+      <>
+        <ModalBodyWidthHack />
+        <span>Success!</span>
+      </>
+    ),
+    [RequestStates.FAILURE]: (
+      <>
+        <ModalBodyWidthHack />
+        <span>Failed to add the role to this organization. Please try again.</span>
       </>
     ),
   };
