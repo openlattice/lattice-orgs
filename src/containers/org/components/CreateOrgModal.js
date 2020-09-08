@@ -96,10 +96,7 @@ const CreateOrgModal = ({ onClose } :Props) => {
         requestState={createOrganizationRS}
         requestStateComponents={rsComponents}
         textPrimary="Create"
-        textTitle="New Organization">
-      {/* NOTE: this is a temp workaround for the flow issue in LUK */}
-      <br />
-    </ActionModal>
+        textTitle="New Organization" />
   );
 };
 
