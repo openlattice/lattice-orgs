@@ -34,7 +34,6 @@ import { PersonUtils } from '../../utils';
 const { GET_ENTITY_SETS_WITH_PERMISSIONS } = PermissionsActions;
 
 const {
-  getUserId,
   getUserProfile,
   getUserProfileLabel,
 } = PersonUtils;
@@ -69,9 +68,9 @@ const OrgMemberContainer = ({ member, organization, organizationId } :Props) => 
   const orgPath = Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId);
 
   const userProfileLabel = getUserProfileLabel(member);
-  const userId = getUserId(member);
+  // const userId = getUserId(member);
   const profile = getUserProfile(member);
-  const memberNameTag = profile.name || userProfileLabel || userId;
+  const memberNameTag = profile.name || userProfileLabel;
 
   const roles = member
     .get('roles', List())

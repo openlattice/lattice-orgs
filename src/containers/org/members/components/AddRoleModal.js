@@ -6,30 +6,25 @@ import React, { useMemo, useState } from 'react';
 
 import { Set } from 'immutable';
 import { ActionModal, Input, Label } from 'lattice-ui-kit';
-import { LangUtils, Logger, useRequestState } from 'lattice-utils';
+import { LangUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { Organization, Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { ModalBodyMinWidth } from '../../../../components';
 import { resetRequestState } from '../../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../../core/redux/constants';
 import { ADD_ROLE_TO_ORGANIZATION, addRoleToOrganization } from '../../actions';
 
 const { isNonEmptyString } = LangUtils;
 
-const LOG = new Logger('AddRoleModal');
-
 type Props = {
-  isOwner :boolean;
   onClose :() => void;
   organization :Organization;
   organizationId :UUID;
 };
 
 const AddRoleModal = ({
-  isOwner,
   onClose,
   organization,
   organizationId,
@@ -67,28 +62,23 @@ const AddRoleModal = ({
   };
 
   const handleOnClickPrimary = () => {
-    if (isOwner) {
-      if (isNonEmptyString(roleTitle) && !roleTitlesSet.has(roleTitle)) {
-        dispatch(
-          addRoleToOrganization({
-            organizationId,
-            roleDescription,
-            roleTitle,
-          })
-        );
-      }
-      else {
-        setIsValidRoleTitle(false);
-      }
+    if (isNonEmptyString(roleTitle) && !roleTitlesSet.has(roleTitle)) {
+      dispatch(
+        addRoleToOrganization({
+          organizationId,
+          roleDescription,
+          roleTitle,
+        })
+      );
     }
     else {
-      LOG.error('only owners can add roles to an organization');
+      setIsValidRoleTitle(false);
     }
   };
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
-      <ModalBodyMinWidth>
+      <>
         <Label htmlFor="new-role-title">Title</Label>
         <Input
             disabled={addRoleRS === RequestStates.PENDING}
@@ -100,7 +90,7 @@ const AddRoleModal = ({
             disabled={addRoleRS === RequestStates.PENDING}
             id="new-role-description"
             onChange={handleOnChangeRoleDescription} />
-      </ModalBodyMinWidth>
+      </>
     ),
   };
 

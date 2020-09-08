@@ -2,7 +2,7 @@
  * @flow
  */
 
-import * as UsersActions from './UsersActions';
+import * as UsersActions from './actions';
 
 export { default as UsersReducer } from './UsersReducer';
 

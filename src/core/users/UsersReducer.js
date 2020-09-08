@@ -7,9 +7,15 @@ import { PrincipalsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { RESET_USER_SEARCH_RESULTS } from './UsersActions';
+import { RESET_USER_SEARCH_RESULTS } from './actions';
 
-import { INITIAL_SEARCH_RESULTS, REQUEST_STATE, RS_INITIAL_STATE } from '../redux/constants';
+import {
+  INITIAL_SEARCH_RESULTS,
+  REQUEST_STATE,
+  RS_INITIAL_STATE,
+  USERS,
+  USER_SEARCH_RESULTS,
+} from '../redux/constants';
 
 const {
   GET_ALL_USERS,
@@ -19,10 +25,12 @@ const {
 } = PrincipalsApiActions;
 
 const INITIAL_STATE :Map = fromJS({
+  // actions
   [GET_ALL_USERS]: RS_INITIAL_STATE,
   [SEARCH_ALL_USERS]: RS_INITIAL_STATE,
-  users: Map(),
-  userSearchResults: INITIAL_SEARCH_RESULTS,
+  // data
+  [USERS]: Map(),
+  [USER_SEARCH_RESULTS]: INITIAL_SEARCH_RESULTS,
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
@@ -30,7 +38,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
   switch (action.type) {
 
     case RESET_USER_SEARCH_RESULTS: {
-      return state.set('userSearchResults', INITIAL_SEARCH_RESULTS);
+      return state.set(USER_SEARCH_RESULTS, INITIAL_SEARCH_RESULTS);
     }
 
     case getAllUsers.case(action.type): {
@@ -40,7 +48,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           .setIn([GET_ALL_USERS, REQUEST_STATE], RequestStates.PENDING)
           .setIn([GET_ALL_USERS, seqAction.id], seqAction),
         SUCCESS: () => state
-          .set('users', fromJS(seqAction.value))
+          .set(USERS, fromJS(seqAction.value))
           .setIn([GET_ALL_USERS, REQUEST_STATE], RequestStates.SUCCESS),
         FAILURE: () => state.setIn([GET_ALL_USERS, REQUEST_STATE], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([GET_ALL_USERS, seqAction.id]),
@@ -54,10 +62,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           .setIn([SEARCH_ALL_USERS, REQUEST_STATE], RequestStates.PENDING)
           .setIn([SEARCH_ALL_USERS, seqAction.id], seqAction),
         SUCCESS: () => state
-          .set('userSearchResults', fromJS(seqAction.value))
+          .set(USER_SEARCH_RESULTS, fromJS(seqAction.value))
           .setIn([SEARCH_ALL_USERS, REQUEST_STATE], RequestStates.SUCCESS),
         FAILURE: () => state
-          .set('userSearchResults', Map())
+          .set(USER_SEARCH_RESULTS, Map())
           .setIn([SEARCH_ALL_USERS, REQUEST_STATE], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([SEARCH_ALL_USERS, seqAction.id]),
       });
