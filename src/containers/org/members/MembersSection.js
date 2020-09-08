@@ -115,7 +115,13 @@ const MembersSection = ({
       <MembersSectionHeader as="h4">{memberSectionHeader}</MembersSectionHeader>
       <ElementWithButtonGrid>
         <SearchInput onChange={handleOnChangeMemberFilterQuery} placeholder="Filter members" />
-        <Button color="primary" startIcon={PlusIcon}>Add Member</Button>
+        <Button color="primary" startIcon={PlusIcon}>
+          {
+            selectedRole
+              ? 'Assign'
+              : 'Add Member'
+          }
+        </Button>
       </ElementWithButtonGrid>
       {
         filteredMembersCount > MAX_PER_PAGE && (
