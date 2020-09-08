@@ -134,10 +134,7 @@ const AddOrRemoveMemberRoleModal = ({
         onClose={handleOnClose}
         requestState={actionRS}
         requestStateComponents={rsComponents}
-        textTitle={modalTitle}>
-      {/* NOTE: this is a temp workaround for the flow issue in LUK */}
-      <br />
-    </ActionModal>
+        textTitle={modalTitle} />
   );
 };
 
