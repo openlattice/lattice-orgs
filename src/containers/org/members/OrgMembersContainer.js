@@ -39,7 +39,7 @@ const { resetUserSearchResults } = UsersActions;
 const ContainerGrid = styled.div`
   display: grid;
   grid-gap: 48px;
-  grid-template-columns: 1fr 3fr;
+  grid-template-columns: 288px 1fr;
 `;
 
 const MEMBERS_DESCRIPTION = 'Members can be granted data permissions on an individual level or by an assigned role.'
