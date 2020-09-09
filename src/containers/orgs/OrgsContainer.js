@@ -4,6 +4,8 @@
 
 import React, { useState } from 'react';
 
+import { faPlus } from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map } from 'immutable';
 import {
   AppContentWrapper,
@@ -20,6 +22,10 @@ import { ORGANIZATIONS, ORGS } from '../../core/redux/constants';
 import { CreateOrgModal } from '../org/components';
 
 const MAX_PER_PAGE = 10;
+
+const PlusIcon = (
+  <FontAwesomeIcon fixedWidth icon={faPlus} />
+);
 
 const OrgsContainer = () => {
 
@@ -53,7 +59,12 @@ const OrgsContainer = () => {
         <Header as="h2">Organizations</Header>
         <ElementWithButtonGrid>
           <Input onChange={handleOnChangeOrgFilter} placeholder="Filter organizations" />
-          <Button color="primary" onClick={() => setIsVisibleCreateOrgModal(true)}>+ Create Organization</Button>
+          <Button
+              color="primary"
+              onClick={() => setIsVisibleCreateOrgModal(true)}
+              startIcon={PlusIcon}>
+            Create Organization
+          </Button>
         </ElementWithButtonGrid>
       </AppContentWrapper>
       <AppContentWrapper>
