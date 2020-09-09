@@ -2,51 +2,99 @@
  * @flow
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 
-import styled from 'styled-components';
+import { faPlus } from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map } from 'immutable';
-import { AppContentWrapper } from 'lattice-ui-kit';
+import {
+  AppContentWrapper,
+  Button,
+  CardStack,
+  Input,
+  PaginationToolbar,
+} from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
-import { Header, SimpleOrganizationCard } from '../../components';
+import { ElementWithButtonGrid, Header, SimpleOrganizationCard } from '../../components';
 import { ORGANIZATIONS, ORGS } from '../../core/redux/constants';
+import { CreateOrgModal } from '../org/components';
 
-const CardGrid = styled.div`
-  display: grid;
-  grid-gap: 30px;
-  grid-template-columns: 1fr;
-  margin-top: 50px;
+const MAX_PER_PAGE = 10;
 
-  @media only screen and (min-width: 500px) {
-    grid-template-columns: repeat(auto-fill, minmax(320px, auto));
-  }
-
-  > div {
-    min-width: 0;
-  }
-`;
+const PlusIcon = (
+  <FontAwesomeIcon fixedWidth icon={faPlus} />
+);
 
 const OrgsContainer = () => {
 
+  const [isVisibleAddOrgModal, setIsVisibleCreateOrgModal] = useState(false);
+  const [orgFilterQuery, setOrgFilterQuery] = useState('');
+  const [paginationIndex, setPaginationIndex] = useState(0);
+  const [paginationPage, setPaginationPage] = useState(0);
+
   const organizations :Map<UUID, Organization> = useSelector((s) => s.getIn([ORGANIZATIONS, ORGS]));
+  const filteredOrganizations = organizations.filter((org :Organization, orgId :UUID) => (
+    org && (orgFilterQuery === orgId || org.title.toLowerCase().includes(orgFilterQuery))
+  ));
+  const filteredOrganizationsCount = filteredOrganizations.count();
+  const pageOrganizations :Map<UUID, Organization> = filteredOrganizations.slice(
+    paginationIndex,
+    paginationIndex + MAX_PER_PAGE,
+  );
+
+  const handleOnChangeOrgFilter = (event :SyntheticInputEvent<HTMLInputElement>) => {
+    setOrgFilterQuery(event.target.value || '');
+  };
+
+  const handleOnPageChange = ({ page, start }) => {
+    setPaginationIndex(start);
+    setPaginationPage(page);
+  };
 
   return (
-    <AppContentWrapper>
-      <Header as="h2">Organizations</Header>
+    <>
+      <AppContentWrapper padding="48px 30px">
+        <Header as="h2">Organizations</Header>
+        <ElementWithButtonGrid>
+          <Input onChange={handleOnChangeOrgFilter} placeholder="Filter organizations" />
+          <Button
+              color="primary"
+              onClick={() => setIsVisibleCreateOrgModal(true)}
+              startIcon={PlusIcon}>
+            Create Organization
+          </Button>
+        </ElementWithButtonGrid>
+      </AppContentWrapper>
+      <AppContentWrapper>
+        {
+          filteredOrganizationsCount > MAX_PER_PAGE && (
+            <PaginationToolbar
+                page={paginationPage}
+                count={filteredOrganizationsCount}
+                onPageChange={handleOnPageChange}
+                rowsPerPage={MAX_PER_PAGE} />
+          )
+        }
+        {
+          !pageOrganizations.isEmpty() && (
+            <CardStack>
+              {
+                pageOrganizations.valueSeq().map((org :Organization) => (
+                  <SimpleOrganizationCard key={org.id} organization={org} />
+                ))
+              }
+            </CardStack>
+          )
+        }
+      </AppContentWrapper>
       {
-        !organizations.isEmpty() && (
-          <CardGrid>
-            {
-              organizations.valueSeq().map((org :Organization) => (
-                <SimpleOrganizationCard key={org.id} organization={org} />
-              ))
-            }
-          </CardGrid>
+        isVisibleAddOrgModal && (
+          <CreateOrgModal onClose={() => setIsVisibleCreateOrgModal(false)} />
         )
       }
-    </AppContentWrapper>
+    </>
   );
 };
 

@@ -28,9 +28,11 @@ import {
 import { PersonUtils } from '../../utils';
 import {
   ADD_ROLE_TO_ORGANIZATION,
+  CREATE_NEW_ORGANIZATION,
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
   addRoleToOrganization,
+  createNewOrganization,
   initializeOrganization,
   removeRoleFromOrganization,
 } from '../org/actions';
@@ -69,6 +71,7 @@ const INITIAL_STATE :Map = fromJS({
   [ADD_MEMBER_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [ADD_ROLE_TO_MEMBER]: RS_INITIAL_STATE,
   [ADD_ROLE_TO_ORGANIZATION]: RS_INITIAL_STATE,
+  [CREATE_NEW_ORGANIZATION]: RS_INITIAL_STATE,
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_INTEGRATION_ACCOUNT]: RS_INITIAL_STATE,
@@ -212,6 +215,32 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           return state;
         },
         FINALLY: () => state.deleteIn([ADD_ROLE_TO_ORGANIZATION, seqAction.id]),
+      });
+    }
+
+    case createNewOrganization.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return createNewOrganization.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([CREATE_NEW_ORGANIZATION, REQUEST_STATE], RequestStates.PENDING)
+          .setIn([CREATE_NEW_ORGANIZATION, seqAction.id], seqAction),
+        SUCCESS: () => {
+          if (state.hasIn([CREATE_NEW_ORGANIZATION, seqAction.id])) {
+            const org = (new OrganizationBuilder(seqAction.value)).build();
+            return state
+              .setIn([IS_OWNER, org.id], true)
+              .setIn([ORGS, org.id], org)
+              .setIn([CREATE_NEW_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => {
+          if (state.hasIn([CREATE_NEW_ORGANIZATION, seqAction.id])) {
+            return state.setIn([CREATE_NEW_ORGANIZATION, REQUEST_STATE], RequestStates.FAILURE);
+          }
+          return state;
+        },
+        FINALLY: () => state.deleteIn([CREATE_NEW_ORGANIZATION, seqAction.id]),
       });
     }
 
