@@ -7,20 +7,20 @@ import React, { useEffect } from 'react';
 import { AppContentWrapper, Spinner } from 'lattice-ui-kit';
 import {
   Logger,
-  ReduxUtils,
   RoutingUtils,
   ValidationUtils,
   useRequestState,
 } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Route, Switch, useRouteMatch } from 'react-router';
 import { RequestStates } from 'redux-reqseq';
-import type { Organization, UUID } from 'lattice';
+import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import OrgContainer from './OrgContainer';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from './actions';
 import { OrgMembersContainer } from './members';
+import { OrgRoleContainer } from './roles';
 
 import { BasicErrorComponent } from '../../components';
 import { resetRequestState } from '../../core/redux/actions';
@@ -28,7 +28,6 @@ import { ORGANIZATIONS } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
 import { ERR_INVALID_UUID } from '../../utils/constants/errors';
 
-const { selectOrganization } = ReduxUtils;
 const { isValidUUID } = ValidationUtils;
 const { getParamFromMatch } = RoutingUtils;
 
@@ -38,23 +37,22 @@ const OrgRouter = () => {
 
   const dispatch = useDispatch();
 
-  // let memberSPID :?UUID;
   let organizationId :?UUID;
+  let roleId :?UUID;
 
   const matchOrganization = useRouteMatch(Routes.ORG);
-  const matchOrganizationMember = useRouteMatch(Routes.ORG_MEMBER);
+  const matchOrganizationRole = useRouteMatch(Routes.ORG_ROLE);
 
-  // check matchOrganizationMember first because it's more specific than matchOrganization
-  if (matchOrganizationMember) {
-    // memberSPID = getParamFromMatch(matchOrganizationMember, Routes.PRINCIPAL_ID_PARAM);
-    organizationId = getParamFromMatch(matchOrganization, Routes.ORG_ID_PARAM);
+  // check matchOrganizationRole first because it's more specific than matchOrganization
+  if (matchOrganizationRole) {
+    organizationId = getParamFromMatch(matchOrganizationRole, Routes.ORG_ID_PARAM);
+    roleId = getParamFromMatch(matchOrganizationRole, Routes.ROLE_ID_PARAM);
   }
   else if (matchOrganization) {
     organizationId = getParamFromMatch(matchOrganization, Routes.ORG_ID_PARAM);
   }
 
   const initializeOrganizationRS :?RequestState = useRequestState([ORGANIZATIONS, INITIALIZE_ORGANIZATION]);
-  const organization :?Organization = useSelector(selectOrganization(organizationId));
 
   useEffect(() => {
     // reset INITIALIZE_ORGANIZATION RequestState when the org id changes
@@ -81,24 +79,30 @@ const OrgRouter = () => {
     );
   }
 
-  if (initializeOrganizationRS === RequestStates.SUCCESS && organization && organizationId) {
+  if (initializeOrganizationRS === RequestStates.SUCCESS) {
 
     const renderOrgContainer = () => (
-      // NOTE: flow is complaining... why do I have to do this?
-      (organization && organizationId)
-        ? <OrgContainer organization={organization} organizationId={organizationId} />
+      (organizationId)
+        ? <OrgContainer organizationId={organizationId} />
         : null
     );
 
     const renderOrgMembersContainer = () => (
-      (organization && organizationId)
-        ? <OrgMembersContainer organization={organization} organizationId={organizationId} />
+      (organizationId)
+        ? <OrgMembersContainer organizationId={organizationId} />
+        : null
+    );
+
+    const renderOrgRoleContainer = () => (
+      (organizationId && roleId)
+        ? <OrgRoleContainer organizationId={organizationId} roleId={roleId} />
         : null
     );
 
     return (
       <Switch>
         <Route path={Routes.ORG_MEMBERS} render={renderOrgMembersContainer} />
+        <Route path={Routes.ORG_ROLE} render={renderOrgRoleContainer} />
         <Route path={Routes.ORG} render={renderOrgContainer} />
       </Switch>
     );

@@ -17,9 +17,12 @@ import {
   SearchInput,
 } from 'lattice-ui-kit';
 import { PersonUtils } from 'lattice-utils';
+import { useDispatch } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 
-import { ElementWithButtonGrid, Header } from '../../../components';
+import { Header } from '../../../components';
+import { Routes } from '../../../core/router';
+import { goToRoute } from '../../../core/router/actions';
 import { getUserProfileLabel } from '../../../utils/PersonUtils';
 import { RemoveMemberFromOrgModal, RemoveRoleFromMemberModal } from '../components';
 import { filterOrganizationMember, isRoleAssignedToMember } from '../utils';
@@ -34,6 +37,12 @@ const MembersSectionGrid = styled.div`
   grid-auto-rows: min-content;
   grid-gap: 16px;
   grid-template-columns: 1fr;
+`;
+
+const ControlsGrid = styled.div`
+  display: grid;
+  grid-gap: 8px;
+  grid-template-columns: 1fr auto auto;
 `;
 
 const MembersSectionHeader = styled(Header)`
@@ -66,6 +75,8 @@ const MembersSection = ({
   selectedRole,
 } :Props) => {
 
+  const dispatch = useDispatch();
+
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState();
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState();
   const [memberFilterQuery, setMemberFilterQuery] = useState('');
@@ -94,6 +105,16 @@ const MembersSection = ({
     setPaginationPage(page);
   };
 
+  const goToRole = () => {
+    if (selectedRole && selectedRole.id) {
+      const roleId :UUID = selectedRole.id;
+      const rolePath = Routes.ORG_ROLE
+        .replace(Routes.ORG_ID_PARAM, organizationId)
+        .replace(Routes.ROLE_ID_PARAM, roleId);
+      dispatch(goToRoute(rolePath));
+    }
+  };
+
   const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
   const thisUserId = thisUserInfo.id;
   const targetMemberId = getUserId(targetMember);
@@ -113,10 +134,15 @@ const MembersSection = ({
   return (
     <MembersSectionGrid>
       <MembersSectionHeader as="h4">{memberSectionHeader}</MembersSectionHeader>
-      <ElementWithButtonGrid>
+      <ControlsGrid>
         <SearchInput onChange={handleOnChangeMemberFilterQuery} placeholder="Filter members" />
         <Button color="primary" startIcon={PlusIcon}>Add Member</Button>
-      </ElementWithButtonGrid>
+        {
+          selectedRole && (
+            <Button onClick={goToRole}>Manage Role</Button>
+          )
+        }
+      </ControlsGrid>
       {
         filteredMembersCount > MAX_PER_PAGE && (
           <PaginationToolbar
