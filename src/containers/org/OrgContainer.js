@@ -4,20 +4,57 @@
 
 import React from 'react';
 
-import { faLandmark } from '@fortawesome/pro-light-svg-icons';
+import styled from 'styled-components';
+import { faChevronRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { AppContentWrapper, AppNavigationWrapper } from 'lattice-ui-kit';
+import { Set } from 'immutable';
+import { AppContentWrapper, Colors } from 'lattice-ui-kit';
 import { LangUtils } from 'lattice-utils';
-import { Route, Switch } from 'react-router';
-import { NavLink } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
-import { OrgSettingsContainer } from './settings';
-
-import { Header } from '../../components';
+import { CrumbLink, Header } from '../../components';
+import { ENTITY_SETS, ORGANIZATIONS } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
 
+const { NEUTRAL } = Colors;
 const { isNonEmptyString } = LangUtils;
+
+const Boxes = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 48px;
+
+  > div {
+    border: 1px solid ${NEUTRAL.N200};
+    display: grid;
+    grid-gap: 8px;
+    margin-bottom: 48px;
+    margin-right: 48px;
+    max-width: 335px;
+    padding: 24px 36px;
+    width: 100%;
+
+    > span {
+      color: ${NEUTRAL.N500};
+    }
+
+    > b {
+      font-size: 50px;
+    }
+  }
+`;
+
+const ManageLink = styled(CrumbLink)`
+  align-items: center;
+  font-size: 16px;
+
+  > svg {
+    font-size: 12px;
+    margin-left: 8px;
+    margin-top: 2px;
+  }
+`;
 
 type Props = {
   organization :Organization;
@@ -27,39 +64,38 @@ type Props = {
 const OrgContainer = ({ organization, organizationId } :Props) => {
 
   const membersPath = Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId);
-  const rolesPath = Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId);
-  const settingsPath = Routes.ORG_SETTINGS.replace(Routes.ORG_ID_PARAM, organizationId);
 
-  const renderSettingsContainer = () => (
-    <OrgSettingsContainer organization={organization} organizationId={organizationId} />
-  );
+  const entitySetIds :Set<UUID> = useSelector((s) => s.getIn([ORGANIZATIONS, ENTITY_SETS, organizationId]), Set());
 
   return (
-    <>
-      <AppContentWrapper borderless>
+    <AppContentWrapper padding="60px 30px 30px">
+      <div>
+        <Header as="h2">{organization.title}</Header>
+      </div>
+      {
+        isNonEmptyString(organization.description) && (
+          <div>{organization.description}</div>
+        )
+      }
+      <Boxes>
         <div>
-          <Header as="h2">
-            <FontAwesomeIcon fixedWidth icon={faLandmark} size="sm" style={{ marginRight: '20px' }} />
-            <span>{organization.title}</span>
-          </Header>
+          <span>Members</span>
+          <b>{organization.members.length}</b>
+          <ManageLink to={membersPath}>
+            <span>Manage Members</span>
+            <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
+          </ManageLink>
         </div>
-        {
-          isNonEmptyString(organization.description) && (
-            <div>{organization.description}</div>
-          )
-        }
-      </AppContentWrapper>
-      <AppContentWrapper bgColor="white" padding="0">
-        <AppNavigationWrapper borderless>
-          <NavLink exact to={membersPath}>Members</NavLink>
-          <NavLink exact to={rolesPath}>Roles</NavLink>
-          <NavLink exact to={settingsPath}>Settings</NavLink>
-        </AppNavigationWrapper>
-      </AppContentWrapper>
-      <Switch>
-        <Route path={Routes.ORG_SETTINGS} render={renderSettingsContainer} />
-      </Switch>
-    </>
+        <div>
+          <span>Data Sets</span>
+          <b>{entitySetIds.count()}</b>
+          <ManageLink to="#">
+            <span>Manage Data Sets</span>
+            <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
+          </ManageLink>
+        </div>
+      </Boxes>
+    </AppContentWrapper>
   );
 };
 

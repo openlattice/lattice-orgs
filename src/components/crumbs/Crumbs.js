@@ -15,7 +15,7 @@ const Separator = (
 );
 
 const CrumbsWrapper = styled(Breadcrumbs).attrs({ separator: Separator })`
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 `;
 
 type Props = {
