@@ -6,7 +6,7 @@ import React, { useMemo } from 'react';
 
 import { AppContentWrapper } from 'lattice-ui-kit';
 import { ReduxUtils } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
 import {
@@ -25,8 +25,6 @@ type Props = {
 };
 
 const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
-
-  const dispatch = useDispatch();
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const role :?Role = useMemo(() => (
