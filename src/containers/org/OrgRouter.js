@@ -21,7 +21,6 @@ import type { RequestState } from 'redux-reqseq';
 import OrgContainer from './OrgContainer';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from './actions';
 import { OrgMembersContainer } from './members';
-import { OrgRolesContainer } from './roles';
 
 import { BasicErrorComponent } from '../../components';
 import { resetRequestState } from '../../core/redux/actions';
@@ -97,16 +96,9 @@ const OrgRouter = () => {
         : null
     );
 
-    const renderOrgRolesContainer = () => (
-      (organization && organizationId)
-        ? <OrgRolesContainer organization={organization} organizationId={organizationId} />
-        : null
-    );
-
     return (
       <Switch>
         <Route path={Routes.ORG_MEMBERS} render={renderOrgMembersContainer} />
-        <Route path={Routes.ORG_ROLES} render={renderOrgRolesContainer} />
         <Route path={Routes.ORG} render={renderOrgContainer} />
       </Switch>
     );

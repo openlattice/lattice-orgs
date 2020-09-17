@@ -69,17 +69,17 @@ const OrgsContainer = () => {
       </AppContentWrapper>
       <AppContentWrapper>
         {
-          filteredOrganizationsCount > MAX_PER_PAGE && (
-            <PaginationToolbar
-                page={paginationPage}
-                count={filteredOrganizationsCount}
-                onPageChange={handleOnPageChange}
-                rowsPerPage={MAX_PER_PAGE} />
-          )
-        }
-        {
           !pageOrganizations.isEmpty() && (
             <CardStack>
+              {
+                filteredOrganizationsCount > MAX_PER_PAGE && (
+                  <PaginationToolbar
+                      page={paginationPage}
+                      count={filteredOrganizationsCount}
+                      onPageChange={handleOnPageChange}
+                      rowsPerPage={MAX_PER_PAGE} />
+                )
+              }
               {
                 pageOrganizations.valueSeq().map((org :Organization) => (
                   <SimpleOrganizationCard key={org.id} organization={org} />

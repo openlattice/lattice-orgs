@@ -11,6 +11,7 @@ import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestState } from 'redux-reqseq';
 
+import { ModalBodyWidthHack } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { CREATE_NEW_ORGANIZATION, createNewOrganization } from '../actions';
@@ -68,23 +69,32 @@ const CreateOrgModal = ({ onClose } :Props) => {
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
-      <BodyGrid>
-        <span>Enter a title for this organization and an optional description.</span>
-        <div>
-          <Label htmlFor="new-org-title">Title</Label>
-          <Input error={!isValidOrgTitle} onChange={handleOnChangeOrgTitle} />
-        </div>
-        <div>
-          <Label htmlFor="new-org-description">Description</Label>
-          <Input onChange={handleOnChangeOrgDescription} />
-        </div>
-      </BodyGrid>
+      <>
+        <ModalBodyWidthHack />
+        <BodyGrid>
+          <span>Enter a title for this organization and an optional description.</span>
+          <div>
+            <Label htmlFor="new-org-title">Title</Label>
+            <Input error={!isValidOrgTitle} onChange={handleOnChangeOrgTitle} />
+          </div>
+          <div>
+            <Label htmlFor="new-org-description">Description</Label>
+            <Input onChange={handleOnChangeOrgDescription} />
+          </div>
+        </BodyGrid>
+      </>
     ),
     [RequestStates.SUCCESS]: (
-      <span>Success!</span>
+      <>
+        <ModalBodyWidthHack />
+        <span>Success!</span>
+      </>
     ),
     [RequestStates.FAILURE]: (
-      <span>Failed to create organization. Please try again.</span>
+      <>
+        <ModalBodyWidthHack />
+        <span>Failed to create organization. Please try again.</span>
+      </>
     ),
   };
 

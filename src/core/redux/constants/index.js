@@ -28,6 +28,7 @@ export const {
 
 export const INTEGRATION_ACCOUNTS :'integrationAccounts' = 'integrationAccounts';
 export const IS_OWNER :'isOwner' = 'isOwner';
+export const USER_SEARCH_RESULTS :'userSearchResults' = 'userSearchResults';
 
 // TODO: does this belong here?
 export const INITIAL_SEARCH_RESULTS :Map = fromJS({ initial: true });

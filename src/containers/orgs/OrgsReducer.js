@@ -5,6 +5,7 @@
 import { List, Map, fromJS } from 'immutable';
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
+import { PersonUtils } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { OrganizationObject, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
@@ -25,7 +26,6 @@ import {
   REQUEST_STATE,
   RS_INITIAL_STATE,
 } from '../../core/redux/constants';
-import { PersonUtils } from '../../utils';
 import {
   ADD_ROLE_TO_ORGANIZATION,
   CREATE_NEW_ORGANIZATION,
@@ -36,6 +36,7 @@ import {
   initializeOrganization,
   removeRoleFromOrganization,
 } from '../org/actions';
+import { sortOrganizationMembers } from '../org/utils';
 import type { AuthorizationObject } from '../../types';
 
 const {
@@ -130,7 +131,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
             return state
               .updateIn(
                 [MEMBERS, organizationId],
-                (members :List = List()) => members.push(orgMemberObject),
+                (members :List = List()) => members.push(orgMemberObject).sort(sortOrganizationMembers),
               )
               .setIn([ORGS, organizationId], (new OrganizationBuilder(updatedOrg)).build())
               .setIn([ADD_MEMBER_TO_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
@@ -356,8 +357,9 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           const storedSeqAction :?SequenceAction = state.getIn([GET_ORGANIZATION_MEMBERS, seqAction.id]);
           if (storedSeqAction) {
             const organizationId :UUID = storedSeqAction.value;
+            const sortedMembers = fromJS(seqAction.value).sort(sortOrganizationMembers);
             return state
-              .setIn([MEMBERS, organizationId], fromJS(seqAction.value))
+              .setIn([MEMBERS, organizationId], sortedMembers)
               .setIn([GET_ORGANIZATION_MEMBERS, REQUEST_STATE], RequestStates.SUCCESS);
           }
           return state;

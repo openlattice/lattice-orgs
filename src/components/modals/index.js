@@ -2,4 +2,4 @@
  * @flow
  */
 
-export { default as ModalBodyMinWidth } from './ModalBodyMinWidth';
+export { default as ModalBodyWidthHack } from './ModalBodyWidthHack';
