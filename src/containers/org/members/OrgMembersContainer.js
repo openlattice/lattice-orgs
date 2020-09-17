@@ -26,9 +26,9 @@ import {
 } from '../../../components';
 import {
   IS_OWNER,
-  MEMBERS,
   ORGANIZATIONS,
 } from '../../../core/redux/constants';
+import { selectOrganizationMembers } from '../../../core/redux/utils';
 import { Routes } from '../../../core/router';
 import { UsersActions } from '../../../core/users';
 
@@ -59,7 +59,7 @@ const OrgMembersContainer = ({ organizationId } :Props) => {
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organizationId]));
-  const orgMembers :List = useSelector((s) => s.getIn([ORGANIZATIONS, MEMBERS, organizationId], List()));
+  const orgMembers :List = useSelector(selectOrganizationMembers(organizationId));
 
   useEffect(() => () => {
     dispatch(resetUserSearchResults());

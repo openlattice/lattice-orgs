@@ -2,4 +2,4 @@
  * @flow
  */
 
-export * from './getEntitySetsWithPermissions';
+export * from './gatherOrganizationPermissions';

@@ -9,7 +9,7 @@ import {
   DataSetsApiSagas,
   EntitySetsApiSagas,
   OrganizationsApiSagas,
-  PermissionsApiSagas,
+  // PermissionsApiSagas,
   PrincipalsApiSagas,
 } from 'lattice-sagas';
 import type { Saga } from '@redux-saga/core';
@@ -56,8 +56,6 @@ export default function* sagas() :Saga<*> {
     fork(OrganizationsApiSagas.updateOrganizationDescriptionWatcher),
     fork(OrganizationsApiSagas.updateOrganizationTitleWatcher),
     fork(OrganizationsApiSagas.updateRoleGrantWatcher),
-    fork(PermissionsApiSagas.updateAclWatcher),
-    fork(PermissionsApiSagas.updateAclsWatcher),
     fork(PrincipalsApiSagas.getAllUsersWatcher),
     fork(PrincipalsApiSagas.getSecurablePrincipalWatcher),
     fork(PrincipalsApiSagas.searchAllUsersWatcher),
@@ -78,7 +76,7 @@ export default function* sagas() :Saga<*> {
     fork(OrgsSagas.getOrganizationsAndAuthorizationsWatcher),
 
     // PermissionsSagas
-    fork(PermissionsSagas.getEntitySetsWithPermissionsWatcher),
+    fork(PermissionsSagas.gatherOrganizationPermissionsWatcher),
 
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),

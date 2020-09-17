@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
 import { CrumbLink, Header } from '../../components';
-import { ENTITY_SETS, ORGANIZATIONS } from '../../core/redux/constants';
+import { selectOrganizationEntitySetIds } from '../../core/redux/utils';
 import { Routes } from '../../core/router';
 
 const { NEUTRAL } = Colors;
@@ -64,7 +64,7 @@ type Props = {
 const OrgContainer = ({ organizationId } :Props) => {
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const entitySetIds :Set<UUID> = useSelector((s) => s.getIn([ORGANIZATIONS, ENTITY_SETS, organizationId]), Set());
+  const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
 
   const membersPath = useMemo(() => (
     Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId)

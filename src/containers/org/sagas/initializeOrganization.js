@@ -9,7 +9,7 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { Map } from 'immutable';
+import { List, Set } from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   AuthorizationsApiActions,
@@ -23,7 +23,8 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { ENTITY_SETS, MEMBERS, ORGANIZATIONS } from '../../../core/redux/constants';
+import { gatherOrganizationPermissions } from '../../../core/permissions/actions';
+import { selectOrganizationEntitySetIds, selectOrganizationMembers } from '../../../core/redux/utils';
 import { AxiosUtils } from '../../../utils';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
 import type { AuthorizationObject } from '../../../types';
@@ -60,8 +61,8 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
     const organizationId :UUID = action.value;
 
     let organization :?Organization = yield select(selectOrganization(organizationId));
-    const members :?Map = yield select((s) => s.getIn([ORGANIZATIONS, MEMBERS, organizationId]));
-    const entitySets :?Map = yield select((s) => s.getIn([ORGANIZATIONS, ENTITY_SETS, organizationId]));
+    const members :List = yield select(selectOrganizationMembers(organizationId));
+    const entitySetIds :Set<UUID> = yield select(selectOrganizationEntitySetIds(organizationId));
 
     // TODO - figure out how to "expire" stored data
     let getOrganizationCall = call(() => {});
@@ -71,13 +72,13 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     // TODO - figure out how to "expire" stored data
     let getOrganizationMembersCall = call(() => {});
-    if (!members) {
+    if (members.isEmpty()) {
       getOrganizationMembersCall = call(getOrganizationMembersWorker, getOrganizationMembers(organizationId));
     }
 
     // TODO - figure out how to "expire" stored data
     let getOrganizationEntitySetsCall = call(() => {});
-    if (!entitySets) {
+    if (entitySetIds.isEmpty()) {
       getOrganizationEntitySetsCall = call(getOrganizationEntitySetsWorker, getOrganizationEntitySets(organizationId));
     }
 
@@ -121,6 +122,8 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       const authorizations :AuthorizationObject[] = getAuthorizationsResponse.data;
       isOwner = authorizations[0].permissions[PermissionTypes.OWNER] === true;
     }
+
+    yield put(gatherOrganizationPermissions(organizationId));
 
     yield put(initializeOrganization.success(action.id, { isOwner, organization }));
   }
