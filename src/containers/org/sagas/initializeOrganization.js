@@ -23,7 +23,7 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { gatherOrganizationPermissions } from '../../../core/permissions/actions';
+import { getPermissions } from '../../../core/permissions/actions';
 import { selectOrganizationEntitySetIds, selectOrganizationMembers } from '../../../core/redux/utils';
 import { AxiosUtils } from '../../../utils';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
@@ -62,7 +62,7 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     let organization :?Organization = yield select(selectOrganization(organizationId));
     const members :List = yield select(selectOrganizationMembers(organizationId));
-    const entitySetIds :Set<UUID> = yield select(selectOrganizationEntitySetIds(organizationId));
+    let entitySetIds :Set<UUID> = yield select(selectOrganizationEntitySetIds(organizationId));
 
     // TODO - figure out how to "expire" stored data
     let getOrganizationCall = call(() => {});
@@ -112,8 +112,9 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       throw getOrganizationMembersResponse.error;
     }
 
-    if (getOrganizationEntitySetsResponse && getOrganizationEntitySetsResponse.error) {
-      throw getOrganizationEntitySetsResponse.error;
+    if (getOrganizationEntitySetsResponse) {
+      if (getOrganizationEntitySetsResponse.error) throw getOrganizationEntitySetsResponse.error;
+      entitySetIds = Set(Object.keys(getOrganizationEntitySetsResponse.data));
     }
 
     let isOwner = false;
@@ -123,7 +124,7 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       isOwner = authorizations[0].permissions[PermissionTypes.OWNER] === true;
     }
 
-    yield put(gatherOrganizationPermissions(organizationId));
+    yield put(getPermissions(entitySetIds.map((id) => Set([id]))));
 
     yield put(initializeOrganization.success(action.id, { isOwner, organization }));
   }

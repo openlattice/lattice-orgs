@@ -9,8 +9,8 @@ import type { AclObject } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
-  GATHER_ORGANIZATION_PERMISSIONS,
-  gatherOrganizationPermissions,
+  GET_PERMISSIONS,
+  getPermissions,
 } from '../actions';
 
 import {
@@ -23,12 +23,12 @@ const { AclBuilder } = Models;
 
 export default function reducer(state :Map, action :SequenceAction) {
 
-  return gatherOrganizationPermissions.reducer(state, action, {
+  return getPermissions.reducer(state, action, {
     REQUEST: () => state
-      .setIn([GATHER_ORGANIZATION_PERMISSIONS, REQUEST_STATE], RequestStates.PENDING)
-      .setIn([GATHER_ORGANIZATION_PERMISSIONS, action.id], action),
+      .setIn([GET_PERMISSIONS, REQUEST_STATE], RequestStates.PENDING)
+      .setIn([GET_PERMISSIONS, action.id], action),
     SUCCESS: () => {
-      if (state.hasIn([GATHER_ORGANIZATION_PERMISSIONS, action.id])) {
+      if (state.hasIn([GET_PERMISSIONS, action.id])) {
         const aces = state.get(ACES).withMutations((mutableAces :Map) => {
           const acls :AclObject[] = action.value;
           acls.forEach((aclObj :AclObject) => {
@@ -38,18 +38,18 @@ export default function reducer(state :Map, action :SequenceAction) {
         });
         return state
           .set(ACES, aces)
-          .setIn([GATHER_ORGANIZATION_PERMISSIONS, REQUEST_STATE], RequestStates.SUCCESS);
+          .setIn([GET_PERMISSIONS, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
     },
     FAILURE: () => {
-      if (state.hasIn([GATHER_ORGANIZATION_PERMISSIONS, action.id])) {
+      if (state.hasIn([GET_PERMISSIONS, action.id])) {
         return state
-          .setIn([GATHER_ORGANIZATION_PERMISSIONS, ERROR], action.value)
-          .setIn([GATHER_ORGANIZATION_PERMISSIONS, REQUEST_STATE], RequestStates.FAILURE);
+          .setIn([GET_PERMISSIONS, ERROR], action.value)
+          .setIn([GET_PERMISSIONS, REQUEST_STATE], RequestStates.FAILURE);
       }
       return state;
     },
-    FINALLY: () => state.deleteIn([GATHER_ORGANIZATION_PERMISSIONS, action.id]),
+    FINALLY: () => state.deleteIn([GET_PERMISSIONS, action.id]),
   });
 }

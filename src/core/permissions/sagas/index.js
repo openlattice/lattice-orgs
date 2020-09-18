@@ -2,4 +2,5 @@
  * @flow
  */
 
-export * from './gatherOrganizationPermissions';
+export * from './getPermissions';
+export * from './getPropertyTypePermissions';

@@ -7,7 +7,6 @@ import {
   all,
   call,
   put,
-  select,
   takeEvery,
 } from '@redux-saga/core/effects';
 import { Set } from 'immutable';
@@ -24,11 +23,7 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { selectOrganizationEntitySetIds } from '../../redux/utils';
-import {
-  GATHER_ORGANIZATION_PERMISSIONS,
-  gatherOrganizationPermissions,
-} from '../actions';
+import { GET_PERMISSIONS, getPermissions } from '../actions';
 
 const LOG = new Logger('PermissionsSagas');
 
@@ -39,23 +34,24 @@ const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 const { getAcls } = PermissionsApiActions;
 const { getAclsWorker } = PermissionsApiSagas;
 
-function* gatherOrganizationPermissionsWorker(action :SequenceAction) :Saga<*> {
+function* getPermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> {
+
+  let workerResponse :WorkerResponse;
 
   try {
-    yield put(gatherOrganizationPermissions.request(action.id, action.value));
+    yield put(getPermissions.request(action.id, action.value));
 
-    const organizationId :UUID = action.value;
-    const entitySetIds :Set<UUID> = yield select(selectOrganizationEntitySetIds(organizationId));
+    const keys :Set<Set<UUID>> = action.value;
 
-    const orgAccessChecks :AccessCheck[] = entitySetIds.map((entitySetId :UUID) => (
+    const accessChecks :AccessCheck[] = keys.map((key :Set<UUID>) => (
       (new AccessCheckBuilder())
-        .setAclKey([entitySetId])
+        .setAclKey(key)
         .setPermissions([PermissionTypes.OWNER])
         .build()
     )).toJS();
 
-    const calls = _chunk(orgAccessChecks, 100).map((accessChecks :AccessCheck[]) => (
-      call(getAuthorizationsWorker, getAuthorizations(accessChecks))
+    const calls = _chunk(accessChecks, 100).map((accessChecksChunk :AccessCheck[]) => (
+      call(getAuthorizationsWorker, getAuthorizations(accessChecksChunk))
     ));
     const responses :WorkerResponse[] = yield all(calls);
 
@@ -69,23 +65,27 @@ function* gatherOrganizationPermissionsWorker(action :SequenceAction) :Saga<*> {
     const response :WorkerResponse = yield call(getAclsWorker, getAcls(ownerAclKeys));
     if (response.error) throw response.error;
 
-    yield put(gatherOrganizationPermissions.success(action.id, response.data));
+    workerResponse = { data: response.data };
+    yield put(getPermissions.success(action.id, response.data));
   }
   catch (error) {
+    workerResponse = { error };
     LOG.error(action.type, error);
-    yield put(gatherOrganizationPermissions.failure(action.id, error));
+    yield put(getPermissions.failure(action.id, error));
   }
   finally {
-    yield put(gatherOrganizationPermissions.finally(action.id));
+    yield put(getPermissions.finally(action.id));
   }
+
+  return workerResponse;
 }
 
-function* gatherOrganizationPermissionsWatcher() :Saga<*> {
+function* getPermissionsWatcher() :Saga<*> {
 
-  yield takeEvery(GATHER_ORGANIZATION_PERMISSIONS, gatherOrganizationPermissionsWorker);
+  yield takeEvery(GET_PERMISSIONS, getPermissionsWorker);
 }
 
 export {
-  gatherOrganizationPermissionsWatcher,
-  gatherOrganizationPermissionsWorker,
+  getPermissionsWatcher,
+  getPermissionsWorker,
 };

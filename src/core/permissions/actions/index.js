@@ -5,10 +5,15 @@
 import { newRequestSequence } from 'redux-reqseq';
 import type { RequestSequence } from 'redux-reqseq';
 
-const GATHER_ORGANIZATION_PERMISSIONS :'GATHER_ORGANIZATION_PERMISSIONS' = 'GATHER_ORGANIZATION_PERMISSIONS';
-const gatherOrganizationPermissions :RequestSequence = newRequestSequence(GATHER_ORGANIZATION_PERMISSIONS);
+const GET_PERMISSIONS :'GET_PERMISSIONS' = 'GET_PERMISSIONS';
+const getPermissions :RequestSequence = newRequestSequence(GET_PERMISSIONS);
+
+const GET_PROPERTY_TYPE_PERMISSIONS :'GET_PROPERTY_TYPE_PERMISSIONS' = 'GET_PROPERTY_TYPE_PERMISSIONS';
+const getPropertyTypePermissions :RequestSequence = newRequestSequence(GET_PROPERTY_TYPE_PERMISSIONS);
 
 export {
-  GATHER_ORGANIZATION_PERMISSIONS,
-  gatherOrganizationPermissions,
+  GET_PERMISSIONS,
+  GET_PROPERTY_TYPE_PERMISSIONS,
+  getPermissions,
+  getPropertyTypePermissions,
 };
