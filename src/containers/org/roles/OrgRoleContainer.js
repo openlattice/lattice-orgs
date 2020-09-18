@@ -6,7 +6,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 import { Map, Set } from 'immutable';
-import { AppContentWrapper, CardSegment, Colors, PaginationToolbar, Spinner } from 'lattice-ui-kit';
+import {
+  AppContentWrapper,
+  CardSegment,
+  Colors,
+  PaginationToolbar,
+  Spinner,
+} from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
