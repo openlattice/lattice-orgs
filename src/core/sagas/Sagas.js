@@ -7,7 +7,6 @@ import { AuthSagas } from 'lattice-auth';
 import {
   AuthorizationsApiSagas,
   DataSetsApiSagas,
-  EntitySetsApiSagas,
   OrganizationsApiSagas,
   PrincipalsApiSagas,
 } from 'lattice-sagas';
@@ -33,8 +32,6 @@ export default function* sagas() :Saga<*> {
     // "lattice-sagas" sagas
     fork(AuthorizationsApiSagas.getAuthorizationsWatcher),
     fork(DataSetsApiSagas.getOrganizationDataSetsWatcher),
-    fork(EntitySetsApiSagas.getAllEntitySetsWatcher),
-    fork(EntitySetsApiSagas.getEntitySetsWatcher),
     fork(OrganizationsApiSagas.addDomainsToOrganizationWatcher),
     fork(OrganizationsApiSagas.addMemberToOrganizationWatcher),
     fork(OrganizationsApiSagas.addRoleToMemberWatcher),
@@ -64,6 +61,7 @@ export default function* sagas() :Saga<*> {
 
     // EDMSagas
     fork(EDMSagas.getEntityDataModelTypesWatcher),
+    fork(EDMSagas.getOrSelectEntitySetsWatcher),
 
     // OrgSagas
     fork(OrgSagas.addRoleToOrganizationWatcher),
