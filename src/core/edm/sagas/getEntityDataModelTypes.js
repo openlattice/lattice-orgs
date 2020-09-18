@@ -16,19 +16,13 @@ import type { SequenceAction } from 'redux-reqseq';
 import {
   GET_EDM_TYPES,
   getEntityDataModelTypes,
-} from './EDMActions';
+} from '../actions';
 
 const LOG = new Logger('EDMSagas');
 
 const { isDefined } = LangUtils;
 const { getAllEntityTypes, getAllPropertyTypes } = EntityDataModelApiActions;
 const { getAllEntityTypesWorker, getAllPropertyTypesWorker } = EntityDataModelApiSagas;
-
-/*
- *
- * EDMActions.getEntityDataModelTypes()
- *
- */
 
 function* getEntityDataModelTypesWorker(action :SequenceAction) :Saga<*> {
 

@@ -9,16 +9,15 @@ import {
   DataSetsApiSagas,
   EntitySetsApiSagas,
   OrganizationsApiSagas,
-  // PermissionsApiSagas,
   PrincipalsApiSagas,
 } from 'lattice-sagas';
 import type { Saga } from '@redux-saga/core';
 
-import * as EDMSagas from '../edm/EDMSagas';
 import * as RoutingSagas from '../router/RoutingSagas';
 import { AppSagas } from '../../containers/app';
 import { OrgSagas } from '../../containers/org';
 import { OrgsSagas } from '../../containers/orgs';
+import { EDMSagas } from '../edm';
 import { PermissionsSagas } from '../permissions';
 
 export default function* sagas() :Saga<*> {
