@@ -2,19 +2,22 @@
  * @flow
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 import { Map, Set } from 'immutable';
-import { AppContentWrapper, PaginationToolbar } from 'lattice-ui-kit';
-import { ReduxUtils } from 'lattice-utils';
-import { useSelector } from 'react-redux';
+import { AppContentWrapper, PaginationToolbar, Spinner } from 'lattice-ui-kit';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { RequestStates } from 'redux-reqseq';
 import type {
   Ace,
+  EntitySet,
   Organization,
   Role,
   UUID,
 } from 'lattice';
+import type { RequestState } from 'redux-reqseq';
 
 import {
   CrumbItem,
@@ -22,10 +25,13 @@ import {
   Crumbs,
   Header,
 } from '../../../components';
+import { GET_OR_SELECT_ENTITY_SETS, getOrSelectEntitySets } from '../../../core/edm/actions';
+import { GATHER_ORGANIZATION_PERMISSIONS } from '../../../core/permissions/actions';
+import { EDM, PERMISSIONS } from '../../../core/redux/constants';
 import { selectOrganizationEntitySetIds, selectPermissions } from '../../../core/redux/utils';
 import { Routes } from '../../../core/router';
 
-const { selectOrganization } = ReduxUtils;
+const { selectEntitySets, selectOrganization } = ReduxUtils;
 
 const MAX_PER_PAGE = 10;
 
@@ -43,38 +49,46 @@ type Props = {
 
 const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
 
+  const dispatch = useDispatch();
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
 
+  const gatherPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GATHER_ORGANIZATION_PERMISSIONS]);
+  const getOrSelectEntitySetsRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_ENTITY_SETS]);
+
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
-
-  const entitySetKeys :Set<Set<UUID>> = useMemo(() => (
-    entitySetIds.map((id) => Set([id]))
-  ), [entitySetIds]);
-
   const role :?Role = useMemo(() => (
     organization?.roles.find((orgRole) => orgRole.id === roleId)
   ), [organization, roleId]);
 
-  const roleEntitySetPermissions :Map<Set<UUID>, Ace> = useSelector(selectPermissions(entitySetKeys, role?.principal));
+  const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
+  const entitySetKeys :Set<Set<UUID>> = useMemo(() => (
+    entitySetIds.map((id) => Set([id]))
+  ), [entitySetIds]);
 
-  const roleEntitySetPermissionsCount :number = roleEntitySetPermissions.count();
-  const pagePermissions :Map = roleEntitySetPermissions.slice(
-    paginationIndex,
-    paginationIndex + MAX_PER_PAGE,
-  );
+  const permissions :Map<Set<UUID>, Ace> = useSelector(selectPermissions(entitySetKeys, role?.principal));
+  const permissionsCount :number = permissions.count();
+  const pagePermissions :Map<Set<UUID>, Ace> = permissions.slice(paginationIndex, paginationIndex + MAX_PER_PAGE);
+  const pageEntitySetIds :Set<UUID> = pagePermissions.keySeq().flatten().toSet();
+  const pageEntitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets(pageEntitySetIds));
+
+  useEffect(() => {
+    if (!pageEntitySetIds.isEmpty()) {
+      dispatch(getOrSelectEntitySets(pageEntitySetIds));
+    }
+  }, [dispatch, pageEntitySetIds.hashCode()]);
 
   const orgPath = useMemo(() => (
     Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
-  const handleOnPageChange = ({ page, start }) => {
-    setPaginationIndex(start);
-    setPaginationPage(page);
-  };
-
   if (organization && role) {
+
+    const handleOnPageChange = ({ page, start }) => {
+      setPaginationIndex(start);
+      setPaginationPage(page);
+    };
+
     return (
       <AppContentWrapper>
         <Crumbs>
@@ -84,28 +98,46 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
         </Crumbs>
         <Header as="h2">{role.title}</Header>
         <Header as="h3">Data Sets</Header>
-        <DataSetsGrid>
-          {
-            roleEntitySetPermissionsCount > MAX_PER_PAGE && (
-              <PaginationToolbar
-                  page={paginationPage}
-                  count={roleEntitySetPermissionsCount}
-                  onPageChange={handleOnPageChange}
-                  rowsPerPage={MAX_PER_PAGE} />
-            )
-          }
-          {
-            pagePermissions.map((ace :Ace, key :Set<UUID>) => {
-              const permissionsLabel = ace.permissions.length === 0 ? ace.permissions[0] : 'Mixed permissions';
-              return (
-                <div key={key.toString()}>
-                  <div>{key.toString()}</div>
-                  <div>{permissionsLabel}</div>
-                </div>
-              );
-            }).valueSeq()
-          }
-        </DataSetsGrid>
+        {
+          gatherPermissionsRS === RequestStates.PENDING && (
+            <Spinner size="2x" />
+          )
+        }
+        {
+          gatherPermissionsRS === RequestStates.SUCCESS && (
+            <>
+              {
+                permissionsCount > MAX_PER_PAGE && (
+                  <PaginationToolbar
+                      page={paginationPage}
+                      count={permissionsCount}
+                      onPageChange={handleOnPageChange}
+                      rowsPerPage={MAX_PER_PAGE} />
+                )
+              }
+              {
+                getOrSelectEntitySetsRS === RequestStates.PENDING && (
+                  <Spinner size="2x" />
+                )
+              }
+              {
+                getOrSelectEntitySetsRS === RequestStates.SUCCESS && (
+                  <DataSetsGrid>
+                    {
+                      pageEntitySets.map((entitySet :EntitySet) => {
+                        return (
+                          <div key={entitySet.id}>
+                            <div>{entitySet.title}</div>
+                          </div>
+                        );
+                      }).valueSeq()
+                    }
+                  </DataSetsGrid>
+                )
+              }
+            </>
+          )
+        }
       </AppContentWrapper>
     );
   }
