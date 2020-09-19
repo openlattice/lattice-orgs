@@ -9,17 +9,10 @@ import { Button, Checkbox } from 'lattice-ui-kit';
 import { ValidationUtils } from 'lattice-utils';
 import type { Organization, Role, UUID } from 'lattice';
 
-import { Divider, Header } from '../../../components';
+import { Divider, Header, StackGrid } from '../../../components';
 import { AddRoleToOrgModal } from '../components';
 
 const { isValidUUID } = ValidationUtils;
-
-const RolesSectionGrid = styled.div`
-  display: grid;
-  grid-auto-rows: min-content;
-  grid-gap: 16px;
-  grid-template-columns: 1fr;
-`;
 
 const RolesSectionHeader = styled(Header)`
   justify-content: space-between;
@@ -56,7 +49,7 @@ const RolesSection = ({
   };
 
   return (
-    <RolesSectionGrid>
+    <StackGrid>
       <RolesSectionHeader as="h4">
         <span>Roles</span>
         {
@@ -92,7 +85,7 @@ const RolesSection = ({
               organizationId={organizationId} />
         )
       }
-    </RolesSectionGrid>
+    </StackGrid>
   );
 };
 

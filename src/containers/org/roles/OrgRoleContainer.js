@@ -31,6 +31,7 @@ import {
   Crumbs,
   Divider,
   Header,
+  StackGrid,
 } from '../../../components';
 import { GET_OR_SELECT_ENTITY_SETS, getOrSelectEntitySets } from '../../../core/edm/actions';
 import { GET_PERMISSIONS, getPropertyTypePermissions } from '../../../core/permissions/actions';
@@ -43,13 +44,6 @@ const { isNonEmptyString } = LangUtils;
 const { reduceRequestStates, selectEntitySets, selectOrganization } = ReduxUtils;
 
 const MAX_PER_PAGE = 10;
-
-const DataSetsGrid = styled.div`
-  display: grid;
-  grid-auto-rows: min-content;
-  grid-gap: 16px;
-  grid-template-columns: 1fr;
-`;
 
 const DataSetCard = styled.div`
   background-color: ${NEUTRAL.N50};
@@ -150,7 +144,7 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
           }
           {
             reducedRS === RequestStates.SUCCESS && (
-              <DataSetsGrid>
+              <StackGrid>
                 {
                   permissionsCount > MAX_PER_PAGE && (
                     <PaginationToolbar
@@ -169,7 +163,7 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
                     </DataSetCard>
                   )).valueSeq()
                 }
-              </DataSetsGrid>
+              </StackGrid>
             )
           }
         </div>
