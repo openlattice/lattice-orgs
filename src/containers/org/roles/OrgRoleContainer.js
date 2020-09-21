@@ -49,6 +49,12 @@ const DataSetCard = styled.div`
   background-color: ${NEUTRAL.N50};
   border: none;
   border-radius: 5px;
+
+  :hover,
+  :focus,
+  :active {
+    cursor: pointer;
+  }
 `;
 
 const SpinnerOverlay = styled.div`
