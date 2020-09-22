@@ -113,19 +113,26 @@ const DataSetPermissionsCard = ({
     }, NO_PERMISSIONS_LABEL)
   ), [countsHash]);
 
-  const handleOnClickPermission = (event :SyntheticEvent<HTMLElement>) => {
+  const selectPermissionType = (event :SyntheticEvent<HTMLElement>) => {
     const permissionType :PermissionType = (event.currentTarget.dataset.permissionType :any);
     setTargetPermissionType(permissionType);
+  };
+
+  const toggleIsOpen = () => {
+    if (isOpen) {
+      setTargetPermissionType();
+    }
+    setIsOpen(!isOpen);
   };
 
   return (
     <>
       <DataSetCard>
-        <SpaceBetweenCardSegment padding="8px 16px">
+        <SpaceBetweenCardSegment padding="8px 24px">
           <Typography component="span" variant="body1">{dataSet.title}</Typography>
           <ActionsWrapper>
             <Typography component="span" variant="body1">{permissionLabel}</Typography>
-            <IconButton onClick={() => setIsOpen(!isOpen)}>
+            <IconButton onClick={toggleIsOpen}>
               <FontAwesomeIcon fixedWidth icon={isOpen ? faChevronUp : faChevronDown} />
             </IconButton>
           </ActionsWrapper>
@@ -135,7 +142,7 @@ const DataSetPermissionsCard = ({
         isOpen && (
           ORDERED_PERMISSIONS.map((pt :PermissionType) => (
             <PermissionTypeCard isSelected={targetPermissionType === pt} key={pt}>
-              <SpaceBetweenCardSegment data-permission-type={pt} padding="16px" onClick={handleOnClickPermission}>
+              <SpaceBetweenCardSegment data-permission-type={pt} padding="16px 24px" onClick={selectPermissionType}>
                 <Typography component="span" variant="body1">{`${counts.get(pt) || 0} Properties`}</Typography>
                 <Typography component="span" variant="body1">{_capitalize(pt)}</Typography>
               </SpaceBetweenCardSegment>
