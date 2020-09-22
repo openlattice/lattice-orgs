@@ -29,7 +29,7 @@ import type {
 import { SpaceBetweenCardSegment } from '../../../components';
 import { selectEntitySetEntityType, selectPermissions } from '../../../core/redux/utils';
 
-const { NEUTRAL } = Colors;
+const { NEUTRAL, PURPLE } = Colors;
 const { PermissionTypes } = Types;
 
 const MIXED_PERMISSIONS_LABEL :'Mixed Permissions' = 'Mixed Permissions';
@@ -49,8 +49,8 @@ const DataSetCard = styled(Card)`
 `;
 
 const PermissionTypeCard = styled(Card)`
-  background-color: ${NEUTRAL.N00};
-  border: none;
+  background-color: ${({ isSelected }) => (isSelected ? PURPLE.P00 : NEUTRAL.N00)};
+  border: 1px solid ${({ isSelected }) => (isSelected ? PURPLE.P300 : NEUTRAL.N00)};
   margin-left: 24px;
 `;
 
@@ -71,9 +71,10 @@ const DataSetPermissionsCard = ({
   principal :Principal;
 }) => {
 
-  const dataSetId :UUID = (dataSet.id :any);
-
   const [isOpen, setIsOpen] = useState(false);
+  const [targetPermissionType, setTargetPermissionType] = useState();
+
+  const dataSetId :UUID = (dataSet.id :any);
   const entityType :?EntityType = useSelector(selectEntitySetEntityType(dataSet));
 
   const keys :List<List<UUID>> = useMemo(() => (
@@ -112,6 +113,11 @@ const DataSetPermissionsCard = ({
     }, NO_PERMISSIONS_LABEL)
   ), [countsHash]);
 
+  const handleOnClickPermission = (event :SyntheticEvent<HTMLElement>) => {
+    const permissionType :PermissionType = (event.currentTarget.dataset.permissionType :any);
+    setTargetPermissionType(permissionType);
+  };
+
   return (
     <>
       <DataSetCard>
@@ -128,8 +134,8 @@ const DataSetPermissionsCard = ({
       {
         isOpen && (
           ORDERED_PERMISSIONS.map((pt :PermissionType) => (
-            <PermissionTypeCard key={pt}>
-              <SpaceBetweenCardSegment padding="16px" onClick={() => {}}>
+            <PermissionTypeCard isSelected={targetPermissionType === pt} key={pt}>
+              <SpaceBetweenCardSegment data-permission-type={pt} padding="16px" onClick={handleOnClickPermission}>
                 <Typography component="span" variant="body1">{`${counts.get(pt) || 0} Properties`}</Typography>
                 <Typography component="span" variant="body1">{_capitalize(pt)}</Typography>
               </SpaceBetweenCardSegment>
