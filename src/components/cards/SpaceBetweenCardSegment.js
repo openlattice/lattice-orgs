@@ -7,8 +7,8 @@ import { CardSegment } from 'lattice-ui-kit';
 
 const SpaceBetweenCardSegment = styled(CardSegment)`
   align-items: center;
+  flex-direction: row;
   justify-content: space-between;
-  padding: ${({ padding }) => (padding || '8px 16px')};
 
   > :first-child {
     overflow: hidden;

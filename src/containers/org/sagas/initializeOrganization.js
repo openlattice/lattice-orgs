@@ -124,7 +124,7 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       isOwner = authorizations[0].permissions[PermissionTypes.OWNER] === true;
     }
 
-    yield put(getPermissions(entitySetIds.map((id) => Set([id]))));
+    yield put(getPermissions(entitySetIds.map((id) => List([id]))));
 
     yield put(initializeOrganization.success(action.id, { isOwner, organization }));
   }

@@ -5,14 +5,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
-import { Map, Set } from 'immutable';
-import {
-  AppContentWrapper,
-  CardSegment,
-  Colors,
-  PaginationToolbar,
-  Spinner,
-} from 'lattice-ui-kit';
+import { List, Map, Set } from 'immutable';
+import { AppContentWrapper, PaginationToolbar, Spinner } from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -38,24 +32,12 @@ import { GET_PERMISSIONS, getPropertyTypePermissions } from '../../../core/permi
 import { EDM, PERMISSIONS } from '../../../core/redux/constants';
 import { selectOrganizationEntitySetIds, selectPermissions } from '../../../core/redux/utils';
 import { Routes } from '../../../core/router';
+import { DataSetPermissionsCard } from '../components';
 
-const { NEUTRAL } = Colors;
 const { isNonEmptyString } = LangUtils;
 const { reduceRequestStates, selectEntitySets, selectOrganization } = ReduxUtils;
 
 const MAX_PER_PAGE = 10;
-
-const DataSetCard = styled.div`
-  background-color: ${NEUTRAL.N50};
-  border: none;
-  border-radius: 5px;
-
-  :hover,
-  :focus,
-  :active {
-    cursor: pointer;
-  }
-`;
 
 const SpinnerOverlay = styled.div`
   background-color: white;
@@ -87,29 +69,29 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
   ), [organization, roleId]);
 
   const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
-  const entitySetKeys :Set<Set<UUID>> = useMemo(() => (
-    entitySetIds.map((id) => Set([id]))
+  const entitySetKeys :List<List<UUID>> = useMemo(() => (
+    entitySetIds.map((id) => List([id]))
   ), [entitySetIds]);
 
-  const permissions :Map<Set<UUID>, Ace> = useSelector(selectPermissions(entitySetKeys, role?.principal));
+  const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(entitySetKeys, role?.principal));
   const permissionsCount :number = permissions.count();
-  const pagePermissions :Map<Set<UUID>, Ace> = permissions.slice(paginationIndex, paginationIndex + MAX_PER_PAGE);
-  const pageEntitySetIds :Set<UUID> = pagePermissions.keySeq().flatten().toSet();
-  const pageEntitySetIdsHash :number = pageEntitySetIds.hashCode();
-  const pageEntitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets(pageEntitySetIds));
-  const pageEntitySetsHash :number = pageEntitySets.hashCode();
+  const pagePermissions :Map<List<UUID>, Ace> = permissions.slice(paginationIndex, paginationIndex + MAX_PER_PAGE);
+  const pageDataSetIds :List<UUID> = pagePermissions.keySeq().flatten().toSet();
+  const pageDataSetIdsHash :number = pageDataSetIds.hashCode();
+  const pageDataSets :Map<UUID, EntitySet> = useSelector(selectEntitySets(pageDataSetIds));
+  const pageDataSetsHash :number = pageDataSets.hashCode();
 
   useEffect(() => {
-    if (!pageEntitySetIds.isEmpty()) {
-      dispatch(getOrSelectEntitySets(pageEntitySetIds));
+    if (!pageDataSetIds.isEmpty()) {
+      dispatch(getOrSelectEntitySets(pageDataSetIds));
     }
-  }, [dispatch, pageEntitySetIdsHash]);
+  }, [dispatch, pageDataSetIdsHash]);
 
   useEffect(() => {
-    if (!pageEntitySets.isEmpty()) {
-      dispatch(getPropertyTypePermissions(pageEntitySetIds));
+    if (!pageDataSets.isEmpty()) {
+      dispatch(getPropertyTypePermissions(pageDataSetIds));
     }
-  }, [dispatch, pageEntitySetsHash]);
+  }, [dispatch, pageDataSetsHash]);
 
   const orgPath = useMemo(() => (
     Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
@@ -161,12 +143,8 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
                   )
                 }
                 {
-                  pageEntitySets.map((entitySet :EntitySet) => (
-                    <DataSetCard key={entitySet.id}>
-                      <CardSegment padding="16px">
-                        <div>{entitySet.title}</div>
-                      </CardSegment>
-                    </DataSetCard>
+                  pageDataSets.map((dataSet :EntitySet) => (
+                    <DataSetPermissionsCard dataSet={dataSet} key={dataSet.id} principal={role.principal} />
                   )).valueSeq()
                 }
               </StackGrid>

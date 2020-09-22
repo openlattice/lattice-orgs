@@ -9,7 +9,7 @@ import {
   put,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { Set } from 'immutable';
+import { List } from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   AuthorizationsApiActions,
@@ -41,9 +41,9 @@ function* getPermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> {
   try {
     yield put(getPermissions.request(action.id, action.value));
 
-    const keys :Set<Set<UUID>> = action.value;
+    const keys :List<List<UUID>> = action.value;
 
-    const accessChecks :AccessCheck[] = keys.map((key :Set<UUID>) => (
+    const accessChecks :AccessCheck[] = keys.map((key :List<UUID>) => (
       (new AccessCheckBuilder())
         .setAclKey(key)
         .setPermissions([PermissionTypes.OWNER])
@@ -56,7 +56,9 @@ function* getPermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> {
     const responses :WorkerResponse[] = yield all(calls);
 
     const ownerAclKeys :UUID[][] = responses
+      // $FlowFixMe
       .filter((response :WorkerResponse) => !response.error)
+      // $FlowFixMe
       .map((response :WorkerResponse) => response.data)
       .flat()
       .filter((authorization) => authorization?.permissions?.[PermissionTypes.OWNER] === true)

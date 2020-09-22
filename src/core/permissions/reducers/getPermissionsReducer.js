@@ -2,22 +2,21 @@
  * @flow
  */
 
-import { List, Map, Set } from 'immutable';
+import { List, Map } from 'immutable';
 import { Models } from 'lattice';
 import { RequestStates } from 'redux-reqseq';
 import type { AclObject } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
-  GET_PERMISSIONS,
-  getPermissions,
-} from '../actions';
-
-import {
   ACES,
   ERROR,
   REQUEST_STATE,
 } from '../../redux/constants';
+import {
+  GET_PERMISSIONS,
+  getPermissions,
+} from '../actions';
 
 const { AclBuilder } = Models;
 
@@ -33,7 +32,7 @@ export default function reducer(state :Map, action :SequenceAction) {
           const acls :AclObject[] = action.value;
           acls.forEach((aclObj :AclObject) => {
             const acl = (new AclBuilder(aclObj)).build();
-            mutableAces.set(Set(acl.aclKey), List(acl.aces));
+            mutableAces.set(List(acl.aclKey), List(acl.aces));
           });
         });
         return state

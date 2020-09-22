@@ -8,7 +8,7 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { Set } from 'immutable';
+import { List, Map, Set } from 'immutable';
 import { Logger, ReduxUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { EntitySet, EntityType, UUID } from 'lattice';
@@ -38,12 +38,13 @@ function* getPropertyTypePermissionsWorker(action :SequenceAction) :Saga<*> {
 
     const entityTypes :Map<UUID, EntityType> = yield select(selectEntityTypes(entityTypeIds));
 
-    const propertyTypeKeys :Set<Set<UUID>> = Set().withMutations((mutableSet) => {
+    const propertyTypeKeys :List<List<UUID>> = List().withMutations((mutableList) => {
       entityTypes.forEach((entityType :EntityType) => {
+        // $FlowFixMe
         const entityTypeId :UUID = entityType.id;
         const entitySetId :UUID = entityTypeIdsToEntitySetIds.get(entityTypeId);
         entityType.properties.forEach((propertyTypeId :UUID) => {
-          mutableSet.add(Set([entitySetId, propertyTypeId]));
+          mutableList.push(List([entitySetId, propertyTypeId]));
         });
       });
     });
