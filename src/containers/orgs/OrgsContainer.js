@@ -55,7 +55,7 @@ const OrgsContainer = () => {
 
   return (
     <>
-      <AppContentWrapper padding="48px 30px">
+      <AppContentWrapper>
         <Header as="h2">Organizations</Header>
         <ElementWithButtonGrid>
           <Input onChange={handleOnChangeOrgFilter} placeholder="Filter organizations" />
