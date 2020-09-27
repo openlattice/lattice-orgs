@@ -136,9 +136,9 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
                 {
                   permissionsCount > MAX_PER_PAGE && (
                     <PaginationToolbar
-                        page={paginationPage}
                         count={permissionsCount}
                         onPageChange={handleOnPageChange}
+                        page={paginationPage}
                         rowsPerPage={MAX_PER_PAGE} />
                   )
                 }
