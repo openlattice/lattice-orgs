@@ -6,14 +6,20 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 import { List, Map, Set } from 'immutable';
-import { AppContentWrapper, PaginationToolbar, Spinner } from 'lattice-ui-kit';
+import {
+  AppContentWrapper,
+  PaginationToolbar,
+  Spinner,
+  Typography,
+} from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
+import { useDispatch, useSelector } from 'react-redux';
 import type {
   Ace,
   EntitySet,
   Organization,
+  PermissionType,
   Role,
   UUID,
 } from 'lattice';
@@ -24,7 +30,6 @@ import {
   CrumbLink,
   Crumbs,
   Divider,
-  Header,
   StackGrid,
 } from '../../../components';
 import { GET_OR_SELECT_ENTITY_SETS, getOrSelectEntitySets } from '../../../core/edm/actions';
@@ -32,12 +37,31 @@ import { GET_PERMISSIONS, getPropertyTypePermissions } from '../../../core/permi
 import { EDM, PERMISSIONS } from '../../../core/redux/constants';
 import { selectOrganizationEntitySetIds, selectPermissions } from '../../../core/redux/utils';
 import { Routes } from '../../../core/router';
-import { DataSetPermissionsCard } from '../components';
+import { DataSetPermissionsCard, PermissionsPanel } from '../components';
 
 const { isNonEmptyString } = LangUtils;
 const { reduceRequestStates, selectEntitySets, selectOrganization } = ReduxUtils;
 
 const MAX_PER_PAGE = 10;
+
+const getPanelColumnSize = ({ isVisiblePanelColumn }) => (
+  isVisiblePanelColumn ? 'minmax(auto,max-content)' : 'auto'
+);
+
+const AppContentGrid = styled.div`
+  display: grid;
+  grid-template-columns: auto 1fr ${getPanelColumnSize};
+  height: 100%;
+`;
+
+const ContentColumn = styled.div`
+  grid-column: 2 / 3;
+`;
+
+const PanelColumn = styled.div`
+  grid-column-end: 4;
+  height: 100%;
+`;
 
 const SpinnerOverlay = styled.div`
   background-color: white;
@@ -59,6 +83,8 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
   const dispatch = useDispatch();
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
+  const [targetDataSet, setTargetDataSet] = useState();
+  const [targetPermissionType, setTargetPermissionType] = useState();
 
   const getPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_PERMISSIONS]);
   const getOrSelectEntitySetsRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_ENTITY_SETS]);
@@ -106,52 +132,79 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
       setPaginationPage(page);
     };
 
+    const handleOnSelect = (dataSet :EntitySet, permission :PermissionType) => {
+      setTargetDataSet(dataSet);
+      setTargetPermissionType(permission);
+    };
+
+    const handleOnClosePermissionsPanel = () => {
+      setTargetDataSet();
+      setTargetPermissionType();
+    };
+
     return (
-      <AppContentWrapper>
-        <Crumbs>
-          <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-          <CrumbItem>Roles</CrumbItem>
-          <CrumbItem>{role.title}</CrumbItem>
-        </Crumbs>
-        <Header as="h2">{role.title}</Header>
+      <AppContentGrid isVisiblePanelColumn={targetDataSet && targetPermissionType}>
+        <ContentColumn>
+          <AppContentWrapper>
+            <Crumbs>
+              <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+              <CrumbItem>Roles</CrumbItem>
+              <CrumbItem>{role.title}</CrumbItem>
+            </Crumbs>
+            <Typography gutterBottom variant="h1">{role.title}</Typography>
+            {
+              isNonEmptyString(role.description) && (
+                <Typography variant="body1">{role.description}</Typography>
+              )
+            }
+            <Divider margin={48} />
+            <Typography gutterBottom variant="h2">Data Sets</Typography>
+            <Typography variant="body1">Click on a data set to manage permissions.</Typography>
+            <div>
+              {
+                reducedRS === RequestStates.PENDING && (
+                  <SpinnerOverlay>
+                    <Spinner size="2x" />
+                  </SpinnerOverlay>
+                )
+              }
+              {
+                reducedRS === RequestStates.SUCCESS && (
+                  <StackGrid>
+                    {
+                      permissionsCount > MAX_PER_PAGE && (
+                        <PaginationToolbar
+                            page={paginationPage}
+                            count={permissionsCount}
+                            onPageChange={handleOnPageChange}
+                            rowsPerPage={MAX_PER_PAGE} />
+                      )
+                    }
+                    {
+                      pageDataSets.map((dataSet :EntitySet) => (
+                        <DataSetPermissionsCard
+                            key={dataSet.id}
+                            onSelect={handleOnSelect} />
+                      )).valueSeq()
+                    }
+                  </StackGrid>
+                )
+              }
+            </div>
+          </AppContentWrapper>
+        </ContentColumn>
         {
-          isNonEmptyString(role.description) && (
-            <div>{role.description}</div>
+          targetDataSet && targetPermissionType && (
+            <PanelColumn>
+              <PermissionsPanel
+                  dataSet={targetDataSet}
+                  onClose={handleOnClosePermissionsPanel}
+                  principal={role.principal}
+                  permissionType={targetPermissionType} />
+            </PanelColumn>
           )
         }
-        <Divider margin={48} />
-        <Header as="h3">Data Sets</Header>
-        <div>Click on a data set to manage permissions.</div>
-        <div>
-          {
-            reducedRS === RequestStates.PENDING && (
-              <SpinnerOverlay>
-                <Spinner size="2x" />
-              </SpinnerOverlay>
-            )
-          }
-          {
-            reducedRS === RequestStates.SUCCESS && (
-              <StackGrid>
-                {
-                  permissionsCount > MAX_PER_PAGE && (
-                    <PaginationToolbar
-                        page={paginationPage}
-                        count={permissionsCount}
-                        onPageChange={handleOnPageChange}
-                        rowsPerPage={MAX_PER_PAGE} />
-                  )
-                }
-                {
-                  pageDataSets.map((dataSet :EntitySet) => (
-                    <DataSetPermissionsCard dataSet={dataSet} key={dataSet.id} principal={role.principal} />
-                  )).valueSeq()
-                }
-              </StackGrid>
-            )
-          }
-        </div>
-      </AppContentWrapper>
+      </AppContentGrid>
     );
   }
 

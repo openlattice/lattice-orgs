@@ -65,17 +65,20 @@ const ActionsWrapper = styled.div`
 
 const DataSetPermissionsCard = ({
   dataSet,
+  onSelect,
   principal,
-} :{
+  targetPermissionType,
+} :{|
   dataSet :EntitySet;
+  onSelect :(dataSet :EntitySet, permission :PermissionType) => void;
   principal :Principal;
-}) => {
+  targetPermissionType :?PermissionType;
+|}) => {
 
   const [isOpen, setIsOpen] = useState(false);
-  const [targetPermissionType, setTargetPermissionType] = useState();
 
   const dataSetId :UUID = (dataSet.id :any);
-  const entityType :?EntityType = useSelector(selectEntitySetEntityType(dataSet));
+  const entityType :?EntityType = useSelector(selectEntitySetEntityType(dataSetId));
 
   const keys :List<List<UUID>> = useMemo(() => (
     List().withMutations((mutableList) => {
@@ -115,14 +118,7 @@ const DataSetPermissionsCard = ({
 
   const selectPermissionType = (event :SyntheticEvent<HTMLElement>) => {
     const permissionType :PermissionType = (event.currentTarget.dataset.permissionType :any);
-    setTargetPermissionType(permissionType);
-  };
-
-  const toggleIsOpen = () => {
-    if (isOpen) {
-      setTargetPermissionType();
-    }
-    setIsOpen(!isOpen);
+    onSelect(dataSet, permissionType);
   };
 
   return (
@@ -132,7 +128,7 @@ const DataSetPermissionsCard = ({
           <Typography component="span" variant="body1">{dataSet.title}</Typography>
           <ActionsWrapper>
             <Typography component="span" variant="body1">{permissionLabel}</Typography>
-            <IconButton onClick={toggleIsOpen}>
+            <IconButton onClick={() => setIsOpen(!isOpen)}>
               <FontAwesomeIcon fixedWidth icon={isOpen ? faChevronUp : faChevronDown} />
             </IconButton>
           </ActionsWrapper>
