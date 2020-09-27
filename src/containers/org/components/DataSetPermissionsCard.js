@@ -10,12 +10,7 @@ import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
-import {
-  Card,
-  Colors,
-  IconButton,
-  Typography,
-} from 'lattice-ui-kit';
+import { Colors, IconButton, Typography } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type {
   Ace,
@@ -26,7 +21,6 @@ import type {
   UUID,
 } from 'lattice';
 
-import { SpaceBetweenCardSegment } from '../../../components';
 import { selectEntitySetEntityType, selectPermissions } from '../../../core/redux/utils';
 
 const { NEUTRAL, PURPLE } = Colors;
@@ -43,15 +37,28 @@ const ORDERED_PERMISSIONS = [
   PermissionTypes.MATERIALIZE,
 ];
 
+const Card = styled.div`
+  align-items: center;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+`;
+
 const DataSetCard = styled(Card)`
   background-color: ${NEUTRAL.N50};
-  border: none;
+  border: 1px solid ${NEUTRAL.N50};
+  padding: 8px 24px;
 `;
 
 const PermissionTypeCard = styled(Card)`
   background-color: ${({ isSelected }) => (isSelected ? PURPLE.P00 : NEUTRAL.N00)};
   border: 1px solid ${({ isSelected }) => (isSelected ? PURPLE.P300 : NEUTRAL.N00)};
   margin-left: 24px;
+  padding: 16px 24px;
+
+  &:hover {
+    cursor: pointer;
+  }
 `;
 
 const ActionsWrapper = styled.div`
@@ -67,12 +74,15 @@ const DataSetPermissionsCard = ({
   dataSet,
   onSelect,
   principal,
-  targetPermissionType,
+  selection,
 } :{|
   dataSet :EntitySet;
-  onSelect :(dataSet :EntitySet, permission :PermissionType) => void;
+  onSelect :(dataSetId :UUID, permissionType :PermissionType) => void;
   principal :Principal;
-  targetPermissionType :?PermissionType;
+  selection :?{|
+    dataSetId :UUID;
+    permissionType :PermissionType;
+  |};
 |}) => {
 
   const [isOpen, setIsOpen] = useState(false);
@@ -118,30 +128,32 @@ const DataSetPermissionsCard = ({
 
   const selectPermissionType = (event :SyntheticEvent<HTMLElement>) => {
     const permissionType :PermissionType = (event.currentTarget.dataset.permissionType :any);
-    onSelect(dataSet, permissionType);
+    onSelect(dataSetId, permissionType);
   };
 
   return (
     <>
       <DataSetCard>
-        <SpaceBetweenCardSegment padding="8px 24px">
-          <Typography component="span" variant="body1">{dataSet.title}</Typography>
-          <ActionsWrapper>
-            <Typography component="span" variant="body1">{permissionLabel}</Typography>
-            <IconButton onClick={() => setIsOpen(!isOpen)}>
-              <FontAwesomeIcon fixedWidth icon={isOpen ? faChevronUp : faChevronDown} />
-            </IconButton>
-          </ActionsWrapper>
-        </SpaceBetweenCardSegment>
+        <Typography component="span" variant="body1">{dataSet.title}</Typography>
+        <ActionsWrapper>
+          <Typography component="span" variant="body1">{permissionLabel}</Typography>
+          <IconButton onClick={() => setIsOpen(!isOpen)}>
+            <FontAwesomeIcon fixedWidth icon={isOpen ? faChevronUp : faChevronDown} />
+          </IconButton>
+        </ActionsWrapper>
       </DataSetCard>
       {
         isOpen && (
           ORDERED_PERMISSIONS.map((pt :PermissionType) => (
-            <PermissionTypeCard isSelected={targetPermissionType === pt} key={pt}>
-              <SpaceBetweenCardSegment data-permission-type={pt} padding="16px 24px" onClick={selectPermissionType}>
-                <Typography component="span" variant="body1">{`${counts.get(pt) || 0} Properties`}</Typography>
-                <Typography component="span" variant="body1">{_capitalize(pt)}</Typography>
-              </SpaceBetweenCardSegment>
+            <PermissionTypeCard
+                data-permission-type={pt}
+                isSelected={(
+                  selection && selection.dataSetId === dataSetId && selection.permissionType === pt
+                )}
+                key={`${dataSetId}-${pt}`}
+                onClick={selectPermissionType}>
+              <Typography component="span" variant="body1">{`${counts.get(pt) || 0} Properties`}</Typography>
+              <Typography component="span" variant="body1">{_capitalize(pt)}</Typography>
             </PermissionTypeCard>
           ))
         )

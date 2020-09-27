@@ -83,8 +83,7 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
   const dispatch = useDispatch();
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
-  const [targetDataSet, setTargetDataSet] = useState();
-  const [targetPermissionType, setTargetPermissionType] = useState();
+  const [selection, setSelection] = useState();
 
   const getPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_PERMISSIONS]);
   const getOrSelectEntitySetsRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_ENTITY_SETS]);
@@ -132,18 +131,16 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
       setPaginationPage(page);
     };
 
-    const handleOnSelect = (dataSet :EntitySet, permission :PermissionType) => {
-      setTargetDataSet(dataSet);
-      setTargetPermissionType(permission);
+    const handleOnSelect = (dataSetId :UUID, permissionType :PermissionType) => {
+      setSelection({ dataSetId, permissionType });
     };
 
     const handleOnClosePermissionsPanel = () => {
-      setTargetDataSet();
-      setTargetPermissionType();
+      setSelection();
     };
 
     return (
-      <AppContentGrid isVisiblePanelColumn={targetDataSet && targetPermissionType}>
+      <AppContentGrid isVisiblePanelColumn={!!selection}>
         <ContentColumn>
           <AppContentWrapper>
             <Crumbs>
@@ -183,8 +180,11 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
                     {
                       pageDataSets.map((dataSet :EntitySet) => (
                         <DataSetPermissionsCard
+                            dataSet={dataSet}
                             key={dataSet.id}
-                            onSelect={handleOnSelect} />
+                            onSelect={handleOnSelect}
+                            principal={role.principal}
+                            selection={selection} />
                       )).valueSeq()
                     }
                   </StackGrid>
@@ -194,13 +194,13 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
           </AppContentWrapper>
         </ContentColumn>
         {
-          targetDataSet && targetPermissionType && (
+          selection && (
             <PanelColumn>
               <PermissionsPanel
-                  dataSet={targetDataSet}
+                  dataSetId={selection.dataSetId}
                   onClose={handleOnClosePermissionsPanel}
                   principal={role.principal}
-                  permissionType={targetPermissionType} />
+                  permissionType={selection.permissionType} />
             </PanelColumn>
           )
         }

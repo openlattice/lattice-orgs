@@ -17,12 +17,9 @@ import {
   StyleUtils,
   Typography,
 } from 'lattice-ui-kit';
-import { ReduxUtils } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import type {
   Ace,
-  EntitySet,
-  EntityType,
   PermissionType,
   Principal,
   PropertyType,
@@ -30,12 +27,11 @@ import type {
 } from 'lattice';
 
 import { SpaceBetweenCardSegment } from '../../../components';
-import { selectEntitySetEntityType, selectEntitySetPropertyTypes, selectPermissions } from '../../../core/redux/utils';
+import { selectEntitySetPropertyTypes, selectPermissions } from '../../../core/redux/utils';
 
 const { NEUTRAL } = Colors;
 const { APP_CONTENT_PADDING } = Sizes;
 const { media } = StyleUtils;
-const { selectEntitySets, selectEntityTypes } = ReduxUtils;
 
 const Panel = styled.div`
   background-color: white;
@@ -48,10 +44,7 @@ const Panel = styled.div`
   `}
 `;
 
-const PanelHeader = styled(Typography).attrs({
-  gutterBottom: true,
-  variant: 'h1',
-})`
+const PanelHeader = styled.div`
   align-items: center;
   display: flex;
   justify-content: space-between;
@@ -61,21 +54,18 @@ const PermissionsCard = styled(Card)`
   border: none;
 `;
 
-type Props = {
-  dataSet :EntitySet;
-  onClose :() => void;
-  principal :Principal;
-  permissionType :PermissionType;
-};
-
 const PermissionsPanel = ({
-  dataSet,
+  dataSetId,
   onClose,
   permissionType,
   principal,
-} :Props) => {
+} :{|
+  dataSetId :UUID;
+  onClose :() => void;
+  principal :Principal;
+  permissionType :PermissionType;
+|}) => {
 
-  const dataSetId :UUID = (dataSet.id :any);
   const propertyTypes :Map<UUID, PropertyType> = useSelector(selectEntitySetPropertyTypes(dataSetId));
 
   const keys :List<List<UUID>> = useMemo(() => (
@@ -103,9 +93,9 @@ const PermissionsPanel = ({
             const propertyType :PropertyType = propertyTypes.get(propertyTypeId);
             const isPermissionAssigned = ace.permissions.includes(permissionType);
             return (
-              <SpaceBetweenCardSegment padding="8px 0">
-                <Typography variant="body1">{propertyType.title}</Typography>
-                <Checkbox checked={isPermissionAssigned} />
+              <SpaceBetweenCardSegment key={propertyTypeId} padding="8px 0">
+                <Typography component="span" variant="body1">{propertyType.title}</Typography>
+                <Checkbox checked={isPermissionAssigned} onChange={() => {}} />
               </SpaceBetweenCardSegment>
             );
           }).valueSeq()
