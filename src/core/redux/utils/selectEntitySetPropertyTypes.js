@@ -4,12 +4,7 @@
 
 import { Map } from 'immutable';
 import { ReduxUtils } from 'lattice-utils';
-import type {
-  EntitySet,
-  EntityType,
-  PropertyType,
-  UUID,
-} from 'lattice';
+import type { EntityType, PropertyType, UUID } from 'lattice';
 
 import selectEntitySetEntityType from './selectEntitySetEntityType';
 
