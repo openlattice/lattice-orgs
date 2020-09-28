@@ -27,6 +27,8 @@ export const {
 } = ReduxConstants;
 
 export const ACES :'aces' = 'aces';
+export const ATLAS_DATA_SETS :'atlasDataSets' = 'atlasDataSets';
+export const ATLAS_DATA_SET_IDS :'atlasDataSetIds' = 'atlasDataSetIds';
 export const ENTITY_SET_IDS :'entitySetIds' = 'entitySetIds';
 export const INTEGRATION_ACCOUNTS :'integrationAccounts' = 'integrationAccounts';
 export const IS_OWNER :'isOwner' = 'isOwner';

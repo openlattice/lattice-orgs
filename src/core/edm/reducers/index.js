@@ -3,14 +3,16 @@
  */
 
 import { List, Map, fromJS } from 'immutable';
-import { EntitySetsApiActions } from 'lattice-sagas';
+import { DataSetsApiActions, EntitySetsApiActions } from 'lattice-sagas';
 
 import getEntityDataModelTypesReducer from './getEntityDataModelTypesReducer';
 import getEntitySetReducer from './getEntitySetReducer';
 import getEntitySetsReducer from './getEntitySetsReducer';
 import getOrSelectEntitySetsReducer from './getOrSelectEntitySetsReducer';
+import getOrganizationDataSetsReducer from './getOrganizationDataSetsReducer';
 
 import {
+  ATLAS_DATA_SETS,
   ENTITY_SETS,
   ENTITY_SETS_INDEX_MAP,
   ENTITY_TYPES,
@@ -27,6 +29,11 @@ import {
 } from '../actions';
 
 const {
+  GET_ORGANIZATION_DATA_SETS,
+  getOrganizationDataSets,
+} = DataSetsApiActions;
+
+const {
   GET_ENTITY_SET,
   GET_ENTITY_SETS,
   getEntitySet,
@@ -36,10 +43,12 @@ const {
 const INITIAL_STATE :Map = fromJS({
   // actions
   [GET_EDM_TYPES]: RS_INITIAL_STATE,
-  [GET_ENTITY_SET]: RS_INITIAL_STATE,
   [GET_ENTITY_SETS]: RS_INITIAL_STATE,
+  [GET_ENTITY_SET]: RS_INITIAL_STATE,
+  [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
   [GET_OR_SELECT_ENTITY_SETS]: RS_INITIAL_STATE,
   // data
+  [ATLAS_DATA_SETS]: Map(),
   [ENTITY_SETS]: List(),
   [ENTITY_SETS_INDEX_MAP]: Map(),
   [ENTITY_TYPES]: List(),
@@ -64,6 +73,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   if (action.type === getOrSelectEntitySets.case(action.type)) {
     return getOrSelectEntitySetsReducer(state, action);
+  }
+
+  if (action.type === getOrganizationDataSets.case(action.type)) {
+    return getOrganizationDataSetsReducer(state, action);
   }
 
   return state;

@@ -4,7 +4,7 @@
 
 import { List, Map, fromJS } from 'immutable';
 import { Models, Types } from 'lattice';
-import { OrganizationsApiActions } from 'lattice-sagas';
+import { DataSetsApiActions, OrganizationsApiActions } from 'lattice-sagas';
 import { PersonUtils } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { OrganizationObject, UUID } from 'lattice';
@@ -17,6 +17,7 @@ import {
 
 import { RESET_REQUEST_STATE } from '../../core/redux/actions';
 import {
+  ATLAS_DATA_SET_IDS,
   ENTITY_SET_IDS,
   ERROR,
   INTEGRATION_ACCOUNTS,
@@ -36,6 +37,7 @@ import {
   initializeOrganization,
   removeRoleFromOrganization,
 } from '../org/actions';
+import { getOrganizationDataSetsReducer } from '../org/reducers';
 import { sortOrganizationMembers } from '../org/utils';
 import type { AuthorizationObject } from '../../types';
 
@@ -48,6 +50,10 @@ const {
 } = Models;
 const { PermissionTypes, PrincipalTypes } = Types;
 
+const {
+  GET_ORGANIZATION_DATA_SETS,
+  getOrganizationDataSets,
+} = DataSetsApiActions;
 const {
   ADD_MEMBER_TO_ORGANIZATION,
   ADD_ROLE_TO_MEMBER,
@@ -74,6 +80,7 @@ const INITIAL_STATE :Map = fromJS({
   [ADD_ROLE_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [CREATE_NEW_ORGANIZATION]: RS_INITIAL_STATE,
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
+  [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_INTEGRATION_ACCOUNT]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
@@ -82,6 +89,7 @@ const INITIAL_STATE :Map = fromJS({
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   // data
+  [ATLAS_DATA_SET_IDS]: Map(),
   [ENTITY_SET_IDS]: Map(),
   [INTEGRATION_ACCOUNTS]: Map(),
   [IS_OWNER]: Map(),
@@ -91,6 +99,11 @@ const INITIAL_STATE :Map = fromJS({
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
+  if (action.type === getOrganizationDataSets.case(action.type)) {
+    return getOrganizationDataSetsReducer(state, action);
+  }
+
+  // TODO: refactor this reducer
   switch (action.type) {
 
     case RESET_REQUEST_STATE: {
