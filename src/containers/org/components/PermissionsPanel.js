@@ -155,10 +155,11 @@ const PermissionsPanel = ({
       <Divider isVisible={false} margin={24} />
       <PropertyTypesCard>
         {
-          localPropertyTypePermissions.map((ace :Ace, key :List<UUID>) => {
-            const propertyTypeId :UUID = key.get(1);
-            const propertyType :PropertyType = propertyTypes.get(propertyTypeId);
-            const isPermissionAssigned = ace.permissions.includes(permissionType);
+          propertyTypes.valueSeq().map((propertyType :PropertyType) => {
+            const propertyTypeId :UUID = (propertyType.id :any);
+            const key :List<UUID> = List([dataSetId, propertyTypeId]);
+            const ace :?Ace = localPropertyTypePermissions.get(key);
+            const isPermissionAssigned = ace?.permissions.includes(permissionType);
             return (
               <PropertyTypeCardSegment key={propertyTypeId}>
                 <div>
@@ -171,9 +172,10 @@ const PermissionsPanel = ({
                     onChange={handleOnChangePermission} />
               </PropertyTypeCardSegment>
             );
-          }).valueSeq()
+          })
         }
       </PropertyTypesCard>
+      <Divider isVisible={false} margin={24} />
       <Button
           color="primary"
           disabled={equalPermissions}
