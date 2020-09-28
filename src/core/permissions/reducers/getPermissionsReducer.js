@@ -5,7 +5,7 @@
 import { List, Map } from 'immutable';
 import { Models } from 'lattice';
 import { RequestStates } from 'redux-reqseq';
-import type { AclObject } from 'lattice';
+import type { Ace, AclObject, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
@@ -28,7 +28,7 @@ export default function reducer(state :Map, action :SequenceAction) {
       .setIn([GET_PERMISSIONS, action.id], action),
     SUCCESS: () => {
       if (state.hasIn([GET_PERMISSIONS, action.id])) {
-        const aces = state.get(ACES).withMutations((mutableAces :Map) => {
+        const aces = state.get(ACES).withMutations((mutableAces :Map<List<UUID>, List<Ace>>) => {
           const acls :AclObject[] = action.value;
           acls.forEach((aclObj :AclObject) => {
             const acl = (new AclBuilder(aclObj)).build();

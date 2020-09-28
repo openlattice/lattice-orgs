@@ -45,7 +45,7 @@ const { reduceRequestStates, selectEntitySets, selectOrganization } = ReduxUtils
 const MAX_PER_PAGE = 10;
 
 const getPanelColumnSize = ({ isVisiblePanelColumn }) => (
-  isVisiblePanelColumn ? 'minmax(auto,max-content)' : 'auto'
+  isVisiblePanelColumn ? 'minmax(auto, 384px)' : 'auto'
 );
 
 const AppContentGrid = styled.div`
@@ -129,6 +129,7 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
     const handleOnPageChange = ({ page, start }) => {
       setPaginationIndex(start);
       setPaginationPage(page);
+      setSelection();
     };
 
     const handleOnSelect = (dataSetId :UUID, permissionType :PermissionType) => {
@@ -198,6 +199,7 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
             <PanelColumn>
               <PermissionsPanel
                   dataSetId={selection.dataSetId}
+                  key={`${selection.dataSetId}-${selection.permissionType}`}
                   onClose={handleOnClosePermissionsPanel}
                   principal={role.principal}
                   permissionType={selection.permissionType} />
