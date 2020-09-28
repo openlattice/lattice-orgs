@@ -58,7 +58,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
     return getEntitySetReducer(state, action);
   }
 
-  // console.log(action.type);
   if (action.type === getEntitySets.case(action.type)) {
     return getEntitySetsReducer(state, action);
   }
