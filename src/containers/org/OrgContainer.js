@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
 import { CrumbLink, Header } from '../../components';
-import { selectOrganizationEntitySetIds } from '../../core/redux/utils';
+import { selectOrganizationAtlasDataSetIds, selectOrganizationEntitySetIds } from '../../core/redux/utils';
 import { Routes } from '../../core/router';
 
 const { NEUTRAL } = Colors;
@@ -65,11 +65,14 @@ type Props = {
 const OrgContainer = ({ organizationId } :Props) => {
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
+  const atlasDataSetIds :Set<UUID> = useSelector(selectOrganizationAtlasDataSetIds(organizationId));
   const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
 
   const membersPath = useMemo(() => (
     Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
+
+  const dataSetCount = entitySetIds.count() + atlasDataSetIds.count();
 
   if (organization) {
     return (
@@ -91,7 +94,7 @@ const OrgContainer = ({ organizationId } :Props) => {
           </div>
           <div>
             <span>Data Sets</span>
-            <b>{entitySetIds.count()}</b>
+            <b>{dataSetCount}</b>
             {/* <ManageLink to="#">
               <span>Manage Data Sets</span>
               <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
