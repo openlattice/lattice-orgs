@@ -14,6 +14,8 @@ import { Models, Types } from 'lattice';
 import {
   AuthorizationsApiActions,
   AuthorizationsApiSagas,
+  DataSetsApiActions,
+  DataSetsApiSagas,
   OrganizationsApiActions,
   OrganizationsApiSagas,
 } from 'lattice-sagas';
@@ -42,6 +44,8 @@ const { selectOrganization } = ReduxUtils;
 
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
+const { getOrganizationDataSets } = DataSetsApiActions;
+const { getOrganizationDataSetsWorker } = DataSetsApiSagas;
 const {
   getOrganization,
   getOrganizationEntitySets,
@@ -82,6 +86,12 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       getOrganizationEntitySetsCall = call(getOrganizationEntitySetsWorker, getOrganizationEntitySets(organizationId));
     }
 
+    // let getOrganizationDataSetsCall = call(() => {});
+    const getOrganizationDataSetsCall = call(
+      getOrganizationDataSetsWorker,
+      getOrganizationDataSets({ organizationId, columns: false }),
+    );
+
     const accessChecks :AccessCheck[] = [
       (new AccessCheckBuilder())
         .setAclKey([organizationId])
@@ -95,11 +105,13 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       getOrganizationResponse,
       getOrganizationMembersResponse,
       getOrganizationEntitySetsResponse,
+      getOrganizationDataSetsResponse,
       getAuthorizationsResponse,
     ] :Array<?WorkerResponse> = yield all([
       getOrganizationCall,
       getOrganizationMembersCall,
       getOrganizationEntitySetsCall,
+      getOrganizationDataSetsCall,
       getAuthorizationsCall,
     ]);
 
@@ -117,6 +129,12 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       entitySetIds = Set(Object.keys(getOrganizationEntitySetsResponse.data));
     }
 
+    let atlasDataSetIds = Set();
+    if (getOrganizationDataSetsResponse) {
+      if (getOrganizationDataSetsResponse.error) throw getOrganizationDataSetsResponse.error;
+      atlasDataSetIds = Set(getOrganizationDataSetsResponse.data.map((dataSet) => dataSet.id));
+    }
+
     let isOwner = false;
     if (getAuthorizationsResponse) {
       if (getAuthorizationsResponse.error) throw getAuthorizationsResponse.error;
@@ -125,6 +143,7 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
     }
 
     yield put(getPermissions(entitySetIds.map((id) => List([id]))));
+    yield put(getPermissions(atlasDataSetIds.map((id) => List([id]))));
 
     yield put(initializeOrganization.success(action.id, { isOwner, organization }));
   }
