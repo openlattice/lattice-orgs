@@ -6,22 +6,13 @@ import React, { useState } from 'react';
 
 import styled from 'styled-components';
 import { Button, Checkbox } from 'lattice-ui-kit';
-import { Logger, ValidationUtils } from 'lattice-utils';
+import { ValidationUtils } from 'lattice-utils';
 import type { Organization, Role, UUID } from 'lattice';
 
-import { Header } from '../../../components';
-import { ERR_INVALID_UUID } from '../../../utils/constants/errors';
+import { Divider, Header, StackGrid } from '../../../components';
 import { AddRoleToOrgModal } from '../components';
 
 const { isValidUUID } = ValidationUtils;
-
-const RolesSectionGrid = styled.div`
-  display: grid;
-  grid-auto-rows: min-content;
-  grid-gap: 16px;
-  grid-template-columns: 1fr;
-  max-width: 288px;
-`;
 
 const RolesSectionHeader = styled(Header)`
   justify-content: space-between;
@@ -35,8 +26,6 @@ type Props = {
   organizationId :UUID;
 };
 
-const LOG = new Logger('RolesSection');
-
 const RolesSection = ({
   isOwner,
   onSelectRole,
@@ -45,27 +34,22 @@ const RolesSection = ({
 } :Props) => {
 
   const [isVisibleAddRoleToOrgModal, setIsVisibleAddRoleToOrgModal] = useState(false);
-  const [selectedRoleId, setSelectedRoleId] = useState();
+  const [selectedRoleId, setSelectedRoleId] = useState(null);
 
   const handleOnChangeRoleCheckBox = (event :SyntheticEvent<HTMLInputElement>) => {
     const roleId :UUID = event.currentTarget.dataset.roleId;
     if (isValidUUID(roleId)) {
-      if (selectedRoleId === roleId) {
-        onSelectRole();
-        setSelectedRoleId();
-      }
-      else {
-        onSelectRole(roleId);
-        setSelectedRoleId(roleId);
-      }
+      onSelectRole(roleId);
+      setSelectedRoleId(roleId);
     }
     else {
-      LOG.error(ERR_INVALID_UUID, roleId);
+      onSelectRole(null);
+      setSelectedRoleId(null);
     }
   };
 
   return (
-    <RolesSectionGrid>
+    <StackGrid>
       <RolesSectionHeader as="h4">
         <span>Roles</span>
         {
@@ -76,6 +60,12 @@ const RolesSection = ({
           )
         }
       </RolesSectionHeader>
+      <Checkbox
+          checked={selectedRoleId === null}
+          label="All Members"
+          mode="button"
+          onChange={handleOnChangeRoleCheckBox} />
+      <Divider margin={0} />
       {
         organization.roles.map((role :Role) => (
           <Checkbox
@@ -95,7 +85,7 @@ const RolesSection = ({
               organizationId={organizationId} />
         )
       }
-    </RolesSectionGrid>
+    </StackGrid>
   );
 };
 

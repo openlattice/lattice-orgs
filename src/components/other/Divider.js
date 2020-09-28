@@ -14,7 +14,7 @@ type Props = {
 const getComputedStyles = ({ margin } :Props) => {
 
   let finalMargin = '16px 0';
-  if (margin) {
+  if (typeof margin === 'number' && margin >= 0) {
     finalMargin = `${margin}px 0`;
   }
 

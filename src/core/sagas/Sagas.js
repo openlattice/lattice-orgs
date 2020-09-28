@@ -7,18 +7,16 @@ import { AuthSagas } from 'lattice-auth';
 import {
   AuthorizationsApiSagas,
   DataSetsApiSagas,
-  EntitySetsApiSagas,
   OrganizationsApiSagas,
-  PermissionsApiSagas,
   PrincipalsApiSagas,
 } from 'lattice-sagas';
 import type { Saga } from '@redux-saga/core';
 
-import * as EDMSagas from '../edm/EDMSagas';
 import * as RoutingSagas from '../router/RoutingSagas';
 import { AppSagas } from '../../containers/app';
 import { OrgSagas } from '../../containers/org';
 import { OrgsSagas } from '../../containers/orgs';
+import { EDMSagas } from '../edm';
 import { PermissionsSagas } from '../permissions';
 
 export default function* sagas() :Saga<*> {
@@ -34,8 +32,6 @@ export default function* sagas() :Saga<*> {
     // "lattice-sagas" sagas
     fork(AuthorizationsApiSagas.getAuthorizationsWatcher),
     fork(DataSetsApiSagas.getOrganizationDataSetsWatcher),
-    fork(EntitySetsApiSagas.getAllEntitySetsWatcher),
-    fork(EntitySetsApiSagas.getEntitySetsWatcher),
     fork(OrganizationsApiSagas.addDomainsToOrganizationWatcher),
     fork(OrganizationsApiSagas.addMemberToOrganizationWatcher),
     fork(OrganizationsApiSagas.addRoleToMemberWatcher),
@@ -56,8 +52,6 @@ export default function* sagas() :Saga<*> {
     fork(OrganizationsApiSagas.updateOrganizationDescriptionWatcher),
     fork(OrganizationsApiSagas.updateOrganizationTitleWatcher),
     fork(OrganizationsApiSagas.updateRoleGrantWatcher),
-    fork(PermissionsApiSagas.updateAclWatcher),
-    fork(PermissionsApiSagas.updateAclsWatcher),
     fork(PrincipalsApiSagas.getAllUsersWatcher),
     fork(PrincipalsApiSagas.getSecurablePrincipalWatcher),
     fork(PrincipalsApiSagas.searchAllUsersWatcher),
@@ -67,6 +61,7 @@ export default function* sagas() :Saga<*> {
 
     // EDMSagas
     fork(EDMSagas.getEntityDataModelTypesWatcher),
+    fork(EDMSagas.getOrSelectEntitySetsWatcher),
 
     // OrgSagas
     fork(OrgSagas.addRoleToOrganizationWatcher),
@@ -78,7 +73,8 @@ export default function* sagas() :Saga<*> {
     fork(OrgsSagas.getOrganizationsAndAuthorizationsWatcher),
 
     // PermissionsSagas
-    fork(PermissionsSagas.getEntitySetsWithPermissionsWatcher),
+    fork(PermissionsSagas.getPermissionsWatcher),
+    fork(PermissionsSagas.getPropertyTypePermissionsWatcher),
 
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),

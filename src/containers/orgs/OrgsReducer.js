@@ -17,7 +17,7 @@ import {
 
 import { RESET_REQUEST_STATE } from '../../core/redux/actions';
 import {
-  ENTITY_SETS,
+  ENTITY_SET_IDS,
   ERROR,
   INTEGRATION_ACCOUNTS,
   IS_OWNER,
@@ -82,7 +82,7 @@ const INITIAL_STATE :Map = fromJS({
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   // data
-  [ENTITY_SETS]: Map(),
+  [ENTITY_SET_IDS]: Map(),
   [INTEGRATION_ACCOUNTS]: Map(),
   [IS_OWNER]: Map(),
   [MEMBERS]: Map(),
@@ -298,7 +298,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           if (storedSeqAction) {
             const organizationId :UUID = storedSeqAction.value;
             return state
-              .setIn([ENTITY_SETS, organizationId], fromJS(seqAction.value).keySeq().toSet())
+              .setIn([ENTITY_SET_IDS, organizationId], fromJS(seqAction.value).keySeq().toSet())
               .setIn([GET_ORGANIZATION_ENTITY_SETS, REQUEST_STATE], RequestStates.SUCCESS);
           }
           return state;
@@ -308,7 +308,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           if (storedSeqAction) {
             const organizationId :UUID = storedSeqAction.value;
             return state
-              .deleteIn([ENTITY_SETS, organizationId])
+              .deleteIn([ENTITY_SET_IDS, organizationId])
               .setIn([GET_ORGANIZATION_ENTITY_SETS, REQUEST_STATE], RequestStates.FAILURE);
           }
           return state;

@@ -2,23 +2,24 @@
  * @flow
  */
 
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import styled from 'styled-components';
 import { faChevronRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Set } from 'immutable';
 import { AppContentWrapper, Colors } from 'lattice-ui-kit';
-import { LangUtils } from 'lattice-utils';
+import { LangUtils, ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
 import { CrumbLink, Header } from '../../components';
-import { ENTITY_SETS, ORGANIZATIONS } from '../../core/redux/constants';
+import { selectOrganizationEntitySetIds } from '../../core/redux/utils';
 import { Routes } from '../../core/router';
 
 const { NEUTRAL } = Colors;
 const { isNonEmptyString } = LangUtils;
+const { selectOrganization } = ReduxUtils;
 
 const Boxes = styled.div`
   display: flex;
@@ -57,46 +58,51 @@ const ManageLink = styled(CrumbLink)`
 `;
 
 type Props = {
-  organization :Organization;
   organizationId :UUID;
 };
 
-const OrgContainer = ({ organization, organizationId } :Props) => {
+const OrgContainer = ({ organizationId } :Props) => {
 
-  const membersPath = Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId);
+  const organization :?Organization = useSelector(selectOrganization(organizationId));
+  const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
 
-  const entitySetIds :Set<UUID> = useSelector((s) => s.getIn([ORGANIZATIONS, ENTITY_SETS, organizationId]), Set());
+  const membersPath = useMemo(() => (
+    Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId)
+  ), [organizationId]);
 
-  return (
-    <AppContentWrapper padding="60px 30px 30px">
-      <div>
+  if (organization) {
+    return (
+      <AppContentWrapper>
         <Header as="h2">{organization.title}</Header>
-      </div>
-      {
-        isNonEmptyString(organization.description) && (
-          <div>{organization.description}</div>
-        )
-      }
-      <Boxes>
-        <div>
-          <span>Members</span>
-          <b>{organization.members.length}</b>
-          <ManageLink to={membersPath}>
-            <span>Manage Members</span>
-            <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
-          </ManageLink>
-        </div>
-        <div>
-          <span>Data Sets</span>
-          <b>{entitySetIds.count()}</b>
-          <ManageLink to="#">
-            <span>Manage Data Sets</span>
-            <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
-          </ManageLink>
-        </div>
-      </Boxes>
-    </AppContentWrapper>
-  );
+        {
+          isNonEmptyString(organization.description) && (
+            <div>{organization.description}</div>
+          )
+        }
+        <Boxes>
+          <div>
+            <span>Members</span>
+            <b>{organization.members.length}</b>
+            <ManageLink to={membersPath}>
+              <span>Manage Members</span>
+              <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
+            </ManageLink>
+          </div>
+          <div>
+            <span>Data Sets</span>
+            <b>{entitySetIds.count()}</b>
+            <ManageLink to="#">
+              <span>Manage Data Sets</span>
+              <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
+            </ManageLink>
+          </div>
+        </Boxes>
+      </AppContentWrapper>
+    );
+  }
+
+  // LOG.error()
+  return null;
 };
 
 export default OrgContainer;

@@ -26,6 +26,8 @@ export const {
   USERS,
 } = ReduxConstants;
 
+export const ACES :'aces' = 'aces';
+export const ENTITY_SET_IDS :'entitySetIds' = 'entitySetIds';
 export const INTEGRATION_ACCOUNTS :'integrationAccounts' = 'integrationAccounts';
 export const IS_OWNER :'isOwner' = 'isOwner';
 export const USER_SEARCH_RESULTS :'userSearchResults' = 'userSearchResults';

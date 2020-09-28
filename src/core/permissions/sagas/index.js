@@ -2,4 +2,5 @@
  * @flow
  */
 
-export * from './getEntitySetsWithPermissions';
+export * from './getPermissions';
+export * from './getPropertyTypePermissions';

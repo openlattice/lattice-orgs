@@ -2,10 +2,10 @@
  * @flow
  */
 
-import * as EDMActions from './EDMActions';
-import * as EDMSagas from './EDMSagas';
+import * as EDMActions from './actions';
+import * as EDMSagas from './sagas';
 
-export { default as EDMReducer } from './EDMReducer';
+export { default as EDMReducer } from './reducers';
 
 export {
   EDMActions,

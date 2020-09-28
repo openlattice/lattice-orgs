@@ -36,7 +36,7 @@ function getUserProfileLabel(user :any, thisUserId :?string) :string {
   const name :string = get(auth0UserProfile, 'name', '');
   const username :string = get(auth0UserProfile, 'username', '');
 
-  let label :string = name || username || userId;
+  let label :string = name || username;
 
   if (isNonEmptyString(email) && email !== label) {
     if (email.startsWith(label)) {
@@ -47,16 +47,19 @@ function getUserProfileLabel(user :any, thisUserId :?string) :string {
     }
   }
 
-  if (label !== userId) {
-    if (userId.startsWith('auth0')) {
-      label = `${label} - Auth0`;
-    }
-    else if (userId.startsWith('google')) {
-      label = `${label} - Google`;
-    }
-    if (userId === thisUserId) {
-      label = `${label} (you)`;
-    }
+  if (userId.startsWith('auth0')) {
+    label = `${label} - Auth0`;
+  }
+  else if (userId.startsWith('google')) {
+    label = `${label} - Google`;
+  }
+
+  if (!isNonEmptyString(label)) {
+    label = userId;
+  }
+
+  if (userId === thisUserId) {
+    label = `${label} (you)`;
   }
 
   return label || '';
