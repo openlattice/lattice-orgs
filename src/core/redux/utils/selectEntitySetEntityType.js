@@ -16,6 +16,7 @@ export default function selectEntitySetEntityType(idOrEntitySet :UUID | EntitySe
 
     let entitySetId :?UUID;
     if (isValidUUID(idOrEntitySet)) {
+      // $FlowFixMe
       entitySetId = idOrEntitySet;
     }
     // $FlowFixMe
