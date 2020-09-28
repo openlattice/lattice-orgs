@@ -28,8 +28,9 @@ const Boxes = styled.div`
 
   > div {
     border: 1px solid ${NEUTRAL.N200};
-    display: grid;
-    grid-gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     margin-bottom: 48px;
     margin-right: 48px;
     max-width: 335px;
@@ -91,10 +92,10 @@ const OrgContainer = ({ organizationId } :Props) => {
           <div>
             <span>Data Sets</span>
             <b>{entitySetIds.count()}</b>
-            <ManageLink to="#">
+            {/* <ManageLink to="#">
               <span>Manage Data Sets</span>
               <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
-            </ManageLink>
+            </ManageLink> */}
           </div>
         </Boxes>
       </AppContentWrapper>
