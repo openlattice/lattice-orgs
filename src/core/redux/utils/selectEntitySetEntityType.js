@@ -3,35 +3,19 @@
  */
 
 import { Map } from 'immutable';
-import { ReduxUtils, ValidationUtils } from 'lattice-utils';
-import { useSelector } from 'react-redux';
+import { ReduxUtils } from 'lattice-utils';
 import type { EntitySet, EntityType, UUID } from 'lattice';
 
 const { selectEntitySets, selectEntityTypes } = ReduxUtils;
-const { isValidUUID } = ValidationUtils;
 
-export default function selectEntitySetEntityType(idOrEntitySet :UUID | EntitySet) {
+export default function selectEntitySetEntityType(entitySetId :UUID) {
 
-  return () :?EntityType => {
+  return (state :Map) :?EntityType => {
 
-    let entitySetId :?UUID;
-    if (isValidUUID(idOrEntitySet)) {
-      // $FlowFixMe
-      entitySetId = idOrEntitySet;
-    }
-    // $FlowFixMe
-    else if (isValidUUID(idOrEntitySet?.id)) {
-      // $FlowFixMe
-      entitySetId = idOrEntitySet.id;
-    }
-    else {
-      return undefined;
-    }
-
-    const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets([entitySetId]));
+    const entitySets :Map<UUID, EntitySet> = selectEntitySets([entitySetId])(state);
     const entitySet :?EntitySet = entitySets.get(entitySetId);
     const entityTypeId :?UUID = entitySet?.entityTypeId;
-    const entityTypes :Map<UUID, EntityType> = useSelector(selectEntityTypes([entityTypeId]));
+    const entityTypes :Map<UUID, EntityType> = selectEntityTypes([entityTypeId])(state);
     const entityType :?EntityType = entityTypes.get(entityTypeId);
     return entityType;
   };
