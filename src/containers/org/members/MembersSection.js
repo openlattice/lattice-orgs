@@ -23,7 +23,7 @@ import type { Role, UUID } from 'lattice';
 import { Header } from '../../../components';
 import { Routes } from '../../../core/router';
 import { goToRoute } from '../../../core/router/actions';
-import { getUserProfileLabel } from '../../../utils/PersonUtils';
+import { getSecurablePrincipalId, getUserProfileLabel } from '../../../utils/PersonUtils';
 import { RemoveMemberFromOrgModal, RemoveRoleFromMemberModal } from '../components';
 import { filterOrganizationMember, isRoleAssignedToMember } from '../utils';
 
@@ -63,7 +63,6 @@ const PlusIcon = (
 type Props = {
   isOwner :boolean;
   members :List;
-  // organization :Organization;
   organizationId :UUID;
   selectedRole :?Role;
 };
@@ -115,6 +114,18 @@ const MembersSection = ({
     }
   };
 
+  const goToMember = (event :SyntheticEvent<HTMLElement>) => {
+    const userId :?string = event.currentTarget.dataset.userId;
+    const member = members.find((orgMember) => getUserId(orgMember) === userId);
+    const memberPrincipalId :?UUID = getSecurablePrincipalId(member);
+    if (memberPrincipalId) {
+      const memberPath = Routes.ORG_MEMBER
+        .replace(Routes.ORG_ID_PARAM, organizationId)
+        .replace(Routes.PRINCIPAL_ID_PARAM, memberPrincipalId);
+      dispatch(goToRoute(memberPath));
+    }
+  };
+
   const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
   const thisUserId = thisUserInfo.id;
   const targetMemberId = getUserId(targetMember);
@@ -157,7 +168,9 @@ const MembersSection = ({
           const userId = getUserId(member);
           return (
             <MemberWrapper key={userId}>
-              <span>{getUserProfileLabel(member, thisUserId)}</span>
+              <span data-user-id={userId} onClick={goToMember} onKeyPress={goToMember} role="link" tabIndex={0}>
+                {getUserProfileLabel(member, thisUserId)}
+              </span>
               <IconButton onClick={() => handleOnClickRemoveMember(member)}>
                 <FontAwesomeIcon fixedWidth icon={faTimes} />
               </IconButton>

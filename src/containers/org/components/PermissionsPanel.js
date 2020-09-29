@@ -50,6 +50,7 @@ const Panel = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  max-width: 384px;
   padding: ${APP_CONTENT_PADDING}px;
   ${media.phone`
     padding: ${APP_CONTENT_PADDING / 2}px;
@@ -104,7 +105,17 @@ const PermissionsPanel = ({
   // NOTE: !!! super important !!!
   // in order for useState() to behave correctly here, PermissionsPanel MUST be passed a unique "key" prop
   const [localPropertyTypePermissions, setLocalPropertyTypePermissions] = useState(propertyTypePermissions);
-  const equalPermissions :boolean = propertyTypePermissions.equals(localPropertyTypePermissions);
+
+  // TODO: update Ace model to use Set for immutable equality to be able to use .equals()
+  // const equalPermissions :boolean = propertyTypePermissions.equals(localPropertyTypePermissions);
+  const equalPermissions :boolean = propertyTypePermissions.reduce((isEqual :boolean, ogAce :Ace, key :List<UUID>) => {
+    const localAce :Ace = localPropertyTypePermissions.get(key);
+    return (
+      isEqual
+      && localAce.principal.valueOf() === ogAce.principal.valueOf()
+      && Set(localAce.permissions).equals(Set(ogAce.permissions))
+    );
+  }, true);
 
   const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
 
@@ -130,10 +141,14 @@ const PermissionsPanel = ({
 
   const handleOnClickSave = () => {
     const updatedPropertyTypePermissions :Map<List<UUID>, Ace> = localPropertyTypePermissions
-      .filter((ace :Ace, key :List<UUID>) => (
-        // NOTE: valueOf() will be different if the "permissions" order is different
-        ace.valueOf() !== propertyTypePermissions.get(key).valueOf()
-      ));
+      .filter((ace :Ace, key :List<UUID>) => {
+        const ogAce :Ace = propertyTypePermissions.get(key);
+        const equal = (
+          ace.principal.valueOf() === ogAce.principal.valueOf()
+          && Set(ace.permissions).equals(Set(ogAce.permissions))
+        );
+        return !equal;
+      });
     dispatch(setPermissions(updatedPropertyTypePermissions));
   };
 

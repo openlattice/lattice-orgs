@@ -12,7 +12,7 @@ const { isDefined, isNonEmptyString } = LangUtils;
 const { getUserId } = PersonUtils;
 const { isValidUUID } = ValidationUtils;
 
-function getPrincipalId(user :any) :?UUID {
+function getSecurablePrincipalId(user :any) :?UUID {
 
   const securablePrincipalClass = getIn(user, ['principal', AT_CLASS]);
   const principalId :?UUID = getIn(user, ['principal', 'id']);
@@ -98,9 +98,11 @@ function getUserProfile(user :any) :UserProfile {
 }
 
 export {
-  getPrincipalId,
-  // getUserId,
+  getSecurablePrincipalId,
   getUserProfile,
   getUserProfileLabel,
-  // sortByProfileLabel,
+};
+
+export type {
+  UserProfile,
 };
