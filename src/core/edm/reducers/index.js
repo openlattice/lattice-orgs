@@ -8,7 +8,7 @@ import { DataSetsApiActions, EntitySetsApiActions } from 'lattice-sagas';
 import getEntityDataModelTypesReducer from './getEntityDataModelTypesReducer';
 import getEntitySetReducer from './getEntitySetReducer';
 import getEntitySetsReducer from './getEntitySetsReducer';
-import getOrSelectEntitySetsReducer from './getOrSelectEntitySetsReducer';
+import getOrSelectDataSetsReducer from './getOrSelectDataSetsReducer';
 import getOrganizationDataSetsReducer from './getOrganizationDataSetsReducer';
 
 import {
@@ -23,9 +23,9 @@ import {
 } from '../../redux/constants';
 import {
   GET_EDM_TYPES,
-  GET_OR_SELECT_ENTITY_SETS,
+  GET_OR_SELECT_DATA_SETS,
   getEntityDataModelTypes,
-  getOrSelectEntitySets,
+  getOrSelectDataSets,
 } from '../actions';
 
 const {
@@ -46,7 +46,7 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ENTITY_SET]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
-  [GET_OR_SELECT_ENTITY_SETS]: RS_INITIAL_STATE,
+  [GET_OR_SELECT_DATA_SETS]: RS_INITIAL_STATE,
   // data
   [ATLAS_DATA_SETS]: Map(),
   [ENTITY_SETS]: List(),
@@ -71,8 +71,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
     return getEntitySetsReducer(state, action);
   }
 
-  if (action.type === getOrSelectEntitySets.case(action.type)) {
-    return getOrSelectEntitySetsReducer(state, action);
+  if (action.type === getOrSelectDataSets.case(action.type)) {
+    return getOrSelectDataSetsReducer(state, action);
   }
 
   if (action.type === getOrganizationDataSets.case(action.type)) {

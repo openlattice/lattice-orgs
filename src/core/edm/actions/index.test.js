@@ -6,12 +6,12 @@ import { testShouldExportActionTypes, testShouldExportRequestSequences } from '.
 
 const ACTION_TYPES = OrderedSet([
   'GET_EDM_TYPES',
-  'GET_OR_SELECT_ENTITY_SETS',
+  'GET_OR_SELECT_DATA_SETS',
 ]).toJS();
 
 const REQSEQ_NAMES = OrderedSet([
   'getEntityDataModelTypes',
-  'getOrSelectEntitySets',
+  'getOrSelectDataSets',
 ]).toJS();
 
 describe('EDMActions', () => {

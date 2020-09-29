@@ -24,7 +24,7 @@ export default function reducer(state :Map, action :SequenceAction) {
       const storedAction = state.getIn([GET_ORGANIZATION_DATA_SETS, action.id]);
       if (storedAction) {
         const { organizationId } = storedAction.value;
-        const atlasDataSetIds = Set(action.value.map((dataSet) => dataSet.id));
+        const atlasDataSetIds = Set(action.value.map((dataSet) => dataSet.table.id));
         return state
           .setIn([ATLAS_DATA_SET_IDS, organizationId], atlasDataSetIds)
           .setIn([GET_ORGANIZATION_DATA_SETS, REQUEST_STATE], RequestStates.SUCCESS);

@@ -26,7 +26,11 @@ import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { getPermissions } from '../../../core/permissions/actions';
-import { selectOrganizationEntitySetIds, selectOrganizationMembers } from '../../../core/redux/utils';
+import {
+  selectOrganizationAtlasDataSetIds,
+  selectOrganizationEntitySetIds,
+  selectOrganizationMembers,
+} from '../../../core/redux/utils';
 import { AxiosUtils } from '../../../utils';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
 import type { AuthorizationObject } from '../../../types';
@@ -66,6 +70,7 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     let organization :?Organization = yield select(selectOrganization(organizationId));
     const members :List = yield select(selectOrganizationMembers(organizationId));
+    let atlasDataSetIds :Set<UUID> = yield select(selectOrganizationAtlasDataSetIds(organizationId));
     let entitySetIds :Set<UUID> = yield select(selectOrganizationEntitySetIds(organizationId));
 
     // TODO - figure out how to "expire" stored data
@@ -86,11 +91,11 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       getOrganizationEntitySetsCall = call(getOrganizationEntitySetsWorker, getOrganizationEntitySets(organizationId));
     }
 
-    // let getOrganizationDataSetsCall = call(() => {});
-    const getOrganizationDataSetsCall = call(
-      getOrganizationDataSetsWorker,
-      getOrganizationDataSets({ organizationId, columns: false }),
-    );
+    // TODO - figure out how to "expire" stored data
+    let getOrganizationDataSetsCall = call(() => {});
+    if (atlasDataSetIds.isEmpty()) {
+      getOrganizationDataSetsCall = call(getOrganizationDataSetsWorker, getOrganizationDataSets({ organizationId }));
+    }
 
     const accessChecks :AccessCheck[] = [
       (new AccessCheckBuilder())
@@ -129,10 +134,9 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       entitySetIds = Set(Object.keys(getOrganizationEntitySetsResponse.data));
     }
 
-    let atlasDataSetIds = Set();
     if (getOrganizationDataSetsResponse) {
       if (getOrganizationDataSetsResponse.error) throw getOrganizationDataSetsResponse.error;
-      atlasDataSetIds = Set(getOrganizationDataSetsResponse.data.map((dataSet) => dataSet.id));
+      atlasDataSetIds = Set(getOrganizationDataSetsResponse.data.map((dataSet) => dataSet.table.id));
     }
 
     let isOwner = false;

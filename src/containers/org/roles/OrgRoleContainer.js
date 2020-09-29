@@ -13,8 +13,8 @@ import {
   Typography,
 } from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
-import { RequestStates } from 'redux-reqseq';
 import { useDispatch, useSelector } from 'react-redux';
+import { RequestStates } from 'redux-reqseq';
 import type {
   Ace,
   EntitySet,
@@ -32,10 +32,14 @@ import {
   Divider,
   StackGrid,
 } from '../../../components';
-import { GET_OR_SELECT_ENTITY_SETS, getOrSelectEntitySets } from '../../../core/edm/actions';
+import { GET_OR_SELECT_DATA_SETS, getOrSelectDataSets } from '../../../core/edm/actions';
 import { GET_PERMISSIONS, getPropertyTypePermissions } from '../../../core/permissions/actions';
 import { EDM, PERMISSIONS } from '../../../core/redux/constants';
-import { selectOrganizationEntitySetIds, selectPermissions } from '../../../core/redux/utils';
+import {
+  selectOrganizationAtlasDataSetIds,
+  selectOrganizationEntitySetIds,
+  selectPermissions,
+} from '../../../core/redux/utils';
 import { Routes } from '../../../core/router';
 import { DataSetPermissionsCard, PermissionsPanel } from '../components';
 
@@ -73,12 +77,13 @@ const SpinnerOverlay = styled.div`
   z-index: 1000;
 `;
 
-type Props = {
+const OrgRoleContainer = ({
+  organizationId,
+  roleId,
+} :{|
   organizationId :UUID;
   roleId :UUID;
-};
-
-const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
+|}) => {
 
   const dispatch = useDispatch();
   const [paginationIndex, setPaginationIndex] = useState(0);
@@ -86,19 +91,20 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
   const [selection, setSelection] = useState();
 
   const getPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_PERMISSIONS]);
-  const getOrSelectEntitySetsRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_ENTITY_SETS]);
+  const getOrSelectDataSetsRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_DATA_SETS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const role :?Role = useMemo(() => (
     organization?.roles.find((orgRole) => orgRole.id === roleId)
   ), [organization, roleId]);
 
+  const atlasDataSetIds :Set<UUID> = useSelector(selectOrganizationAtlasDataSetIds(organizationId));
   const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
-  const entitySetKeys :List<List<UUID>> = useMemo(() => (
-    entitySetIds.map((id) => List([id]))
-  ), [entitySetIds]);
+  const keys :Set<List<UUID>> = useMemo(() => (
+    Set().union(atlasDataSetIds).union(entitySetIds).map((id :UUID) => List([id]))
+  ), [atlasDataSetIds, entitySetIds]);
 
-  const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(entitySetKeys, role?.principal));
+  const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, role?.principal));
   const permissionsCount :number = permissions.count();
   const pagePermissions :Map<List<UUID>, Ace> = permissions.slice(paginationIndex, paginationIndex + MAX_PER_PAGE);
   const pageDataSetIds :List<UUID> = pagePermissions.keySeq().flatten().toSet();
@@ -108,7 +114,13 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
 
   useEffect(() => {
     if (!pageDataSetIds.isEmpty()) {
-      dispatch(getOrSelectEntitySets(pageDataSetIds));
+      const pageAtlasDataSetIds = pageDataSetIds.filter((id :UUID) => atlasDataSetIds.has(id));
+      const pageEntitySetIds = pageDataSetIds.filter((id :UUID) => entitySetIds.has(id));
+      dispatch(getOrSelectDataSets({
+        organizationId,
+        atlasDataSetIds: pageAtlasDataSetIds,
+        entitySetIds: pageEntitySetIds,
+      }));
     }
   }, [dispatch, pageDataSetIdsHash]);
 
@@ -124,7 +136,7 @@ const OrgRoleContainer = ({ organizationId, roleId } :Props) => {
 
   if (organization && role) {
 
-    const reducedRS = reduceRequestStates([getPermissionsRS, getOrSelectEntitySetsRS]);
+    const reducedRS = reduceRequestStates([getPermissionsRS, getOrSelectDataSetsRS]);
 
     const handleOnPageChange = ({ page, start }) => {
       setPaginationIndex(start);
