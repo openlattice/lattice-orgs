@@ -114,7 +114,8 @@ const MembersSection = ({
     }
   };
 
-  const goToMember = (userId :string) => {
+  const goToMember = (event :SyntheticEvent<HTMLElement>) => {
+    const userId :?string = event.currentTarget.dataset.userId;
     const member = members.find((orgMember) => getUserId(orgMember) === userId);
     const memberPrincipalId :?UUID = getSecurablePrincipalId(member);
     if (memberPrincipalId) {
@@ -167,7 +168,9 @@ const MembersSection = ({
           const userId = getUserId(member);
           return (
             <MemberWrapper key={userId}>
-              <span onClick={() => goToMember(userId)}>{getUserProfileLabel(member, thisUserId)}</span>
+              <span data-user-id={userId} onClick={goToMember} onKeyPress={goToMember} role="link" tabIndex={0}>
+                {getUserProfileLabel(member, thisUserId)}
+              </span>
               <IconButton onClick={() => handleOnClickRemoveMember(member)}>
                 <FontAwesomeIcon fixedWidth icon={faTimes} />
               </IconButton>
