@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type { UUID } from 'lattice';
+import type { PermissionType, UUID } from 'lattice';
 
 type AuthorizationObject = {|
   aclKey :UUID[];
@@ -11,6 +11,11 @@ type AuthorizationObject = {|
     READ ?:boolean;
     WRITE ?:boolean;
   };
+|};
+
+type PermissionSelection = {|
+  dataSetId :UUID;
+  permissionType :PermissionType;
 |};
 
 type ReactSelectOption = {|
@@ -26,6 +31,7 @@ type SagaError = {
 
 export type {
   AuthorizationObject,
+  PermissionSelection,
   ReactSelectOption,
   SagaError,
 };

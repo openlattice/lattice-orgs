@@ -50,6 +50,7 @@ const Panel = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
+  max-width: 384px;
   padding: ${APP_CONTENT_PADDING}px;
   ${media.phone`
     padding: ${APP_CONTENT_PADDING / 2}px;

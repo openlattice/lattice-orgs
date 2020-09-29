@@ -10,7 +10,12 @@ import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
-import { Colors, IconButton, Typography } from 'lattice-ui-kit';
+import {
+  Colors,
+  IconButton,
+  StyleUtils,
+  Typography,
+} from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type {
   Ace,
@@ -22,9 +27,11 @@ import type {
 } from 'lattice';
 
 import { selectEntitySetEntityType, selectPermissions } from '../../../core/redux/utils';
+import type { PermissionSelection } from '../../../types';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { PermissionTypes } = Types;
+const { media } = StyleUtils;
 
 const MIXED_PERMISSIONS_LABEL :'Mixed Permissions' = 'Mixed Permissions';
 const NO_PERMISSIONS_LABEL :'No Permissions' = 'No Permissions';
@@ -41,6 +48,7 @@ const Card = styled.div`
   align-items: center;
   border-radius: 4px;
   display: flex;
+  gap: 16px;
   justify-content: space-between;
 `;
 
@@ -48,6 +56,10 @@ const DataSetCard = styled(Card)`
   background-color: ${NEUTRAL.N50};
   border: 1px solid ${NEUTRAL.N50};
   padding: 8px 24px;
+`;
+
+const DataSetTitle = styled.span`
+  word-break: break-all;
 `;
 
 const PermissionTypeCard = styled(Card)`
@@ -64,10 +76,17 @@ const PermissionTypeCard = styled(Card)`
 const ActionsWrapper = styled.div`
   align-items: center;
   display: flex;
+  flex: 0 0 auto;
 
   > button {
     margin-left: 16px;
   }
+
+  ${media.phone`
+    > span {
+      display: none;
+    }
+  `}
 `;
 
 const DataSetPermissionsCard = ({
@@ -77,12 +96,9 @@ const DataSetPermissionsCard = ({
   selection,
 } :{|
   dataSet :EntitySet;
-  onSelect :(dataSetId :UUID, permissionType :PermissionType) => void;
+  onSelect :(selection :?PermissionSelection) => void;
   principal :Principal;
-  selection :?{|
-    dataSetId :UUID;
-    permissionType :PermissionType;
-  |};
+  selection :?PermissionSelection;
 |}) => {
 
   const [isOpen, setIsOpen] = useState(false);
@@ -128,13 +144,15 @@ const DataSetPermissionsCard = ({
 
   const selectPermissionType = (event :SyntheticEvent<HTMLElement>) => {
     const permissionType :PermissionType = (event.currentTarget.dataset.permissionType :any);
-    onSelect(dataSetId, permissionType);
+    onSelect({ dataSetId, permissionType });
   };
 
   return (
     <>
       <DataSetCard>
-        <Typography component="span" variant="body1">{dataSet.title}</Typography>
+        <Typography component="span" variant="body1">
+          <DataSetTitle>{dataSet.title}</DataSetTitle>
+        </Typography>
         <ActionsWrapper>
           <Typography component="span" variant="body1">{permissionLabel}</Typography>
           <IconButton onClick={() => setIsOpen(!isOpen)}>
