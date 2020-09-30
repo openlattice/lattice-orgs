@@ -5,10 +5,11 @@
 import React, { useMemo, useState } from 'react';
 
 import styled from 'styled-components';
+import { List, Map } from 'immutable';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
-import { LangUtils, ReduxUtils } from 'lattice-utils';
+import { ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
-import type { Organization, Role, UUID } from 'lattice';
+import type { Organization, Principal, UUID } from 'lattice';
 
 import {
   CrumbItem,
@@ -16,10 +17,13 @@ import {
   Crumbs,
   Divider,
 } from '../../../components';
+import { selectOrganizationMembers } from '../../../core/redux/utils';
 import { Routes } from '../../../core/router';
+import { getPrincipal } from '../../../utils';
+import { getSecurablePrincipalId, getUserProfile } from '../../../utils/PersonUtils';
 import { DataSetPermissionsContainer, PermissionsPanel } from '../components';
+import type { UserProfile } from '../../../utils/PersonUtils';
 
-const { isNonEmptyString } = LangUtils;
 const { selectOrganization } = ReduxUtils;
 
 const getPanelColumnSize = ({ isVisiblePanelColumn }) => (
@@ -41,26 +45,43 @@ const PanelColumn = styled.div`
   height: 100%;
 `;
 
-const OrgRoleContainer = ({
+const OrgMemberContainer = ({
+  memberPrincipalId,
   organizationId,
-  roleId,
 } :{|
+  memberPrincipalId :UUID;
   organizationId :UUID;
-  roleId :UUID;
 |}) => {
 
   const [selection, setSelection] = useState();
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const role :?Role = useMemo(() => (
-    organization?.roles.find((orgRole) => orgRole.id === roleId)
-  ), [organization, roleId]);
+  const orgMembers :List<Map> = useSelector(selectOrganizationMembers(organizationId));
+
+  const member :Map = useMemo(() => (
+    orgMembers.find((orgMember :Map) => getSecurablePrincipalId(orgMember) === memberPrincipalId)
+  ), [organization]);
+
+  const memberUserProfile :UserProfile = useMemo(() => (
+    getUserProfile(member)
+  ), [member]);
+
+  const memberPrincipal :?Principal = useMemo(() => (
+    getPrincipal(member)
+  ), [member]);
 
   const orgPath = useMemo(() => (
     Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
-  if (organization && role) {
+  const membersPath = useMemo(() => (
+    Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId)
+  ), [organizationId]);
+
+  if (organization && memberPrincipal) {
+
+    // TODO: this will need to be more fancy
+    const memberName = memberUserProfile.name || `${memberUserProfile.givenName} ${memberUserProfile.familyName}`;
 
     const handleOnClosePermissionsPanel = () => {
       setSelection();
@@ -72,15 +93,11 @@ const OrgRoleContainer = ({
           <AppContentWrapper>
             <Crumbs>
               <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-              <CrumbItem>Roles</CrumbItem>
-              <CrumbItem>{role.title}</CrumbItem>
+              <CrumbLink to={membersPath}>People</CrumbLink>
+              <CrumbItem>{memberName}</CrumbItem>
             </Crumbs>
-            <Typography gutterBottom variant="h1">{role.title}</Typography>
-            {
-              isNonEmptyString(role.description) && (
-                <Typography variant="body1">{role.description}</Typography>
-              )
-            }
+            <Typography gutterBottom variant="h1">{memberName}</Typography>
+            <Typography variant="body1">These are the roles and data sets assigned to this member.</Typography>
             <Divider isVisible={false} margin={24} />
             <Typography gutterBottom variant="h2">Data Sets</Typography>
             <Typography variant="body1">Click on a data set to manage permissions.</Typography>
@@ -88,7 +105,7 @@ const OrgRoleContainer = ({
             <DataSetPermissionsContainer
                 organizationId={organizationId}
                 onSelect={setSelection}
-                principal={role.principal}
+                principal={memberPrincipal}
                 selection={selection} />
           </AppContentWrapper>
         </ContentColumn>
@@ -99,7 +116,7 @@ const OrgRoleContainer = ({
                   dataSetId={selection.dataSetId}
                   key={`${selection.dataSetId}-${selection.permissionType}`}
                   onClose={handleOnClosePermissionsPanel}
-                  principal={role.principal}
+                  principal={memberPrincipal}
                   permissionType={selection.permissionType} />
             </PanelColumn>
           )
@@ -111,4 +128,4 @@ const OrgRoleContainer = ({
   return null;
 };
 
-export default OrgRoleContainer;
+export default OrgMemberContainer;

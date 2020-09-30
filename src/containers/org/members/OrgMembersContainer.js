@@ -110,7 +110,6 @@ const OrgMembersContainer = ({ organizationId } :Props) => {
     );
   }
 
-  // LOG.error()
   return null;
 };
 

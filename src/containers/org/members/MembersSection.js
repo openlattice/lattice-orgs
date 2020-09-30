@@ -18,12 +18,13 @@ import {
 } from 'lattice-ui-kit';
 import { PersonUtils } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
 import type { Role, UUID } from 'lattice';
 
 import { Header } from '../../../components';
 import { Routes } from '../../../core/router';
 import { goToRoute } from '../../../core/router/actions';
-import { getUserProfileLabel } from '../../../utils/PersonUtils';
+import { getSecurablePrincipalId, getUserProfileLabel } from '../../../utils/PersonUtils';
 import { RemoveMemberFromOrgModal, RemoveRoleFromMemberModal } from '../components';
 import { filterOrganizationMember, isRoleAssignedToMember } from '../utils';
 
@@ -56,6 +57,16 @@ const MemberWrapper = styled.div`
   padding: 0 16px;
 `;
 
+const MemberLink = styled(Link)`
+  color: inherit;
+  text-decoration: none;
+
+  &:focus {
+    outline: none;
+    text-decoration: underline;
+  }
+`;
+
 const PlusIcon = (
   <FontAwesomeIcon fixedWidth icon={faPlus} size="xs" />
 );
@@ -63,7 +74,6 @@ const PlusIcon = (
 type Props = {
   isOwner :boolean;
   members :List;
-  // organization :Organization;
   organizationId :UUID;
   selectedRole :?Role;
 };
@@ -155,9 +165,18 @@ const MembersSection = ({
       {
         pageMembers.map((member) => {
           const userId = getUserId(member);
+          const memberPrincipalId :?UUID = getSecurablePrincipalId(member);
+          let memberPath = '#';
+          if (memberPrincipalId) {
+            memberPath = Routes.ORG_MEMBER
+              .replace(Routes.ORG_ID_PARAM, organizationId)
+              .replace(Routes.PRINCIPAL_ID_PARAM, memberPrincipalId);
+          }
           return (
             <MemberWrapper key={userId}>
-              <span>{getUserProfileLabel(member, thisUserId)}</span>
+              <MemberLink to={memberPath}>
+                {getUserProfileLabel(member, thisUserId)}
+              </MemberLink>
               <IconButton onClick={() => handleOnClickRemoveMember(member)}>
                 <FontAwesomeIcon fixedWidth icon={faTimes} />
               </IconButton>
