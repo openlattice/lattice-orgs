@@ -25,7 +25,7 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { getEntitySetPermissions, getPermissions } from '../../../core/permissions/actions';
+import { getDataSetPermissions, getPermissions } from '../../../core/permissions/actions';
 import {
   selectOrganizationAtlasDataSetIds,
   selectOrganizationEntitySetIds,
@@ -147,9 +147,9 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
     }
 
     // NOTE: this is a non-blocking action, so the INITIALIZE_ORGANIZATION lifecycle will always complete before
-    // the GET_ENTITY_SET_PERMISSIONS lifecycle
-    yield put(getEntitySetPermissions(entitySetIds));
-    yield put(getPermissions(atlasDataSetIds.map((id) => List([id]))));
+    // the GET_DATA_SET_PERMISSIONS lifecycle
+    const dataSetIds :Set<UUID> = Set().union(atlasDataSetIds).union(entitySetIds);
+    yield put(getDataSetPermissions(dataSetIds));
 
     yield put(initializeOrganization.success(action.id, { isOwner, organization }));
   }

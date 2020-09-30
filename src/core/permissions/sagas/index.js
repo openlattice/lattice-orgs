@@ -2,7 +2,7 @@
  * @flow
  */
 
-export * from './getEntitySetPermissions';
+export * from './getDataSetPermissions';
 export * from './getPermissions';
 export * from './getPropertyTypePermissions';
 export * from './setPermissions';

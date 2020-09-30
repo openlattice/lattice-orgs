@@ -56,32 +56,6 @@ const OrgRoleContainer = ({
     organization?.roles.find((orgRole) => orgRole.id === roleId)
   ), [organization, roleId]);
 
-  // const atlasDataSetIds :Set<UUID> = useSelector(selectOrganizationAtlasDataSetIds(organizationId));
-  // const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
-  // const keys :Set<List<UUID>> = useMemo(() => (
-  //   Set().union(atlasDataSetIds).union(entitySetIds).map((id :UUID) => List([id]))
-  // ), [atlasDataSetIds, entitySetIds]);
-
-  // const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, role?.principal));
-  // const permissionsCount :number = permissions.count();
-  // const pagePermissions :Map<List<UUID>, Ace> = permissions.slice(paginationIndex, paginationIndex + MAX_PER_PAGE);
-  // const pageDataSetIds :List<UUID> = pagePermissions.keySeq().flatten().toSet();
-  // const pageDataSetIdsHash :number = pageDataSetIds.hashCode();
-  // const pageDataSets :Map<UUID, EntitySet> = useSelector(selectEntitySets(pageDataSetIds));
-  // const pageDataSetsHash :number = pageDataSets.hashCode();
-
-  // useEffect(() => {
-  //   if (!pageDataSetIds.isEmpty()) {
-  //     const pageAtlasDataSetIds = pageDataSetIds.filter((id :UUID) => atlasDataSetIds.has(id));
-  //     const pageEntitySetIds = pageDataSetIds.filter((id :UUID) => entitySetIds.has(id));
-  //     dispatch(getOrSelectDataSets({
-  //       organizationId,
-  //       atlasDataSetIds: pageAtlasDataSetIds,
-  //       entitySetIds: pageEntitySetIds,
-  //     }));
-  //   }
-  // }, [dispatch, pageDataSetIdsHash]);
-
   const orgPath = useMemo(() => (
     Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
