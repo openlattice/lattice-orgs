@@ -125,7 +125,6 @@ const OrgMemberContainer = ({
     );
   }
 
-  // LOG.error()
   return null;
 };
 
