@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
 import { CrumbLink, Header } from '../../components';
-import { selectOrganizationAtlasDataSetIds, selectOrganizationEntitySetIds } from '../../core/redux/utils';
+import { selectOrganizationAtlasDataSetIds, selectOrganizationEntitySetIds } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 
 const { NEUTRAL } = Colors;

@@ -28,7 +28,7 @@ import {
   IS_OWNER,
   ORGANIZATIONS,
 } from '../../../core/redux/constants';
-import { selectOrganizationMembers } from '../../../core/redux/utils';
+import { selectOrganizationMembers } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 import { UsersActions } from '../../../core/users';
 

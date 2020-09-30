@@ -37,7 +37,7 @@ import type { RequestState } from 'redux-reqseq';
 import { Divider } from '../../../components';
 import { SET_PERMISSIONS, setPermissions } from '../../../core/permissions/actions';
 import { PERMISSIONS } from '../../../core/redux/constants';
-import { selectEntitySetPropertyTypes, selectPermissions } from '../../../core/redux/utils';
+import { selectEntitySetPropertyTypes, selectPermissions } from '../../../core/redux/selectors';
 
 const { NEUTRAL } = Colors;
 const { APP_CONTENT_PADDING } = Sizes;

@@ -17,7 +17,7 @@ import {
   Crumbs,
   Divider,
 } from '../../../components';
-import { selectOrganizationMembers } from '../../../core/redux/utils';
+import { selectOrganizationMembers } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 import { getPrincipal } from '../../../utils';
 import { getSecurablePrincipalId, getUserProfile } from '../../../utils/PersonUtils';

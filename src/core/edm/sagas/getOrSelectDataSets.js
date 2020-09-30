@@ -21,7 +21,7 @@ import type { EntitySet, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { selectAtlasDataSets } from '../../redux/utils';
+import { selectAtlasDataSets } from '../../redux/selectors';
 import { GET_OR_SELECT_DATA_SETS, getOrSelectDataSets } from '../actions';
 
 const LOG = new Logger('EDMSagas');

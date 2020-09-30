@@ -26,7 +26,7 @@ import type {
   UUID,
 } from 'lattice';
 
-import { selectEntitySetEntityType, selectPermissions } from '../../../core/redux/utils';
+import { selectEntitySetEntityType, selectPermissions } from '../../../core/redux/selectors';
 import type { PermissionSelection } from '../../../types';
 
 const { NEUTRAL, PURPLE } = Colors;
