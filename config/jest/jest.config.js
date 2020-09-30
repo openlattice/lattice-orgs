@@ -19,6 +19,9 @@ module.exports = {
     __PACKAGE__: PACKAGE.name,
     __VERSION__: PACKAGE.version,
   },
+  moduleNameMapper: {
+    '\\.(png|svg)$': '<rootDir>/config/jest/mocks/assets.js',
+  },
   modulePathIgnorePatterns: [
     '<rootDir>/build/',
     '<rootDir>/flow-typed/',
