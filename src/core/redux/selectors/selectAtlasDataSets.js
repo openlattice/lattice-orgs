@@ -6,9 +6,7 @@ import _isArray from 'lodash/isArray';
 import {
   Map,
   Set,
-  get,
   getIn,
-  has,
   isCollection,
 } from 'immutable';
 import { ValidationUtils } from 'lattice-utils';
@@ -30,8 +28,8 @@ export default function selectAtlasDataSets(ids :Set<UUID> | Array<UUID>) {
       ids.forEach((id) => {
         if (isValidUUID(id)) {
           const dataSet = getIn(state, [EDM, ATLAS_DATA_SETS, id]);
-          if (dataSet && has(dataSet, 'id')) {
-            map.set(get(dataSet, 'id'), dataSet);
+          if (dataSet) {
+            map.set(id, dataSet);
           }
         }
       });

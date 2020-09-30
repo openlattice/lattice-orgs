@@ -93,7 +93,7 @@ const OrgMemberContainer = ({
           <AppContentWrapper>
             <Crumbs>
               <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-              <CrumbLink to={membersPath}>People</CrumbLink>
+              <CrumbLink to={membersPath}>Members</CrumbLink>
               <CrumbItem>{memberName}</CrumbItem>
             </Crumbs>
             <Typography gutterBottom variant="h1">{memberName}</Typography>

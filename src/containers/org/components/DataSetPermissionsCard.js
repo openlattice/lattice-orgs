@@ -7,8 +7,15 @@ import React, { useMemo, useState } from 'react';
 import _capitalize from 'lodash/capitalize';
 import styled from 'styled-components';
 import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
+import { faServer } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List, Map } from 'immutable';
+import {
+  List,
+  Map,
+  get,
+  getIn,
+  has,
+} from 'immutable';
 import { Types } from 'lattice';
 import {
   Colors,
@@ -26,6 +33,7 @@ import type {
   UUID,
 } from 'lattice';
 
+import { EntitySetIcon } from '../../../assets/svg/icons';
 import { selectEntitySetEntityType, selectPermissions } from '../../../core/redux/selectors';
 import type { PermissionSelection } from '../../../types';
 
@@ -58,10 +66,6 @@ const DataSetCard = styled(Card)`
   padding: 8px 24px;
 `;
 
-const DataSetTitle = styled.span`
-  word-break: break-all;
-`;
-
 const PermissionTypeCard = styled(Card)`
   background-color: ${({ isSelected }) => (isSelected ? PURPLE.P00 : NEUTRAL.N00)};
   border: 1px solid ${({ isSelected }) => (isSelected ? PURPLE.P300 : NEUTRAL.N00)};
@@ -70,6 +74,16 @@ const PermissionTypeCard = styled(Card)`
 
   &:hover {
     cursor: pointer;
+  }
+`;
+
+const TitleWrapper = styled.div`
+  align-items: center;
+  display: flex;
+  gap: 16px;
+
+  > span {
+    word-break: break-all;
   }
 `;
 
@@ -95,7 +109,7 @@ const DataSetPermissionsCard = ({
   principal,
   selection,
 } :{|
-  dataSet :EntitySet;
+  dataSet :EntitySet | Map;
   onSelect :(selection :?PermissionSelection) => void;
   principal :Principal;
   selection :?PermissionSelection;
@@ -103,16 +117,26 @@ const DataSetPermissionsCard = ({
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const dataSetId :UUID = (dataSet.id :any);
+  const dataSetId :UUID = dataSet.id || getIn(dataSet, ['table', 'id']);
+  const dataSetTitle :string = dataSet.title || getIn(dataSet, ['table', 'title']);
+  const isAtlasDataSet :boolean = has(dataSet, 'table');
+
   const entityType :?EntityType = useSelector(selectEntitySetEntityType(dataSetId));
 
   const keys :List<List<UUID>> = useMemo(() => (
     List().withMutations((mutableList) => {
-      entityType?.properties.forEach((propertyTypeId :UUID) => {
-        mutableList.push(List([dataSetId, propertyTypeId]));
-      });
+      if (has(dataSet, 'columns')) {
+        get(dataSet, 'columns', List()).forEach((column :Map) => {
+          mutableList.push(List([dataSetId, get(column, 'id')]));
+        });
+      }
+      else {
+        entityType?.properties.forEach((propertyTypeId :UUID) => {
+          mutableList.push(List([dataSetId, propertyTypeId]));
+        });
+      }
     })
-  ), [dataSetId, entityType]);
+  ), [dataSet, dataSetId, entityType]);
 
   const propertyTypePermissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, principal));
   const propertyTypePermissionsHash :number = propertyTypePermissions.hashCode();
@@ -150,9 +174,14 @@ const DataSetPermissionsCard = ({
   return (
     <>
       <DataSetCard>
-        <Typography component="span" variant="body1">
-          <DataSetTitle>{dataSet.title}</DataSetTitle>
-        </Typography>
+        <TitleWrapper>
+          {
+            isAtlasDataSet
+              ? <FontAwesomeIcon fixedWidth icon={faServer} />
+              : <EntitySetIcon />
+          }
+          <Typography component="span" variant="body1">{dataSetTitle}</Typography>
+        </TitleWrapper>
         <ActionsWrapper>
           <Typography component="span" variant="body1">{permissionLabel}</Typography>
           <IconButton onClick={() => setIsOpen(!isOpen)}>

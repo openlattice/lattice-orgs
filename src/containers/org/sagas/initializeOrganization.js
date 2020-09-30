@@ -148,8 +148,7 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     // NOTE: this is a non-blocking action, so the INITIALIZE_ORGANIZATION lifecycle will always complete before
     // the GET_DATA_SET_PERMISSIONS lifecycle
-    const dataSetIds :Set<UUID> = Set().union(atlasDataSetIds).union(entitySetIds);
-    yield put(getDataSetPermissions(dataSetIds));
+    yield put(getDataSetPermissions({ atlasDataSetIds, entitySetIds, organizationId }));
 
     yield put(initializeOrganization.success(action.id, { isOwner, organization }));
   }

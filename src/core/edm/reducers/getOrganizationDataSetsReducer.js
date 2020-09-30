@@ -25,7 +25,7 @@ export default function reducer(state :Map, action :SequenceAction) {
       if (state.hasIn([GET_ORGANIZATION_DATA_SETS, action.id])) {
         const atlasDataSets :Map<UUID, Map> = state.get(ATLAS_DATA_SETS)
           .withMutations((mutableMap :Map<UUID, Map>) => {
-            action.value.forEach((dataSet :Object) => mutableMap.set(dataSet.id, fromJS(dataSet)));
+            action.value.forEach((dataSet :Object) => mutableMap.set(dataSet.table.id, fromJS(dataSet)));
           });
         return state
           .set(ATLAS_DATA_SETS, atlasDataSets)

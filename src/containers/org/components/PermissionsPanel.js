@@ -9,7 +9,12 @@ import _lowerCase from 'lodash/lowerCase';
 import styled from 'styled-components';
 import { faTimes } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List, Map, Set } from 'immutable';
+import {
+  List,
+  Map,
+  Set,
+  get,
+} from 'immutable';
 import { Models } from 'lattice';
 import {
   Button,
@@ -37,7 +42,7 @@ import type { RequestState } from 'redux-reqseq';
 import { Divider } from '../../../components';
 import { SET_PERMISSIONS, setPermissions } from '../../../core/permissions/actions';
 import { PERMISSIONS } from '../../../core/redux/constants';
-import { selectEntitySetPropertyTypes, selectPermissions } from '../../../core/redux/selectors';
+import { selectDataSetProperties, selectPermissions } from '../../../core/redux/selectors';
 
 const { NEUTRAL } = Colors;
 const { APP_CONTENT_PADDING } = Sizes;
@@ -89,27 +94,28 @@ const PermissionsPanel = ({
 
   const dispatch = useDispatch();
 
-  const propertyTypes :Map<UUID, PropertyType> = useSelector(selectEntitySetPropertyTypes(dataSetId));
   const setPermissionsRS :?RequestState = useRequestState([PERMISSIONS, SET_PERMISSIONS]);
+
+  const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(dataSetId));
 
   const keys :List<List<UUID>> = useMemo(() => (
     List().withMutations((mutableList) => {
-      propertyTypes.keySeq().forEach((propertyTypeId :UUID) => {
-        mutableList.push(List([dataSetId, propertyTypeId]));
+      properties.keySeq().forEach((id :UUID) => {
+        mutableList.push(List([dataSetId, id]));
       });
     })
-  ), [dataSetId, propertyTypes.hashCode()]);
+  ), [dataSetId, properties.hashCode()]);
 
-  const propertyTypePermissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, principal));
+  const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, principal));
 
   // NOTE: !!! super important !!!
   // in order for useState() to behave correctly here, PermissionsPanel MUST be passed a unique "key" prop
-  const [localPropertyTypePermissions, setLocalPropertyTypePermissions] = useState(propertyTypePermissions);
+  const [localPermissions, setLocalPermissions] = useState(permissions);
 
   // TODO: update Ace model to use Set for immutable equality to be able to use .equals()
-  // const equalPermissions :boolean = propertyTypePermissions.equals(localPropertyTypePermissions);
-  const equalPermissions :boolean = propertyTypePermissions.reduce((isEqual :boolean, ogAce :Ace, key :List<UUID>) => {
-    const localAce :Ace = localPropertyTypePermissions.get(key);
+  // const equalPermissions :boolean = permissions.equals(localPermissions);
+  const equalPermissions :boolean = permissions.reduce((isEqual :boolean, ogAce :Ace, key :List<UUID>) => {
+    const localAce :Ace = localPermissions.get(key);
     return (
       isEqual
       && localAce.principal.valueOf() === ogAce.principal.valueOf()
@@ -119,30 +125,30 @@ const PermissionsPanel = ({
 
   const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
 
-    const propertyTypeId :UUID = event.currentTarget.dataset.propertyTypeId;
-    const key :List<UUID> = List([dataSetId, propertyTypeId]);
+    const propertyId :UUID = event.currentTarget.dataset.propertyId;
+    const key :List<UUID> = List([dataSetId, propertyId]);
 
     if (event.currentTarget.checked) {
-      const updatedPermissions :Map<List<UUID>, Ace> = localPropertyTypePermissions.update(key, (ace :Ace) => {
+      const updatedPermissions :Map<List<UUID>, Ace> = localPermissions.update(key, (ace :Ace) => {
         const updatedAcePermissions = Set(ace.permissions).add(permissionType);
         return (new AceBuilder(ace)).setPermissions(updatedAcePermissions).build();
       });
-      setLocalPropertyTypePermissions(updatedPermissions);
+      setLocalPermissions(updatedPermissions);
     }
     else {
-      const updatedPermissions :Map<List<UUID>, Ace> = localPropertyTypePermissions.update(key, (ace :Ace) => {
+      const updatedPermissions :Map<List<UUID>, Ace> = localPermissions.update(key, (ace :Ace) => {
         const updatedAcePermissions = Set(ace.permissions).delete(permissionType);
         return (new AceBuilder(ace)).setPermissions(updatedAcePermissions).build();
       });
-      setLocalPropertyTypePermissions(updatedPermissions);
+      setLocalPermissions(updatedPermissions);
     }
 
   };
 
   const handleOnClickSave = () => {
-    const updatedPropertyTypePermissions :Map<List<UUID>, Ace> = localPropertyTypePermissions
+    const updatedPropertyTypePermissions :Map<List<UUID>, Ace> = localPermissions
       .filter((ace :Ace, key :List<UUID>) => {
-        const ogAce :Ace = propertyTypePermissions.get(key);
+        const ogAce :Ace = permissions.get(key);
         const equal = (
           ace.principal.valueOf() === ogAce.principal.valueOf()
           && Set(ace.permissions).equals(Set(ogAce.permissions))
@@ -169,20 +175,26 @@ const PermissionsPanel = ({
       <Divider isVisible={false} margin={24} />
       <PropertyTypesCard>
         {
-          propertyTypes.valueSeq().map((propertyType :PropertyType) => {
-            const propertyTypeId :UUID = (propertyType.id :any);
-            const key :List<UUID> = List([dataSetId, propertyTypeId]);
-            const ace :?Ace = localPropertyTypePermissions.get(key);
+          properties.valueSeq().map((property :PropertyType | Map) => {
+            const propertyId :UUID = property.id || get(property, 'id');
+            const propertyTitle :UUID = property.title || get(property, 'title');
+            const propertyTypeFQN :?string = property?.type?.toString() || '';
+            const key :List<UUID> = List([dataSetId, propertyId]);
+            const ace :?Ace = localPermissions.get(key);
             const isPermissionAssigned = ace?.permissions.includes(permissionType);
             return (
-              <PropertyTypeCardSegment key={propertyTypeId}>
+              <PropertyTypeCardSegment key={propertyId}>
                 <div>
-                  <Typography variant="body1">{propertyType.title}</Typography>
-                  <Typography variant="caption">{propertyType.type.toString()}</Typography>
+                  <Typography variant="body1">{propertyTitle}</Typography>
+                  {
+                    propertyTypeFQN && (
+                      <Typography variant="caption">{propertyTypeFQN}</Typography>
+                    )
+                  }
                 </div>
                 <Checkbox
                     checked={isPermissionAssigned}
-                    data-property-type-id={propertyTypeId}
+                    data-property-id={propertyId}
                     onChange={handleOnChangePermission} />
               </PropertyTypeCardSegment>
             );
