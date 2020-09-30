@@ -105,7 +105,6 @@ const OrgContainer = ({ organizationId } :Props) => {
     );
   }
 
-  // LOG.error()
   return null;
 };
 

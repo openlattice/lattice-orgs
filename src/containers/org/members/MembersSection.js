@@ -18,6 +18,7 @@ import {
 } from 'lattice-ui-kit';
 import { PersonUtils } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
 import type { Role, UUID } from 'lattice';
 
 import { Header } from '../../../components';
@@ -54,6 +55,16 @@ const MemberWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 0 16px;
+`;
+
+const MemberLink = styled(Link)`
+  color: inherit;
+  text-decoration: none;
+
+  &:focus {
+    outline: none;
+    text-decoration: underline;
+  }
 `;
 
 const PlusIcon = (
@@ -114,18 +125,6 @@ const MembersSection = ({
     }
   };
 
-  const goToMember = (event :SyntheticEvent<HTMLElement>) => {
-    const userId :?string = event.currentTarget.dataset.userId;
-    const member = members.find((orgMember) => getUserId(orgMember) === userId);
-    const memberPrincipalId :?UUID = getSecurablePrincipalId(member);
-    if (memberPrincipalId) {
-      const memberPath = Routes.ORG_MEMBER
-        .replace(Routes.ORG_ID_PARAM, organizationId)
-        .replace(Routes.PRINCIPAL_ID_PARAM, memberPrincipalId);
-      dispatch(goToRoute(memberPath));
-    }
-  };
-
   const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
   const thisUserId = thisUserInfo.id;
   const targetMemberId = getUserId(targetMember);
@@ -166,11 +165,18 @@ const MembersSection = ({
       {
         pageMembers.map((member) => {
           const userId = getUserId(member);
+          const memberPrincipalId :?UUID = getSecurablePrincipalId(member);
+          let memberPath = '#';
+          if (memberPrincipalId) {
+            memberPath = Routes.ORG_MEMBER
+              .replace(Routes.ORG_ID_PARAM, organizationId)
+              .replace(Routes.PRINCIPAL_ID_PARAM, memberPrincipalId);
+          }
           return (
             <MemberWrapper key={userId}>
-              <span data-user-id={userId} onClick={goToMember} onKeyPress={goToMember} role="link" tabIndex={0}>
+              <MemberLink to={memberPath}>
                 {getUserProfileLabel(member, thisUserId)}
-              </span>
+              </MemberLink>
               <IconButton onClick={() => handleOnClickRemoveMember(member)}>
                 <FontAwesomeIcon fixedWidth icon={faTimes} />
               </IconButton>

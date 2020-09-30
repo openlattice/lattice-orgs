@@ -35,25 +35,29 @@ const INITIAL_STATE :Map = fromJS({
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
-  if (action.type === RESET_REQUEST_STATE) {
-    return resetRequestStateReducer(state, action);
-  }
+  switch (action.type) {
 
-  if (action.type === getEntitySetPermissions.case(action.type)) {
-    return getEntitySetPermissionsReducer(state, action);
-  }
+    case RESET_REQUEST_STATE: {
+      return resetRequestStateReducer(state, action);
+    }
 
-  if (action.type === getPermissions.case(action.type)) {
-    return getPermissionsReducer(state, action);
-  }
+    case getEntitySetPermissions.case(action.type): {
+      return getEntitySetPermissionsReducer(state, action);
+    }
 
-  if (action.type === getPropertyTypePermissions.case(action.type)) {
-    return getPropertyTypePermissionsReducer(state, action);
-  }
+    case getPermissions.case(action.type): {
+      return getPermissionsReducer(state, action);
+    }
 
-  if (action.type === setPermissions.case(action.type)) {
-    return setPermissionsReducer(state, action);
-  }
+    case getPropertyTypePermissions.case(action.type): {
+      return getPropertyTypePermissionsReducer(state, action);
+    }
 
-  return state;
+    case setPermissions.case(action.type): {
+      return setPermissionsReducer(state, action);
+    }
+
+    default:
+      return state;
+  }
 }
