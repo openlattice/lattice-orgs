@@ -59,25 +59,24 @@ const INITIAL_STATE :Map = fromJS({
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
-  if (action.type === getEntityDataModelTypes.case(action.type)) {
-    return getEntityDataModelTypesReducer(state, action);
-  }
+  switch (action.type) {
 
-  if (action.type === getEntitySet.case(action.type)) {
-    return getEntitySetReducer(state, action);
-  }
+    case getEntityDataModelTypes.case(action.type):
+      return getEntityDataModelTypesReducer(state, action);
 
-  if (action.type === getEntitySets.case(action.type)) {
-    return getEntitySetsReducer(state, action);
-  }
+    case getEntitySet.case(action.type):
+      return getEntitySetReducer(state, action);
 
-  if (action.type === getOrSelectDataSets.case(action.type)) {
-    return getOrSelectDataSetsReducer(state, action);
-  }
+    case getEntitySets.case(action.type):
+      return getEntitySetsReducer(state, action);
 
-  if (action.type === getOrganizationDataSets.case(action.type)) {
-    return getOrganizationDataSetsReducer(state, action);
-  }
+    case getOrSelectDataSets.case(action.type):
+      return getOrSelectDataSetsReducer(state, action);
 
-  return state;
+    case getOrganizationDataSets.case(action.type):
+      return getOrganizationDataSetsReducer(state, action);
+
+    default:
+      return state;
+  }
 }
