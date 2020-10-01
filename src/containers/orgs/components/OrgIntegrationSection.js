@@ -216,7 +216,7 @@ class OrgIntegrationSection extends Component<Props, State> {
     const { newDatabaseName } = this.state;
 
     if (isNonEmptyString(newDatabaseName)) {
-      actions.renameOrganizationDatabase({ organizationId: org.get('id'), databaseName: newDatabaseName });
+      actions.renameOrganizationDatabase({ organizationId: org.get('id'), databaseName: JSON.stringify(newDatabaseName) });
     }
     else {
       this.setState({
@@ -250,7 +250,7 @@ class OrgIntegrationSection extends Component<Props, State> {
 
   renderDatabaseUrl = () => {
 
-    const { org } = this.props;
+    const { isOwner, org } = this.props;
     const orgId = org.get('id');
     const databaseName = org.get('databaseName');
 
@@ -260,14 +260,22 @@ class OrgIntegrationSection extends Component<Props, State> {
         <h5>Organization ID</h5>
         <pre>{orgId}</pre>
         <h5>Database Name</h5>
-        <SectionGrid columns={2}>
-          <div style={{ marginTop: '4px' }}>
-            <ActionControlWithButton>
+        {
+          isOwner
+            ? (
+              <SectionGrid columns={2}>
+                <div style={{ marginTop: '4px' }}>
+                  <ActionControlWithButton>
+                    <pre>{databaseName}</pre>
+                    <EditButton onClick={this.handleOnClickRenameDatabase} />
+                  </ActionControlWithButton>
+                </div>
+              </SectionGrid>
+            )
+            : (
               <pre>{databaseName}</pre>
-              <EditButton onClick={this.handleOnClickRenameDatabase} />
-            </ActionControlWithButton>
-          </div>
-        </SectionGrid>
+            )
+        }
         <h5>JDBC URL</h5>
         <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/${databaseName}`}</pre>
       </SectionGrid>
