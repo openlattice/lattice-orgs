@@ -5,7 +5,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
-import { List, Map, Set } from 'immutable';
+import {
+  List,
+  Map,
+  Set,
+  getIn,
+} from 'immutable';
 import { PaginationToolbar, Spinner } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,17 +26,17 @@ import type { RequestState } from 'redux-reqseq';
 import DataSetPermissionsCard from './DataSetPermissionsCard';
 
 import { StackGrid } from '../../../components';
-import { GET_OR_SELECT_ENTITY_SETS, getOrSelectEntitySets } from '../../../core/edm/actions';
+import { GET_DATA_SET_PERMISSIONS, getDataSetPermissions } from '../../../core/permissions/actions';
+import { PERMISSIONS } from '../../../core/redux/constants';
 import {
-  GET_ENTITY_SET_PERMISSIONS,
-  GET_PROPERTY_TYPE_PERMISSIONS,
-  getPropertyTypePermissions,
-} from '../../../core/permissions/actions';
-import { EDM, PERMISSIONS } from '../../../core/redux/constants';
-import { selectOrganizationEntitySetIds, selectPermissions } from '../../../core/redux/utils';
+  selectAtlasDataSets,
+  selectOrganizationAtlasDataSetIds,
+  selectOrganizationEntitySetIds,
+  selectPermissions,
+} from '../../../core/redux/selectors';
 import type { PermissionSelection } from '../../../types';
 
-const { reduceRequestStates, selectEntitySets } = ReduxUtils;
+const { selectEntitySets } = ReduxUtils;
 
 const MAX_PER_PAGE = 10;
 
@@ -56,45 +61,39 @@ const DataSetPermissionsContainer = ({
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
 
-  const getEntitySetPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ENTITY_SET_PERMISSIONS]);
-  const getPropertyTypePermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_PROPERTY_TYPE_PERMISSIONS]);
-  const getOrSelectEntitySetsRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_ENTITY_SETS]);
+  const getDataSetPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_DATA_SET_PERMISSIONS]);
 
+  const atlasDataSetIds :Set<UUID> = useSelector(selectOrganizationAtlasDataSetIds(organizationId));
+  const atlasDataSetIdsHash :number = atlasDataSetIds.hashCode();
   const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
+  const entitySetIdsHash :number = entitySetIds.hashCode();
   const keys :List<List<UUID>> = useMemo(() => (
-    entitySetIds.map((id) => List([id]))
-  ), [entitySetIds]);
+    Set().union(atlasDataSetIds).union(entitySetIds).map((id :UUID) => List([id]))
+  ), [atlasDataSetIdsHash, entitySetIdsHash]);
 
   const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, principal));
   const permissionsCount :number = permissions.count();
   const pagePermissions :Map<List<UUID>, Ace> = permissions.slice(paginationIndex, paginationIndex + MAX_PER_PAGE);
   const pageDataSetIds :List<UUID> = pagePermissions.keySeq().flatten().toSet();
   const pageDataSetIdsHash :number = pageDataSetIds.hashCode();
-  const pageDataSets :Map<UUID, EntitySet> = useSelector(selectEntitySets(pageDataSetIds));
-  const pageDataSetsHash :number = pageDataSets.hashCode();
+  const pageAtlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets(pageDataSetIds));
+  const pageEntitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets(pageDataSetIds));
+  const pageDataSets :Map<UUID, EntitySet | Map> = Map().merge(pageAtlasDataSets).merge(pageEntitySets);
 
   useEffect(() => {
     if (!pageDataSetIds.isEmpty()) {
-      dispatch(getOrSelectEntitySets(pageDataSetIds));
+      const pageAtlasDataSetIds = pageDataSetIds.filter((id :UUID) => atlasDataSetIds.has(id));
+      const pageEntitySetIds = pageDataSetIds.filter((id :UUID) => entitySetIds.has(id));
+      dispatch(
+        getDataSetPermissions({
+          organizationId,
+          atlasDataSetIds: pageAtlasDataSetIds,
+          entitySetIds: pageEntitySetIds,
+          withProperties: true,
+        })
+      );
     }
-  }, [dispatch, pageDataSetIdsHash]);
-
-  useEffect(() => {
-    if (!pageDataSets.isEmpty()) {
-      dispatch(getPropertyTypePermissions(pageDataSetIds));
-    }
-  }, [dispatch, pageDataSetsHash]);
-
-  // NOTE: initializeOrganization() makes a non-blocking call to getEntitySetPermissions()
-  if (getEntitySetPermissionsRS === RequestStates.PENDING) {
-    return (
-      <SpinnerWrapper>
-        <Spinner size="2x" />
-      </SpinnerWrapper>
-    );
-  }
-
-  const reducedRS = reduceRequestStates([getPropertyTypePermissionsRS, getOrSelectEntitySetsRS]);
+  }, [dispatch, atlasDataSetIdsHash, entitySetIdsHash, pageDataSetIdsHash, organizationId]);
 
   const handleOnPageChange = ({ page, start }) => {
     setPaginationIndex(start);
@@ -114,22 +113,25 @@ const DataSetPermissionsContainer = ({
         )
       }
       {
-        reducedRS === RequestStates.PENDING && (
+        getDataSetPermissionsRS === RequestStates.PENDING && (
           <SpinnerWrapper>
             <Spinner size="2x" />
           </SpinnerWrapper>
         )
       }
       {
-        reducedRS === RequestStates.SUCCESS && (
-          pageDataSets.valueSeq().map((dataSet :EntitySet) => (
-            <DataSetPermissionsCard
-                dataSet={dataSet}
-                key={dataSet.id}
-                onSelect={onSelect}
-                principal={principal}
-                selection={selection} />
-          ))
+        getDataSetPermissionsRS === RequestStates.SUCCESS && (
+          pageDataSets.valueSeq().map((dataSet :EntitySet | Map) => {
+            const dataSetId :UUID = dataSet.id || getIn(dataSet, ['table', 'id']);
+            return (
+              <DataSetPermissionsCard
+                  dataSet={dataSet}
+                  key={dataSetId}
+                  onSelect={onSelect}
+                  principal={principal}
+                  selection={selection} />
+            );
+          })
         )
       }
     </StackGrid>

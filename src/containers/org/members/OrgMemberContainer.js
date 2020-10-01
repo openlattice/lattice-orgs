@@ -17,7 +17,7 @@ import {
   Crumbs,
   Divider,
 } from '../../../components';
-import { selectOrganizationMembers } from '../../../core/redux/utils';
+import { selectOrganizationMembers } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 import { getPrincipal } from '../../../utils';
 import { getSecurablePrincipalId, getUserProfile } from '../../../utils/PersonUtils';
@@ -93,7 +93,7 @@ const OrgMemberContainer = ({
           <AppContentWrapper>
             <Crumbs>
               <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-              <CrumbLink to={membersPath}>People</CrumbLink>
+              <CrumbLink to={membersPath}>Members</CrumbLink>
               <CrumbItem>{memberName}</CrumbItem>
             </Crumbs>
             <Typography gutterBottom variant="h1">{memberName}</Typography>

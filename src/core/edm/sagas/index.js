@@ -3,4 +3,4 @@
  */
 
 export * from './getEntityDataModelTypes';
-export * from './getOrSelectEntitySets';
+export * from './getOrSelectDataSets';

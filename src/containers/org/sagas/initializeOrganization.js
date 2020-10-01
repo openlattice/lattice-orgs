@@ -14,6 +14,8 @@ import { Models, Types } from 'lattice';
 import {
   AuthorizationsApiActions,
   AuthorizationsApiSagas,
+  DataSetsApiActions,
+  DataSetsApiSagas,
   OrganizationsApiActions,
   OrganizationsApiSagas,
 } from 'lattice-sagas';
@@ -23,8 +25,12 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { getEntitySetPermissions } from '../../../core/permissions/actions';
-import { selectOrganizationEntitySetIds, selectOrganizationMembers } from '../../../core/redux/utils';
+import { getDataSetPermissions } from '../../../core/permissions/actions';
+import {
+  selectOrganizationAtlasDataSetIds,
+  selectOrganizationEntitySetIds,
+  selectOrganizationMembers,
+} from '../../../core/redux/selectors';
 import { AxiosUtils } from '../../../utils';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
 import type { AuthorizationObject } from '../../../types';
@@ -42,6 +48,8 @@ const { selectOrganization } = ReduxUtils;
 
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
+const { getOrganizationDataSets } = DataSetsApiActions;
+const { getOrganizationDataSetsWorker } = DataSetsApiSagas;
 const {
   getOrganization,
   getOrganizationEntitySets,
@@ -62,6 +70,7 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     let organization :?Organization = yield select(selectOrganization(organizationId));
     const members :List = yield select(selectOrganizationMembers(organizationId));
+    let atlasDataSetIds :Set<UUID> = yield select(selectOrganizationAtlasDataSetIds(organizationId));
     let entitySetIds :Set<UUID> = yield select(selectOrganizationEntitySetIds(organizationId));
 
     // TODO - figure out how to "expire" stored data
@@ -82,6 +91,12 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       getOrganizationEntitySetsCall = call(getOrganizationEntitySetsWorker, getOrganizationEntitySets(organizationId));
     }
 
+    // TODO - figure out how to "expire" stored data
+    let getOrganizationDataSetsCall = call(() => {});
+    if (atlasDataSetIds.isEmpty()) {
+      getOrganizationDataSetsCall = call(getOrganizationDataSetsWorker, getOrganizationDataSets({ organizationId }));
+    }
+
     const accessChecks :AccessCheck[] = [
       (new AccessCheckBuilder())
         .setAclKey([organizationId])
@@ -95,11 +110,13 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       getOrganizationResponse,
       getOrganizationMembersResponse,
       getOrganizationEntitySetsResponse,
+      getOrganizationDataSetsResponse,
       getAuthorizationsResponse,
     ] :Array<?WorkerResponse> = yield all([
       getOrganizationCall,
       getOrganizationMembersCall,
       getOrganizationEntitySetsCall,
+      getOrganizationDataSetsCall,
       getAuthorizationsCall,
     ]);
 
@@ -117,6 +134,11 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       entitySetIds = Set(Object.keys(getOrganizationEntitySetsResponse.data));
     }
 
+    if (getOrganizationDataSetsResponse) {
+      if (getOrganizationDataSetsResponse.error) throw getOrganizationDataSetsResponse.error;
+      atlasDataSetIds = Set(getOrganizationDataSetsResponse.data.map((dataSet) => dataSet.table.id));
+    }
+
     let isOwner = false;
     if (getAuthorizationsResponse) {
       if (getAuthorizationsResponse.error) throw getAuthorizationsResponse.error;
@@ -125,8 +147,8 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
     }
 
     // NOTE: this is a non-blocking action, so the INITIALIZE_ORGANIZATION lifecycle will always complete before
-    // the GET_ENTITY_SET_PERMISSIONS lifecycle
-    yield put(getEntitySetPermissions(entitySetIds));
+    // the GET_DATA_SET_PERMISSIONS lifecycle
+    yield put(getDataSetPermissions({ atlasDataSetIds, entitySetIds, organizationId }));
 
     yield put(initializeOrganization.success(action.id, { isOwner, organization }));
   }
