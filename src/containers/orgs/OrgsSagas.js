@@ -67,6 +67,7 @@ const {
   deleteRole,
   getAllOrganizations,
   getOrganization,
+  getOrganizationDatabaseName,
   getOrganizationIntegrationAccount,
   getOrganizationMembers,
   removeConnectionsFromOrganization,
@@ -77,6 +78,7 @@ const {
   deleteRoleWorker,
   getAllOrganizationsWorker,
   getOrganizationWorker,
+  getOrganizationDatabaseNameWorker,
   getOrganizationIntegrationAccountWorker,
   removeConnectionsFromOrganizationWorker,
 } = OrganizationsApiSagas;
@@ -270,10 +272,12 @@ function* getOrganizationDetailsWorker(action :SequenceAction) :Saga<*> {
 
     const [
       orgResponse,
+      orgDatabaseNameResponse,
       orgIntegrationResponse,
       orgAclResponse,
     ] = yield all([
       call(getOrganizationWorker, getOrganization(organizationId)),
+      call(getOrganizationDatabaseNameWorker, getOrganizationDatabaseName(organizationId)),
       call(getOrganizationIntegrationAccountWorker, getOrganizationIntegrationAccount(organizationId)),
       call(getAclWorker, getAcl([organizationId])),
     ]);
@@ -308,6 +312,7 @@ function* getOrganizationDetailsWorker(action :SequenceAction) :Saga<*> {
       .map((securablePrincipal :Object) => securablePrincipal.id);
 
     yield put(getOrganizationDetails.success(action.id, {
+      databaseName: orgDatabaseNameResponse.data || '',
       integration: fromJS(orgIntegrationResponse.data || []),
       org: fromJS(orgResponse.data),
       trustedOrgIds: fromJS(trustedOrgIds),

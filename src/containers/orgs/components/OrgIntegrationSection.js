@@ -6,16 +6,35 @@ import React, { Component } from 'react';
 
 import { Map, fromJS } from 'immutable';
 import { Form } from 'lattice-fabricate';
-import { Button, Input, Modal } from 'lattice-ui-kit';
+import { OrganizationsApiActions } from 'lattice-sagas';
+import {
+  ActionModal,
+  Button,
+  Input,
+  Label,
+  Modal,
+} from 'lattice-ui-kit';
 import { LangUtils } from 'lattice-utils';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { RequestStates } from 'redux-reqseq';
+import type { RequestSequence, RequestState } from 'redux-reqseq';
 
 import { ActionControlWithButton } from './styled';
 
 import DBMSTypes from '../../../utils/integration-config/DBMSTypes';
-import { CopyButton, SectionGrid } from '../../../components';
+import * as ReduxActions from '../../../core/redux/ReduxActions';
+import {
+  CopyButton,
+  EditButton,
+  ModalBodyMinWidth,
+  SectionGrid,
+} from '../../../components';
 import { generateIntegrationConfigFile } from '../../../utils/integration-config/IntegrationConfigUtils';
+import type { ResetRequestStateAction } from '../../../core/redux/ReduxActions';
 
 const { isNonEmptyString } = LangUtils;
+const { RENAME_ORGANIZATION_DATABASE } = OrganizationsApiActions;
 
 const dataSchema = {
   properties: {
@@ -72,13 +91,23 @@ type FormData = {
 };
 
 type Props = {
+  actions :{
+    renameOrganizationDatabase :RequestSequence;
+    resetRequestState :ResetRequestStateAction;
+  };
   isOwner :boolean;
   org :Map;
+  requestStates :{
+    RENAME_ORGANIZATION_DATABASE :RequestState;
+  };
 };
 
 type State = {
   formData :Map;
+  isValidDatabaseName :boolean;
   isVisibleGenerateConfigModal :boolean;
+  isVisibleDatabaseNameModal :boolean;
+  newDatabaseName :string;
 };
 
 class OrgIntegrationSection extends Component<Props, State> {
@@ -89,7 +118,10 @@ class OrgIntegrationSection extends Component<Props, State> {
 
     this.state = {
       formData: INITIAL_FORM_DATA,
+      isValidDatabaseName: true,
+      isVisibleDatabaseNameModal: false,
       isVisibleGenerateConfigModal: false,
+      newDatabaseName: '',
     };
   }
 
@@ -108,6 +140,14 @@ class OrgIntegrationSection extends Component<Props, State> {
     this.setState({ formData: newFormData });
   }
 
+  handleOnChangeNewDatabaseName = (event :SyntheticInputEvent<HTMLInputElement>) => {
+
+    this.setState({
+      isValidDatabaseName: true,
+      newDatabaseName: event.target.value || '',
+    });
+  }
+
   handleOnClickCopyCredential = () => {
 
     const { isOwner, org } = this.props;
@@ -118,6 +158,13 @@ class OrgIntegrationSection extends Component<Props, State> {
         navigator.clipboard.writeText(org.getIn(['integration', 'credential'], ''));
       }
     }
+  }
+
+  handleOnClickRenameDatabase = () => {
+
+    this.setState({
+      isVisibleDatabaseNameModal: true,
+    });
   }
 
   handleOnClickGenerate = () => {
@@ -145,11 +192,37 @@ class OrgIntegrationSection extends Component<Props, State> {
     });
   }
 
+  closeDatabaseNameModal = () => {
+
+    const { actions } = this.props;
+
+    this.setState({
+      isVisibleDatabaseNameModal: false,
+      newDatabaseName: '',
+    });
+    actions.resetRequestState(RENAME_ORGANIZATION_DATABASE);
+  }
+
   openModal = () => {
 
     this.setState({
       isVisibleGenerateConfigModal: true,
     });
+  }
+
+  renameDatabase = () => {
+
+    const { actions, org } = this.props;
+    const { newDatabaseName } = this.state;
+
+    if (isNonEmptyString(newDatabaseName)) {
+      actions.renameOrganizationDatabase({ organizationId: org.get('id'), databaseName: newDatabaseName });
+    }
+    else {
+      this.setState({
+        isValidDatabaseName: false,
+      });
+    }
   }
 
   renderGenerateConfigModal = () => {
@@ -176,20 +249,29 @@ class OrgIntegrationSection extends Component<Props, State> {
   }
 
   renderDatabaseUrl = () => {
+
     const { org } = this.props;
     const orgId = org.get('id');
-    const orgIdClean = orgId.replace(/-/g, '');
+    const databaseName = org.get('databaseName');
 
     return (
       <SectionGrid>
         <h2>Database Details</h2>
         <h5>Organization ID</h5>
         <pre>{orgId}</pre>
+        <h5>Database Name</h5>
+        <SectionGrid columns={2}>
+          <div style={{ marginTop: '4px' }}>
+            <ActionControlWithButton>
+              <pre>{databaseName}</pre>
+              <EditButton onClick={this.handleOnClickRenameDatabase} />
+            </ActionControlWithButton>
+          </div>
+        </SectionGrid>
         <h5>JDBC URL</h5>
-        <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/org_${orgIdClean}`}</pre>
+        <pre>{`jdbc:postgresql://atlas.openlattice.com:30001/${databaseName}`}</pre>
       </SectionGrid>
     );
-
   }
 
   renderDatabaseCredentials = () => {
@@ -229,15 +311,66 @@ class OrgIntegrationSection extends Component<Props, State> {
     );
   }
 
+  renderNewOrgModal = () => {
+
+    const { requestStates } = this.props;
+    const { isValidDatabaseName, isVisibleDatabaseNameModal, newDatabaseName } = this.state;
+
+    const requestStateComponents = {
+      [RequestStates.STANDBY]: (
+        <ModalBodyMinWidth>
+          <Label htmlFor="new-database-name">Database Name*</Label>
+          <Input
+              id="new-database-name"
+              error={!isValidDatabaseName}
+              onChange={this.handleOnChangeNewDatabaseName}
+              value={newDatabaseName} />
+        </ModalBodyMinWidth>
+      ),
+      [RequestStates.FAILURE]: (
+        <ModalBodyMinWidth>
+          <span>Failed to rename the database. Please try again.</span>
+        </ModalBodyMinWidth>
+      ),
+    };
+
+    return (
+      <ActionModal
+          isVisible={isVisibleDatabaseNameModal}
+          onClickPrimary={this.renameDatabase}
+          onClose={this.closeDatabaseNameModal}
+          requestState={requestStates[RENAME_ORGANIZATION_DATABASE]}
+          requestStateComponents={requestStateComponents}
+          textPrimary="Submit"
+          textSecondary="Cancel"
+          textTitle="Rename Database" />
+    );
+  }
+
   render() {
 
     return (
       <>
         {this.renderDatabaseUrl()}
         {this.renderDatabaseCredentials()}
+        {this.renderNewOrgModal()}
       </>
     );
   }
 }
 
-export default OrgIntegrationSection;
+const mapStateToProps = (state :Map) => ({
+  requestStates: {
+    [RENAME_ORGANIZATION_DATABASE]: state.getIn(['orgs', RENAME_ORGANIZATION_DATABASE, 'requestState']),
+  },
+});
+
+const mapActionsToProps = (dispatch :Function) => ({
+  actions: bindActionCreators({
+    renameOrganizationDatabase: OrganizationsApiActions.renameOrganizationDatabase,
+    resetRequestState: ReduxActions.resetRequestState,
+  }, dispatch)
+});
+
+// $FlowFixMe
+export default connect(mapStateToProps, mapActionsToProps)(OrgIntegrationSection);

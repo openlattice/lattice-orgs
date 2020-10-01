@@ -59,6 +59,7 @@ const {
   REMOVE_DOMAINS_FROM_ORGANIZATION,
   REMOVE_MEMBER_FROM_ORGANIZATION,
   REMOVE_ROLE_FROM_MEMBER,
+  RENAME_ORGANIZATION_DATABASE,
   REVOKE_TRUST_FROM_ORGANIZATION,
   UPDATE_ORGANIZATION_DESCRIPTION,
   UPDATE_ORGANIZATION_TITLE,
@@ -74,6 +75,7 @@ const {
   removeDomainsFromOrganization,
   removeMemberFromOrganization,
   removeRoleFromMember,
+  renameOrganizationDatabase,
   revokeTrustFromOrganization,
   updateOrganizationDescription,
   updateOrganizationTitle,
@@ -136,6 +138,9 @@ const INITIAL_STATE :Map = fromJS({
     requestState: RequestStates.STANDBY,
   },
   [REMOVE_ROLE_FROM_ORGANIZATION]: {
+    requestState: RequestStates.STANDBY,
+  },
+  [RENAME_ORGANIZATION_DATABASE]: {
     requestState: RequestStates.STANDBY,
   },
   [REVOKE_TRUST_FROM_ORGANIZATION]: {
@@ -463,9 +468,15 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           .setIn([GET_ORGANIZATION_DETAILS, 'requestState'], RequestStates.PENDING)
           .setIn([GET_ORGANIZATION_DETAILS, seqAction.id], seqAction),
         SUCCESS: () => {
-          const { integration, org, trustedOrgIds } = seqAction.value;
+          const {
+            databaseName,
+            integration,
+            org,
+            trustedOrgIds,
+          } = seqAction.value;
           const orgId :UUID = org.get('id');
           const updatedOrg :Map = org
+            .set('databaseName', databaseName)
             .set('integration', integration)
             .set('trustedOrgIds', trustedOrgIds);
           return state
@@ -729,6 +740,27 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
         },
         FAILURE: () => state.setIn([REMOVE_ROLE_FROM_ORGANIZATION, 'requestState'], RequestStates.FAILURE),
         FINALLY: () => state.deleteIn([REMOVE_ROLE_FROM_ORGANIZATION, seqAction.id]),
+      });
+    }
+
+    case renameOrganizationDatabase.case(action.type): {
+      const seqAction :SequenceAction = action;
+      return renameOrganizationDatabase.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([RENAME_ORGANIZATION_DATABASE, 'requestState'], RequestStates.PENDING)
+          .setIn([RENAME_ORGANIZATION_DATABASE, seqAction.id], seqAction),
+        SUCCESS: () => {
+          const storedSeqAction :SequenceAction = state.getIn([RENAME_ORGANIZATION_DATABASE, seqAction.id]);
+          if (storedSeqAction) {
+            const { databaseName, organizationId } = storedSeqAction.value;
+            return state
+              .setIn(['orgs', organizationId, 'databaseName'], databaseName)
+              .setIn([RENAME_ORGANIZATION_DATABASE, 'requestState'], RequestStates.SUCCESS);
+          }
+          return state;
+        },
+        FAILURE: () => state.setIn([RENAME_ORGANIZATION_DATABASE, 'requestState'], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([RENAME_ORGANIZATION_DATABASE, seqAction.id]),
       });
     }
 
