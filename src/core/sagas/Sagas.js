@@ -48,6 +48,7 @@ export default function* sagas() :Saga<*> {
     fork(OrganizationsApiSagas.removeDomainsFromOrganizationWatcher),
     fork(OrganizationsApiSagas.removeMemberFromOrganizationWatcher),
     fork(OrganizationsApiSagas.removeRoleFromMemberWatcher),
+    fork(OrganizationsApiSagas.renameOrganizationDatabaseWatcher),
     fork(OrganizationsApiSagas.revokeTrustFromOrganizationWatcher),
     fork(OrganizationsApiSagas.updateOrganizationDescriptionWatcher),
     fork(OrganizationsApiSagas.updateOrganizationTitleWatcher),
