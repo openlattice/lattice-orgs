@@ -216,7 +216,7 @@ class OrgIntegrationSection extends Component<Props, State> {
     const { newDatabaseName } = this.state;
 
     if (isNonEmptyString(newDatabaseName)) {
-      actions.renameOrganizationDatabase({ organizationId: org.get('id'), databaseName: JSON.stringify(newDatabaseName) });
+      actions.renameOrganizationDatabase({ organizationId: org.get('id'), databaseName: newDatabaseName });
     }
     else {
       this.setState({
