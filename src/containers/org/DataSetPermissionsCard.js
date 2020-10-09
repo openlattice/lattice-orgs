@@ -33,9 +33,9 @@ import type {
   UUID,
 } from 'lattice';
 
-import { EntitySetIcon } from '../../../assets/svg/icons';
-import { selectEntitySetEntityType, selectPermissions } from '../../../core/redux/selectors';
-import type { PermissionSelection } from '../../../types';
+import { EntitySetIcon } from '../../assets/svg/icons';
+import { selectEntitySetEntityType, selectPermissions } from '../../core/redux/selectors';
+import type { PermissionSelection } from '../../types';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { PermissionTypes } = Types;

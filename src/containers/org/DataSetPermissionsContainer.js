@@ -25,16 +25,16 @@ import type { RequestState } from 'redux-reqseq';
 
 import DataSetPermissionsCard from './DataSetPermissionsCard';
 
-import { StackGrid } from '../../../components';
-import { GET_DATA_SET_PERMISSIONS, getDataSetPermissions } from '../../../core/permissions/actions';
-import { PERMISSIONS } from '../../../core/redux/constants';
+import { StackGrid } from '../../components';
+import { GET_DATA_SET_PERMISSIONS, getDataSetPermissions } from '../../core/permissions/actions';
+import { PERMISSIONS } from '../../core/redux/constants';
 import {
   selectAtlasDataSets,
   selectOrganizationAtlasDataSetIds,
   selectOrganizationEntitySetIds,
   selectPermissions,
-} from '../../../core/redux/selectors';
-import type { PermissionSelection } from '../../../types';
+} from '../../core/redux/selectors';
+import type { PermissionSelection } from '../../types';
 
 const { selectEntitySets } = ReduxUtils;
 
