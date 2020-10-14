@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { Map, fromJS } from 'immutable';
+import { List, Map, fromJS } from 'immutable';
 import { ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 
@@ -16,13 +16,18 @@ export const {
   ENTITY_TYPES,
   ENTITY_TYPES_INDEX_MAP,
   ERROR,
+  HITS,
   MEMBERS,
   ORGANIZATIONS,
   ORGS,
+  PAGE,
   PERMISSIONS,
   PROPERTY_TYPES,
   PROPERTY_TYPES_INDEX_MAP,
+  QUERY,
   REQUEST_STATE,
+  SEARCH,
+  TOTAL_HITS,
   USERS,
 } = ReduxConstants;
 
@@ -41,4 +46,14 @@ export const INITIAL_SEARCH_RESULTS :Map = fromJS({ initial: true });
 export const RS_INITIAL_STATE = {
   [ERROR]: false,
   [REQUEST_STATE]: RequestStates.STANDBY,
+};
+
+// TODO: does this belong here?
+export const SEARCH_INITIAL_STATE = {
+  [ERROR]: false,
+  [HITS]: List(),
+  [PAGE]: 0,
+  [QUERY]: '',
+  [REQUEST_STATE]: RequestStates.STANDBY,
+  [TOTAL_HITS]: 0,
 };
