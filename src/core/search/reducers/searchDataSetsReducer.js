@@ -12,7 +12,7 @@ import {
   PAGE,
   QUERY,
   REQUEST_STATE,
-  TOTAL_HITS
+  TOTAL_HITS,
 } from '../../redux/constants';
 import { SEARCH_DATA_SETS, searchDataSets } from '../actions';
 
