@@ -54,8 +54,9 @@ const ORDERED_PERMISSIONS = [
 const Card = styled.div`
   align-items: center;
   border-radius: 4px;
-  display: flex;
-  gap: 16px;
+  display: grid;
+  grid-gap: 16px;
+  grid-template-columns: auto 1fr;
   justify-content: space-between;
 `;
 
@@ -78,8 +79,9 @@ const PermissionTypeCard = styled(Card)`
 
 const TitleWrapper = styled.div`
   align-items: center;
-  display: flex;
-  gap: 16px;
+  display: grid;
+  grid-gap: 16px;
+  grid-template-columns: auto 1fr;
 
   > span {
     word-break: break-all;

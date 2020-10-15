@@ -75,18 +75,14 @@ const PropertyTypesCard = styled(Card)`
 const PropertyTypeCardSegment = styled(CardSegment)`
   align-items: center;
   flex-direction: row;
-  gap: 8px;
   justify-content: space-between;
   padding: 8px 0;
 `;
 
-const SaveButton = styled(Button)`
-  flex: 1;
-`;
-
 const ButtonsWrapper = styled.div`
-  display: flex;
-  gap: 8px;
+  display: grid;
+  grid-gap: 8px;
+  grid-template-columns: 1fr auto;
 `;
 
 const PermissionsPanel = ({
@@ -233,13 +229,13 @@ const PermissionsPanel = ({
       </PropertyTypesCard>
       <Divider isVisible={false} margin={24} />
       <ButtonsWrapper>
-        <SaveButton
+        <Button
             color="primary"
             disabled={arePermissionsEqual}
             isLoading={setPermissionsRS === RequestStates.PENDING}
             onClick={handleOnClickSave}>
           Save
-        </SaveButton>
+        </Button>
         <IconButton onClick={handleOnClickReset}>
           <FontAwesomeIcon color={NEUTRAL.N800} fixedWidth icon={faUndo} size="lg" />
         </IconButton>
