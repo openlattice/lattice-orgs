@@ -98,6 +98,7 @@ const PermissionsPanel = ({
 |}) => {
 
   const dispatch = useDispatch();
+  const [localPermissions, setLocalPermissions] = useState(Map());
 
   const setPermissionsRS :?RequestState = useRequestState([PERMISSIONS, SET_PERMISSIONS]);
 
@@ -115,13 +116,13 @@ const PermissionsPanel = ({
   const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, principal));
   const permissionsHash = permissions.hashCode();
 
-  const [localPermissions, setLocalPermissions] = useState(Map());
   useEffect(() => {
     setLocalPermissions(permissions);
   }, [permissionsHash]);
 
   // TODO: update Ace model to use Set for immutable equality to be able to use .equals()
   // const equalPermissions :boolean = permissions.equals(localPermissions);
+  const areSizesEqual = localPermissions.count() === permissions.count();
   const arePermissionsEqual = localPermissions.reduce((equal :boolean, localAce :Ace, key :List<UUID>) => {
     const originalAce :?Ace = permissions.get(key);
     if (!originalAce) {
@@ -134,7 +135,7 @@ const PermissionsPanel = ({
       && localAce.principal.valueOf() === originalAce.principal.valueOf()
       && Set(localAce.permissions).equals(Set(originalAce.permissions))
     );
-  }, true);
+  }, areSizesEqual);
 
   const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
 
