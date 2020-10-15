@@ -56,7 +56,7 @@ const Card = styled.div`
   border-radius: 4px;
   display: grid;
   grid-gap: 16px;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 1fr auto;
   justify-content: space-between;
 `;
 
