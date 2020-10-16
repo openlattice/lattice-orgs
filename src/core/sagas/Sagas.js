@@ -17,6 +17,7 @@ import { OrgSagas } from '../../containers/org';
 import { OrgsSagas } from '../../containers/orgs';
 import { EDMSagas } from '../edm';
 import { PermissionsSagas } from '../permissions';
+import { SearchSagas } from '../search';
 
 export default function* sagas() :Saga<*> {
 
@@ -78,5 +79,8 @@ export default function* sagas() :Saga<*> {
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),
     fork(RoutingSagas.goToRouteWatcher),
+
+    // SearchSagas
+    fork(SearchSagas.searchDataSetsWatcher),
   ]);
 }

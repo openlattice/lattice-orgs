@@ -2,7 +2,12 @@
  * @flow
  */
 
-import type { PermissionType, UUID } from 'lattice';
+import type {
+  EntitySetObject,
+  PermissionType,
+  PropertyTypeObject,
+  UUID,
+} from 'lattice';
 
 type AuthorizationObject = {|
   aclKey :UUID[];
@@ -29,9 +34,15 @@ type SagaError = {
   statusText :string;
 };
 
+type SearchEntitySetsHit = {
+  entitySet :EntitySetObject;
+  propertyTypes :PropertyTypeObject[];
+};
+
 export type {
   AuthorizationObject,
   PermissionSelection,
   ReactSelectOption,
   SagaError,
+  SearchEntitySetsHit,
 };
