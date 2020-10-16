@@ -11,6 +11,7 @@ import { ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Organization, Principal, UUID } from 'lattice';
 
+import DataSetPermissionsContainer from '../DataSetPermissionsContainer';
 import {
   CrumbItem,
   CrumbLink,
@@ -21,7 +22,7 @@ import { selectOrganizationMembers } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 import { getPrincipal } from '../../../utils';
 import { getSecurablePrincipalId, getUserProfile } from '../../../utils/PersonUtils';
-import { DataSetPermissionsContainer, PermissionsPanel } from '../components';
+import { PermissionsPanel } from '../components';
 import type { UserProfile } from '../../../utils/PersonUtils';
 
 const { selectOrganization } = ReduxUtils;
