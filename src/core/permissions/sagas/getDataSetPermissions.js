@@ -48,6 +48,7 @@ function* getDataSetPermissionsWorker(action :SequenceAction) :Saga<*> {
       withProperties :boolean;
     |} = action.value;
 
+    // NOTE: call getOrSelectDataSets() to populate redux store
     yield call(getOrSelectDataSetsWorker, getOrSelectDataSets({
       atlasDataSetIds,
       entitySetIds,
