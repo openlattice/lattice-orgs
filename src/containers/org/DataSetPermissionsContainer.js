@@ -87,7 +87,7 @@ const DataSetPermissionsContainer = ({
 
   useEffect(() => {
     if (searchDataSetsRS === RequestStates.STANDBY) {
-      const newKeys = Set()
+      const newKeys :List<List<UUID>> = Set()
         .union(atlasDataSetIds)
         .union(entitySetIds)
         .map((id :UUID) => List([id]))
@@ -97,7 +97,7 @@ const DataSetPermissionsContainer = ({
       }
     }
     else if (searchDataSetsRS === RequestStates.SUCCESS) {
-      const newKeys = Set()
+      const newKeys :List<List<UUID>> = Set()
         .union(atlasDataSetIds)
         .union(entitySetIds)
         .filter((id :UUID) => searchHits.has(id))
