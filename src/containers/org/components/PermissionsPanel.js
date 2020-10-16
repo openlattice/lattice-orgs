@@ -5,6 +5,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import _capitalize from 'lodash/capitalize';
+import _isBoolean from 'lodash/isBoolean';
 import _lowerCase from 'lodash/lowerCase';
 import styled from 'styled-components';
 import { faTimes, faUndo } from '@fortawesome/pro-light-svg-icons';
@@ -100,6 +101,7 @@ const PermissionsPanel = ({
 
   const dispatch = useDispatch();
   const [isPermissionAssignedToAll, setIsPermissionAssignedToAll] = useState(false);
+  const [isPermissionAssignedToOnlyNonPII, setIsPermissionAssignedToOnlyNonPII] = useState(false);
   const [localPermissions, setLocalPermissions] = useState(Map());
 
   const setPermissionsRS :?RequestState = useRequestState([PERMISSIONS, SET_PERMISSIONS]);
@@ -123,14 +125,23 @@ const PermissionsPanel = ({
   }, [permissionsHash]);
 
   useEffect(() => {
-    const result = properties.reduce((assigned :boolean, property :PropertyType | Map) => {
+    let isAssignedToAll = true;
+    let isAssignedToOnlyNonPII = true;
+    properties.forEach((property :PropertyType | Map) => {
       const propertyId :UUID = property.id || get(property, 'id');
       const key :List<UUID> = List([dataSetId, propertyId]);
       const ace :?Ace = localPermissions.get(key);
       const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
-      return assigned && isPermissionAssigned;
-    }, true);
-    setIsPermissionAssignedToAll(result);
+      isAssignedToAll = isAssignedToAll && isPermissionAssigned;
+      if (
+        (isPermissionAssigned && property.pii === true)
+        || (!isPermissionAssigned && property.pii === false)
+      ) {
+        isAssignedToOnlyNonPII = false;
+      }
+    });
+    setIsPermissionAssignedToAll(isAssignedToAll);
+    setIsPermissionAssignedToOnlyNonPII(isAssignedToOnlyNonPII);
   }, [dataSetId, localPermissions, permissionType, propertiesHash]);
 
   // TODO: update Ace model to use Set for immutable equality to be able to use .equals()
@@ -192,11 +203,11 @@ const PermissionsPanel = ({
     dispatch(setPermissions(updatedPropertyTypePermissions));
   };
 
-  const handleOnClickReset = () => {
+  const resetPermissions = () => {
     setLocalPermissions(permissions);
   };
 
-  const togglePermissions = () => {
+  const togglePermissionAssignmentAll = () => {
     if (isPermissionAssignedToAll) {
       // remove permission from all properties
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
@@ -231,6 +242,36 @@ const PermissionsPanel = ({
     }
   };
 
+  const togglePermissionAssignmentOnlyNonPII = () => {
+    if (isPermissionAssignedToOnlyNonPII) {
+      resetPermissions();
+    }
+    else {
+      const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
+        properties.valueSeq().forEach((property :PropertyType | Map) => {
+          if (_isBoolean(property.pii)) {
+            const propertyId :UUID = property.id || get(property, 'id');
+            const key :List<List<UUID>> = List([dataSetId, propertyId]);
+            const localAce :?Ace = localPermissions.get(key);
+            let updatedAcePermissions :Set<PermissionType> = Set(localAce?.permissions);
+            if (property.pii === false) {
+              updatedAcePermissions = updatedAcePermissions.add(permissionType);
+            }
+            else {
+              updatedAcePermissions = updatedAcePermissions.delete(permissionType);
+            }
+            const updatedAce = (new AceBuilder())
+              .setPermissions(updatedAcePermissions)
+              .setPrincipal(principal)
+              .build();
+            mutableMap.set(key, updatedAce);
+          }
+        });
+      });
+      setLocalPermissions(updatedPermissions);
+    }
+  };
+
   // TODO: setPermissionsRS update ui with SUCCESS/FAILURE states
 
   return (
@@ -249,12 +290,23 @@ const PermissionsPanel = ({
       <PermissionCard>
         <PermissionCardSegment>
           <Typography variant="body1">All Properties</Typography>
-          <IconButton onClick={togglePermissions}>
+          <IconButton onClick={togglePermissionAssignmentAll}>
             <FontAwesomeIcon
                 color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
                 fixedWidth
                 icon={faToggleOn}
                 transform={{ rotate: isPermissionAssignedToAll ? 0 : 180 }}
+                size="lg" />
+          </IconButton>
+        </PermissionCardSegment>
+        <PermissionCardSegment>
+          <Typography variant="body1">Only non-pii Properties</Typography>
+          <IconButton onClick={togglePermissionAssignmentOnlyNonPII}>
+            <FontAwesomeIcon
+                color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
+                fixedWidth
+                icon={faToggleOn}
+                transform={{ rotate: isPermissionAssignedToOnlyNonPII ? 0 : 180 }}
                 size="lg" />
           </IconButton>
         </PermissionCardSegment>
@@ -294,7 +346,7 @@ const PermissionsPanel = ({
             onClick={handleOnClickSave}>
           Save
         </Button>
-        <IconButton onClick={handleOnClickReset}>
+        <IconButton onClick={resetPermissions}>
           <FontAwesomeIcon color={NEUTRAL.N800} fixedWidth icon={faUndo} size="lg" />
         </IconButton>
       </ButtonsWrapper>
