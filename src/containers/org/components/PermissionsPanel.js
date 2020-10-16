@@ -289,7 +289,7 @@ const PermissionsPanel = ({
       <Divider isVisible={false} margin={24} />
       <PermissionCard>
         <PermissionCardSegment>
-          <Typography variant="body1">All Properties</Typography>
+          <Typography variant="body1">All properties</Typography>
           <IconButton onClick={togglePermissionAssignmentAll}>
             <FontAwesomeIcon
                 color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
@@ -300,7 +300,7 @@ const PermissionsPanel = ({
           </IconButton>
         </PermissionCardSegment>
         <PermissionCardSegment>
-          <Typography variant="body1">Only non-pii Properties</Typography>
+          <Typography variant="body1">Only non-pii properties</Typography>
           <IconButton onClick={togglePermissionAssignmentOnlyNonPII}>
             <FontAwesomeIcon
                 color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
