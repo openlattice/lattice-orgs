@@ -278,7 +278,7 @@ const PermissionsPanel = ({
     <Panel>
       <PanelHeader>
         <Typography variant="h1">{_capitalize(permissionType)}</Typography>
-        <IconButton onClick={onClose}>
+        <IconButton aria-label="close permissions panel" onClick={onClose}>
           <FontAwesomeIcon color={NEUTRAL.N800} fixedWidth icon={faTimes} size="lg" />
         </IconButton>
       </PanelHeader>
@@ -290,7 +290,7 @@ const PermissionsPanel = ({
       <PermissionCard>
         <PermissionCardSegment>
           <Typography variant="body1">All properties</Typography>
-          <IconButton onClick={togglePermissionAssignmentAll}>
+          <IconButton aria-label="permissions toggle for all properties" onClick={togglePermissionAssignmentAll}>
             <FontAwesomeIcon
                 color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
                 fixedWidth
@@ -340,13 +340,14 @@ const PermissionsPanel = ({
       <Divider isVisible={false} margin={24} />
       <ButtonsWrapper>
         <Button
+            aria-label="save permissions changes"
             color="primary"
             disabled={arePermissionsEqual}
             isLoading={setPermissionsRS === RequestStates.PENDING}
             onClick={handleOnClickSave}>
           Save
         </Button>
-        <IconButton onClick={resetPermissions}>
+        <IconButton aria-label="reset permissions" onClick={resetPermissions}>
           <FontAwesomeIcon color={NEUTRAL.N800} fixedWidth icon={faUndo} size="lg" />
         </IconButton>
       </ButtonsWrapper>
