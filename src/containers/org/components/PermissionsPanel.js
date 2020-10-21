@@ -8,6 +8,7 @@ import _capitalize from 'lodash/capitalize';
 import _lowerCase from 'lodash/lowerCase';
 import styled from 'styled-components';
 import { faTimes, faUndo } from '@fortawesome/pro-light-svg-icons';
+import { faToggleOn } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   List,
@@ -44,7 +45,7 @@ import { SET_PERMISSIONS, setPermissions } from '../../../core/permissions/actio
 import { PERMISSIONS } from '../../../core/redux/constants';
 import { selectDataSetProperties, selectPermissions } from '../../../core/redux/selectors';
 
-const { NEUTRAL } = Colors;
+const { NEUTRAL, PURPLE } = Colors;
 const { APP_CONTENT_PADDING } = Sizes;
 const { media } = StyleUtils;
 const { AceBuilder } = Models;
@@ -68,11 +69,11 @@ const PanelHeader = styled.div`
   justify-content: space-between;
 `;
 
-const PropertyTypesCard = styled(Card)`
+const PermissionCard = styled(Card)`
   border: none;
 `;
 
-const PropertyTypeCardSegment = styled(CardSegment)`
+const PermissionCardSegment = styled(CardSegment)`
   align-items: center;
   flex-direction: row;
   justify-content: space-between;
@@ -98,6 +99,7 @@ const PermissionsPanel = ({
 |}) => {
 
   const dispatch = useDispatch();
+  const [isPermissionAssignedToAll, setIsPermissionAssignedToAll] = useState(false);
   const [localPermissions, setLocalPermissions] = useState(Map());
 
   const setPermissionsRS :?RequestState = useRequestState([PERMISSIONS, SET_PERMISSIONS]);
@@ -120,9 +122,19 @@ const PermissionsPanel = ({
     setLocalPermissions(permissions);
   }, [permissionsHash]);
 
+  useEffect(() => {
+    const result = properties.reduce((assigned :boolean, property :PropertyType | Map) => {
+      const propertyId :UUID = property.id || get(property, 'id');
+      const key :List<UUID> = List([dataSetId, propertyId]);
+      const ace :?Ace = localPermissions.get(key);
+      const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
+      return assigned && isPermissionAssigned;
+    }, true);
+    setIsPermissionAssignedToAll(result);
+  }, [dataSetId, localPermissions, permissionType, propertiesHash]);
+
   // TODO: update Ace model to use Set for immutable equality to be able to use .equals()
   // const equalPermissions :boolean = permissions.equals(localPermissions);
-  const areSizesEqual = localPermissions.count() === permissions.count();
   const arePermissionsEqual = localPermissions.reduce((equal :boolean, localAce :Ace, key :List<UUID>) => {
     const originalAce :?Ace = permissions.get(key);
     if (!originalAce) {
@@ -135,7 +147,7 @@ const PermissionsPanel = ({
       && localAce.principal.valueOf() === originalAce.principal.valueOf()
       && Set(localAce.permissions).equals(Set(originalAce.permissions))
     );
-  }, areSizesEqual);
+  }, true);
 
   const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
 
@@ -156,7 +168,6 @@ const PermissionsPanel = ({
       });
       setLocalPermissions(updatedPermissions);
     }
-
   };
 
   const handleOnClickSave = () => {
@@ -185,13 +196,48 @@ const PermissionsPanel = ({
     setLocalPermissions(permissions);
   };
 
+  const togglePermissions = () => {
+    if (isPermissionAssignedToAll) {
+      // remove permission from all properties
+      const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
+        properties.keySeq().forEach((id :UUID) => {
+          const key = List([dataSetId, id]);
+          const localAce :?Ace = localPermissions.get(key);
+          const updatedAcePermissions = Set(localAce?.permissions).delete(permissionType);
+          const updatedAce = (new AceBuilder())
+            .setPermissions(updatedAcePermissions)
+            .setPrincipal(principal)
+            .build();
+          mutableMap.set(key, updatedAce);
+        });
+      });
+      setLocalPermissions(updatedPermissions);
+    }
+    else {
+      // add permission to all properties
+      const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
+        properties.keySeq().forEach((id :UUID) => {
+          const key = List([dataSetId, id]);
+          const localAce :?Ace = localPermissions.get(key);
+          const updatedAcePermissions = Set(localAce?.permissions).add(permissionType);
+          const updatedAce = (new AceBuilder())
+            .setPermissions(updatedAcePermissions)
+            .setPrincipal(principal)
+            .build();
+          mutableMap.set(key, updatedAce);
+        });
+      });
+      setLocalPermissions(updatedPermissions);
+    }
+  };
+
   // TODO: setPermissionsRS update ui with SUCCESS/FAILURE states
 
   return (
     <Panel>
       <PanelHeader>
         <Typography variant="h1">{_capitalize(permissionType)}</Typography>
-        <IconButton onClick={onClose}>
+        <IconButton aria-label="close permissions panel" onClick={onClose}>
           <FontAwesomeIcon color={NEUTRAL.N800} fixedWidth icon={faTimes} size="lg" />
         </IconButton>
       </PanelHeader>
@@ -200,7 +246,18 @@ const PermissionsPanel = ({
         {`These are the properties that are assigned the ${_lowerCase(permissionType)} permission.`}
       </Typography>
       <Divider isVisible={false} margin={24} />
-      <PropertyTypesCard>
+      <PermissionCard>
+        <PermissionCardSegment>
+          <Typography variant="body1">All Properties</Typography>
+          <IconButton aria-label="permissions toggle for all properties" onClick={togglePermissions}>
+            <FontAwesomeIcon
+                color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
+                fixedWidth
+                icon={faToggleOn}
+                transform={{ rotate: isPermissionAssignedToAll ? 0 : 180 }}
+                size="lg" />
+          </IconButton>
+        </PermissionCardSegment>
         {
           properties.valueSeq().map((property :PropertyType | Map) => {
             const propertyId :UUID = property.id || get(property, 'id');
@@ -210,7 +267,7 @@ const PermissionsPanel = ({
             const ace :?Ace = localPermissions.get(key);
             const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
             return (
-              <PropertyTypeCardSegment key={propertyId}>
+              <PermissionCardSegment key={propertyId}>
                 <div>
                   <Typography variant="body1">{propertyTitle}</Typography>
                   {
@@ -223,21 +280,22 @@ const PermissionsPanel = ({
                     checked={isPermissionAssigned}
                     data-property-id={propertyId}
                     onChange={handleOnChangePermission} />
-              </PropertyTypeCardSegment>
+              </PermissionCardSegment>
             );
           })
         }
-      </PropertyTypesCard>
+      </PermissionCard>
       <Divider isVisible={false} margin={24} />
       <ButtonsWrapper>
         <Button
+            aria-label="save permissions changes"
             color="primary"
             disabled={arePermissionsEqual}
             isLoading={setPermissionsRS === RequestStates.PENDING}
             onClick={handleOnClickSave}>
           Save
         </Button>
-        <IconButton onClick={handleOnClickReset}>
+        <IconButton aria-label="reset permissions" onClick={handleOnClickReset}>
           <FontAwesomeIcon color={NEUTRAL.N800} fixedWidth icon={faUndo} size="lg" />
         </IconButton>
       </ButtonsWrapper>
