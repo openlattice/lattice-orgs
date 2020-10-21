@@ -290,7 +290,9 @@ const PermissionsPanel = ({
       <PermissionCard>
         <PermissionCardSegment>
           <Typography variant="body1">All properties</Typography>
-          <IconButton aria-label="permissions toggle for all properties" onClick={togglePermissionAssignmentAll}>
+          <IconButton
+              aria-label="permissions toggle for all properties"
+              onClick={togglePermissionAssignmentAll}>
             <FontAwesomeIcon
                 color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
                 fixedWidth
@@ -301,7 +303,9 @@ const PermissionsPanel = ({
         </PermissionCardSegment>
         <PermissionCardSegment>
           <Typography variant="body1">Only non-pii properties</Typography>
-          <IconButton onClick={togglePermissionAssignmentOnlyNonPII}>
+          <IconButton
+              aria-label="permissions toggle for only non-pii properties"
+              onClick={togglePermissionAssignmentOnlyNonPII}>
             <FontAwesomeIcon
                 color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
                 fixedWidth
