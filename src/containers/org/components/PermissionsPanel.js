@@ -303,11 +303,11 @@ const PermissionsPanel = ({
       <Divider isVisible={false} margin={24} />
       <PermissionCard>
         <PermissionCardSegment>
-          <Typography variant="body1">Data Set</Typography>
+          <Typography>Data Set</Typography>
           <Checkbox checked={isPermissionAssignedToDataSet} onChange={handleOnChangePermission} />
         </PermissionCardSegment>
         <PermissionCardSegment>
-          <Typography variant="body1">All properties</Typography>
+          <Typography>All properties</Typography>
           <IconButton
               aria-label="permissions toggle for all properties"
               onClick={togglePermissionAssignmentAll}>
@@ -320,7 +320,7 @@ const PermissionsPanel = ({
           </IconButton>
         </PermissionCardSegment>
         <PermissionCardSegment>
-          <Typography variant="body1">Only non-pii properties</Typography>
+          <Typography>Only non-pii properties</Typography>
           <IconButton
               aria-label="permissions toggle for only non-pii properties"
               onClick={togglePermissionAssignmentOnlyNonPII}>
@@ -343,7 +343,7 @@ const PermissionsPanel = ({
             return (
               <PermissionCardSegment key={propertyId}>
                 <div>
-                  <Typography variant="body1">{propertyTitle}</Typography>
+                  <Typography>{propertyTitle}</Typography>
                   {
                     propertyTypeFQN && (
                       <Typography variant="caption">{propertyTypeFQN}</Typography>
