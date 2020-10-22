@@ -11,7 +11,7 @@ import {
   Set,
   getIn,
 } from 'immutable';
-import { PaginationToolbar, Spinner } from 'lattice-ui-kit';
+import { PaginationToolbar, Spinner, Typography } from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -24,9 +24,10 @@ import type {
 import type { RequestState } from 'redux-reqseq';
 
 import DataSetPermissionsCard from './DataSetPermissionsCard';
+import DataSetPermissionsModal from './DataSetPermissionsModal';
 import { SearchDataSetsForm } from './components';
 
-import { StackGrid } from '../../components';
+import { ActionsGrid, PlusButton, StackGrid } from '../../components';
 import { GET_DATA_SET_PERMISSIONS, getDataSetPermissions } from '../../core/permissions/actions';
 import { PERMISSIONS, SEARCH } from '../../core/redux/constants';
 import {
@@ -62,6 +63,7 @@ const DataSetPermissionsContainer = ({
 |}) => {
 
   const dispatch = useDispatch();
+  const [isVisibleAddDataSetModal, setIsVisibleAddDataSetModal] = useState(false);
   const [keys, setKeys] = useState(List());
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
@@ -145,6 +147,10 @@ const DataSetPermissionsContainer = ({
     }
   };
 
+  const handleOnClickAddDataSet = () => {
+    setIsVisibleAddDataSetModal(true);
+  };
+
   const handleOnPageChange = ({ page, start }) => {
     setPaginationIndex(start);
     setPaginationPage(page);
@@ -161,38 +167,48 @@ const DataSetPermissionsContainer = ({
   const reducedRS :?RequestState = reduceRequestStates([getDataSetPermissionsRS, searchDataSetsRS]);
 
   return (
-    <StackGrid>
-      <SearchDataSetsForm onSubmit={handleOnSubmitDataSetQuery} searchRequestState={searchDataSetsRS} />
-      {
-        <PaginationToolbar
-            count={permissionsCount}
-            onPageChange={handleOnPageChange}
-            page={paginationPage}
-            rowsPerPage={MAX_PER_PAGE} />
-      }
-      {
-        reducedRS === RequestStates.PENDING && (
-          <SpinnerWrapper>
-            <Spinner size="2x" />
-          </SpinnerWrapper>
-        )
-      }
-      {
-        reducedRS !== RequestStates.PENDING && (
-          pageDataSets.valueSeq().map((dataSet :EntitySet | Map) => {
-            const dataSetId :UUID = dataSet.id || getIn(dataSet, ['table', 'id']);
-            return (
-              <DataSetPermissionsCard
-                  dataSet={dataSet}
-                  key={dataSetId}
-                  onSelect={onSelect}
-                  principal={principal}
-                  selection={selection} />
-            );
-          })
-        )
-      }
-    </StackGrid>
+    <>
+      <StackGrid>
+        <ActionsGrid>
+          <SearchDataSetsForm onSubmit={handleOnSubmitDataSetQuery} searchRequestState={searchDataSetsRS} />
+          <PlusButton aria-label="add data set" onClick={handleOnClickAddDataSet}>
+            <Typography component="span">Add Data Set</Typography>
+          </PlusButton>
+        </ActionsGrid>
+        {
+          <PaginationToolbar
+              count={permissionsCount}
+              onPageChange={handleOnPageChange}
+              page={paginationPage}
+              rowsPerPage={MAX_PER_PAGE} />
+        }
+        {
+          reducedRS === RequestStates.PENDING && (
+            <SpinnerWrapper>
+              <Spinner size="2x" />
+            </SpinnerWrapper>
+          )
+        }
+        {
+          reducedRS !== RequestStates.PENDING && (
+            pageDataSets.valueSeq().map((dataSet :EntitySet | Map) => {
+              const dataSetId :UUID = dataSet.id || getIn(dataSet, ['table', 'id']);
+              return (
+                <DataSetPermissionsCard
+                    dataSet={dataSet}
+                    key={dataSetId}
+                    onSelect={onSelect}
+                    principal={principal}
+                    selection={selection} />
+              );
+            })
+          )
+        }
+      </StackGrid>
+      <DataSetPermissionsModal
+          isVisible={isVisibleAddDataSetModal}
+          onClose={() => setIsVisibleAddDataSetModal(false)} />
+    </>
   );
 };
 

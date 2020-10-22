@@ -5,25 +5,11 @@
 import React, { useState } from 'react';
 
 import _isFunction from 'lodash/isFunction';
-import styled from 'styled-components';
 import { SearchInput } from 'lattice-ui-kit';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestState } from 'redux-reqseq';
 
-import { SearchButton } from '../../../components';
-
-const SearchGrid = styled.div`
-  align-items: flex-start;
-  display: grid;
-  flex: 1;
-  grid-auto-flow: column;
-  grid-gap: 10px;
-  grid-template-columns: 1fr auto;
-
-  button {
-    line-height: 1.5;
-  }
-`;
+import { ActionsGrid, SearchButton } from '../../../components';
 
 const SearchDataSetsForm = ({
   onSubmit,
@@ -48,10 +34,10 @@ const SearchDataSetsForm = ({
 
   return (
     <form onSubmit={handleOnSubmit}>
-      <SearchGrid>
+      <ActionsGrid>
         <SearchInput onChange={handleOnChange} placeholder="Search data sets" />
         <SearchButton isLoading={searchRequestState === RequestStates.PENDING} color="primary" type="submit" />
-      </SearchGrid>
+      </ActionsGrid>
     </form>
   );
 };

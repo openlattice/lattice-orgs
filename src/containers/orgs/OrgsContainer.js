@@ -17,7 +17,7 @@ import {
 import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
-import { ElementWithButtonGrid, Header, SimpleOrganizationCard } from '../../components';
+import { ActionsGrid, Header, SimpleOrganizationCard } from '../../components';
 import { ORGANIZATIONS, ORGS } from '../../core/redux/constants';
 import { CreateOrgModal } from '../org/components';
 
@@ -57,7 +57,7 @@ const OrgsContainer = () => {
     <>
       <AppContentWrapper>
         <Header as="h2">Organizations</Header>
-        <ElementWithButtonGrid>
+        <ActionsGrid>
           <Input onChange={handleOnChangeOrgFilter} placeholder="Filter organizations" />
           <Button
               color="primary"
@@ -65,7 +65,7 @@ const OrgsContainer = () => {
               startIcon={PlusIcon}>
             Create Organization
           </Button>
-        </ElementWithButtonGrid>
+        </ActionsGrid>
       </AppContentWrapper>
       <AppContentWrapper>
         {
