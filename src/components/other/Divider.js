@@ -30,7 +30,7 @@ const getComputedStyles = ({ isVisible = true, margin } :Props) => {
   `;
 };
 
-const Divider = styled.div`
+const Divider = styled.hr`
   border-color: ${NEUTRAL.N100};
   border-width: 1px;
   ${getComputedStyles}
