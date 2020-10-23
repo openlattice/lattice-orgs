@@ -12,7 +12,7 @@ import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { SEARCH_DATA_SETS, searchDataSets } from '../actions';
-import { MAX_HITS_20 } from '../constants';
+import { MAX_HITS_10000 } from '../constants';
 import type { SearchEntitySetsHit } from '../../../types';
 
 const LOG = new Logger('SearchSagas');
@@ -27,7 +27,7 @@ function* searchDataSetsWorker(action :SequenceAction) :Saga<*> {
 
     const {
       query,
-      maxHits = MAX_HITS_20,
+      maxHits = MAX_HITS_10000,
       start = 0,
     } :{|
       maxHits :number;
