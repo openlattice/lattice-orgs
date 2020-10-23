@@ -13,6 +13,8 @@ import type { UUID } from 'lattice';
 import { SEARCH_DATA_SETS } from '../../search/actions';
 import { HITS, SEARCH } from '../constants';
 
+const EMPTY_LIST = List();
+
 export default function selectDataSetSearchHits() {
 
   return (state :Map) :Map<UUID, Map> => {
@@ -21,6 +23,6 @@ export default function selectDataSetSearchHits() {
       return getIn(state, [SEARCH, SEARCH_DATA_SETS, HITS]);
     }
 
-    return List();
+    return EMPTY_LIST;
   };
 }
