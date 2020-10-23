@@ -1,14 +1,18 @@
-import { Set } from 'immutable';
+import { OrderedSet } from 'immutable';
 
 import * as SearchActions from '.';
 import { testShouldExportActionTypes, testShouldExportRequestSequences } from '../../../utils/testing/TestUtils';
 
-const ACTION_TYPES = Set([
+const ACTION_TYPES = OrderedSet([
   'SEARCH_DATA_SETS',
+  'SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_CONTAINER',
+  'SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_MODAL',
 ]).toJS();
 
-const REQSEQ_NAMES = Set([
+const REQSEQ_NAMES = OrderedSet([
   'searchDataSets',
+  'searchDataSetsInDataSetPermissionsContainer',
+  'searchDataSetsInDataSetPermissionsModal',
 ]).toJS();
 
 describe('SearchActions', () => {

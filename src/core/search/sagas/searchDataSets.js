@@ -20,7 +20,9 @@ const LOG = new Logger('SearchSagas');
 const { searchEntitySetMetaData } = SearchApiActions;
 const { searchEntitySetMetaDataWorker } = SearchApiSagas;
 
-function* searchDataSetsWorker(action :SequenceAction) :Saga<*> {
+function* searchDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse> {
+
+  let workerResponse :WorkerResponse;
 
   try {
     yield put(searchDataSets.request(action.id, action.value));
@@ -54,18 +56,19 @@ function* searchDataSetsWorker(action :SequenceAction) :Saga<*> {
       hits.forEach((hit :SearchEntitySetsHit) => mutableSet.add(hit.entitySet.id));
     });
 
-    yield put(searchDataSets.success(action.id, {
-      totalHits,
-      hits: entitySetIds,
-    }));
+    workerResponse = { data: { totalHits, hits: entitySetIds } };
+    yield put(searchDataSets.success(action.id, workerResponse.data));
   }
   catch (error) {
+    workerResponse = { error };
     LOG.error(action.type, error);
     yield put(searchDataSets.failure(action.id, error));
   }
   finally {
     yield put(searchDataSets.finally(action.id));
   }
+
+  return workerResponse;
 }
 
 function* searchDataSetsWatcher() :Saga<*> {

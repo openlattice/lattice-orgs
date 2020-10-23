@@ -28,16 +28,23 @@ import DataSetPermissionsModal from './DataSetPermissionsModal';
 import { SearchDataSetsForm } from './components';
 
 import { ActionsGrid, PlusButton, StackGrid } from '../../components';
-import { GET_DATA_SET_PERMISSIONS, getDataSetPermissions } from '../../core/permissions/actions';
+import {
+  GET_DATA_SET_PERMISSIONS_IN_DATA_SET_PERMISSIONS_CONTAINER as GET_DATA_SET_PERMISSIONS,
+  getDataSetPermissionsInDataSetPermissionsContainer as getDataSetPermissions,
+} from '../../core/permissions/actions';
 import { PERMISSIONS, SEARCH } from '../../core/redux/constants';
 import {
   selectAtlasDataSets,
-  selectDataSetSearchHits,
   selectOrganizationAtlasDataSetIds,
   selectOrganizationEntitySetIds,
   selectPermissions,
+  selectSearchHits,
 } from '../../core/redux/selectors';
-import { SEARCH_DATA_SETS, clearSearchState, searchDataSets } from '../../core/search/actions';
+import {
+  SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_CONTAINER as SEARCH_DATA_SETS,
+  clearSearchState,
+  searchDataSetsInDataSetPermissionsContainer as searchDataSets,
+} from '../../core/search/actions';
 import type { PermissionSelection } from '../../types';
 
 const { isNonEmptyString } = LangUtils;
@@ -75,7 +82,7 @@ const DataSetPermissionsContainer = ({
   const atlasDataSetIdsHash :number = atlasDataSetIds.hashCode();
   const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
   const entitySetIdsHash :number = entitySetIds.hashCode();
-  const searchHits :Set<UUID> = useSelector(selectDataSetSearchHits());
+  const searchHits :Set<UUID> = useSelector(selectSearchHits(SEARCH_DATA_SETS));
   const searchHitsHash :number = searchHits.hashCode();
 
   const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, principal));
@@ -128,22 +135,17 @@ const DataSetPermissionsContainer = ({
 
   useEffect(() => () => {
     dispatch(clearSearchState(SEARCH_DATA_SETS));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const dispatchDataSetSearch = (query :?string) => {
-
-    if (query === '') {
-      dispatch(clearSearchState(SEARCH_DATA_SETS));
-    }
-
     if (isNonEmptyString(query)) {
-      const ids = Set().union(atlasDataSetIds).union(entitySetIds);
       dispatch(
-        searchDataSets({
-          query,
-          maxHits: ids.count(),
-        })
+        searchDataSets({ query })
       );
+    }
+    else {
+      dispatch(clearSearchState(SEARCH_DATA_SETS));
     }
   };
 

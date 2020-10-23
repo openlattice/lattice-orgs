@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { List, Map } from 'immutable';
+import { Map, Set } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -14,7 +14,10 @@ import {
   REQUEST_STATE,
   TOTAL_HITS,
 } from '../../redux/constants';
-import { SEARCH_DATA_SETS, searchDataSets } from '../actions';
+import {
+  SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_CONTAINER as SEARCH_DATA_SETS,
+  searchDataSetsInDataSetPermissionsContainer as searchDataSets,
+} from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {
 
@@ -23,9 +26,9 @@ export default function reducer(state :Map, action :SequenceAction) {
       .setIn([SEARCH_DATA_SETS, REQUEST_STATE], RequestStates.PENDING)
       .setIn([SEARCH_DATA_SETS, action.id], action),
     SUCCESS: () => {
-      const storedSeqAction :SequenceAction = state.getIn([SEARCH_DATA_SETS, action.id]);
-      if (storedSeqAction) {
-        const { page, query } = storedSeqAction.value;
+      const storedAction :SequenceAction = state.getIn([SEARCH_DATA_SETS, action.id]);
+      if (storedAction) {
+        const { page, query } = storedAction.value;
         return state
           .setIn([SEARCH_DATA_SETS, HITS], action.value[HITS])
           .setIn([SEARCH_DATA_SETS, PAGE], page)
@@ -39,7 +42,7 @@ export default function reducer(state :Map, action :SequenceAction) {
       if (state.hasIn([SEARCH_DATA_SETS, action.id])) {
         return state
           .setIn([SEARCH_DATA_SETS, ERROR], action.value)
-          .setIn([SEARCH_DATA_SETS, HITS], List())
+          .setIn([SEARCH_DATA_SETS, HITS], Set())
           .setIn([SEARCH_DATA_SETS, TOTAL_HITS], 0)
           .setIn([SEARCH_DATA_SETS, REQUEST_STATE], RequestStates.FAILURE);
       }

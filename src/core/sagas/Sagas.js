@@ -72,6 +72,8 @@ export default function* sagas() :Saga<*> {
     fork(OrgsSagas.getOrganizationsAndAuthorizationsWatcher),
 
     // PermissionsSagas
+    fork(PermissionsSagas.getDataSetPermissionsInDataSetPermissionsContainerWatcher),
+    fork(PermissionsSagas.getDataSetPermissionsInDataSetPermissionsModalWatcher),
     fork(PermissionsSagas.getDataSetPermissionsWatcher),
     fork(PermissionsSagas.getPermissionsWatcher),
     fork(PermissionsSagas.setPermissionsWatcher),
@@ -81,6 +83,7 @@ export default function* sagas() :Saga<*> {
     fork(RoutingSagas.goToRouteWatcher),
 
     // SearchSagas
-    fork(SearchSagas.searchDataSetsWatcher),
+    fork(SearchSagas.searchDataSetsInDataSetPermissionsContainerWatcher),
+    fork(SearchSagas.searchDataSetsInDataSetPermissionsModalWatcher),
   ]);
 }
