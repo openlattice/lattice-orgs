@@ -28,15 +28,17 @@ const IconWrapper = styled.span`
   margin-right: 2px;
 `;
 
-type ButtonProps = {
+type ButtonProps = {|
+  'aria-label' ?:string;
   children ?:any;
   color ?:ButtonColor;
   icon ?:any;
   isDisabled ?:boolean;
   isPending ?:boolean;
   onClick ?:() => void;
+  type ?:string;
   variant ?:ButtonVariant;
-};
+|};
 
 // 2020-07-17 NOTE: using "disabled" prop instead of "isLoading" because of a margin bug in LUK
 const BaseButton = ({
@@ -76,12 +78,14 @@ const BaseButton = ({
 );
 
 BaseButton.defaultProps = {
+  'aria-label': undefined,
   children: null,
   color: 'primary',
   icon: null,
   isDisabled: false,
   isPending: false,
   onClick: () => {},
+  type: 'button',
   variant: 'contained',
 };
 
