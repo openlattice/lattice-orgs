@@ -36,7 +36,11 @@ const SearchDataSetsForm = ({
     <form onSubmit={handleOnSubmit}>
       <ActionsGrid>
         <SearchInput onChange={handleOnChange} placeholder="Search data sets" />
-        <SearchButton isLoading={searchRequestState === RequestStates.PENDING} color="primary" type="submit" />
+        <SearchButton
+            aria-label="search data sets button"
+            color="primary"
+            isPending={searchRequestState === RequestStates.PENDING}
+            type="submit" />
       </ActionsGrid>
     </form>
   );
