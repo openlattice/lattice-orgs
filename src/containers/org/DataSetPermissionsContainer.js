@@ -141,7 +141,6 @@ const DataSetPermissionsContainer = ({
     atlasDataSetIdsHash,
     dispatch,
     entitySetIdsHash,
-    keys,
     organizationId,
     pageDataSetIdsHash,
   ]);
