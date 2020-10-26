@@ -8,8 +8,8 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { REQUEST_STATE } from '../../redux/constants';
 import {
-  GET_DATA_SET_PERMISSIONS_IN_DATA_SET_PERMISSIONS_CONTAINER as GET_DATA_SET_PERMISSIONS,
-  getDataSetPermissionsInDataSetPermissionsContainer as getDataSetPermissions,
+  GET_DATA_SET_PERMISSIONS,
+  getDataSetPermissions,
 } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {

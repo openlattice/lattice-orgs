@@ -29,8 +29,8 @@ import { SearchDataSetsForm } from './components';
 
 import { ActionsGrid, PlusButton, StackGrid } from '../../components';
 import {
-  GET_DATA_SET_PERMISSIONS_IN_DATA_SET_PERMISSIONS_CONTAINER as GET_DATA_SET_PERMISSIONS,
-  getDataSetPermissionsInDataSetPermissionsContainer as getDataSetPermissions,
+  GET_DATA_SET_PERMISSIONS,
+  getDataSetPermissions,
 } from '../../core/permissions/actions';
 import { PERMISSIONS, SEARCH } from '../../core/redux/constants';
 import {
@@ -41,9 +41,9 @@ import {
   selectSearchHits,
 } from '../../core/redux/selectors';
 import {
-  SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_CONTAINER as SEARCH_DATA_SETS,
+  SEARCH_DATA_SETS,
   clearSearchState,
-  searchDataSetsInDataSetPermissionsContainer as searchDataSets,
+  searchDataSets,
 } from '../../core/search/actions';
 import type { PermissionSelection } from '../../types';
 
@@ -116,7 +116,13 @@ const DataSetPermissionsContainer = ({
         setKeys(newKeys);
       }
     }
-  }, [atlasDataSetIdsHash, entitySetIdsHash, keys, searchHitsHash, searchDataSetsRS]);
+  }, [
+    atlasDataSetIdsHash,
+    entitySetIdsHash,
+    keys,
+    searchDataSetsRS,
+    searchHitsHash,
+  ]);
 
   useEffect(() => {
     if (!pageDataSetIds.isEmpty()) {
@@ -131,7 +137,14 @@ const DataSetPermissionsContainer = ({
         })
       );
     }
-  }, [dispatch, atlasDataSetIdsHash, entitySetIdsHash, pageDataSetIdsHash, organizationId]);
+  }, [
+    atlasDataSetIdsHash,
+    dispatch,
+    entitySetIdsHash,
+    keys,
+    organizationId,
+    pageDataSetIdsHash,
+  ]);
 
   useEffect(() => () => {
     dispatch(clearSearchState(SEARCH_DATA_SETS));

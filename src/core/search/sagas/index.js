@@ -3,5 +3,4 @@
  */
 
 export * from './searchDataSets';
-export * from './searchDataSetsInDataSetPermissionsContainer';
-export * from './searchDataSetsInDataSetPermissionsModal';
+export * from './searchDataSetsToAssignPermissions';

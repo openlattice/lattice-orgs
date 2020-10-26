@@ -5,21 +5,21 @@
 import { Map, fromJS } from 'immutable';
 
 import clearSearchStateReducer from './clearSearchStateReducer';
-import searchDataSetsInDSPCReducer from './searchDataSetsInDataSetPermissionsContainerReducer';
-import searchDataSetsInDSPMReducer from './searchDataSetsInDataSetPermissionsModalReducer';
+import searchDataSetsReducer from './searchDataSetsReducer';
+import searchDataSetsToAssignPermissionsReducer from './searchDataSetsToAssignPermissionsReducer';
 
 import {
   CLEAR_SEARCH_STATE,
-  SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_CONTAINER,
-  SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_MODAL,
-  searchDataSetsInDataSetPermissionsContainer,
-  searchDataSetsInDataSetPermissionsModal,
+  SEARCH_DATA_SETS,
+  SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS,
+  searchDataSets,
+  searchDataSetsToAssignPermissions,
 } from '../actions';
 import { SEARCH_INITIAL_STATE } from '../constants';
 
 const INITIAL_STATE :Map = fromJS({
-  [SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_CONTAINER]: SEARCH_INITIAL_STATE,
-  [SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_MODAL]: SEARCH_INITIAL_STATE,
+  [SEARCH_DATA_SETS]: SEARCH_INITIAL_STATE,
+  [SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS]: SEARCH_INITIAL_STATE,
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
@@ -30,12 +30,12 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return clearSearchStateReducer(state, action);
     }
 
-    case searchDataSetsInDataSetPermissionsContainer.case(action.type): {
-      return searchDataSetsInDSPCReducer(state, action);
+    case searchDataSets.case(action.type): {
+      return searchDataSetsReducer(state, action);
     }
 
-    case searchDataSetsInDataSetPermissionsModal.case(action.type): {
-      return searchDataSetsInDSPMReducer(state, action);
+    case searchDataSetsToAssignPermissions.case(action.type): {
+      return searchDataSetsToAssignPermissionsReducer(state, action);
     }
 
     default:

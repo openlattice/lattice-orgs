@@ -15,8 +15,8 @@ import {
   TOTAL_HITS,
 } from '../../redux/constants';
 import {
-  SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_MODAL as SEARCH_DATA_SETS,
-  searchDataSetsInDataSetPermissionsModal as searchDataSets,
+  SEARCH_DATA_SETS,
+  searchDataSets,
 } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {
