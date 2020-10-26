@@ -5,14 +5,14 @@ import { testShouldExportActionTypes, testShouldExportRequestSequences } from '.
 
 const ACTION_TYPES = OrderedSet([
   'SEARCH_DATA_SETS',
-  'SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_CONTAINER',
-  'SEARCH_DATA_SETS_IN_DATA_SET_PERMISSIONS_MODAL',
+  'SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS',
+  'SEARCH_DATA_SETS_TO_FILTER',
 ]).toJS();
 
 const REQSEQ_NAMES = OrderedSet([
   'searchDataSets',
-  'searchDataSetsInDataSetPermissionsContainer',
-  'searchDataSetsInDataSetPermissionsModal',
+  'searchDataSetsToAssignPermissions',
+  'searchDataSetsToFilter',
 ]).toJS();
 
 describe('SearchActions', () => {
