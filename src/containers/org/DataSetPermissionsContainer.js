@@ -30,7 +30,8 @@ import { SearchDataSetsForm } from './components';
 import { ActionsGrid, PlusButton, StackGrid } from '../../components';
 import {
   GET_DATA_SET_PERMISSIONS,
-  getDataSetPermissions,
+  GET_PAGE_DATA_SET_PERMISSIONS,
+  getPageDataSetPermissions,
 } from '../../core/permissions/actions';
 import { PERMISSIONS, SEARCH } from '../../core/redux/constants';
 import {
@@ -76,6 +77,7 @@ const DataSetPermissionsContainer = ({
   const [paginationPage, setPaginationPage] = useState(0);
 
   const getDataSetPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_DATA_SET_PERMISSIONS]);
+  const getPageDataSetPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_PAGE_DATA_SET_PERMISSIONS]);
   const searchDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_DATA_SETS]);
 
   const atlasDataSetIds :Set<UUID> = useSelector(selectOrganizationAtlasDataSetIds(organizationId));
@@ -129,7 +131,7 @@ const DataSetPermissionsContainer = ({
       const pageAtlasDataSetIds = pageDataSetIds.filter((id :UUID) => atlasDataSetIds.has(id));
       const pageEntitySetIds = pageDataSetIds.filter((id :UUID) => entitySetIds.has(id));
       dispatch(
-        getDataSetPermissions({
+        getPageDataSetPermissions({
           organizationId,
           atlasDataSetIds: pageAtlasDataSetIds,
           entitySetIds: pageEntitySetIds,
@@ -178,7 +180,11 @@ const DataSetPermissionsContainer = ({
     dispatchDataSetSearch(query);
   };
 
-  const reducedRS :?RequestState = reduceRequestStates([getDataSetPermissionsRS, searchDataSetsRS]);
+  const reducedRS :?RequestState = reduceRequestStates([
+    getDataSetPermissionsRS,
+    getPageDataSetPermissionsRS,
+    searchDataSetsRS,
+  ]);
 
   return (
     <>

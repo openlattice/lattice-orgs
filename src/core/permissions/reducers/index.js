@@ -5,6 +5,7 @@
 import { Map, fromJS } from 'immutable';
 
 import getDataSetPermissionsReducer from './getDataSetPermissionsReducer';
+import getPageDataSetPermissionsReducer from './getPageDataSetPermissionsReducer';
 import getPermissionsReducer from './getPermissionsReducer';
 import setPermissionsReducer from './setPermissionsReducer';
 
@@ -13,9 +14,11 @@ import { ACES, RS_INITIAL_STATE } from '../../redux/constants';
 import { resetRequestStateReducer } from '../../redux/reducers';
 import {
   GET_DATA_SET_PERMISSIONS,
+  GET_PAGE_DATA_SET_PERMISSIONS,
   GET_PERMISSIONS,
   SET_PERMISSIONS,
   getDataSetPermissions,
+  getPageDataSetPermissions,
   getPermissions,
   setPermissions,
 } from '../actions';
@@ -23,6 +26,7 @@ import {
 const INITIAL_STATE :Map = fromJS({
   // actions
   [GET_DATA_SET_PERMISSIONS]: RS_INITIAL_STATE,
+  [GET_PAGE_DATA_SET_PERMISSIONS]: RS_INITIAL_STATE,
   [GET_PERMISSIONS]: RS_INITIAL_STATE,
   [SET_PERMISSIONS]: RS_INITIAL_STATE,
   // data
@@ -39,6 +43,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getDataSetPermissions.case(action.type): {
       return getDataSetPermissionsReducer(state, action);
+    }
+
+    case getPageDataSetPermissions.case(action.type): {
+      return getPageDataSetPermissionsReducer(state, action);
     }
 
     case getPermissions.case(action.type): {
