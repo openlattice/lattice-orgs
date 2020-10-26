@@ -41,9 +41,9 @@ import {
   selectSearchHits,
 } from '../../core/redux/selectors';
 import {
-  SEARCH_DATA_SETS,
+  SEARCH_DATA_SETS_TO_FILTER as SEARCH_DATA_SETS,
   clearSearchState,
-  searchDataSets,
+  searchDataSetsToFilter as searchDataSets,
 } from '../../core/search/actions';
 import type { PermissionSelection } from '../../types';
 
