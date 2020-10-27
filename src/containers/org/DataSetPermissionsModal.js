@@ -85,9 +85,9 @@ const DataSetPermissionsModal = ({
 |}) => {
 
   const dispatch = useDispatch();
-  const [isPermissionAssignedToAll, setIsPermissionAssignedToAll] = useState(true);
-  const [targetDataSetId, setTargetDataSetId] = useState('');
-  const [targetDataSetTitle, setTargetDataSetTitle] = useState('');
+  const [assignToAll, setAssignToAll] = useState(true);
+  const [targetId, setTargetId] = useState('');
+  const [targetTitle, setTargetTitle] = useState('');
   const [targetOptions, setTargetOptions] = useState([]);
   const [step, setStep] = useState(STEPS.SELECT_DATA_SET);
 
@@ -127,8 +127,6 @@ const DataSetPermissionsModal = ({
     else {
       dispatch(clearSearchState(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
     }
-    setTargetDataSetId('');
-    setTargetDataSetTitle('');
   };
 
   const handleOnClickBack = () => {
@@ -140,8 +138,8 @@ const DataSetPermissionsModal = ({
   const handleOnChangeSelectDataSet = (event :SyntheticInputEvent<HTMLInputElement>) => {
     const id = event.currentTarget.dataset.id;
     const title = event.currentTarget.dataset.title;
-    setTargetDataSetId(id);
-    setTargetDataSetTitle(title);
+    setTargetId(id);
+    setTargetTitle(title);
   };
 
   const handleOnClickContinue = () => {
@@ -150,39 +148,16 @@ const DataSetPermissionsModal = ({
     }
   };
 
-  const handleOnClickConfirm = () => {
-
-  };
-
-  let withFooter = (
+  const withFooter = (
     <ModalFooter
         onClickPrimary={handleOnClickContinue}
         onClickSecondary={handleOnClickBack}
         shouldStretchButtons
-        textPrimary="Continue"
-        textSecondary="Back" />
+        textPrimary={step === STEPS.CONFIRM ? 'Confirm' : 'Continue'}
+        textSecondary={step === STEPS.SELECT_DATA_SET ? '' : 'Back'} />
   );
 
-  if (step === STEPS.SELECT_DATA_SET) {
-    withFooter = (
-      <ModalFooter
-          shouldStretchButtons
-          onClickPrimary={handleOnClickContinue}
-          textPrimary="Continue"
-          textSecondary="" />
-    );
-  }
-  else if (step === STEPS.CONFIRM) {
-    withFooter = (
-      <ModalFooter
-          onClickPrimary={handleOnClickConfirm}
-          shouldStretchButtons
-          textPrimary="Confirm"
-          textSecondary="" />
-    );
-  }
-
-  const selectedPermissionsJoined = targetOptions
+  const permissions = targetOptions
     .map((o :ReactSelectOption) => (o.value :any))
     .map(_capitalize)
     .join(', ');
@@ -228,13 +203,13 @@ const DataSetPermissionsModal = ({
                         const id :UUID = dataSet.id || getIn(dataSet, ['table', 'id']);
                         const title :UUID = dataSet.title || getIn(dataSet, ['table', 'title']);
                         return (
-                          <GridCardSegment key={id} padding="0">
+                          <GridCardSegment key={id} padding="8px 0">
                             <div>
                               <Typography>{title}</Typography>
                               <Typography variant="caption">{id}</Typography>
                             </div>
                             <Radio
-                                checked={targetDataSetId === id}
+                                checked={targetId === id}
                                 data-id={id}
                                 data-title={title}
                                 name="select-data-set"
@@ -253,7 +228,7 @@ const DataSetPermissionsModal = ({
           step === STEPS.SELECT_PERMISSIONS && (
             <StackGrid>
               <Typography>
-                {`Select permissions to assign to "${targetDataSetTitle}".`}
+                {`Select permissions to assign to "${targetTitle}".`}
               </Typography>
               <Select
                   isMulti
@@ -267,27 +242,46 @@ const DataSetPermissionsModal = ({
           step === STEPS.SELECT_PROPERTIES && (
             <StackGrid>
               <Typography>
-                {`You have selected to assign ${selectedPermissionsJoined} to "${targetDataSetTitle}".`}
+                {`You have selected to assign ${permissions} to "${targetTitle}".`}
               </Typography>
               <Typography>
                 You can assign permissions to either the data set and all properties, or just the data set itself.
                 Permissions on individual properties can be assigned later.
               </Typography>
-              <GridCardSegment padding="8px 0">
+              <GridCardSegment padding="0">
                 <Typography variant="body1">
-                  {`Assign ${selectedPermissionsJoined} to all properties:`}
+                  {`Assign ${permissions} to all properties:`}
                 </Typography>
                 <IconButton
                     aria-label="permissions toggle for all properties"
-                    onClick={() => setIsPermissionAssignedToAll(!isPermissionAssignedToAll)}>
+                    onClick={() => setAssignToAll(!assignToAll)}>
                   <FontAwesomeIcon
-                      color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
+                      color={assignToAll ? PURPLE.P300 : NEUTRAL.N500}
                       fixedWidth
                       icon={faToggleOn}
-                      transform={{ rotate: isPermissionAssignedToAll ? 0 : 180 }}
+                      transform={{ rotate: assignToAll ? 0 : 180 }}
                       size="lg" />
                 </IconButton>
               </GridCardSegment>
+            </StackGrid>
+          )
+        }
+        {
+          step === STEPS.CONFIRM && (
+            <StackGrid>
+              {
+                assignToAll
+                  ? (
+                    <Typography>
+                      {`Please confirm you want to assign ${permissions} to "${targetTitle}" and all its properties.`}
+                    </Typography>
+                  )
+                  : (
+                    <Typography>
+                      {`Please confirm you want to assign ${permissions} to "${targetTitle}".`}
+                    </Typography>
+                  )
+              }
             </StackGrid>
           )
         }
