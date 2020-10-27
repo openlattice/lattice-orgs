@@ -25,7 +25,6 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { getOrSelectDataSets } from '../../../core/edm/actions';
 import { getDataSetPermissions } from '../../../core/permissions/actions';
 import {
   selectOrganizationAtlasDataSetIds,

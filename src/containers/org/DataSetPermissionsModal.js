@@ -23,18 +23,21 @@ import {
 import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { EntitySet, UUID } from 'lattice';
+import type { EntitySet, Principal, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import { SearchDataSetsForm } from './components';
 
 import {
+  BasicErrorComponent,
   GridCardSegment,
   ModalBody,
   Spinner,
   StackGrid,
 } from '../../components';
-import { SEARCH } from '../../core/redux/constants';
+import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../core/permissions/actions';
+import { resetRequestState } from '../../core/redux/actions';
+import { PERMISSIONS, SEARCH } from '../../core/redux/constants';
 import {
   selectAtlasDataSets,
   selectSearchHits,
@@ -80,8 +83,10 @@ const PERMISSIONS_OPTIONS = [
 
 const DataSetPermissionsModal = ({
   onClose,
+  principal,
 } :{|
   onClose :() => void;
+  principal :Principal;
 |}) => {
 
   const dispatch = useDispatch();
@@ -91,6 +96,7 @@ const DataSetPermissionsModal = ({
   const [targetOptions, setTargetOptions] = useState([]);
   const [step, setStep] = useState(STEPS.SELECT_DATA_SET);
 
+  const assignPermissionsToDataSetRS :?RequestState = useRequestState([PERMISSIONS, ASSIGN_PERMISSIONS_TO_DATA_SET]);
   const searchDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS]);
 
   const searchPage :number = useSelector(selectSearchPage(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
@@ -109,6 +115,7 @@ const DataSetPermissionsModal = ({
     // the timeout avoids rendering the modal with new state before the transition animation finishes
     setTimeout(() => {
       dispatch(clearSearchState(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
+      dispatch(resetRequestState([ASSIGN_PERMISSIONS_TO_DATA_SET]));
     }, 1000);
   };
 
@@ -142,19 +149,48 @@ const DataSetPermissionsModal = ({
     setTargetTitle(title);
   };
 
+  const handleOnChangeSelectPermissions = (options :?ReactSelectOption[]) => {
+    if (!options) {
+      setTargetOptions([]);
+    }
+    else {
+      setTargetOptions(options);
+    }
+  };
+
   const handleOnClickContinue = () => {
-    if (step !== STEPS.CONFIRM) {
+    if (step === STEPS.CONFIRM) {
+      dispatch(
+        assignPermissionsToDataSet({
+          principal,
+          dataSetId: targetId,
+          permissionTypes: targetOptions.map((o) => o.value),
+          withProperties: assignToAll,
+        })
+      );
+    }
+    else {
       setStep(step + 1);
     }
   };
 
+  let onClickPrimary = handleOnClickContinue;
+  let textPrimary = step === STEPS.CONFIRM ? 'Confirm' : 'Continue';
+  let textSecondary = step === STEPS.SELECT_DATA_SET ? '' : 'Back';
+  if (step === STEPS.CONFIRM && assignPermissionsToDataSetRS === RequestStates.SUCCESS) {
+    textPrimary = 'Close';
+    textSecondary = '';
+    onClickPrimary = handleOnClose;
+  }
+
   const withFooter = (
     <ModalFooter
-        onClickPrimary={handleOnClickContinue}
+        isPendingPrimary={step === STEPS.CONFIRM && assignPermissionsToDataSetRS === RequestStates.PENDING}
+        onClickPrimary={onClickPrimary}
         onClickSecondary={handleOnClickBack}
         shouldStretchButtons
-        textPrimary={step === STEPS.CONFIRM ? 'Confirm' : 'Continue'}
-        textSecondary={step === STEPS.SELECT_DATA_SET ? '' : 'Back'} />
+        textPrimary={textPrimary}
+        textSecondary={textSecondary} />
   );
 
   const permissions = targetOptions
@@ -232,7 +268,7 @@ const DataSetPermissionsModal = ({
               </Typography>
               <Select
                   isMulti
-                  onChange={(options) => setTargetOptions(options)}
+                  onChange={handleOnChangeSelectPermissions}
                   options={PERMISSIONS_OPTIONS}
                   value={targetOptions} />
             </StackGrid>
@@ -267,7 +303,7 @@ const DataSetPermissionsModal = ({
           )
         }
         {
-          step === STEPS.CONFIRM && (
+          step === STEPS.CONFIRM && assignPermissionsToDataSetRS === RequestStates.STANDBY && (
             <StackGrid>
               {
                 assignToAll
@@ -283,6 +319,16 @@ const DataSetPermissionsModal = ({
                   )
               }
             </StackGrid>
+          )
+        }
+        {
+          step === STEPS.CONFIRM && assignPermissionsToDataSetRS === RequestStates.SUCCESS && (
+            <Typography>Success!</Typography>
+          )
+        }
+        {
+          step === STEPS.CONFIRM && assignPermissionsToDataSetRS === RequestStates.FAILURE && (
+            <BasicErrorComponent />
           )
         }
       </ModalBody>

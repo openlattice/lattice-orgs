@@ -7,6 +7,9 @@
 import { newRequestSequence } from 'redux-reqseq';
 import type { RequestSequence } from 'redux-reqseq';
 
+const ASSIGN_PERMISSIONS_TO_DATA_SET :'ASSIGN_PERMISSIONS_TO_DATA_SET' = 'ASSIGN_PERMISSIONS_TO_DATA_SET';
+const assignPermissionsToDataSet :RequestSequence = newRequestSequence(ASSIGN_PERMISSIONS_TO_DATA_SET);
+
 const GET_DATA_SET_PERMISSIONS :'GET_DATA_SET_PERMISSIONS' = 'GET_DATA_SET_PERMISSIONS';
 const getDataSetPermissions :RequestSequence = newRequestSequence(GET_DATA_SET_PERMISSIONS);
 
@@ -20,10 +23,12 @@ const SET_PERMISSIONS :'SET_PERMISSIONS' = 'SET_PERMISSIONS';
 const setPermissions :RequestSequence = newRequestSequence(SET_PERMISSIONS);
 
 export {
+  ASSIGN_PERMISSIONS_TO_DATA_SET,
   GET_DATA_SET_PERMISSIONS,
   GET_PAGE_DATA_SET_PERMISSIONS,
   GET_PERMISSIONS,
   SET_PERMISSIONS,
+  assignPermissionsToDataSet,
   getDataSetPermissions,
   getPageDataSetPermissions,
   getPermissions,
