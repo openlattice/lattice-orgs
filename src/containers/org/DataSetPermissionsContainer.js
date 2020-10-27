@@ -225,9 +225,11 @@ const DataSetPermissionsContainer = ({
           )
         }
       </StackGrid>
-      <DataSetPermissionsModal
-          isVisible={isVisibleAddDataSetModal}
-          onClose={() => setIsVisibleAddDataSetModal(false)} />
+      {
+        isVisibleAddDataSetModal && (
+          <DataSetPermissionsModal onClose={() => setIsVisibleAddDataSetModal(false)} />
+        )
+      }
     </>
   );
 };

@@ -20,8 +20,6 @@ import {
 import { Models } from 'lattice';
 import {
   Button,
-  Card,
-  CardSegment,
   Checkbox,
   Colors,
   IconButton,
@@ -41,7 +39,7 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { Divider } from '../../../components';
+import { Divider, GridCardSegment } from '../../../components';
 import { SET_PERMISSIONS, setPermissions } from '../../../core/permissions/actions';
 import { PERMISSIONS } from '../../../core/redux/constants';
 import { selectDataSetProperties, selectPermissions } from '../../../core/redux/selectors';
@@ -68,17 +66,6 @@ const PanelHeader = styled.div`
   align-items: center;
   display: flex;
   justify-content: space-between;
-`;
-
-const PermissionCard = styled(Card)`
-  border: none;
-`;
-
-const PermissionCardSegment = styled(CardSegment)`
-  align-items: center;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 8px 0;
 `;
 
 const ButtonsWrapper = styled.div`
@@ -287,8 +274,8 @@ const PermissionsPanel = ({
         {`These are the properties that are assigned the ${_lowerCase(permissionType)} permission.`}
       </Typography>
       <Divider isVisible={false} margin={24} />
-      <PermissionCard>
-        <PermissionCardSegment>
+      <div>
+        <GridCardSegment padding="8px 0">
           <Typography variant="body1">All properties</Typography>
           <IconButton
               aria-label="permissions toggle for all properties"
@@ -300,8 +287,8 @@ const PermissionsPanel = ({
                 transform={{ rotate: isPermissionAssignedToAll ? 0 : 180 }}
                 size="lg" />
           </IconButton>
-        </PermissionCardSegment>
-        <PermissionCardSegment>
+        </GridCardSegment>
+        <GridCardSegment padding="8px 0">
           <Typography variant="body1">Only non-pii properties</Typography>
           <IconButton
               aria-label="permissions toggle for only non-pii properties"
@@ -313,7 +300,7 @@ const PermissionsPanel = ({
                 transform={{ rotate: isPermissionAssignedToOnlyNonPII ? 0 : 180 }}
                 size="lg" />
           </IconButton>
-        </PermissionCardSegment>
+        </GridCardSegment>
         {
           properties.valueSeq().map((property :PropertyType | Map) => {
             const propertyId :UUID = property.id || get(property, 'id');
@@ -323,7 +310,7 @@ const PermissionsPanel = ({
             const ace :?Ace = localPermissions.get(key);
             const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
             return (
-              <PermissionCardSegment key={propertyId}>
+              <GridCardSegment key={propertyId} padding="8px 0">
                 <div>
                   <Typography variant="body1">{propertyTitle}</Typography>
                   {
@@ -336,11 +323,11 @@ const PermissionsPanel = ({
                     checked={isPermissionAssigned}
                     data-property-id={propertyId}
                     onChange={handleOnChangePermission} />
-              </PermissionCardSegment>
+              </GridCardSegment>
             );
           })
         }
-      </PermissionCard>
+      </div>
       <Divider isVisible={false} margin={24} />
       <ButtonsWrapper>
         <Button
