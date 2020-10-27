@@ -6,7 +6,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import _capitalize from 'lodash/capitalize';
 import _isBoolean from 'lodash/isBoolean';
-import _lowerCase from 'lodash/lowerCase';
 import styled from 'styled-components';
 import { faTimes, faUndo } from '@fortawesome/pro-light-svg-icons';
 import { faToggleOn } from '@fortawesome/pro-regular-svg-icons';
@@ -88,6 +87,7 @@ const PermissionsPanel = ({
 
   const dispatch = useDispatch();
   const [isPermissionAssignedToAll, setIsPermissionAssignedToAll] = useState(false);
+  const [isPermissionAssignedToDataSet, setIsPermissionAssignedToDataSet] = useState(false);
   const [isPermissionAssignedToOnlyNonPII, setIsPermissionAssignedToOnlyNonPII] = useState(false);
   const [localPermissions, setLocalPermissions] = useState(Map());
 
@@ -98,6 +98,7 @@ const PermissionsPanel = ({
 
   const keys :List<List<UUID>> = useMemo(() => (
     List().withMutations((mutableList) => {
+      mutableList.push(List([dataSetId]));
       properties.keySeq().forEach((id :UUID) => {
         mutableList.push(List([dataSetId, id]));
       });
@@ -112,6 +113,7 @@ const PermissionsPanel = ({
   }, [permissionsHash]);
 
   useEffect(() => {
+
     let isAssignedToAll = true;
     let isAssignedToOnlyNonPII = true;
     properties.forEach((property :PropertyType | Map) => {
@@ -129,6 +131,11 @@ const PermissionsPanel = ({
     });
     setIsPermissionAssignedToAll(isAssignedToAll);
     setIsPermissionAssignedToOnlyNonPII(isAssignedToOnlyNonPII);
+
+    const ace :?Ace = localPermissions.get(List([dataSetId]));
+    const isAssignedToDataSet = ace ? ace.permissions.includes(permissionType) : false;
+    setIsPermissionAssignedToDataSet(isAssignedToDataSet);
+
   }, [dataSetId, localPermissions, permissionType, propertiesHash]);
 
   // TODO: update Ace model to use Set for immutable equality to be able to use .equals()
@@ -149,9 +156,13 @@ const PermissionsPanel = ({
 
   const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
 
-    const propertyId :UUID = event.currentTarget.dataset.propertyId;
-    const key :List<UUID> = List([dataSetId, propertyId]);
+    let key :List<UUID> = List([dataSetId]);
+    if (event?.currentTarget?.dataset?.propertyId) {
+      const propertyId :UUID = event.currentTarget.dataset.propertyId;
+      key = List([dataSetId, propertyId]);
+    }
 
+    // add permission
     if (event.currentTarget.checked) {
       const updatedPermissions :Map<List<UUID>, Ace> = localPermissions.update(key, (ace :Ace) => {
         const updatedAcePermissions = Set(ace?.permissions).add(permissionType);
@@ -159,6 +170,7 @@ const PermissionsPanel = ({
       });
       setLocalPermissions(updatedPermissions);
     }
+    // remove permission
     else {
       const updatedPermissions :Map<List<UUID>, Ace> = localPermissions.update(key, (ace :Ace) => {
         const updatedAcePermissions = Set(ace?.permissions).delete(permissionType);
@@ -169,7 +181,7 @@ const PermissionsPanel = ({
   };
 
   const handleOnClickSave = () => {
-    const updatedPropertyTypePermissions :Map<List<UUID>, Ace> = localPermissions
+    const updatedPermissions :Map<List<UUID>, Ace> = localPermissions
       .filter((localAce :Ace, key :List<UUID>) => {
         let equal = true;
         const originalAce :?Ace = permissions.get(key);
@@ -187,7 +199,7 @@ const PermissionsPanel = ({
         // NOTE: we only want to consider permissions that have changed, i.e. not equal
         return !equal;
       });
-    dispatch(setPermissions(updatedPropertyTypePermissions));
+    dispatch(setPermissions(updatedPermissions));
   };
 
   const resetPermissions = () => {
@@ -198,6 +210,8 @@ const PermissionsPanel = ({
     if (isPermissionAssignedToAll) {
       // remove permission from all properties
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
+        const dataSetKey = List([dataSetId]);
+        mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
         properties.keySeq().forEach((id :UUID) => {
           const key = List([dataSetId, id]);
           const localAce :?Ace = localPermissions.get(key);
@@ -214,6 +228,8 @@ const PermissionsPanel = ({
     else {
       // add permission to all properties
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
+        const dataSetKey = List([dataSetId]);
+        mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
         properties.keySeq().forEach((id :UUID) => {
           const key = List([dataSetId, id]);
           const localAce :?Ace = localPermissions.get(key);
@@ -235,6 +251,8 @@ const PermissionsPanel = ({
     }
     else {
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
+        const dataSetKey = List([dataSetId]);
+        mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
         properties.valueSeq().forEach((property :PropertyType | Map) => {
           if (_isBoolean(property.pii)) {
             const propertyId :UUID = property.id || get(property, 'id');
@@ -269,14 +287,14 @@ const PermissionsPanel = ({
           <FontAwesomeIcon color={NEUTRAL.N800} fixedWidth icon={faTimes} size="lg" />
         </IconButton>
       </PanelHeader>
-      <Divider isVisible={false} margin={12} />
-      <Typography variant="body1">
-        {`These are the properties that are assigned the ${_lowerCase(permissionType)} permission.`}
-      </Typography>
       <Divider isVisible={false} margin={24} />
       <div>
         <GridCardSegment padding="8px 0">
-          <Typography variant="body1">All properties</Typography>
+          <Typography>Data Set</Typography>
+          <Checkbox checked={isPermissionAssignedToDataSet} onChange={handleOnChangePermission} />
+        </GridCardSegment>
+        <GridCardSegment padding="8px 0">
+          <Typography>All properties</Typography>
           <IconButton
               aria-label="permissions toggle for all properties"
               onClick={togglePermissionAssignmentAll}>
@@ -289,7 +307,7 @@ const PermissionsPanel = ({
           </IconButton>
         </GridCardSegment>
         <GridCardSegment padding="8px 0">
-          <Typography variant="body1">Only non-pii properties</Typography>
+          <Typography>Only non-pii properties</Typography>
           <IconButton
               aria-label="permissions toggle for only non-pii properties"
               onClick={togglePermissionAssignmentOnlyNonPII}>
@@ -312,7 +330,7 @@ const PermissionsPanel = ({
             return (
               <GridCardSegment key={propertyId} padding="8px 0">
                 <div>
-                  <Typography variant="body1">{propertyTitle}</Typography>
+                  <Typography>{propertyTitle}</Typography>
                   {
                     propertyTypeFQN && (
                       <Typography variant="caption">{propertyTypeFQN}</Typography>
