@@ -106,6 +106,7 @@ const DataSetPermissionsModal = ({
     <Modal
         isVisible
         onClose={handleOnClose}
+        shouldCloseOnOutsideClick={false}
         shouldStretchButtons
         textTitle="Add Data Set"
         viewportScrolling
