@@ -2,12 +2,15 @@
  * @flow
  */
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import styled from 'styled-components';
-import { Button, Checkbox } from 'lattice-ui-kit';
+import { Button, Checkbox, SearchInput } from 'lattice-ui-kit';
 import { ValidationUtils } from 'lattice-utils';
-import type { Organization, Role, UUID } from 'lattice';
+import { debounce } from 'lodash';
+import type { Organization, UUID } from 'lattice';
+
+import FilteredRoles from './FilteredRoles';
 
 import { Divider, Header, StackGrid } from '../../../components';
 import { AddRoleToOrgModal } from '../components';
@@ -35,8 +38,13 @@ const RolesSection = ({
 
   const [isVisibleAddRoleToOrgModal, setIsVisibleAddRoleToOrgModal] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState(null);
+  const [filterTerm, setFilterTerm] = useState('');
 
-  const handleOnChangeRoleCheckBox = (event :SyntheticEvent<HTMLInputElement>) => {
+  const debounceSetSearchTerm = debounce((value) => {
+    setFilterTerm(value);
+  }, 250);
+
+  const handleOnChangeRoleCheckBox = useCallback((event :SyntheticEvent<HTMLInputElement>) => {
     const roleId :UUID = event?.currentTarget?.dataset?.roleId;
     if (isValidUUID(roleId)) {
       onSelectRole(roleId);
@@ -46,7 +54,7 @@ const RolesSection = ({
       onSelectRole(null);
       setSelectedRoleId(null);
     }
-  };
+  }, [onSelectRole]);
 
   return (
     <StackGrid>
@@ -60,23 +68,20 @@ const RolesSection = ({
           )
         }
       </RolesSectionHeader>
+      <SearchInput
+          onChange={(event :SyntheticEvent<HTMLInputElement>) => debounceSetSearchTerm(event.currentTarget.value)}
+          placeholder="Filter roles" />
       <Checkbox
           checked={selectedRoleId === null}
           label="All Members"
           mode="button"
           onChange={handleOnChangeRoleCheckBox} />
       <Divider margin={0} />
-      {
-        organization.roles.map((role :Role) => (
-          <Checkbox
-              checked={role.id === selectedRoleId}
-              data-role-id={role.id}
-              key={role.id}
-              label={role.title}
-              mode="button"
-              onChange={handleOnChangeRoleCheckBox} />
-        ))
-      }
+      <FilteredRoles
+          filterTerm={filterTerm}
+          onChange={handleOnChangeRoleCheckBox}
+          organization={organization}
+          selectedRoleId={selectedRoleId} />
       {
         isOwner && (
           <AddRoleToOrgModal

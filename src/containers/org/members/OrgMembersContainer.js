@@ -2,7 +2,11 @@
  * @flow
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 
 import styled from 'styled-components';
 import { List } from 'immutable';
@@ -63,7 +67,7 @@ const OrgMembersContainer = ({ organizationId } :Props) => {
 
   useEffect(() => () => {
     dispatch(resetUserSearchResults());
-  }, []);
+  }, [dispatch]);
 
   const orgPath = useMemo(() => (
     Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
