@@ -36,6 +36,7 @@
     "axios": "~0.21.0",
     "connected-react-router": "~6.8.0",
     "file-saver": "~2.0.0",
+    "fuse.js": "~6.4.2",
     "history": "~4.10.0",
     "immutable": "4.0.0-rc.10",
     "lattice": "~0.81.1",
