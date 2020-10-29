@@ -4,10 +4,11 @@
 
 import React, { useCallback, useState } from 'react';
 
+import debounce from 'lodash/debounce';
 import styled from 'styled-components';
 import { Button, Checkbox, SearchInput } from 'lattice-ui-kit';
 import { ValidationUtils } from 'lattice-utils';
-import { debounce } from 'lodash';
+
 import type { Organization, UUID } from 'lattice';
 
 import FilteredRoles from './FilteredRoles';
