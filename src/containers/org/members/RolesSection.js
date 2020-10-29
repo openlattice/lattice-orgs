@@ -37,7 +37,7 @@ const RolesSection = ({
   const [selectedRoleId, setSelectedRoleId] = useState(null);
 
   const handleOnChangeRoleCheckBox = (event :SyntheticEvent<HTMLInputElement>) => {
-    const roleId :UUID = event.currentTarget.dataset.roleId;
+    const roleId :UUID = event?.currentTarget?.dataset?.roleId;
     if (isValidUUID(roleId)) {
       onSelectRole(roleId);
       setSelectedRoleId(roleId);
@@ -78,8 +78,9 @@ const RolesSection = ({
         ))
       }
       {
-        isOwner && isVisibleAddRoleToOrgModal && (
+        isOwner && (
           <AddRoleToOrgModal
+              isVisible={isVisibleAddRoleToOrgModal}
               onClose={() => setIsVisibleAddRoleToOrgModal(false)}
               organization={organization}
               organizationId={organizationId} />

@@ -20,12 +20,14 @@ import { ADD_ROLE_TO_ORGANIZATION, addRoleToOrganization } from '../actions';
 const { isNonEmptyString } = LangUtils;
 
 type Props = {
+  isVisible :boolean;
   onClose :() => void;
   organization :Organization;
   organizationId :UUID;
 };
 
 const AddRoleToOrgModal = ({
+  isVisible,
   onClose,
   organization,
   organizationId,
@@ -110,7 +112,7 @@ const AddRoleToOrgModal = ({
 
   return (
     <ActionModal
-        isVisible
+        isVisible={isVisible}
         onClickPrimary={handleOnClickPrimary}
         onClose={handleOnClose}
         requestState={addRoleRS}
