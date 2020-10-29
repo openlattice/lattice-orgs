@@ -20,7 +20,8 @@ const FilteredRoles = ({
 
   let filteredRoles = roles;
   if (filterTerm) {
-    filteredRoles = filteredRoles.filter((role) => role.title.toLowerCase().includes(filterTerm));
+    filteredRoles = filteredRoles
+      .filter((role) => role.title.toLowerCase().includes(filterTerm.toLowerCase()));
   }
 
   return (
