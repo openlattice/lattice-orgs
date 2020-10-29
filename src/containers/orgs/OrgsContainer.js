@@ -36,7 +36,7 @@ const OrgsContainer = () => {
 
   const organizations :Map<UUID, Organization> = useSelector((s) => s.getIn([ORGANIZATIONS, ORGS]));
   const filteredOrganizations = organizations.filter((org :Organization, orgId :UUID) => (
-    org && (orgFilterQuery === orgId || org.title.toLowerCase().includes(orgFilterQuery))
+    org && (orgFilterQuery === orgId || org.title.toLowerCase().includes(orgFilterQuery.toLowerCase()))
   ));
   const filteredOrganizationsCount = filteredOrganizations.count();
   const pageOrganizations :Map<UUID, Organization> = filteredOrganizations.slice(
