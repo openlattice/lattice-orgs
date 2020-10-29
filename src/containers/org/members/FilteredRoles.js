@@ -2,25 +2,25 @@
 import React from 'react';
 
 import { Checkbox } from 'lattice-ui-kit';
-import type { Organization, Role, UUID } from 'lattice';
+import type { Role, UUID } from 'lattice';
 
 type Props = {
-  onChange :(e :SyntheticEvent<HTMLInputElement>) => void;
-  organization :Organization;
-  selectedRoleId :UUID | null;
   filterTerm :string;
+  onChange :(e :SyntheticEvent<HTMLInputElement>) => void;
+  roles :Role[];
+  selectedRoleId :UUID | null;
 };
 
 const FilteredRoles = ({
+  filterTerm,
   onChange,
-  organization,
+  roles,
   selectedRoleId,
-  filterTerm
 } :Props) => {
 
-  let filteredRoles = organization.roles;
+  let filteredRoles = roles;
   if (filterTerm) {
-    filteredRoles = organization.roles.filter((role) => role.title.toLowerCase().includes(filterTerm));
+    filteredRoles = filteredRoles.filter((role) => role.title.toLowerCase().includes(filterTerm));
   }
 
   return (

@@ -80,7 +80,7 @@ const RolesSection = ({
       <FilteredRoles
           filterTerm={filterTerm}
           onChange={handleOnChangeRoleCheckBox}
-          organization={organization}
+          roles={organization.roles}
           selectedRoleId={selectedRoleId} />
       {
         isOwner && (
