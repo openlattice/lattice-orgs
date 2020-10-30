@@ -146,6 +146,9 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       isOwner = authorizations[0].permissions[PermissionTypes.OWNER] === true;
     }
 
+    // NOTE: we need all permissions for all data sets in order to filter by the user/role principals in
+    // DataSetPermissionsContainer and paginate through the data sets, so we kick off a non-blocking call to
+    // getDataSetPermissions() to get all data set permissions here
     // NOTE: this is a non-blocking action, so the INITIALIZE_ORGANIZATION lifecycle will always complete before
     // the GET_DATA_SET_PERMISSIONS lifecycle
     yield put(getDataSetPermissions({ atlasDataSetIds, entitySetIds, organizationId }));

@@ -31,7 +31,9 @@ const { selectEntitySets, selectEntityTypes } = ReduxUtils;
 
 const LOG = new Logger('PermissionsSagas');
 
-function* getDataSetPermissionsWorker(action :SequenceAction) :Saga<*> {
+function* getDataSetPermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> {
+
+  let workerResponse :WorkerResponse;
 
   try {
     yield put(getDataSetPermissions.request(action.id, action.value));
@@ -98,15 +100,19 @@ function* getDataSetPermissionsWorker(action :SequenceAction) :Saga<*> {
       if (response.error) throw response.error;
     }
 
+    workerResponse = { data: {} };
     yield put(getDataSetPermissions.success(action.id));
   }
   catch (error) {
+    workerResponse = { error };
     LOG.error(action.type, error);
     yield put(getDataSetPermissions.failure(action.id, error));
   }
   finally {
     yield put(getDataSetPermissions.finally(action.id));
   }
+
+  return workerResponse;
 }
 
 function* getDataSetPermissionsWatcher() :Saga<*> {

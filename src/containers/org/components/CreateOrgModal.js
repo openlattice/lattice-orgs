@@ -10,7 +10,7 @@ import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestState } from 'redux-reqseq';
 
-import { ModalBodyWidthHack, StackGrid } from '../../../components';
+import { ModalBody, StackGrid } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { CREATE_NEW_ORGANIZATION, createNewOrganization } from '../actions';
@@ -63,8 +63,7 @@ const CreateOrgModal = ({ onClose } :Props) => {
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
-      <>
-        <ModalBodyWidthHack />
+      <ModalBody>
         <StackGrid>
           <span>Enter a title for this organization and an optional description.</span>
           <div>
@@ -76,19 +75,17 @@ const CreateOrgModal = ({ onClose } :Props) => {
             <Input onChange={handleOnChangeOrgDescription} />
           </div>
         </StackGrid>
-      </>
+      </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
-      <>
-        <ModalBodyWidthHack />
+      <ModalBody>
         <span>Success!</span>
-      </>
+      </ModalBody>
     ),
     [RequestStates.FAILURE]: (
-      <>
-        <ModalBodyWidthHack />
+      <ModalBody>
         <span>Failed to create organization. Please try again.</span>
-      </>
+      </ModalBody>
     ),
   };
 

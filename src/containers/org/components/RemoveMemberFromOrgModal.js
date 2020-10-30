@@ -12,7 +12,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { ModalBodyWidthHack } from '../../../components';
+import { ModalBody } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 
@@ -37,24 +37,21 @@ const RemoveMemberFromOrgModal = ({
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
-      <>
-        <ModalBodyWidthHack />
+      <ModalBody>
         <span>Are you sure you want to remove the following member from this organization?</span>
         <br />
         <span>{member}</span>
-      </>
+      </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
-      <>
-        <ModalBodyWidthHack />
+      <ModalBody>
         <span>Success!</span>
-      </>
+      </ModalBody>
     ),
     [RequestStates.FAILURE]: (
-      <>
-        <ModalBodyWidthHack />
+      <ModalBody>
         <span>Failed to remove member. Please try again.</span>
-      </>
+      </ModalBody>
     ),
   };
 

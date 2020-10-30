@@ -5,14 +5,15 @@
 import React from 'react';
 
 import { faCopy } from '@fortawesome/pro-light-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button } from 'lattice-ui-kit';
 
-const CopyButton = (props :Object) => (
+import BaseButton from './BaseButton';
+import type { ButtonProps } from './BaseButton';
+
+const CopyButton = ({ children, ...props } :ButtonProps) => (
   /* eslint-disable react/jsx-props-no-spreading */
-  <Button {...props}>
-    <FontAwesomeIcon fixedWidth icon={faCopy} />
-  </Button>
+  <BaseButton {...props} icon={faCopy}>
+    {children}
+  </BaseButton>
   /* eslint-enable */
 );
 
