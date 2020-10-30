@@ -95,10 +95,10 @@ const OrgContainer = ({ organizationId } :Props) => {
           <div>
             <span>Data Sets</span>
             <b>{dataSetCount}</b>
-            {/* <ManageLink to="#">
+            <ManageLink as="a" href={`/regallery/#/explore/orgs/${organizationId}`}>
               <span>Manage Data Sets</span>
               <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
-            </ManageLink> */}
+            </ManageLink>
           </div>
         </Boxes>
       </AppContentWrapper>
