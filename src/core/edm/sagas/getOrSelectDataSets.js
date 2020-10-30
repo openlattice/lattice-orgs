@@ -2,14 +2,19 @@
  * @flow
  */
 
+import _chunk from 'lodash/chunk';
 import {
+  all,
   call,
   put,
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
 import { Map, Set } from 'immutable';
+import { Models, Types } from 'lattice';
 import {
+  AuthorizationsApiActions,
+  AuthorizationsApiSagas,
   DataSetsApiActions,
   DataSetsApiSagas,
   EntitySetsApiActions,
@@ -26,7 +31,11 @@ import { GET_OR_SELECT_DATA_SETS, getOrSelectDataSets } from '../actions';
 
 const LOG = new Logger('EDMSagas');
 
+const { AccessCheck, AccessCheckBuilder } = Models;
+const { PermissionTypes } = Types;
 const { selectEntitySets } = ReduxUtils;
+const { getAuthorizations } = AuthorizationsApiActions;
+const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 const { getOrganizationDataSets } = DataSetsApiActions;
 const { getOrganizationDataSetsWorker } = DataSetsApiSagas;
 const { getEntitySets } = EntitySetsApiActions;
@@ -55,7 +64,28 @@ function* getOrSelectDataSetsWorker(action :SequenceAction) :Saga<*> {
     const missingEntitySetIds :Set<UUID> = Set(entitySetIds).subtract(entitySets.keySeq());
 
     if (!missingEntitySetIds.isEmpty()) {
-      const response :WorkerResponse = yield call(getEntitySetsWorker, getEntitySets(missingEntitySetIds.toJS()));
+
+      // TODO: extract as getAuthorizedEntitySets()
+      const accessChecks :AccessCheck[] = missingEntitySetIds.map((id :UUID) => (
+        (new AccessCheckBuilder()).setAclKey([id]).setPermissions([PermissionTypes.OWNER]).build()
+      )).toJS();
+
+      const calls = _chunk(accessChecks, 100).map((accessChecksChunk :AccessCheck[]) => (
+        call(getAuthorizationsWorker, getAuthorizations(accessChecksChunk))
+      ));
+      const responses :WorkerResponse[] = yield all(calls);
+
+      const ownedEntitySetIds :UUID[] = responses
+        // $FlowFixMe
+        .filter((response :WorkerResponse) => !response.error)
+        // $FlowFixMe
+        .map((response :WorkerResponse) => response.data)
+        .flat()
+        .filter((authorization) => authorization?.permissions?.[PermissionTypes.OWNER] === true)
+        .map((authorization) => authorization.aclKey[0]);
+      // END-TODO
+
+      const response :WorkerResponse = yield call(getEntitySetsWorker, getEntitySets(ownedEntitySetIds));
       if (response.error) throw response.error;
     }
 

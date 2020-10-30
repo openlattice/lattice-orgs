@@ -6,6 +6,7 @@ import React from 'react';
 import type { Node } from 'react';
 
 import styled from 'styled-components';
+import { Typography } from 'lattice-ui-kit';
 
 import type { SagaError } from '../../types';
 
@@ -42,13 +43,13 @@ const BasicErrorComponent = ({ children, error } :Props) => {
   let errorMessage = children;
   if (error && (error.status === 401 || error.status === 403)) {
     errorMessage = (
-      <span>Sorry, you are not authorized to view this page.</span>
+      <Typography component="span">Sorry, you are not authorized to view this page.</Typography>
     );
   }
 
   if (!errorMessage) {
     errorMessage = (
-      <span>Sorry, something went wrong. Please try again.</span>
+      <Typography component="span">Sorry, something went wrong. Please try again.</Typography>
     );
   }
 

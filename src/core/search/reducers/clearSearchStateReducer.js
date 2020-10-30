@@ -5,7 +5,7 @@
 import { Map } from 'immutable';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { SEARCH_INITIAL_STATE } from '../../redux/constants';
+import { SEARCH_INITIAL_STATE } from '../constants';
 
 export default function reducer(state :Map, action :SequenceAction) {
 
