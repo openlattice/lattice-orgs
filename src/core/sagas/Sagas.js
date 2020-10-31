@@ -86,5 +86,7 @@ export default function* sagas() :Saga<*> {
     fork(SearchSagas.searchDataSetsWatcher),
     fork(SearchSagas.searchDataSetsToAssignPermissionsWatcher),
     fork(SearchSagas.searchDataSetsToFilterWatcher),
+    fork(SearchSagas.searchEntitySetWatcher),
+    fork(SearchSagas.searchOrganizationDataSetsWatcher),
   ]);
 }

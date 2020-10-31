@@ -18,6 +18,7 @@ import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import OrgContainer from './OrgContainer';
+import OrgDataSetsContainer from './OrgDataSetsContainer';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from './actions';
 import { OrgMemberContainer, OrgMembersContainer } from './members';
 import { OrgRoleContainer } from './roles';
@@ -42,11 +43,15 @@ const OrgRouter = () => {
   let memberPrincipalId :?UUID;
 
   const matchOrganization = useRouteMatch(Routes.ORG);
+  const matchOrganizationDataSets = useRouteMatch(Routes.ORG_DATA_SETS);
   const matchOrganizationMember = useRouteMatch(Routes.ORG_MEMBER);
   const matchOrganizationRole = useRouteMatch(Routes.ORG_ROLE);
 
-  // check matchOrganizationMember and matchOrganizationRole first because it's more specific than matchOrganization
-  if (matchOrganizationMember) {
+  // NOTE: check matchOrganization last because it's less specific than the others
+  if (matchOrganizationDataSets) {
+    organizationId = getParamFromMatch(matchOrganizationDataSets, Routes.ORG_ID_PARAM);
+  }
+  else if (matchOrganizationMember) {
     organizationId = getParamFromMatch(matchOrganizationMember, Routes.ORG_ID_PARAM);
     memberPrincipalId = getParamFromMatch(matchOrganizationMember, Routes.PRINCIPAL_ID_PARAM);
   }
@@ -93,6 +98,12 @@ const OrgRouter = () => {
         : null
     );
 
+    const renderOrgDataSetsContainer = () => (
+      (organizationId)
+        ? <OrgDataSetsContainer organizationId={organizationId} />
+        : null
+    );
+
     const renderOrgMemberContainer = () => (
       (organizationId && memberPrincipalId)
         ? <OrgMemberContainer organizationId={organizationId} memberPrincipalId={memberPrincipalId} />
@@ -113,6 +124,7 @@ const OrgRouter = () => {
 
     return (
       <Switch>
+        <Route path={Routes.ORG_DATA_SETS} render={renderOrgDataSetsContainer} />
         <Route path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
         <Route path={Routes.ORG_MEMBERS} render={renderOrgMembersContainer} />
         <Route path={Routes.ORG_ROLE} render={renderOrgRoleContainer} />

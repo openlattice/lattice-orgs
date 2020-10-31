@@ -2,11 +2,13 @@
  * @flow
  */
 
+const DATA_SET_ID_PARAM :':dataSetId' = ':dataSetId';
 const ORG_ID_PARAM :':organizationId' = ':organizationId';
 const PRINCIPAL_ID_PARAM :':principalId' = ':principalId';
 const ROLE_ID_PARAM :':roleId' = ':roleId';
 
 export {
+  DATA_SET_ID_PARAM,
   ORG_ID_PARAM,
   PRINCIPAL_ID_PARAM,
   ROLE_ID_PARAM,
@@ -17,6 +19,12 @@ const ORGS :'/orgs' = '/orgs';
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG :'/orgs/:organizationId' = `${ORGS}/${ORG_ID_PARAM}`;
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_DATA_SETS :'/orgs/:organizationId/dataSets' = `${ORG}/dataSets`;
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_DATA_SET :'/orgs/:organizationId/dataSets/:dataSetId' = `${ORG_DATA_SETS}/${DATA_SET_ID_PARAM}`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_ROLE :'/orgs/:organizationId/roles/:roleId' = `${ORG}/roles/${ROLE_ID_PARAM}`;
@@ -33,6 +41,8 @@ const ORG_SETTINGS :'/orgs/:organizationId/settings' = `${ORGS}/${ORG_ID_PARAM}/
 export {
   ORG,
   ORGS,
+  ORG_DATA_SET,
+  ORG_DATA_SETS,
   ORG_MEMBER,
   ORG_MEMBERS,
   ORG_ROLE,
