@@ -39,9 +39,9 @@ import {
 const { isNonEmptyString } = LangUtils;
 
 const MAX_PER_PAGE = 10;
+
+// TODO: DELETE ONCE PROPERLY IMPLEMENTED
 const SR_DS_META_ESID = '091695e1-a971-40ee-9956-a6a05c5942dd';
-// const SR_COL_META_ESID = '37266e3e-8414-49c8-8e20-95b04a28739b';
-// const SR_ORG_META_ESID = '1a6bf250-e98b-403a-9046-805a4d1fe80d';
 
 const OrgDataSetsContainer = ({
   organizationId,
@@ -77,6 +77,7 @@ const OrgDataSetsContainer = ({
           query,
           start,
           entitySetId: SR_DS_META_ESID,
+          maxHits: MAX_PER_PAGE,
         })
       );
     }
