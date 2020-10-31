@@ -40,9 +40,6 @@ const { isNonEmptyString } = LangUtils;
 
 const MAX_PER_PAGE = 10;
 
-// TODO: DELETE ONCE PROPERLY IMPLEMENTED
-const SR_DS_META_ESID = '091695e1-a971-40ee-9956-a6a05c5942dd';
-
 const OrgDataSetsContainer = ({
   organizationId,
 } :{|
@@ -76,7 +73,6 @@ const OrgDataSetsContainer = ({
           page,
           query,
           start,
-          entitySetId: SR_DS_META_ESID,
           maxHits: MAX_PER_PAGE,
         })
       );
