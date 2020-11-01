@@ -2,48 +2,41 @@
  * @flow
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
-import {
-  List,
-  Map,
-  get,
-  getIn,
-} from 'immutable';
-import { AppContentWrapper, Table, Typography } from 'lattice-ui-kit';
+import { Map, getIn } from 'immutable';
+import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
+import { Route, Switch } from 'react-router';
+import { NavLink } from 'react-router-dom';
 import { RequestStates } from 'redux-reqseq';
 import type {
   EntitySet,
   Organization,
-  PropertyType,
   UUID,
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
+
+import DataSetDataContainer from './DataSetDataContainer';
+import DataSetMetaContainer from './DataSetMetaContainer';
 
 import {
   CrumbItem,
   CrumbLink,
   Crumbs,
+  NavContentWrapper,
   Spinner,
   StackGrid,
 } from '../../components';
-import { GET_OR_SELECT_DATA_SETS, getOrSelectDataSets } from '../../core/edm/actions';
+import { GET_OR_SELECT_DATA_SET, getOrSelectDataSet } from '../../core/edm/actions';
 import { EDM } from '../../core/redux/constants';
 import {
   selectAtlasDataSets,
-  selectEntitySetPropertyTypes,
   selectEntitySets,
   selectOrganization,
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-
-const TABLE_HEADERS = [
-  { key: 'title', label: 'TITLE' },
-  { key: 'description', label: 'DESCRIPTION' },
-  { key: 'datatype', label: 'DATA TYPE' },
-];
 
 const OrgDataSetContainer = ({
   dataSetId,
@@ -55,18 +48,12 @@ const OrgDataSetContainer = ({
 
   const dispatch = useDispatch();
 
-  const [data, setData] = useState([]);
-
-  // BUG: this is probably a bug because getOrSelectDataSets could be called in the background
-  const getOrSelectDataSetsRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_DATA_SETS]);
+  // BUG: this is a bug because getOrSelectDataSets is called in the background
+  const getOrSelectDataSetRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_DATA_SET]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets([dataSetId]));
   const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets([dataSetId]));
-
-  const propertyTypes :Map<UUID, PropertyType> = useSelector(selectEntitySetPropertyTypes(dataSetId));
-  // BUG: unfortunately, I think hashCode() is computed every time since the Map is always "new"
-  const propertyTypesHash :number = propertyTypes.hashCode();
 
   const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
   const entitySet :?EntitySet = entitySets.get(dataSetId);
@@ -76,70 +63,54 @@ const OrgDataSetContainer = ({
   const contacts :string[] = entitySet?.contacts || [];
 
   useEffect(() => {
-    // BUG: doesn't have to ALWAYS be called because it's very likely we'll already have the data
-    dispatch(
-      getOrSelectDataSets({
-        organizationId,
-        atlasDataSetIds: [dataSetId],
-        entitySetIds: [dataSetId],
-      })
-    );
+    dispatch(getOrSelectDataSet({ dataSetId, organizationId }));
   }, [dispatch, dataSetId, organizationId]);
-
-  useEffect(() => {
-    if (atlasDataSet) {
-      const columnsData = atlasDataSet
-        .get('columns', List())
-        .map((column) => ({
-          id: get(column, 'id'),
-          datatype: get(column, 'datatype'),
-          description: get(column, 'description'),
-          title: get(column, 'name'),
-        }))
-        .toJS(); // TODO: avoid .toJS()
-      setData(columnsData);
-    }
-    else if (entitySet) {
-      const propertyTypesData = propertyTypes
-        .valueSeq()
-        .map((propertyType :PropertyType) => ({
-          id: propertyType.id,
-          datatype: propertyType.datatype,
-          description: propertyType.description,
-          title: propertyType.title,
-        }))
-        .toJS(); // TODO: avoid .toJS()
-      setData(propertyTypesData);
-    }
-    else {
-      setData([]);
-    }
-  }, [atlasDataSet, entitySet, propertyTypesHash]);
-
-  const dataSetsPath = useMemo(() => (
-    Routes.ORG_DATA_SETS.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
 
   const orgPath = useMemo(() => (
     Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
+  const dataSetsPath = useMemo(() => (
+    Routes.ORG_DATA_SETS.replace(Routes.ORG_ID_PARAM, organizationId)
+  ), [organizationId]);
+
+  const dataSetPath = useMemo(() => (
+    Routes.ORG_DATA_SET
+      .replace(Routes.ORG_ID_PARAM, organizationId)
+      .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
+  ), [dataSetId, organizationId]);
+
+  const dataSetDataPath = useMemo(() => (
+    Routes.ORG_DATA_SET_DATA
+      .replace(Routes.ORG_ID_PARAM, organizationId)
+      .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
+  ), [dataSetId, organizationId]);
+
   if (organization) {
+
+    const renderDataSetDataContainer = () => (
+      <DataSetDataContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} />
+    );
+
+    const renderDataSetMetaContainer = () => (
+      <DataSetMetaContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} />
+    );
+
     return (
       <>
         <AppContentWrapper>
           <Crumbs>
             <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
             <CrumbLink to={dataSetsPath}>Data Sets</CrumbLink>
-            <CrumbItem>{dataSetId}</CrumbItem>
+            <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
           {
-            getOrSelectDataSetsRS === RequestStates.PENDING && (
+            getOrSelectDataSetRS === RequestStates.PENDING && (
               <Spinner />
             )
           }
           {
-            getOrSelectDataSetsRS === RequestStates.SUCCESS && (
+            getOrSelectDataSetRS === RequestStates.SUCCESS && (
               <StackGrid gap={48}>
                 <StackGrid>
                   <Typography variant="h1">{title || name}</Typography>
@@ -160,13 +131,30 @@ const OrgDataSetContainer = ({
                     )
                   }
                 </StackGrid>
-                <Table
-                    data={data}
-                    headers={TABLE_HEADERS} />
               </StackGrid>
             )
           }
         </AppContentWrapper>
+        {
+          getOrSelectDataSetRS === RequestStates.SUCCESS && (
+            <>
+              <NavContentWrapper bgColor="white">
+                <AppNavigationWrapper borderless>
+                  <NavLink exact strict to={dataSetPath}>About</NavLink>
+                  {
+                    entitySet && (
+                      <NavLink to={dataSetDataPath}>Data</NavLink>
+                    )
+                  }
+                </AppNavigationWrapper>
+              </NavContentWrapper>
+              <Switch>
+                <Route exact path={Routes.ORG_DATA_SET_DATA} render={renderDataSetDataContainer} />
+                <Route exact path={Routes.ORG_DATA_SET} render={renderDataSetMetaContainer} />
+              </Switch>
+            </>
+          )
+        }
       </>
     );
   }

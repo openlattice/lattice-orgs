@@ -11,7 +11,7 @@ import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { HITS, TOTAL_HITS } from '../../redux/constants';
-import { SEARCH_ENTITY_SET, searchEntitySet } from '../actions';
+import { SEARCH_DATA, searchData } from '../actions';
 import { MAX_HITS_10 } from '../constants';
 
 const LOG = new Logger('SearchSagas');
@@ -19,12 +19,12 @@ const LOG = new Logger('SearchSagas');
 const { searchEntitySetData } = SearchApiActions;
 const { searchEntitySetDataWorker } = SearchApiSagas;
 
-function* searchEntitySetWorker(action :SequenceAction) :Saga<WorkerResponse> {
+function* searchDataWorker(action :SequenceAction) :Saga<WorkerResponse> {
 
   let workerResponse :WorkerResponse;
 
   try {
-    yield put(searchEntitySet.request(action.id, action.value));
+    yield put(searchData.request(action.id, action.value));
 
     const {
       entitySetId,
@@ -63,26 +63,26 @@ function* searchEntitySetWorker(action :SequenceAction) :Saga<WorkerResponse> {
       },
     };
 
-    yield put(searchEntitySet.success(action.id, workerResponse.data));
+    yield put(searchData.success(action.id, workerResponse.data));
   }
   catch (error) {
     workerResponse = { error };
     LOG.error(action.type, error);
-    yield put(searchEntitySet.failure(action.id, error));
+    yield put(searchData.failure(action.id, error));
   }
   finally {
-    yield put(searchEntitySet.finally(action.id));
+    yield put(searchData.finally(action.id));
   }
 
   return workerResponse;
 }
 
-function* searchEntitySetWatcher() :Saga<*> {
+function* searchDataWatcher() :Saga<*> {
 
-  yield takeEvery(SEARCH_ENTITY_SET, searchEntitySetWorker);
+  yield takeEvery(SEARCH_DATA, searchDataWorker);
 }
 
 export {
-  searchEntitySetWatcher,
-  searchEntitySetWorker,
+  searchDataWatcher,
+  searchDataWorker,
 };

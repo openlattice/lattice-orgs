@@ -12,12 +12,13 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { DataSetSearchResultCard, SearchDataSetsForm } from './components';
+import { DataSetSearchResultCard } from './components';
 
 import {
   CrumbItem,
   CrumbLink,
   Crumbs,
+  SearchForm,
   Spinner,
   StackGrid,
 } from '../../components';
@@ -35,10 +36,9 @@ import {
   clearSearchState,
   searchOrganizationDataSets,
 } from '../../core/search/actions';
+import { MAX_HITS_10 } from '../../core/search/constants';
 
 const { isNonEmptyString } = LangUtils;
-
-const MAX_PER_PAGE = 10;
 
 const OrgDataSetsContainer = ({
   organizationId,
@@ -73,7 +73,7 @@ const OrgDataSetsContainer = ({
           page,
           query,
           start,
-          maxHits: MAX_PER_PAGE,
+          maxHits: MAX_HITS_10,
         })
       );
     }
@@ -94,7 +94,7 @@ const OrgDataSetsContainer = ({
         </AppContentWrapper>
         <AppContentWrapper>
           <StackGrid gap={16}>
-            <SearchDataSetsForm
+            <SearchForm
                 onSubmit={(query :string) => dispatchDataSetSearch({ query })}
                 searchRequestState={searchOrgDataSetsRS} />
             {
@@ -102,7 +102,7 @@ const OrgDataSetsContainer = ({
                   count={searchTotalHits}
                   onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
                   page={searchPage}
-                  rowsPerPage={MAX_PER_PAGE} />
+                  rowsPerPage={MAX_HITS_10} />
             }
             {
               searchOrgDataSetsRS === RequestStates.PENDING && (

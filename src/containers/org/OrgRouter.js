@@ -28,6 +28,14 @@ import { BasicErrorComponent } from '../../components';
 import { resetRequestState } from '../../core/redux/actions';
 import { ORGANIZATIONS } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
+import {
+  SEARCH_DATA,
+  SEARCH_DATA_SETS,
+  SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS,
+  SEARCH_DATA_SETS_TO_FILTER,
+  SEARCH_ORGANIZATION_DATA_SETS,
+  clearSearchState,
+} from '../../core/search/actions';
 import { ERR_INVALID_UUID } from '../../utils/constants/errors';
 
 const { isValidUUID } = ValidationUtils;
@@ -77,7 +85,11 @@ const OrgRouter = () => {
     dispatch(resetRequestState([INITIALIZE_ORGANIZATION]));
     dispatch(initializeOrganization(organizationId));
     return () => {
-      // TODO: clearSearchState...?
+      dispatch(clearSearchState(SEARCH_DATA));
+      dispatch(clearSearchState(SEARCH_DATA_SETS));
+      dispatch(clearSearchState(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
+      dispatch(clearSearchState(SEARCH_DATA_SETS_TO_FILTER));
+      dispatch(clearSearchState(SEARCH_ORGANIZATION_DATA_SETS));
       dispatch(resetRequestState([INITIALIZE_ORGANIZATION]));
     };
   }, [dispatch, organizationId]);

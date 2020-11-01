@@ -10,8 +10,8 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { searchDataWorker } from './searchData';
 import { searchDataSetsWorker } from './searchDataSets';
-import { searchEntitySetWorker } from './searchEntitySet';
 
 import { getOrSelectDataSets } from '../../edm/actions';
 import { FQNS } from '../../edm/constants';
@@ -24,8 +24,8 @@ import {
 } from '../../redux/constants';
 import {
   SEARCH_ORGANIZATION_DATA_SETS,
+  searchData,
   searchDataSets,
-  searchEntitySet,
   searchOrganizationDataSets,
 } from '../actions';
 
@@ -52,7 +52,8 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<*> {
     if (organizationId === SHIP_ROOM_ORG_ID) {
 
       response = yield call(
-        searchEntitySetWorker, searchEntitySet({
+        searchDataWorker,
+        searchData({
           ...action.value,
           entitySetId: SR_DS_META_ESID,
         })
