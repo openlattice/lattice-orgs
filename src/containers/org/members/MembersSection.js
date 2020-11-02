@@ -21,7 +21,7 @@ import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import type { Role, UUID } from 'lattice';
 
-import AddMemberFromOrgModal from '../components/AddMemberToOrgModal';
+import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
 import { Header } from '../../../components';
 import { Routes } from '../../../core/router';
 import { goToRoute } from '../../../core/router/actions';
@@ -90,7 +90,7 @@ const MembersSection = ({
 
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
-  const [isVisibleAddMemberFromOrgModal, setIsVisibleAddMemberFromOrgModal] = useState(false);
+  const [isVisibleAddMemberToOrgModal, setIsVisibleAddMemberToOrgModal] = useState(false);
   const [memberFilterQuery, setMemberFilterQuery] = useState('');
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
@@ -149,7 +149,7 @@ const MembersSection = ({
         <SearchInput onChange={handleOnChangeMemberFilterQuery} placeholder="Filter members" />
         <Button
             color="primary"
-            onClick={() => setIsVisibleAddMemberFromOrgModal(true)}
+            onClick={() => setIsVisibleAddMemberToOrgModal(true)}
             startIcon={PlusIcon}>
           Add Member
         </Button>
@@ -201,10 +201,10 @@ const MembersSection = ({
       }
       {
         isOwner && (
-          <AddMemberFromOrgModal
-              isVisible={isVisibleAddMemberFromOrgModal}
+          <AddMemberToOrgModal
+              isVisible={isVisibleAddMemberToOrgModal}
               member={targetMember}
-              onClose={() => setIsVisibleAddMemberFromOrgModal(false)}
+              onClose={() => setIsVisibleAddMemberToOrgModal(false)}
               organizationId={organizationId} />
         )
       }
