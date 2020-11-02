@@ -8,6 +8,7 @@ import { DataSetsApiActions, EntitySetsApiActions, SearchApiActions } from 'latt
 import getEntityDataModelTypesReducer from './getEntityDataModelTypesReducer';
 import getEntitySetReducer from './getEntitySetReducer';
 import getEntitySetsReducer from './getEntitySetsReducer';
+import getOrSelectDataSetReducer from './getOrSelectDataSetReducer';
 import getOrSelectDataSetsReducer from './getOrSelectDataSetsReducer';
 import getOrganizationDataSetsReducer from './getOrganizationDataSetsReducer';
 import searchEntitySetMetaDataReducer from './searchEntitySetMetaDataReducer';
@@ -24,8 +25,10 @@ import {
 } from '../../redux/constants';
 import {
   GET_EDM_TYPES,
+  GET_OR_SELECT_DATA_SET,
   GET_OR_SELECT_DATA_SETS,
   getEntityDataModelTypes,
+  getOrSelectDataSet,
   getOrSelectDataSets,
 } from '../actions';
 
@@ -52,6 +55,7 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ENTITY_SET]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
+  [GET_OR_SELECT_DATA_SET]: RS_INITIAL_STATE,
   [GET_OR_SELECT_DATA_SETS]: RS_INITIAL_STATE,
   [SEARCH_ENTITY_SET_METADATA]: RS_INITIAL_STATE,
   // data
@@ -76,6 +80,9 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getEntitySets.case(action.type):
       return getEntitySetsReducer(state, action);
+
+    case getOrSelectDataSet.case(action.type):
+      return getOrSelectDataSetReducer(state, action);
 
     case getOrSelectDataSets.case(action.type):
       return getOrSelectDataSetsReducer(state, action);

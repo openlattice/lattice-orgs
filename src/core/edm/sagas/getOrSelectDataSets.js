@@ -41,7 +41,9 @@ const { getOrganizationDataSetsWorker } = DataSetsApiSagas;
 const { getEntitySets } = EntitySetsApiActions;
 const { getEntitySetsWorker } = EntitySetsApiSagas;
 
-function* getOrSelectDataSetsWorker(action :SequenceAction) :Saga<*> {
+function* getOrSelectDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse> {
+
+  let workerResponse :WorkerResponse;
 
   try {
     yield put(getOrSelectDataSets.request(action.id, action.value));
@@ -97,15 +99,19 @@ function* getOrSelectDataSetsWorker(action :SequenceAction) :Saga<*> {
       if (response.error) throw response.error;
     }
 
+    workerResponse = { data: {} };
     yield put(getOrSelectDataSets.success(action.id));
   }
   catch (error) {
+    workerResponse = { error };
     LOG.error(action.type, error);
     yield put(getOrSelectDataSets.failure(action.id, error));
   }
   finally {
     yield put(getOrSelectDataSets.finally(action.id));
   }
+
+  return workerResponse;
 }
 
 function* getOrSelectDataSetsWatcher() :Saga<*> {

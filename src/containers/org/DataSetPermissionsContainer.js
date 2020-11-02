@@ -25,9 +25,13 @@ import type { RequestState } from 'redux-reqseq';
 
 import DataSetPermissionsCard from './DataSetPermissionsCard';
 import DataSetPermissionsModal from './DataSetPermissionsModal';
-import { SearchDataSetsForm } from './components';
 
-import { ActionsGrid, PlusButton, StackGrid } from '../../components';
+import {
+  ActionsGrid,
+  PlusButton,
+  SearchForm,
+  StackGrid,
+} from '../../components';
 import {
   GET_DATA_SET_PERMISSIONS,
   GET_PAGE_DATA_SET_PERMISSIONS,
@@ -190,7 +194,7 @@ const DataSetPermissionsContainer = ({
     <>
       <StackGrid>
         <ActionsGrid>
-          <SearchDataSetsForm onSubmit={handleOnSubmitDataSetQuery} searchRequestState={searchDataSetsRS} />
+          <SearchForm onSubmit={handleOnSubmitDataSetQuery} searchRequestState={searchDataSetsRS} />
           <PlusButton aria-label="add data set" onClick={handleOnClickAddDataSet}>
             <Typography component="span">Add Data Set</Typography>
           </PlusButton>

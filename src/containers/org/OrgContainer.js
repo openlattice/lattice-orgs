@@ -8,12 +8,12 @@ import styled from 'styled-components';
 import { faChevronRight } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Set } from 'immutable';
-import { AppContentWrapper, Colors } from 'lattice-ui-kit';
+import { AppContentWrapper, Colors, Typography } from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
-import { CrumbLink, Header } from '../../components';
+import { CrumbLink } from '../../components';
 import { selectOrganizationAtlasDataSetIds, selectOrganizationEntitySetIds } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 
@@ -68,6 +68,10 @@ const OrgContainer = ({ organizationId } :Props) => {
   const atlasDataSetIds :Set<UUID> = useSelector(selectOrganizationAtlasDataSetIds(organizationId));
   const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
 
+  const dataSetsPath = useMemo(() => (
+    Routes.ORG_DATA_SETS.replace(Routes.ORG_ID_PARAM, organizationId)
+  ), [organizationId]);
+
   const membersPath = useMemo(() => (
     Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
@@ -77,7 +81,7 @@ const OrgContainer = ({ organizationId } :Props) => {
   if (organization) {
     return (
       <AppContentWrapper>
-        <Header as="h2">{organization.title}</Header>
+        <Typography variant="h1">{organization.title}</Typography>
         {
           isNonEmptyString(organization.description) && (
             <div>{organization.description}</div>
@@ -95,7 +99,7 @@ const OrgContainer = ({ organizationId } :Props) => {
           <div>
             <span>Data Sets</span>
             <b>{dataSetCount}</b>
-            <ManageLink as="a" href={`/regallery/#/explore/orgs/${organizationId}`}>
+            <ManageLink to={dataSetsPath}>
               <span>Manage Data Sets</span>
               <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
             </ManageLink>
