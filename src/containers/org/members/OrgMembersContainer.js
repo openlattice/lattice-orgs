@@ -59,8 +59,6 @@ const OrgMembersContainer = ({ organizationId } :Props) => {
 
   const [selectedRole, setSelectedRole] = useState();
 
-  const getOrganizationMembersRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_MEMBERS]);
-
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organizationId]));
   const orgMembers :List = useSelector(selectOrganizationMembers(organizationId));
@@ -72,14 +70,6 @@ const OrgMembersContainer = ({ organizationId } :Props) => {
   const orgPath = useMemo(() => (
     Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
-
-  if (getOrganizationMembersRS === RequestStates.PENDING) {
-    return (
-      <AppContentWrapper>
-        <Spinner size="2x" />
-      </AppContentWrapper>
-    );
-  }
 
   if (organization) {
 
