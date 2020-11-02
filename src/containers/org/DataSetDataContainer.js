@@ -5,7 +5,12 @@
 import React, { useEffect, useState } from 'react';
 
 import { List, Map, set } from 'immutable';
-import { AppContentWrapper, PaginationToolbar, Table } from 'lattice-ui-kit';
+import {
+  AppContentWrapper,
+  PaginationToolbar,
+  Table,
+  Typography,
+} from 'lattice-ui-kit';
 import { DataUtils, LangUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -77,8 +82,8 @@ const DataSetDataContainer = ({
     }
     else if (entitySet) {
       const entitySetTableData = searchHits
-        .map((entity :Map) => set(entity, 'id', getPropertyValue(entity, [FQNS.EKID, 0])));
-        // .toJS(); // TODO: avoid .toJS()
+        .map((entity :Map) => set(entity, 'id', getPropertyValue(entity, [FQNS.EKID, 0])))
+        .toJS(); // TODO: avoid .toJS()
       const entitySetTableHeaders = propertyTypes
         .valueSeq()
         .map((propertyType :PropertyType) => ({
@@ -133,7 +138,12 @@ const DataSetDataContainer = ({
           )
         }
         {
-          searchDataSetDataRS === RequestStates.SUCCESS && (
+          searchDataSetDataRS === RequestStates.SUCCESS && searchHits.count() === 0 && (
+            <Typography>No search results.</Typography>
+          )
+        }
+        {
+          searchDataSetDataRS === RequestStates.SUCCESS && searchHits.count() > 0 && (
             <DataTableWrapper>
               <Table data={tableData} headers={tableHeaders} />
             </DataTableWrapper>

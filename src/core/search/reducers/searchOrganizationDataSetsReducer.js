@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { Map } from 'immutable';
+import { Map, Set } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -32,8 +32,8 @@ export default function reducer(state :Map, action :SequenceAction) {
       if (storedAction) {
         const { page, query } = storedAction.value;
         return state
-          .setIn([SEARCH_ORGANIZATION_DATA_SETS, HITS, ATLAS_DATA_SET_IDS], action.value[HITS][ATLAS_DATA_SET_IDS])
-          .setIn([SEARCH_ORGANIZATION_DATA_SETS, HITS, ENTITY_SET_IDS], action.value[HITS][ENTITY_SET_IDS])
+          .setIn([SEARCH_ORGANIZATION_DATA_SETS, HITS, ATLAS_DATA_SET_IDS], Set(action.value[HITS][ATLAS_DATA_SET_IDS]))
+          .setIn([SEARCH_ORGANIZATION_DATA_SETS, HITS, ENTITY_SET_IDS], Set(action.value[HITS][ENTITY_SET_IDS]))
           .setIn([SEARCH_ORGANIZATION_DATA_SETS, PAGE], page)
           .setIn([SEARCH_ORGANIZATION_DATA_SETS, QUERY], query)
           .setIn([SEARCH_ORGANIZATION_DATA_SETS, TOTAL_HITS], action.value[TOTAL_HITS])

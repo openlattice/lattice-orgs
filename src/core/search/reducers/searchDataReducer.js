@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { Map, List } from 'immutable';
+import { Map, List, fromJS } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -30,7 +30,7 @@ export default function reducer(state :Map, action :SequenceAction) {
       if (storedAction) {
         const { page, query } = storedAction.value;
         return state
-          .setIn([SEARCH_DATA, HITS], action.value[HITS])
+          .setIn([SEARCH_DATA, HITS], fromJS(action.value[HITS]))
           .setIn([SEARCH_DATA, PAGE], page)
           .setIn([SEARCH_DATA, QUERY], query)
           .setIn([SEARCH_DATA, TOTAL_HITS], action.value[TOTAL_HITS])
