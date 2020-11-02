@@ -11,13 +11,11 @@ type Props = {
   onChange :() => void;
 };
 
-const AddMemberModalBody = ({ onChange } :Props) => {
-  return (
-    <ModalBody>
-      <Typography>Enter the username or email address of the person you wish to add to the organiation</Typography>
-      <SearchMemberBar onChange={onChange} />
-    </ModalBody>
-  );
-};
+const AddMemberModalBody = ({ onChange } :Props) => (
+  <ModalBody>
+    <Typography>Enter the username or email address of the person you wish to add to the organization</Typography>
+    <SearchMemberBar onChange={onChange} />
+  </ModalBody>
+);
 
 export default AddMemberModalBody;
