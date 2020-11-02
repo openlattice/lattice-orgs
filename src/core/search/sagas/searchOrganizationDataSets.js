@@ -61,16 +61,14 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<*> {
       if (response.error) throw response.error;
 
       const entitySetIdsHits = response.data.hits
-        // .filter((hit) => getPropertyValue(hit, [FQNS.OL_STANDARDIZED, 0]) === true)
-        .filter((hit) => !Number.isInteger(getPropertyValue(hit, ['ol.pgoid', 0])))
+        .filter((hit) => getPropertyValue(hit, [FQNS.OL_STANDARDIZED, 0]) === true)
         .map((hit) => getPropertyValue(hit, [FQNS.OL_ID, 0]))
         .filter((id :UUID) => isValidUUID(id));
 
       entitySetIds = Set(entitySetIdsHits);
 
       const atlasDataSetIdsHits = response.data.hits
-        // .filter((hit) => getPropertyValue(hit, [FQNS.OL_STANDARDIZED, 0]) === false)
-        .filter((hit) => Number.isInteger(getPropertyValue(hit, ['ol.pgoid', 0])))
+        .filter((hit) => getPropertyValue(hit, [FQNS.OL_STANDARDIZED, 0]) === false)
         .map((hit) => getPropertyValue(hit, [FQNS.OL_ID, 0]))
         .filter((id :UUID) => isValidUUID(id));
 
