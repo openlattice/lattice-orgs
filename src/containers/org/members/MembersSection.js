@@ -87,8 +87,8 @@ const MembersSection = ({
 
   const dispatch = useDispatch();
 
-  const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState();
-  const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState();
+  const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
+  const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
   const [memberFilterQuery, setMemberFilterQuery] = useState('');
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
@@ -185,21 +185,23 @@ const MembersSection = ({
         })
       }
       {
-        isOwner && isVisibleRemoveMemberFromOrgModal && targetMemberId && (
+        isOwner && (
           <RemoveMemberFromOrgModal
-              member={getUserProfileLabel(targetMember)}
+              isVisible={isVisibleRemoveMemberFromOrgModal}
+              member={targetMember}
               memberId={targetMemberId}
               onClose={() => setIsVisibleRemoveMemberFromOrgModal(false)}
               organizationId={organizationId} />
         )
       }
       {
-        isOwner && isVisibleRemoveRoleFromMemberModal && targetMemberId && selectedRole && (
+        isOwner && selectedRole && (
           <RemoveRoleFromMemberModal
-              member={getUserProfileLabel(targetMember)}
+              isVisible={isVisibleRemoveRoleFromMemberModal}
+              member={targetMember}
               memberId={targetMemberId}
-              organizationId={organizationId}
               onClose={() => setIsVisibleRemoveRoleFromMemberModal(false)}
+              organizationId={organizationId}
               roleId={(selectedRole.id :any)} />
         )
       }

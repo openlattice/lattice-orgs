@@ -6,7 +6,7 @@ import React from 'react';
 
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { ActionModal } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { PersonUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
@@ -15,32 +15,37 @@ import type { RequestState } from 'redux-reqseq';
 import { ModalBody } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
+import { getUserProfileLabel } from '../../../utils/PersonUtils';
+
+const { getUserId } = PersonUtils;
 
 const { REMOVE_MEMBER_FROM_ORGANIZATION, removeMemberFromOrganization } = OrganizationsApiActions;
 
 type Props = {
-  member :string;
-  memberId :string;
+  isVisible :boolean;
+  member :any;
   onClose :() => void;
   organizationId :UUID;
 };
 
 const RemoveMemberFromOrgModal = ({
+  isVisible,
   member,
-  memberId,
   onClose,
   organizationId,
 } :Props) => {
 
   const dispatch = useDispatch();
   const removeMemberRS :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_MEMBER_FROM_ORGANIZATION]);
+  const memberLabel = getUserProfileLabel(member);
+  const memberId = getUserId(member);
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <ModalBody>
         <span>Are you sure you want to remove the following member from this organization?</span>
         <br />
-        <span>{member}</span>
+        <span>{memberLabel}</span>
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
@@ -74,7 +79,7 @@ const RemoveMemberFromOrgModal = ({
 
   return (
     <ActionModal
-        isVisible
+        isVisible={isVisible}
         onClickPrimary={handleOnClickPrimary}
         onClose={handleOnClose}
         requestState={removeMemberRS}

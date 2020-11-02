@@ -6,7 +6,7 @@ import React from 'react';
 
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { ActionModal } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { PersonUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
@@ -15,20 +15,23 @@ import type { RequestState } from 'redux-reqseq';
 import { ModalBody } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
+import { getUserProfileLabel } from '../../../utils/PersonUtils';
+
+const { getUserId } = PersonUtils;
 
 const { REMOVE_ROLE_FROM_MEMBER, removeRoleFromMember } = OrganizationsApiActions;
 
 type Props = {
-  member :string;
-  memberId :string;
+  isVisible :boolean;
+  member :any;
   onClose :() => void;
   organizationId :UUID;
   roleId :UUID;
 };
 
 const RemoveRoleFromMemberModal = ({
+  isVisible,
   member,
-  memberId,
   onClose,
   organizationId,
   roleId,
@@ -36,13 +39,15 @@ const RemoveRoleFromMemberModal = ({
 
   const dispatch = useDispatch();
   const removeRoleRS :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_ROLE_FROM_MEMBER]);
+  const memberLabel = getUserProfileLabel(member);
+  const memberId = getUserId(member);
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <ModalBody>
         <span>Are you sure you want to remove the following member from this role?</span>
         <br />
-        <span>{member}</span>
+        <span>{memberLabel}</span>
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
@@ -77,7 +82,7 @@ const RemoveRoleFromMemberModal = ({
 
   return (
     <ActionModal
-        isVisible
+        isVisible={isVisible}
         onClickPrimary={handleOnClickPrimary}
         onClose={handleOnClose}
         requestState={removeRoleRS}
