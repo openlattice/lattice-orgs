@@ -26,12 +26,11 @@ import { RequestStates } from 'redux-reqseq';
 import type { EntitySet, Principal, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { SearchDataSetsForm } from './components';
-
 import {
   BasicErrorComponent,
   GridCardSegment,
   ModalBody,
+  SearchForm,
   Spinner,
   StackGrid,
 } from '../../components';
@@ -214,7 +213,7 @@ const DataSetPermissionsModal = ({
               <Typography>
                 Search for a data set to assign permissions.
               </Typography>
-              <SearchDataSetsForm
+              <SearchForm
                   onSubmit={(query :string) => dispatchDataSetSearch({ query })}
                   searchRequestState={searchDataSetsRS} />
               {

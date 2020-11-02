@@ -11,7 +11,7 @@ import React, {
 import styled from 'styled-components';
 import { List } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
-import { AppContentWrapper, Spinner } from 'lattice-ui-kit';
+import { AppContentWrapper } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -27,6 +27,7 @@ import {
   Crumbs,
   Divider,
   Header,
+  Spinner,
 } from '../../../components';
 import {
   IS_OWNER,
@@ -76,7 +77,7 @@ const OrgMembersContainer = ({ organizationId } :Props) => {
   if (getOrganizationMembersRS === RequestStates.PENDING) {
     return (
       <AppContentWrapper>
-        <Spinner size="2x" />
+        <Spinner />
       </AppContentWrapper>
     );
   }

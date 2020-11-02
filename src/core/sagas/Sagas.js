@@ -60,6 +60,7 @@ export default function* sagas() :Saga<*> {
 
     // EDMSagas
     fork(EDMSagas.getEntityDataModelTypesWatcher),
+    fork(EDMSagas.getOrSelectDataSetWatcher),
     fork(EDMSagas.getOrSelectDataSetsWatcher),
 
     // OrgSagas
@@ -83,8 +84,10 @@ export default function* sagas() :Saga<*> {
     fork(RoutingSagas.goToRouteWatcher),
 
     // SearchSagas
-    fork(SearchSagas.searchDataSetsWatcher),
     fork(SearchSagas.searchDataSetsToAssignPermissionsWatcher),
     fork(SearchSagas.searchDataSetsToFilterWatcher),
+    fork(SearchSagas.searchDataSetsWatcher),
+    fork(SearchSagas.searchDataWatcher),
+    fork(SearchSagas.searchOrganizationDataSetsWatcher),
   ]);
 }
