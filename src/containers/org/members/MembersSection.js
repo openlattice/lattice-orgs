@@ -21,6 +21,7 @@ import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import type { Role, UUID } from 'lattice';
 
+import AddMemberFromOrgModal from '../components/AddMemberToOrgModal';
 import { Header } from '../../../components';
 import { Routes } from '../../../core/router';
 import { goToRoute } from '../../../core/router/actions';
@@ -89,6 +90,7 @@ const MembersSection = ({
 
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
+  const [isVisibleAddMemberFromOrgModal, setIsVisibleAddMemberFromOrgModal] = useState(false);
   const [memberFilterQuery, setMemberFilterQuery] = useState('');
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
@@ -145,7 +147,12 @@ const MembersSection = ({
       <MembersSectionHeader as="h4">{memberSectionHeader}</MembersSectionHeader>
       <ControlsGrid>
         <SearchInput onChange={handleOnChangeMemberFilterQuery} placeholder="Filter members" />
-        <Button color="primary" startIcon={PlusIcon}>Add Member</Button>
+        <Button
+            color="primary"
+            onClick={() => setIsVisibleAddMemberFromOrgModal(true)}
+            startIcon={PlusIcon}>
+          Add Member
+        </Button>
         {
           selectedRole && (
             <Button onClick={goToRole}>Manage Role</Button>
@@ -189,6 +196,15 @@ const MembersSection = ({
               isVisible={isVisibleRemoveMemberFromOrgModal}
               member={targetMember}
               onClose={() => setIsVisibleRemoveMemberFromOrgModal(false)}
+              organizationId={organizationId} />
+        )
+      }
+      {
+        isOwner && (
+          <AddMemberFromOrgModal
+              isVisible={isVisibleAddMemberFromOrgModal}
+              member={targetMember}
+              onClose={() => setIsVisibleAddMemberFromOrgModal(false)}
               organizationId={organizationId} />
         )
       }
