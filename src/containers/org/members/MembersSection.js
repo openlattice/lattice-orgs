@@ -127,7 +127,6 @@ const MembersSection = ({
 
   const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
   const thisUserId = thisUserInfo.id;
-  const targetMemberId = getUserId(targetMember);
 
   let filteredMembers = members;
   let memberSectionHeader = ALL_MEMBERS_HEADER;
@@ -189,7 +188,6 @@ const MembersSection = ({
           <RemoveMemberFromOrgModal
               isVisible={isVisibleRemoveMemberFromOrgModal}
               member={targetMember}
-              memberId={targetMemberId}
               onClose={() => setIsVisibleRemoveMemberFromOrgModal(false)}
               organizationId={organizationId} />
         )
@@ -199,7 +197,6 @@ const MembersSection = ({
           <RemoveRoleFromMemberModal
               isVisible={isVisibleRemoveRoleFromMemberModal}
               member={targetMember}
-              memberId={targetMemberId}
               onClose={() => setIsVisibleRemoveRoleFromMemberModal(false)}
               organizationId={organizationId}
               roleId={(selectedRole.id :any)} />
