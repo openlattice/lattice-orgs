@@ -48,7 +48,6 @@ const OrgDataSetContainer = ({
 
   const dispatch = useDispatch();
 
-  // BUG: this is a bug because getOrSelectDataSets is called in the background
   const getOrSelectDataSetRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_DATA_SET]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
