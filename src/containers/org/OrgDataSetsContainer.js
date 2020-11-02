@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { Map, Set } from 'immutable';
 import { AppContentWrapper, PaginationToolbar, Typography } from 'lattice-ui-kit';
@@ -32,6 +32,7 @@ import {
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import {
+  SEARCH_DATA,
   SEARCH_ORGANIZATION_DATA_SETS,
   clearSearchState,
   searchOrganizationDataSets,
@@ -59,6 +60,10 @@ const OrgDataSetsContainer = ({
   const atlasDataSetIds :Set<UUID> = searchHits.get(ATLAS_DATA_SET_IDS, Set());
   const entitySetIds :Set<UUID> = searchHits.get(ENTITY_SET_IDS, Set());
   const pageDataSetIds :Set<UUID> = Set().union(atlasDataSetIds).union(entitySetIds);
+
+  useEffect(() => () => {
+    dispatch(clearSearchState(SEARCH_DATA));
+  }, [dispatch]);
 
   const orgPath = useMemo(() => (
     Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
