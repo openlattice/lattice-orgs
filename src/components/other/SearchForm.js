@@ -15,14 +15,16 @@ import { ActionsGrid } from '../grids';
 const SearchForm = ({
   onSubmit,
   placeholder,
+  searchQuery,
   searchRequestState,
 } :{|
   onSubmit :(query :string) => void;
   placeholder ?:string;
+  searchQuery ?:string;
   searchRequestState :?RequestState;
 |}) => {
 
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(searchQuery || '');
 
   const handleOnChange = (event :SyntheticInputEvent<HTMLInputElement>) => {
     setQuery(event.target.value || '');
@@ -38,7 +40,7 @@ const SearchForm = ({
   return (
     <form onSubmit={handleOnSubmit}>
       <ActionsGrid>
-        <SearchInput onChange={handleOnChange} placeholder={placeholder} />
+        <SearchInput onChange={handleOnChange} placeholder={placeholder} value={query} />
         <SearchButton
             aria-label="search button"
             color="primary"
@@ -51,6 +53,7 @@ const SearchForm = ({
 
 SearchForm.defaultProps = {
   placeholder: '',
+  searchQuery: '',
 };
 
 export default SearchForm;

@@ -96,6 +96,7 @@ const OrgDataSetsContainer = ({
           <StackGrid gap={16}>
             <SearchForm
                 onSubmit={(query :string) => dispatchDataSetSearch({ query })}
+                searchQuery={searchQuery}
                 searchRequestState={searchOrgDataSetsRS} />
             {
               <PaginationToolbar
