@@ -37,7 +37,12 @@ import {
   GET_PAGE_DATA_SET_PERMISSIONS,
   getPageDataSetPermissions,
 } from '../../core/permissions/actions';
-import { PERMISSIONS, SEARCH } from '../../core/redux/constants';
+import {
+  ATLAS_DATA_SET_IDS,
+  ENTITY_SET_IDS,
+  PERMISSIONS,
+  SEARCH,
+} from '../../core/redux/constants';
 import {
   selectAtlasDataSets,
   selectOrganizationAtlasDataSetIds,
@@ -88,7 +93,7 @@ const DataSetPermissionsContainer = ({
   const atlasDataSetIdsHash :number = atlasDataSetIds.hashCode();
   const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
   const entitySetIdsHash :number = entitySetIds.hashCode();
-  const searchHits :Set<UUID> = useSelector(selectSearchHits(SEARCH_DATA_SETS));
+  const searchHits :Map = useSelector(selectSearchHits(SEARCH_DATA_SETS));
   const searchHitsHash :number = searchHits.hashCode();
 
   const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, principal));
@@ -115,7 +120,7 @@ const DataSetPermissionsContainer = ({
       const newKeys :List<List<UUID>> = Set()
         .union(atlasDataSetIds)
         .union(entitySetIds)
-        .filter((id :UUID) => searchHits.has(id))
+        .filter((id :UUID) => searchHits.hasIn([ATLAS_DATA_SET_IDS, id]) || searchHits.hasIn([ENTITY_SET_IDS, id]))
         .map((id :UUID) => List([id]))
         .toList();
       if (!keys.equals(newKeys)) {
@@ -159,7 +164,11 @@ const DataSetPermissionsContainer = ({
   const dispatchDataSetSearch = (query :?string) => {
     if (isNonEmptyString(query)) {
       dispatch(
-        searchDataSets({ query })
+        searchDataSets({
+          organizationId,
+          query,
+          all: true,
+        })
       );
     }
     else {
@@ -231,7 +240,10 @@ const DataSetPermissionsContainer = ({
       </StackGrid>
       {
         isVisibleAddDataSetModal && (
-          <DataSetPermissionsModal onClose={() => setIsVisibleAddDataSetModal(false)} principal={principal} />
+          <DataSetPermissionsModal
+              onClose={() => setIsVisibleAddDataSetModal(false)}
+              organizationId={organizationId}
+              principal={principal} />
         )
       }
     </>

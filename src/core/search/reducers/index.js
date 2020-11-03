@@ -11,7 +11,6 @@ import searchDataSetsToAssignPermissionsReducer from './searchDataSetsToAssignPe
 import searchDataSetsToFilterReducer from './searchDataSetsToFilterReducer';
 import searchOrganizationDataSetsReducer from './searchOrganizationDataSetsReducer';
 
-import { HITS } from '../../redux/constants';
 import {
   CLEAR_SEARCH_STATE,
   SEARCH_DATA,
@@ -25,14 +24,18 @@ import {
   searchDataSetsToFilter,
   searchOrganizationDataSets,
 } from '../actions';
-import { SEARCH_INITIAL_STATE } from '../constants';
+import {
+  INITIAL_STATE_SEARCH,
+  INITIAL_STATE_SEARCH_DATA_SETS,
+  INITIAL_STATE_SEARCH_ORG_DATA_SETS,
+} from '../constants';
 
 const INITIAL_STATE :Map = fromJS({
-  [SEARCH_DATA]: SEARCH_INITIAL_STATE,
-  [SEARCH_DATA_SETS]: SEARCH_INITIAL_STATE,
-  [SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS]: SEARCH_INITIAL_STATE,
-  [SEARCH_DATA_SETS_TO_FILTER]: SEARCH_INITIAL_STATE,
-  [SEARCH_ORGANIZATION_DATA_SETS]: SEARCH_INITIAL_STATE.set(HITS, Map())
+  [SEARCH_DATA]: INITIAL_STATE_SEARCH,
+  [SEARCH_DATA_SETS]: INITIAL_STATE_SEARCH_DATA_SETS,
+  [SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS]: INITIAL_STATE_SEARCH_DATA_SETS,
+  [SEARCH_DATA_SETS_TO_FILTER]: INITIAL_STATE_SEARCH_DATA_SETS,
+  [SEARCH_ORGANIZATION_DATA_SETS]: INITIAL_STATE_SEARCH_ORG_DATA_SETS,
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {

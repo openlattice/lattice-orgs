@@ -5,17 +5,32 @@
 import { Map } from 'immutable';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { HITS } from '../../redux/constants';
-import { SEARCH_ORGANIZATION_DATA_SETS } from '../actions';
-import { SEARCH_INITIAL_STATE } from '../constants';
+import {
+  SEARCH_DATA_SETS,
+  SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS,
+  SEARCH_DATA_SETS_TO_FILTER,
+  SEARCH_ORGANIZATION_DATA_SETS,
+} from '../actions';
+import {
+  INITIAL_STATE_SEARCH,
+  INITIAL_STATE_SEARCH_DATA_SETS,
+  INITIAL_STATE_SEARCH_ORG_DATA_SETS,
+} from '../constants';
 
 export default function reducer(state :Map, action :SequenceAction) {
 
   if (action.value && state.has(action.value)) {
     if (action.value === SEARCH_ORGANIZATION_DATA_SETS) {
-      return state.set(action.value, SEARCH_INITIAL_STATE.set(HITS, Map()));
+      return state.set(action.value, INITIAL_STATE_SEARCH_ORG_DATA_SETS);
     }
-    return state.set(action.value, SEARCH_INITIAL_STATE);
+    if (
+      action.value === SEARCH_DATA_SETS
+      || action.value === SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS
+      || action.value === SEARCH_DATA_SETS_TO_FILTER
+    ) {
+      return state.set(action.value, INITIAL_STATE_SEARCH_DATA_SETS);
+    }
+    return state.set(action.value, INITIAL_STATE_SEARCH);
   }
 
   return state;

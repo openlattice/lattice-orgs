@@ -6,14 +6,10 @@ import React, { useState } from 'react';
 
 import _capitalize from 'lodash/capitalize';
 import _isFunction from 'lodash/isFunction';
+import styled from 'styled-components';
 import { faToggleOn } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  Map,
-  Set,
-  getIn,
-  has,
-} from 'immutable';
+import { Map, Set, getIn } from 'immutable';
 import { Types } from 'lattice';
 import {
   Colors,
@@ -42,7 +38,12 @@ import {
 } from '../../components';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../core/permissions/actions';
 import { resetRequestState } from '../../core/redux/actions';
-import { PERMISSIONS, SEARCH } from '../../core/redux/constants';
+import {
+  ATLAS_DATA_SET_IDS,
+  ENTITY_SET_IDS,
+  PERMISSIONS,
+  SEARCH,
+} from '../../core/redux/constants';
 import {
   selectAtlasDataSets,
   selectSearchHits,
@@ -62,7 +63,7 @@ const { PermissionTypes } = Types;
 const { isNonEmptyString } = LangUtils;
 const { selectEntitySets } = ReduxUtils;
 
-const MAX_PER_PAGE = 10;
+const MAX_PER_PAGE = 5;
 
 const STEPS = {
   SELECT_DATA_SET: 0,
@@ -86,11 +87,19 @@ const PERMISSIONS_OPTIONS = [
   { label: _capitalize(PermissionTypes.MATERIALIZE), value: PermissionTypes.MATERIALIZE },
 ];
 
+const PaginationWrapper = styled.div`
+  align-items: center;
+  display: grid;
+  grid-template-columns: 1fr auto;
+`;
+
 const DataSetPermissionsModal = ({
   onClose,
+  organizationId,
   principal,
 } :{|
   onClose :() => void;
+  organizationId :UUID;
   principal :Principal;
 |}) => {
 
@@ -106,12 +115,13 @@ const DataSetPermissionsModal = ({
 
   const searchPage :number = useSelector(selectSearchPage(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
   const searchQuery :string = useSelector(selectSearchQuery(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
-  const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
-  const searchHits :Set<UUID> = useSelector(selectSearchHits(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
+  const searchTotalHits :Map = useSelector(selectSearchTotalHits(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
+  const searchHits :Map = useSelector(selectSearchHits(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
 
-  const pageAtlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets(searchHits));
-  const pageEntitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets(searchHits));
-  const pageDataSets :Map<UUID, EntitySet | Map> = Map().merge(pageAtlasDataSets).merge(pageEntitySets);
+  const atlasDataSetIds :Set<UUID> = searchHits.get(ATLAS_DATA_SET_IDS, Set());
+  const entitySetIds :Set<UUID> = searchHits.get(ENTITY_SET_IDS, Set());
+  const pageAtlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets(atlasDataSetIds));
+  const pageEntitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets(entitySetIds));
 
   const handleOnClose = () => {
     if (_isFunction(onClose)) {
@@ -129,9 +139,11 @@ const DataSetPermissionsModal = ({
     if (isNonEmptyString(query)) {
       dispatch(
         searchDataSetsToAssignPermissions({
+          organizationId,
           page,
           query,
           start,
+          all: true,
           maxHits: MAX_PER_PAGE,
         })
       );
@@ -215,53 +227,95 @@ const DataSetPermissionsModal = ({
       <ModalBody>
         {
           step === STEPS.SELECT_DATA_SET && (
-            <StackGrid>
-              <Typography>
-                Search for a data set to assign permissions.
-              </Typography>
-              <SearchForm
-                  onSubmit={(query :string) => dispatchDataSetSearch({ query })}
-                  searchRequestState={searchDataSetsRS} />
-              {
-                searchDataSetsRS !== RequestStates.STANDBY && (
-                  <PaginationToolbar
-                      count={searchTotalHits}
-                      onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
-                      page={searchPage}
-                      rowsPerPage={MAX_PER_PAGE} />
-                )
-              }
+            <StackGrid gap={32}>
+              <StackGrid>
+                <Typography>
+                  Search for a data set to assign permissions.
+                </Typography>
+                <SearchForm
+                    onSubmit={(query :string) => dispatchDataSetSearch({ query })}
+                    searchRequestState={searchDataSetsRS} />
+              </StackGrid>
               {
                 searchDataSetsRS === RequestStates.PENDING && (
                   <Spinner />
                 )
               }
               {
-                searchDataSetsRS === RequestStates.SUCCESS && !pageDataSets.isEmpty() && (
-                  <div>
+                searchDataSetsRS === RequestStates.SUCCESS && (
+                  <StackGrid>
+                    <PaginationWrapper>
+                      <Typography variant="h4">Entity Sets</Typography>
+                      <PaginationToolbar
+                          count={searchTotalHits.get(ENTITY_SET_IDS)}
+                          onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
+                          page={searchPage}
+                          rowsPerPage={MAX_PER_PAGE} />
+                    </PaginationWrapper>
                     {
-                      pageDataSets.valueSeq().map((dataSet :EntitySet | Map) => {
-                        const isAtlasDataSet = has(dataSet, 'table');
-                        const id :UUID = dataSet.id || getIn(dataSet, ['table', 'id']);
-                        const name :string = dataSet.name || getIn(dataSet, ['table', 'name']);
-                        const title :UUID = dataSet.title || getIn(dataSet, ['table', 'title']);
-                        return (
-                          <GridCardSegment key={id} padding="8px 0">
-                            <div>
-                              <DataSetTitle isAtlasDataSet={isAtlasDataSet}>{title || name}</DataSetTitle>
-                              <Typography variant="caption">{id}</Typography>
-                            </div>
-                            <Radio
-                                checked={targetId === id}
-                                data-id={id}
-                                data-title={title}
-                                name="select-data-set"
-                                onChange={handleOnChangeSelectDataSet} />
-                          </GridCardSegment>
-                        );
-                      })
+                      !pageEntitySets.isEmpty() && (
+                        <div>
+                          {
+                            pageEntitySets.valueSeq().map((dataSet :EntitySet) => (
+                              <GridCardSegment key={dataSet.id} padding="8px 0">
+                                <div>
+                                  <DataSetTitle isAtlasDataSet={false}>{dataSet.title || dataSet.name}</DataSetTitle>
+                                  <Typography variant="caption">{dataSet.id}</Typography>
+                                </div>
+                                <Radio
+                                    checked={targetId === dataSet.id}
+                                    data-id={dataSet.id}
+                                    data-title={dataSet.title}
+                                    name="select-data-set"
+                                    onChange={handleOnChangeSelectDataSet} />
+                              </GridCardSegment>
+                            ))
+                          }
+                        </div>
+                      )
                     }
-                  </div>
+                  </StackGrid>
+                )
+              }
+              {
+                searchDataSetsRS === RequestStates.SUCCESS && (
+                  <StackGrid>
+                    <PaginationWrapper>
+                      <Typography variant="h4">Atlas Data Sets</Typography>
+                      <PaginationToolbar
+                          count={searchTotalHits.get(ATLAS_DATA_SET_IDS)}
+                          onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
+                          page={searchPage}
+                          rowsPerPage={MAX_PER_PAGE} />
+                    </PaginationWrapper>
+                    {
+                      !pageAtlasDataSets.isEmpty() && (
+                        <div>
+                          {
+                            pageAtlasDataSets.valueSeq().map((dataSet :EntitySet | Map) => {
+                              const id :UUID = getIn(dataSet, ['table', 'id']);
+                              const name :string = getIn(dataSet, ['table', 'name']);
+                              const title :UUID = getIn(dataSet, ['table', 'title']);
+                              return (
+                                <GridCardSegment key={id} padding="8px 0">
+                                  <div>
+                                    <DataSetTitle isAtlasDataSet>{title || name}</DataSetTitle>
+                                    <Typography variant="caption">{id}</Typography>
+                                  </div>
+                                  <Radio
+                                      checked={targetId === id}
+                                      data-id={id}
+                                      data-title={title}
+                                      name="select-data-set"
+                                      onChange={handleOnChangeSelectDataSet} />
+                                </GridCardSegment>
+                              );
+                            })
+                          }
+                        </div>
+                      )
+                    }
+                  </StackGrid>
                 )
               }
             </StackGrid>
