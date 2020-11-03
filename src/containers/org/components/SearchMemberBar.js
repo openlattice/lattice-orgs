@@ -1,9 +1,12 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React, {
   useCallback,
   useEffect,
   useMemo,
-  useState
+  useState,
 } from 'react';
 
 import debounce from 'lodash/debounce';
@@ -17,11 +20,12 @@ import { RequestStates } from 'redux-reqseq';
 
 import { USERS, USER_SEARCH_RESULTS } from '../../../core/redux/constants';
 import { getUserProfileLabel } from '../../../utils/PersonUtils';
+import type { ReactSelectOption } from '../../../types';
 
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 type Props = {
-  onChange :() => void;
+  onChange :(option :?ReactSelectOption) => void;
 };
 
 const SearchMemberBar = ({ onChange } :Props) => {

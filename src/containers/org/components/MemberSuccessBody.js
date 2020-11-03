@@ -1,4 +1,7 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React, { useEffect } from 'react';
 
 import { OrganizationsApiActions } from 'lattice-sagas';

@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { ActionModal } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { LangUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
@@ -18,7 +18,9 @@ import MemberSuccessBody from './MemberSuccessBody';
 import { ModalBody } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
+import type { ReactSelectOption } from '../../../types';
 
+const { isNonEmptyString } = LangUtils;
 const { ADD_MEMBER_TO_ORGANIZATION, addMemberToOrganization } = OrganizationsApiActions;
 
 type Props = {
@@ -37,8 +39,8 @@ const AddMemberToOrgModal = ({
   const [selectedMemberId, setMemberId] = useState();
   const requestState :?RequestState = useRequestState([ORGANIZATIONS, ADD_MEMBER_TO_ORGANIZATION]);
 
-  const onChange = (option :any) => {
-    setMemberId(option.value);
+  const onChange = (option :?ReactSelectOption) => {
+    setMemberId(option?.value);
   };
 
   const rsComponents = {
@@ -56,12 +58,14 @@ const AddMemberToOrgModal = ({
   };
 
   const handleOnClickPrimary = () => {
-    dispatch(
-      addMemberToOrganization({
-        memberId: selectedMemberId,
-        organizationId,
-      })
-    );
+    if (isNonEmptyString(selectedMemberId)) {
+      dispatch(
+        addMemberToOrganization({
+          memberId: selectedMemberId,
+          organizationId,
+        })
+      );
+    }
   };
 
   const handleOnClose = () => {

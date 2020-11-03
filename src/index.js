@@ -66,9 +66,10 @@ const GlobalStyle = createGlobalStyle`
  */
 
 LatticeAuth.configure({
-  auth0ClientId: __AUTH0_CLIENT_ID__,
+  auth0ClientId: 'o8Y2U2zb5Iwo01jdxMN1W2aiN8PxwVjh',
   auth0Domain: __AUTH0_DOMAIN__,
   authToken: AuthUtils.getAuthToken(),
+  baseUrl: 'production',
 });
 
 /*
@@ -84,7 +85,7 @@ if (APP_ROOT_NODE) {
     <Provider store={reduxStore}>
       <>
         <ConnectedRouter history={routerHistory}>
-          <AuthRoute path={Routes.ROOT} component={AppContainer} redirectToLogin />
+          <AuthRoute path={Routes.ROOT} component={AppContainer} />
         </ConnectedRouter>
         <NormalizeCSS />
         <GlobalStyle />
