@@ -13,10 +13,12 @@ import {
   ORGANIZATIONS,
   PERMISSIONS,
   SEARCH,
+  SHIPROOM,
   USERS,
 } from './constants';
 
 import { AppReducer } from '../../containers/app';
+import { getShiproomMetadataReducer } from '../../containers/org/reducers';
 import { OrgsReducer } from '../../containers/orgs';
 import { EDMReducer } from '../edm';
 import { PermissionsReducer } from '../permissions';
@@ -32,6 +34,7 @@ export default function reduxReducer(routerHistory :any) {
     [ORGANIZATIONS]: OrgsReducer,
     [PERMISSIONS]: PermissionsReducer,
     [SEARCH]: SearchReducer,
+    [SHIPROOM]: getShiproomMetadataReducer,
     [USERS]: UsersReducer,
     router: connectRouter(routerHistory),
   });

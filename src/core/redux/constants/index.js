@@ -37,6 +37,7 @@ export const ATLAS_DATA_SET_IDS :'atlasDataSetIds' = 'atlasDataSetIds';
 export const ENTITY_SET_IDS :'entitySetIds' = 'entitySetIds';
 export const INTEGRATION_ACCOUNTS :'integrationAccounts' = 'integrationAccounts';
 export const IS_OWNER :'isOwner' = 'isOwner';
+export const SHIPROOM :'shiproom' = 'shiproom';
 export const USER_SEARCH_RESULTS :'userSearchResults' = 'userSearchResults';
 
 // TODO: does this belong here?
