@@ -48,6 +48,7 @@ const ControlsGrid = styled.div`
 `;
 
 const MembersSectionHeader = styled(Header)`
+  justify-content: space-between;
   line-height: 48px;
 `;
 
@@ -144,15 +145,22 @@ const MembersSection = ({
 
   return (
     <MembersSectionGrid>
-      <MembersSectionHeader as="h4">{memberSectionHeader}</MembersSectionHeader>
+      <MembersSectionHeader as="h4">
+        <span>{memberSectionHeader}</span>
+        {
+          isOwner && (
+            <Button
+                variant="text"
+                color="primary"
+                onClick={() => setIsVisibleAddMemberToOrgModal(true)}
+                startIcon={PlusIcon}>
+              Add Member
+            </Button>
+          )
+        }
+      </MembersSectionHeader>
       <ControlsGrid>
         <SearchInput onChange={handleOnChangeMemberFilterQuery} placeholder="Filter members" />
-        <Button
-            color="primary"
-            onClick={() => setIsVisibleAddMemberToOrgModal(true)}
-            startIcon={PlusIcon}>
-          Add Member
-        </Button>
         {
           selectedRole && (
             <Button onClick={goToRole}>Manage Role</Button>
