@@ -10,7 +10,7 @@ const { NEUTRAL } = Colors;
 
 const StyledRow = styled.tr`
   &:nth-child(odd) {
-    background: ${NEUTRAL.N50}
+    background: ${NEUTRAL.N50};
   }
 `;
 
