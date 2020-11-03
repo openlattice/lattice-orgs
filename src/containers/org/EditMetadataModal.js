@@ -69,14 +69,14 @@ const EditMetadataModal = ({
 
   return (
     <ActionModal
+        isVisible={isVisible}
+        onClickPrimary={handleSubmit}
+        onClose={onClose}
         requestState={requestState}
         requestStateComponents={rsComponents}
-        isVisible={isVisible}
-        onClose={onClose}
+        shouldStretchButtons
         textPrimary="Save Changes"
         textSecondary=""
-        onClickPrimary={handleSubmit}
-        shouldStretchButtons
         textTitle="Edit Property" />
   );
 };
