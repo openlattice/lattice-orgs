@@ -21,6 +21,7 @@ import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import type { Role, UUID } from 'lattice';
 
+import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
 import { Header } from '../../../components';
 import { Routes } from '../../../core/router';
 import { goToRoute } from '../../../core/router/actions';
@@ -47,6 +48,7 @@ const ControlsGrid = styled.div`
 `;
 
 const MembersSectionHeader = styled(Header)`
+  justify-content: space-between;
   line-height: 48px;
 `;
 
@@ -87,8 +89,9 @@ const MembersSection = ({
 
   const dispatch = useDispatch();
 
-  const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState();
-  const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState();
+  const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
+  const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
+  const [isVisibleAddMemberToOrgModal, setIsVisibleAddMemberToOrgModal] = useState(false);
   const [memberFilterQuery, setMemberFilterQuery] = useState('');
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
@@ -127,7 +130,6 @@ const MembersSection = ({
 
   const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
   const thisUserId = thisUserInfo.id;
-  const targetMemberId = getUserId(targetMember);
 
   let filteredMembers = members;
   let memberSectionHeader = ALL_MEMBERS_HEADER;
@@ -143,10 +145,22 @@ const MembersSection = ({
 
   return (
     <MembersSectionGrid>
-      <MembersSectionHeader as="h4">{memberSectionHeader}</MembersSectionHeader>
+      <MembersSectionHeader as="h4">
+        <span>{memberSectionHeader}</span>
+        {
+          isOwner && (
+            <Button
+                variant="text"
+                color="primary"
+                onClick={() => setIsVisibleAddMemberToOrgModal(true)}
+                startIcon={PlusIcon}>
+              Add Member
+            </Button>
+          )
+        }
+      </MembersSectionHeader>
       <ControlsGrid>
         <SearchInput onChange={handleOnChangeMemberFilterQuery} placeholder="Filter members" />
-        <Button color="primary" startIcon={PlusIcon}>Add Member</Button>
         {
           selectedRole && (
             <Button onClick={goToRole}>Manage Role</Button>
@@ -185,21 +199,30 @@ const MembersSection = ({
         })
       }
       {
-        isOwner && isVisibleRemoveMemberFromOrgModal && targetMemberId && (
+        isOwner && (
           <RemoveMemberFromOrgModal
-              member={getUserProfileLabel(targetMember)}
-              memberId={targetMemberId}
+              isVisible={isVisibleRemoveMemberFromOrgModal}
+              member={targetMember}
               onClose={() => setIsVisibleRemoveMemberFromOrgModal(false)}
               organizationId={organizationId} />
         )
       }
       {
-        isOwner && isVisibleRemoveRoleFromMemberModal && targetMemberId && selectedRole && (
+        isOwner && (
+          <AddMemberToOrgModal
+              isVisible={isVisibleAddMemberToOrgModal}
+              member={targetMember}
+              onClose={() => setIsVisibleAddMemberToOrgModal(false)}
+              organizationId={organizationId} />
+        )
+      }
+      {
+        isOwner && selectedRole && (
           <RemoveRoleFromMemberModal
-              member={getUserProfileLabel(targetMember)}
-              memberId={targetMemberId}
-              organizationId={organizationId}
+              isVisible={isVisibleRemoveRoleFromMemberModal}
+              member={targetMember}
               onClose={() => setIsVisibleRemoveRoleFromMemberModal(false)}
+              organizationId={organizationId}
               roleId={(selectedRole.id :any)} />
         )
       }

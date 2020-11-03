@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { Map, fromJS } from 'immutable';
+import { Map } from 'immutable';
 import { ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 
@@ -40,7 +40,7 @@ export const IS_OWNER :'isOwner' = 'isOwner';
 export const USER_SEARCH_RESULTS :'userSearchResults' = 'userSearchResults';
 
 // TODO: does this belong here?
-export const INITIAL_SEARCH_RESULTS :Map = fromJS({ initial: true });
+export const INITIAL_SEARCH_RESULTS :Map = Map();
 
 // TODO: does this belong here?
 export const RS_INITIAL_STATE = {
