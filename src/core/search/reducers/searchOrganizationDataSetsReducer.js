@@ -31,12 +31,15 @@ export default function reducer(state :Map, action :SequenceAction) {
       const storedAction :SequenceAction = state.getIn([SEARCH_ORGANIZATION_DATA_SETS, action.id]);
       if (storedAction) {
         const { page, query } = storedAction.value;
+        const hits = action.value[HITS];
+        const totalHits = action.value[TOTAL_HITS];
         return state
-          .setIn([SEARCH_ORGANIZATION_DATA_SETS, HITS, ATLAS_DATA_SET_IDS], Set(action.value[HITS][ATLAS_DATA_SET_IDS]))
-          .setIn([SEARCH_ORGANIZATION_DATA_SETS, HITS, ENTITY_SET_IDS], Set(action.value[HITS][ENTITY_SET_IDS]))
+          .setIn([SEARCH_ORGANIZATION_DATA_SETS, HITS, ATLAS_DATA_SET_IDS], Set(hits[ATLAS_DATA_SET_IDS]))
+          .setIn([SEARCH_ORGANIZATION_DATA_SETS, HITS, ENTITY_SET_IDS], Set(hits[ENTITY_SET_IDS]))
           .setIn([SEARCH_ORGANIZATION_DATA_SETS, PAGE], page)
           .setIn([SEARCH_ORGANIZATION_DATA_SETS, QUERY], query)
-          .setIn([SEARCH_ORGANIZATION_DATA_SETS, TOTAL_HITS], action.value[TOTAL_HITS])
+          .setIn([SEARCH_ORGANIZATION_DATA_SETS, TOTAL_HITS, ATLAS_DATA_SET_IDS], totalHits[ATLAS_DATA_SET_IDS])
+          .setIn([SEARCH_ORGANIZATION_DATA_SETS, TOTAL_HITS, ENTITY_SET_IDS], totalHits[ENTITY_SET_IDS])
           .setIn([SEARCH_ORGANIZATION_DATA_SETS, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
@@ -46,7 +49,7 @@ export default function reducer(state :Map, action :SequenceAction) {
         return state
           .setIn([SEARCH_ORGANIZATION_DATA_SETS, ERROR], action.value)
           .setIn([SEARCH_ORGANIZATION_DATA_SETS, HITS], Map())
-          .setIn([SEARCH_ORGANIZATION_DATA_SETS, TOTAL_HITS], 0)
+          .setIn([SEARCH_ORGANIZATION_DATA_SETS, TOTAL_HITS], Map())
           .setIn([SEARCH_ORGANIZATION_DATA_SETS, REQUEST_STATE], RequestStates.FAILURE);
       }
       return state;
