@@ -53,24 +53,6 @@ function* searchDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse> {
       start :number;
     |} = action.value;
 
-    // TODO: search atlas data sets as well
-    const response :WorkerResponse = yield call(
-      searchEntitySetMetaDataWorker,
-      searchEntitySetMetaData({
-        maxHits,
-        start,
-        organizationId: all ? undefined : organizationId,
-        searchTerm: query,
-      }),
-    );
-
-    if (response.error) throw response.error;
-
-    const hits = response.data.hits || [];
-    const entitySetIds :Set<UUID> = Set().withMutations((mutableSet) => {
-      hits.forEach((hit :SearchEntitySetsHit) => mutableSet.add(hit.entitySet.id));
-    });
-
     const atlasDataSetIds :Set<UUID> = yield select(selectOrganizationAtlasDataSetIds(organizationId));
     const atlasDataSets :Map<UUID, Map> = yield select(selectAtlasDataSets(atlasDataSetIds));
 
@@ -94,6 +76,31 @@ function* searchDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse> {
       .sort()
       .slice(start, start + maxHits);
 
+    const entitySetsMaxHits = maxHits - atlasDataSetIdsHits.count();
+    console.log(entitySetsMaxHits);
+
+    let entitySetIds :Set<UUID> = Set();
+    let entitySetIdsTotalHits = 0;
+    if (entitySetsMaxHits > 0) {
+      const response :WorkerResponse = yield call(
+        searchEntitySetMetaDataWorker,
+        searchEntitySetMetaData({
+          maxHits,
+          start,
+          organizationId: all ? undefined : organizationId,
+          searchTerm: query,
+        }),
+      );
+
+      if (response.error) throw response.error;
+
+      const hits = response.data.hits || [];
+      entitySetIdsTotalHits = response.data.numHits;
+      entitySetIds = Set().withMutations((mutableSet) => {
+        hits.forEach((hit :SearchEntitySetsHit) => mutableSet.add(hit.entitySet.id));
+      });
+    }
+
     workerResponse = {
       data: {
         [HITS]: {
@@ -102,7 +109,7 @@ function* searchDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse> {
         },
         [TOTAL_HITS]: {
           [ATLAS_DATA_SET_IDS]: atlasDataSetIdsTotalHits,
-          [ENTITY_SET_IDS]: response.data.numHits || 0,
+          [ENTITY_SET_IDS]: entitySetIdsTotalHits,
         },
       },
     };
