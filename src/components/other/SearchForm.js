@@ -9,17 +9,22 @@ import { SearchInput } from 'lattice-ui-kit';
 import { RequestStates } from 'redux-reqseq';
 import type { RequestState } from 'redux-reqseq';
 
-import { ActionsGrid, SearchButton } from '../../../components';
+import { SearchButton } from '../buttons';
+import { ActionsGrid } from '../grids';
 
-const SearchDataSetsForm = ({
+const SearchForm = ({
   onSubmit,
+  placeholder,
+  searchQuery,
   searchRequestState,
 } :{|
   onSubmit :(query :string) => void;
+  placeholder ?:string;
+  searchQuery ?:string;
   searchRequestState :?RequestState;
 |}) => {
 
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(searchQuery || '');
 
   const handleOnChange = (event :SyntheticInputEvent<HTMLInputElement>) => {
     setQuery(event.target.value || '');
@@ -35,9 +40,9 @@ const SearchDataSetsForm = ({
   return (
     <form onSubmit={handleOnSubmit}>
       <ActionsGrid>
-        <SearchInput onChange={handleOnChange} placeholder="Search data sets" />
+        <SearchInput onChange={handleOnChange} placeholder={placeholder} value={query} />
         <SearchButton
-            aria-label="search data sets button"
+            aria-label="search button"
             color="primary"
             isPending={searchRequestState === RequestStates.PENDING}
             type="submit" />
@@ -46,4 +51,9 @@ const SearchDataSetsForm = ({
   );
 };
 
-export default SearchDataSetsForm;
+SearchForm.defaultProps = {
+  placeholder: '',
+  searchQuery: '',
+};
+
+export default SearchForm;

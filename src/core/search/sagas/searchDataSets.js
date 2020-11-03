@@ -28,11 +28,13 @@ function* searchDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse> {
     yield put(searchDataSets.request(action.id, action.value));
 
     const {
+      organizationId,
       query,
       maxHits = MAX_HITS_10000,
       start = 0,
     } :{|
       maxHits :number;
+      organizationId ?:UUID;
       query :string;
       start :number;
     |} = action.value;
@@ -41,6 +43,7 @@ function* searchDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse> {
     const response :WorkerResponse = yield call(
       searchEntitySetMetaDataWorker,
       searchEntitySetMetaData({
+        organizationId,
         maxHits,
         start,
         searchTerm: query,
