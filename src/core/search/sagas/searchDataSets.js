@@ -76,30 +76,23 @@ function* searchDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse> {
       .sort()
       .slice(start, start + maxHits);
 
-    const entitySetsMaxHits = maxHits - atlasDataSetIdsHits.count();
-    console.log(entitySetsMaxHits);
+    // TODO: search atlas data sets as well
+    const response :WorkerResponse = yield call(
+      searchEntitySetMetaDataWorker,
+      searchEntitySetMetaData({
+        start,
+        maxHits: maxHits - atlasDataSetIdsHits.count(),
+        organizationId: all ? undefined : organizationId,
+        searchTerm: query,
+      }),
+    );
 
-    let entitySetIds :Set<UUID> = Set();
-    let entitySetIdsTotalHits = 0;
-    if (entitySetsMaxHits > 0) {
-      const response :WorkerResponse = yield call(
-        searchEntitySetMetaDataWorker,
-        searchEntitySetMetaData({
-          maxHits,
-          start,
-          organizationId: all ? undefined : organizationId,
-          searchTerm: query,
-        }),
-      );
+    if (response.error) throw response.error;
 
-      if (response.error) throw response.error;
-
-      const hits = response.data.hits || [];
-      entitySetIdsTotalHits = response.data.numHits;
-      entitySetIds = Set().withMutations((mutableSet) => {
-        hits.forEach((hit :SearchEntitySetsHit) => mutableSet.add(hit.entitySet.id));
-      });
-    }
+    const hits = response.data.hits || [];
+    const entitySetIds :Set<UUID> = Set().withMutations((mutableSet) => {
+      hits.forEach((hit :SearchEntitySetsHit) => mutableSet.add(hit.entitySet.id));
+    });
 
     workerResponse = {
       data: {
@@ -109,7 +102,7 @@ function* searchDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse> {
         },
         [TOTAL_HITS]: {
           [ATLAS_DATA_SET_IDS]: atlasDataSetIdsTotalHits,
-          [ENTITY_SET_IDS]: entitySetIdsTotalHits,
+          [ENTITY_SET_IDS]: response.data.numHits || 0,
         },
       },
     };
