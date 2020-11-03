@@ -54,8 +54,9 @@ const OrgDataSetsContainer = ({
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const searchPage :number = useSelector(selectSearchPage(SEARCH_ORGANIZATION_DATA_SETS));
   const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS));
-  const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_ORGANIZATION_DATA_SETS));
   const searchHits :Map = useSelector(selectSearchHits(SEARCH_ORGANIZATION_DATA_SETS));
+  const searchTotalHits :Map = useSelector(selectSearchTotalHits(SEARCH_ORGANIZATION_DATA_SETS));
+  const totalHits :number = searchTotalHits.get(ATLAS_DATA_SET_IDS) + searchTotalHits.get(ENTITY_SET_IDS);
 
   const atlasDataSetIds :Set<UUID> = searchHits.get(ATLAS_DATA_SET_IDS, Set());
   const entitySetIds :Set<UUID> = searchHits.get(ENTITY_SET_IDS, Set());
@@ -105,7 +106,7 @@ const OrgDataSetsContainer = ({
                 searchRequestState={searchOrgDataSetsRS} />
             {
               <PaginationToolbar
-                  count={searchTotalHits}
+                  count={totalHits}
                   onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
                   page={searchPage}
                   rowsPerPage={MAX_HITS_10} />

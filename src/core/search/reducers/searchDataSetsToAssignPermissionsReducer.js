@@ -32,12 +32,10 @@ export default function reducer(state :Map, action :SequenceAction) {
       if (storedAction) {
         const { page, query } = storedAction.value;
         return state
-          // .setIn([SEARCH_DATA_SETS, HITS], action.value[HITS])
           .setIn([SEARCH_DATA_SETS, HITS, ATLAS_DATA_SET_IDS], Set(action.value[HITS][ATLAS_DATA_SET_IDS]))
           .setIn([SEARCH_DATA_SETS, HITS, ENTITY_SET_IDS], Set(action.value[HITS][ENTITY_SET_IDS]))
           .setIn([SEARCH_DATA_SETS, PAGE], page)
           .setIn([SEARCH_DATA_SETS, QUERY], query)
-          // .setIn([SEARCH_DATA_SETS, TOTAL_HITS], action.value[TOTAL_HITS])
           .setIn([SEARCH_DATA_SETS, TOTAL_HITS, ATLAS_DATA_SET_IDS], action.value[TOTAL_HITS][ATLAS_DATA_SET_IDS])
           .setIn([SEARCH_DATA_SETS, TOTAL_HITS, ENTITY_SET_IDS], action.value[TOTAL_HITS][ENTITY_SET_IDS])
           .setIn([SEARCH_DATA_SETS, REQUEST_STATE], RequestStates.SUCCESS);
