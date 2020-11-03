@@ -8,7 +8,7 @@ import SearchMemberBar from './SearchMemberBar';
 import { ModalBody } from '../../../components';
 
 type Props = {
-  onChange :() => void;
+  onChange :(option :any) => void;
 };
 
 const AddMemberModalBody = ({ onChange } :Props) => (

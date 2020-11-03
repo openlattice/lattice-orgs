@@ -223,7 +223,8 @@ const MembersSection = ({
               member={targetMember}
               onClose={() => setIsVisibleRemoveRoleFromMemberModal(false)}
               organizationId={organizationId}
-              roleId={(selectedRole?.id :UUID)} />
+              // $FlowFixMe
+              roleId={(selectedRole.id :UUID)} />
         )
       }
     </MembersSectionGrid>
