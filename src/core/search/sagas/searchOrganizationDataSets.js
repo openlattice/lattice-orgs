@@ -68,7 +68,6 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<*> {
         .filter((id :UUID) => isValidUUID(id));
 
       entitySetIds = Set(entitySetIdsHits);
-      entitySetIdsTotalHits = entitySetIds.count();
 
       const atlasDataSetIdsHits = response.data.hits
         .filter((hit) => getPropertyValue(hit, [FQNS.OL_STANDARDIZED, 0]) === false)
@@ -76,16 +75,18 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<*> {
         .filter((id :UUID) => isValidUUID(id));
 
       atlasDataSetIds = Set(atlasDataSetIdsHits);
-      atlasDataSetIdsTotalHits = atlasDataSetIds.count();
+
+      // NOTE: this was a regular search so atlasDataSets and entitySets are mixed
+      entitySetIdsTotalHits = response.data[TOTAL_HITS];
     }
     else {
       // TODO: this will be removed
       response = yield call(searchDataSetsWorker, searchDataSets(action.value));
       if (response.error) throw response.error;
       entitySetIds = response.data[HITS][ENTITY_SET_IDS];
-      entitySetIdsTotalHits = entitySetIds.count();
+      entitySetIdsTotalHits = response.data[TOTAL_HITS][ENTITY_SET_IDS];
       atlasDataSetIds = response.data[HITS][ATLAS_DATA_SET_IDS];
-      atlasDataSetIdsTotalHits = atlasDataSetIds.count();
+      atlasDataSetIdsTotalHits = response.data[TOTAL_HITS][ATLAS_DATA_SET_IDS];
     }
 
     yield call(
@@ -98,7 +99,6 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<*> {
         [ATLAS_DATA_SET_IDS]: atlasDataSetIds,
         [ENTITY_SET_IDS]: entitySetIds,
       },
-      [TOTAL_HITS]: response.data[TOTAL_HITS],
       [TOTAL_HITS]: {
         [ATLAS_DATA_SET_IDS]: atlasDataSetIdsTotalHits,
         [ENTITY_SET_IDS]: entitySetIdsTotalHits,

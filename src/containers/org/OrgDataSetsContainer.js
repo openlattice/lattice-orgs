@@ -109,7 +109,7 @@ const OrgDataSetsContainer = ({
                   count={totalHits}
                   onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
                   page={searchPage}
-                  rowsPerPage={MAX_HITS_10} />
+                  rowsPerPage={pageDataSetIds.count()} />
             }
             {
               searchOrgDataSetsRS === RequestStates.PENDING && (
