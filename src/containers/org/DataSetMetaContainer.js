@@ -54,7 +54,11 @@ const DataSetMetaContainer = ({
     const columninfo :List = getPropertyValue(metadata, FQNS.OL_COLUMN_INFO, List());
     try {
       const parsedColumns = JSON.parse(columninfo.first());
-      const parsedColumnInfoWithIds = parsedColumns.map((column) => ({ id: column.propertyTypeId, ...column }));
+      const parsedColumnInfoWithIds = parsedColumns.map((column, index) => ({
+        id: column.propertyTypeId,
+        ...column,
+        index,
+      }));
       return parsedColumnInfoWithIds;
     }
     catch (error) {
@@ -106,7 +110,9 @@ const DataSetMetaContainer = ({
 
   return (
     <AppContentWrapper>
-      <Table data={tableData} headers={TABLE_HEADERS} />
+      <Table
+          data={tableData}
+          headers={TABLE_HEADERS} />
     </AppContentWrapper>
   );
 };
