@@ -22,6 +22,7 @@ import { Link } from 'react-router-dom';
 import type { Role, UUID } from 'lattice';
 
 import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
+import AssignRoleToMemberModal from '../components/AssignRoleToMemberModal';
 import { Header } from '../../../components';
 import { Routes } from '../../../core/router';
 import { goToRoute } from '../../../core/router/actions';
@@ -92,6 +93,7 @@ const MembersSection = ({
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
   const [isVisibleAddMemberToOrgModal, setIsVisibleAddMemberToOrgModal] = useState(false);
+  const [isVisibleAssignRoleModal, setIsVisibleAssignRoleModal] = useState(false);
   const [memberFilterQuery, setMemberFilterQuery] = useState('');
   const [paginationIndex, setPaginationIndex] = useState(0);
   const [paginationPage, setPaginationPage] = useState(0);
@@ -163,6 +165,16 @@ const MembersSection = ({
         <SearchInput onChange={handleOnChangeMemberFilterQuery} placeholder="Filter members" />
         {
           selectedRole && (
+            <Button
+                color="primary"
+                onClick={() => setIsVisibleAssignRoleModal(true)}
+                startIcon={PlusIcon}>
+              Assign Role
+            </Button>
+          )
+        }
+        {
+          selectedRole && (
             <Button onClick={goToRole}>Manage Role</Button>
           )
         }
@@ -224,6 +236,16 @@ const MembersSection = ({
               onClose={() => setIsVisibleRemoveRoleFromMemberModal(false)}
               organizationId={organizationId}
               roleId={(selectedRole.id :any)} />
+        )
+      }
+      {
+        isOwner && selectedRole && (
+          <AssignRoleToMemberModal
+              isVisible={isVisibleAssignRoleModal}
+              members={members}
+              onClose={() => setIsVisibleAssignRoleModal(false)}
+              organizationId={organizationId}
+              role={selectedRole} />
         )
       }
     </MembersSectionGrid>
