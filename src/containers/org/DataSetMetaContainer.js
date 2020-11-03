@@ -143,13 +143,14 @@ const DataSetMetaContainer = ({
   }, [atlasDataSet, entitySet, parsedColumnInfo, propertyTypesHash]);
 
   const components = useMemo(() => {
-    if (isOwner && parsedColumnInfo) {
+    if (parsedColumnInfo) {
       return {
         Row: ({ data, components: innerComponents, headers } :any) => (
           <EditableMetadataRow
-              data={data}
               components={innerComponents}
+              data={data}
               headers={headers}
+              isOwner={isOwner}
               onClick={() => modalDispatch({ type: 'open', payload: data })} />
         )
       };
