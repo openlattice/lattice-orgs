@@ -8,7 +8,12 @@ import _capitalize from 'lodash/capitalize';
 import _isFunction from 'lodash/isFunction';
 import { faToggleOn } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Map, Set, getIn } from 'immutable';
+import {
+  Map,
+  Set,
+  getIn,
+  has,
+} from 'immutable';
 import { Types } from 'lattice';
 import {
   Colors,
@@ -28,6 +33,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import {
   BasicErrorComponent,
+  DataSetTitle,
   GridCardSegment,
   ModalBody,
   SearchForm,
@@ -235,12 +241,14 @@ const DataSetPermissionsModal = ({
                   <div>
                     {
                       pageDataSets.valueSeq().map((dataSet :EntitySet | Map) => {
+                        const isAtlasDataSet = has(dataSet, 'table');
                         const id :UUID = dataSet.id || getIn(dataSet, ['table', 'id']);
+                        const name :string = dataSet.name || getIn(dataSet, ['table', 'name']);
                         const title :UUID = dataSet.title || getIn(dataSet, ['table', 'title']);
                         return (
                           <GridCardSegment key={id} padding="8px 0">
                             <div>
-                              <Typography>{title}</Typography>
+                              <DataSetTitle isAtlasDataSet={isAtlasDataSet}>{title || name}</DataSetTitle>
                               <Typography variant="caption">{id}</Typography>
                             </div>
                             <Radio

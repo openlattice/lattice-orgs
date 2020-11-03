@@ -7,7 +7,6 @@ import React, { useMemo, useState } from 'react';
 import _capitalize from 'lodash/capitalize';
 import styled from 'styled-components';
 import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
-import { faServer } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   List,
@@ -33,7 +32,7 @@ import type {
   UUID,
 } from 'lattice';
 
-import { EntitySetIcon } from '../../assets/svg/icons';
+import { DataSetTitle } from '../../components';
 import { selectEntitySetEntityType, selectPermissions } from '../../core/redux/selectors';
 import type { PermissionSelection } from '../../types';
 
@@ -74,17 +73,6 @@ const PermissionTypeCard = styled(Card)`
 
   &:hover {
     cursor: pointer;
-  }
-`;
-
-const TitleWrapper = styled.div`
-  align-items: center;
-  display: grid;
-  grid-gap: 16px;
-  grid-template-columns: auto 1fr;
-
-  > span {
-    word-break: break-all;
   }
 `;
 
@@ -175,14 +163,7 @@ const DataSetPermissionsCard = ({
   return (
     <>
       <DataSetCard>
-        <TitleWrapper>
-          {
-            isAtlasDataSet
-              ? <FontAwesomeIcon fixedWidth icon={faServer} />
-              : <EntitySetIcon />
-          }
-          <Typography component="span" variant="body1">{dataSetTitle}</Typography>
-        </TitleWrapper>
+        <DataSetTitle iconGap={16} isAtlasDataSet={isAtlasDataSet}>{dataSetTitle}</DataSetTitle>
         <ActionsWrapper>
           <Typography component="span" variant="body1">{permissionLabel}</Typography>
           <IconButton onClick={() => setIsOpen(!isOpen)}>
