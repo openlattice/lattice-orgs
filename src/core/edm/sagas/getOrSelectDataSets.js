@@ -69,7 +69,7 @@ function* getOrSelectDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse
 
       // TODO: extract as getAuthorizedEntitySets()
       const accessChecks :AccessCheck[] = missingEntitySetIds.map((id :UUID) => (
-        (new AccessCheckBuilder()).setAclKey([id]).setPermissions([PermissionTypes.OWNER]).build()
+        (new AccessCheckBuilder()).setAclKey([id]).setPermissions([PermissionTypes.READ]).build()
       )).toJS();
 
       const calls = _chunk(accessChecks, 100).map((accessChecksChunk :AccessCheck[]) => (
@@ -83,7 +83,7 @@ function* getOrSelectDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse
         // $FlowFixMe
         .map((response :WorkerResponse) => response.data)
         .flat()
-        .filter((authorization) => authorization?.permissions?.[PermissionTypes.OWNER] === true)
+        .filter((authorization) => authorization?.permissions?.[PermissionTypes.READ] === true)
         .map((authorization) => authorization.aclKey[0]);
       // END-TODO
 
