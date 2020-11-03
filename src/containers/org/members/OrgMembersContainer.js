@@ -10,13 +10,10 @@ import React, {
 
 import styled from 'styled-components';
 import { List } from 'immutable';
-import { OrganizationsApiActions } from 'lattice-sagas';
 import { AppContentWrapper } from 'lattice-ui-kit';
-import { ReduxUtils, useRequestState } from 'lattice-utils';
+import { ReduxUtils } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 import type { Organization, Role, UUID } from 'lattice';
-import type { RequestState } from 'redux-reqseq';
 
 import MembersSection from './MembersSection';
 import RolesSection from './RolesSection';
@@ -27,7 +24,6 @@ import {
   Crumbs,
   Divider,
   Header,
-  Spinner,
 } from '../../../components';
 import {
   IS_OWNER,
@@ -37,7 +33,6 @@ import { selectOrganizationMembers } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 import { UsersActions } from '../../../core/users';
 
-const { GET_ORGANIZATION_MEMBERS } = OrganizationsApiActions;
 const { resetUserSearchResults } = UsersActions;
 const { selectOrganization } = ReduxUtils;
 
