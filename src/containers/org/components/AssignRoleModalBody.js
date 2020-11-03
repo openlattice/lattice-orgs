@@ -41,6 +41,7 @@ const AssignRoleModalBody = ({ onChange, members } :Props) => {
       <Typography>Enter the username or email address of the member you wish to assign the role to.</Typography>
       <Select
           inputId="assign-to-member"
+          isClearable
           options={memberOptions}
           placeholder="Search for member"
           onChange={handleChange} />
