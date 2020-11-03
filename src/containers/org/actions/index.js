@@ -22,14 +22,19 @@ const removeRoleFromOrganization :RequestSequence = newRequestSequence(REMOVE_RO
 const GET_SHIPROOM_METADATA :'GET_SHIPROOM_METADATA' = 'GET_SHIPROOM_METADATA';
 const getShiproomMetadata :RequestSequence = newRequestSequence(GET_SHIPROOM_METADATA);
 
+const EDIT_METADATA :'EDIT_METADATA' = 'EDIT_METADATA';
+const editMetadata :RequestSequence = newRequestSequence(EDIT_METADATA);
+
 export {
   ADD_ROLE_TO_ORGANIZATION,
   CREATE_NEW_ORGANIZATION,
+  EDIT_METADATA,
   GET_SHIPROOM_METADATA,
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
   addRoleToOrganization,
   createNewOrganization,
+  editMetadata,
   getShiproomMetadata,
   initializeOrganization,
   removeRoleFromOrganization,

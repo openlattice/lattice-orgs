@@ -42,6 +42,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :SequenceActi
         FINALLY: () => state.deleteIn([GET_SHIPROOM_METADATA, action.id]),
       });
     }
+
     default:
       return state;
   }

@@ -2,7 +2,12 @@
  * @flow
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useReducer,
+  useState
+} from 'react';
 
 import { List, Map, get } from 'immutable';
 import { AppContentWrapper, Spinner, Table } from 'lattice-ui-kit';
@@ -16,6 +21,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { EntitySet, PropertyType, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import EditMetadataModal from './EditMetadataModal';
 import EditableMetadataRow from './EditableMetadataRow';
 import { GET_SHIPROOM_METADATA } from './actions';
 
@@ -39,6 +45,26 @@ const TABLE_HEADERS = [
   }
 ];
 
+const INITIAL_STATE = {
+  isVisible: false,
+  selectedRowData: undefined,
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'open': {
+      return {
+        selectedRowData: action.payload,
+        isVisible: true
+      };
+    }
+    case 'close':
+      return INITIAL_STATE;
+    default:
+      return state;
+  }
+};
+
 const DataSetMetaContainer = ({
   atlasDataSet,
   dataSetId,
@@ -50,6 +76,7 @@ const DataSetMetaContainer = ({
 |}) => {
 
   const [tableData, setTableData] = useState([]);
+  const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
 
   const metadata :Map = useSelector((store) => store.getIn([SHIPROOM, 'metadata']));
   const metadataRS :?RequestState = useRequestState([SHIPROOM, GET_SHIPROOM_METADATA]);
@@ -113,7 +140,7 @@ const DataSetMetaContainer = ({
           data={data}
           components={innerComponents}
           headers={headers}
-          onClick={() => console.log(data)} />
+          onClick={() => modalDispatch({ type: 'open', payload: data })} />
     )
   }), []);
 
@@ -131,6 +158,12 @@ const DataSetMetaContainer = ({
           components={components}
           data={tableData}
           headers={TABLE_HEADERS} />
+      <EditMetadataModal
+          isVisible={modalState.isVisible}
+          metadata={metadata}
+          columnInfo={parsedColumnInfo}
+          onClose={() => modalDispatch({ type: 'close' })}
+          property={modalState.selectedRowData} />
     </AppContentWrapper>
   );
 };
