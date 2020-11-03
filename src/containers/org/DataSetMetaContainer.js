@@ -161,7 +161,6 @@ const DataSetMetaContainer = ({
       <EditMetadataModal
           isVisible={modalState.isVisible}
           metadata={metadata}
-          columnInfo={parsedColumnInfo}
           onClose={() => modalDispatch({ type: 'close' })}
           property={modalState.selectedRowData} />
     </AppContentWrapper>
