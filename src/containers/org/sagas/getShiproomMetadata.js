@@ -31,7 +31,7 @@ function* getShiproomMetadataWorker(action :SequenceAction) :Saga<void> {
 
     let metadata = Map();
     if (organizationId === SHIP_ROOM_ORG_ID) {
-      const propertyTypes :Map<UUID, PropertyType> = yield select(selectPropertyTypes([FQNS.OL_ID.toString()]));
+      const propertyTypes :Map<UUID, PropertyType> = yield select(selectPropertyTypes([FQNS.OL_ID]));
 
       if (propertyTypes.size !== 1) {
         throw Error('indeterminate property type id');
