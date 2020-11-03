@@ -10,6 +10,7 @@ import { useGoToRoute } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { EntitySet, UUID } from 'lattice';
 
+import { DataSetTitle, StackGrid } from '../../../components';
 import { selectAtlasDataSets, selectEntitySets } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 
@@ -40,8 +41,10 @@ const DataSetSearchResultCard = ({
   return (
     <Card id={dataSetId} onClick={goToOrganizationDataSet}>
       <CardSegment>
-        <Typography component="h2" variant="h4">{title || name}</Typography>
-        <Typography>{description || name}</Typography>
+        <StackGrid gap={8}>
+          <DataSetTitle component="h2" isAtlasDataSet={!!atlasDataSet} variant="h4">{title || name}</DataSetTitle>
+          <Typography>{description || name}</Typography>
+        </StackGrid>
       </CardSegment>
     </Card>
   );
