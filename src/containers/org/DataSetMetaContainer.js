@@ -79,8 +79,7 @@ const DataSetMetaContainer = ({
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
-  const entitySetId = entitySet?.id;
-  const isOwner :boolean = useSelector((store) => store.getIn([PERMISSIONS, IS_OWNER, entitySetId]));
+  const isOwner :boolean = useSelector((store) => store.getIn([PERMISSIONS, IS_OWNER, dataSetId]));
 
   const metadata :Map = useSelector((store) => store.getIn([SHIPROOM, 'metadata']));
   const metadataRS :?RequestState = useRequestState([SHIPROOM, GET_SHIPROOM_METADATA]);
@@ -106,8 +105,8 @@ const DataSetMetaContainer = ({
   }, [metadata]);
 
   useEffect(() => {
-    dispatch(getOwnerStatus(entitySetId));
-  }, [dispatch, entitySetId]);
+    dispatch(getOwnerStatus(dataSetId));
+  }, [dispatch, dataSetId]);
 
   useEffect(() => {
     if (parsedColumnInfo) {
@@ -151,6 +150,7 @@ const DataSetMetaContainer = ({
               data={data}
               headers={headers}
               isOwner={isOwner}
+              key={data.id}
               onClick={() => modalDispatch({ type: 'open', payload: data })} />
         )
       };
