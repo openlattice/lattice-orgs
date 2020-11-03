@@ -20,6 +20,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import DataSetDataContainer from './DataSetDataContainer';
 import DataSetMetaContainer from './DataSetMetaContainer';
+import { getShiproomMetadata } from './actions';
 
 import {
   CrumbItem,
@@ -63,6 +64,10 @@ const OrgDataSetContainer = ({
 
   useEffect(() => {
     dispatch(getOrSelectDataSet({ dataSetId, organizationId }));
+  }, [dispatch, dataSetId, organizationId]);
+
+  useEffect(() => {
+    dispatch(getShiproomMetadata({ dataSetId, organizationId }));
   }, [dispatch, dataSetId, organizationId]);
 
   const orgPath = useMemo(() => (
