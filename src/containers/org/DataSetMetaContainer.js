@@ -16,7 +16,7 @@ import {
   Logger,
   useRequestState
 } from 'lattice-utils';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { EntitySet, PropertyType, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -26,7 +26,8 @@ import EditableMetadataRow from './EditableMetadataRow';
 import { GET_SHIPROOM_METADATA } from './actions';
 
 import { FQNS } from '../../core/edm/constants';
-import { SHIPROOM } from '../../core/redux/constants';
+import { getOwnerStatus } from '../../core/permissions/actions';
+import { IS_OWNER, PERMISSIONS, SHIPROOM } from '../../core/redux/constants';
 import { selectEntitySetPropertyTypes } from '../../core/redux/selectors';
 
 const LOG = new Logger('DataSetMetaContainer');
@@ -75,8 +76,11 @@ const DataSetMetaContainer = ({
   entitySet :?EntitySet;
 |}) => {
 
+  const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
+  const entitySetId = entitySet?.id;
+  const isOwner :boolean = useSelector((store) => store.getIn([PERMISSIONS, IS_OWNER, entitySetId]));
 
   const metadata :Map = useSelector((store) => store.getIn([SHIPROOM, 'metadata']));
   const metadataRS :?RequestState = useRequestState([SHIPROOM, GET_SHIPROOM_METADATA]);
@@ -100,6 +104,10 @@ const DataSetMetaContainer = ({
       return undefined;
     }
   }, [metadata]);
+
+  useEffect(() => {
+    dispatch(getOwnerStatus(entitySetId));
+  }, [dispatch, entitySetId]);
 
   useEffect(() => {
     if (parsedColumnInfo) {
@@ -135,7 +143,7 @@ const DataSetMetaContainer = ({
   }, [atlasDataSet, entitySet, parsedColumnInfo, propertyTypesHash]);
 
   const components = useMemo(() => {
-    if (parsedColumnInfo) {
+    if (isOwner && parsedColumnInfo) {
       return {
         Row: ({ data, components: innerComponents, headers } :any) => (
           <EditableMetadataRow
@@ -147,7 +155,7 @@ const DataSetMetaContainer = ({
       };
     }
     return {};
-  }, [parsedColumnInfo]);
+  }, [isOwner, parsedColumnInfo]);
 
   if (metadataRS === RequestStates.PENDING) {
     return (
