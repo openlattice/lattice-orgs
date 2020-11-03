@@ -10,9 +10,9 @@ import type { RequestState } from 'redux-reqseq';
 
 import EditMetadataBody from './EditMetadataBody';
 import ResetOnUnmount from './ResetOnUnmount';
-import { EDIT_METADATA, editMetadata } from './actions';
 
-import { SHIPROOM } from '../../core/redux/constants';
+import { SHIPROOM } from '../../../core/redux/constants';
+import { EDIT_METADATA, editMetadata } from '../actions';
 
 const resetStatePath = [EDIT_METADATA];
 

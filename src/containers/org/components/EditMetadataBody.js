@@ -7,7 +7,7 @@ import {
   Typography,
 } from 'lattice-ui-kit';
 
-import { ModalBody, StackGrid } from '../../components';
+import { ModalBody, StackGrid } from '../../../components';
 
 type Props = {
   inputState :Object;
