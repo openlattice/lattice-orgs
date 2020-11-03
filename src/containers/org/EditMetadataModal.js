@@ -2,16 +2,23 @@
 import React, { useEffect, useState } from 'react';
 
 import { Map } from 'immutable';
-import { Modal } from 'lattice-ui-kit';
+import { ActionModal } from 'lattice-ui-kit';
+import { useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
+import { RequestStates } from 'redux-reqseq';
+import type { RequestState } from 'redux-reqseq';
 
 import EditMetadataBody from './EditMetadataBody';
-import { editMetadata } from './actions';
+import ResetOnUnmount from './ResetOnUnmount';
+import { EDIT_METADATA, editMetadata } from './actions';
+
+import { SHIPROOM } from '../../core/redux/constants';
+
+const resetStatePath = [EDIT_METADATA];
 
 type Props = {
   isVisible :boolean;
   metadata ?:Map;
-  columnInfo ?:Array<Object>;
   onClose :() => void;
   property :Object;
 };
@@ -19,11 +26,11 @@ type Props = {
 const EditMetadataModal = ({
   isVisible,
   metadata,
-  columnInfo,
   onClose,
   property,
 } :Props) => {
   const dispatch = useDispatch();
+  const requestState :?RequestState = useRequestState([SHIPROOM, EDIT_METADATA]);
   const [inputState, setInputState] = useState({
     description: '',
     title: '',
@@ -42,29 +49,40 @@ const EditMetadataModal = ({
 
   const handleSubmit = () => {
     dispatch(editMetadata({
-      columnInfo,
       inputState,
       metadata,
       property,
     }));
   };
 
+  const rsComponents = {
+    [RequestStates.STANDBY]: (
+      <EditMetadataBody inputState={inputState} onChange={handleChangeInputs} />
+    ),
+    [RequestStates.SUCCESS]: (
+      <ResetOnUnmount path={resetStatePath} message="Success!" />
+    ),
+    [RequestStates.FAILURE]: (
+      <ResetOnUnmount path={resetStatePath} message="Failed to save changes. Please try again." />
+    ),
+  };
+
   return (
-    <Modal
+    <ActionModal
+        requestState={requestState}
+        requestStateComponents={rsComponents}
         isVisible={isVisible}
         onClose={onClose}
         textPrimary="Save Changes"
-        textSecondary="Cancel"
+        textSecondary=""
         onClickPrimary={handleSubmit}
-        textTitle="Edit Property">
-      <EditMetadataBody inputState={inputState} onChange={handleChangeInputs} />
-    </Modal>
+        shouldStretchButtons
+        textTitle="Edit Property" />
   );
 };
 
 EditMetadataModal.defaultProps = {
-  metadata: Map(),
-  columnInfo: []
+  metadata: Map()
 };
 
 export default EditMetadataModal;
