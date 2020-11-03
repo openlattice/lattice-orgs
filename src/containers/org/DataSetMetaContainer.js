@@ -2,7 +2,12 @@
  * @flow
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useReducer,
+  useState
+} from 'react';
 
 import { List, Map, get } from 'immutable';
 import { AppContentWrapper, Spinner, Table } from 'lattice-ui-kit';
@@ -11,15 +16,18 @@ import {
   Logger,
   useRequestState
 } from 'lattice-utils';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { EntitySet, PropertyType, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import EditMetadataModal from './EditMetadataModal';
+import EditableMetadataRow from './EditableMetadataRow';
 import { GET_SHIPROOM_METADATA } from './actions';
 
 import { FQNS } from '../../core/edm/constants';
-import { SHIPROOM } from '../../core/redux/constants';
+import { getOwnerStatus } from '../../core/permissions/actions';
+import { IS_OWNER, PERMISSIONS, SHIPROOM } from '../../core/redux/constants';
 import { selectEntitySetPropertyTypes } from '../../core/redux/selectors';
 
 const LOG = new Logger('DataSetMetaContainer');
@@ -30,7 +38,33 @@ const TABLE_HEADERS = [
   { key: 'title', label: 'TITLE' },
   { key: 'description', label: 'DESCRIPTION' },
   { key: 'datatype', label: 'DATA TYPE' },
+  {
+    key: 'action',
+    label: '',
+    cellStyle: { width: '56px' },
+    sortable: false
+  }
 ];
+
+const INITIAL_STATE = {
+  isVisible: false,
+  selectedRowData: undefined,
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'open': {
+      return {
+        selectedRowData: action.payload,
+        isVisible: true
+      };
+    }
+    case 'close':
+      return INITIAL_STATE;
+    default:
+      return state;
+  }
+};
 
 const DataSetMetaContainer = ({
   atlasDataSet,
@@ -42,7 +76,10 @@ const DataSetMetaContainer = ({
   entitySet :?EntitySet;
 |}) => {
 
+  const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
+  const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
+  const isOwner :boolean = useSelector((store) => store.getIn([PERMISSIONS, IS_OWNER, dataSetId]));
 
   const metadata :Map = useSelector((store) => store.getIn([SHIPROOM, 'metadata']));
   const metadataRS :?RequestState = useRequestState([SHIPROOM, GET_SHIPROOM_METADATA]);
@@ -66,6 +103,10 @@ const DataSetMetaContainer = ({
       return undefined;
     }
   }, [metadata]);
+
+  useEffect(() => {
+    dispatch(getOwnerStatus(dataSetId));
+  }, [dispatch, dataSetId]);
 
   useEffect(() => {
     if (parsedColumnInfo) {
@@ -100,6 +141,23 @@ const DataSetMetaContainer = ({
     }
   }, [atlasDataSet, entitySet, parsedColumnInfo, propertyTypesHash]);
 
+  const components = useMemo(() => {
+    if (parsedColumnInfo) {
+      return {
+        Row: ({ data, components: innerComponents, headers } :any) => (
+          <EditableMetadataRow
+              components={innerComponents}
+              data={data}
+              headers={headers}
+              isOwner={isOwner}
+              key={data.id}
+              onClick={() => modalDispatch({ type: 'open', payload: data })} />
+        )
+      };
+    }
+    return {};
+  }, [isOwner, parsedColumnInfo]);
+
   if (metadataRS === RequestStates.PENDING) {
     return (
       <AppContentWrapper>
@@ -111,8 +169,14 @@ const DataSetMetaContainer = ({
   return (
     <AppContentWrapper>
       <Table
+          components={components}
           data={tableData}
           headers={TABLE_HEADERS} />
+      <EditMetadataModal
+          isVisible={modalState.isVisible}
+          metadata={metadata}
+          onClose={() => modalDispatch({ type: 'close' })}
+          property={modalState.selectedRowData} />
     </AppContentWrapper>
   );
 };
