@@ -16,6 +16,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { EntitySet, PropertyType, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import EditableMetadataRow from './EditableMetadataRow';
 import { GET_SHIPROOM_METADATA } from './actions';
 
 import { FQNS } from '../../core/edm/constants';
@@ -30,6 +31,12 @@ const TABLE_HEADERS = [
   { key: 'title', label: 'TITLE' },
   { key: 'description', label: 'DESCRIPTION' },
   { key: 'datatype', label: 'DATA TYPE' },
+  {
+    key: 'action',
+    label: '',
+    cellStyle: { width: '56px' },
+    sortable: false
+  }
 ];
 
 const DataSetMetaContainer = ({
@@ -100,6 +107,16 @@ const DataSetMetaContainer = ({
     }
   }, [atlasDataSet, entitySet, parsedColumnInfo, propertyTypesHash]);
 
+  const components = useMemo(() => ({
+    Row: ({ data, components: innerComponents, headers } :any) => (
+      <EditableMetadataRow
+          data={data}
+          components={innerComponents}
+          headers={headers}
+          onClick={() => console.log(data)} />
+    )
+  }), []);
+
   if (metadataRS === RequestStates.PENDING) {
     return (
       <AppContentWrapper>
@@ -111,6 +128,7 @@ const DataSetMetaContainer = ({
   return (
     <AppContentWrapper>
       <Table
+          components={components}
           data={tableData}
           headers={TABLE_HEADERS} />
     </AppContentWrapper>
