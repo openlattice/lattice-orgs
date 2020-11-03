@@ -21,8 +21,8 @@ import { RequestStates } from 'redux-reqseq';
 import type { EntitySet, PropertyType, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import EditMetadataModal from './EditMetadataModal';
-import EditableMetadataRow from './EditableMetadataRow';
+import EditMetadataModal from './components/EditMetadataModal';
+import EditableMetadataRow from './components/EditableMetadataRow';
 import { GET_SHIPROOM_METADATA } from './actions';
 
 import { FQNS } from '../../core/edm/constants';

@@ -7,8 +7,8 @@ import React, { useEffect } from 'react';
 import { Typography } from 'lattice-ui-kit';
 import { useDispatch } from 'react-redux';
 
-import { ModalBody } from '../../components';
-import { resetRequestState } from '../../core/redux/actions';
+import { ModalBody } from '../../../components';
+import { resetRequestState } from '../../../core/redux/actions';
 
 type Props = {
   message :string;

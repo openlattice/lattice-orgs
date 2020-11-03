@@ -36,7 +36,7 @@ const EditableMetadataRow = ({
       if (header.key === 'action' && isOwner) {
         return (
           <components.Cell key={`${id}_cell_${header.key}`}>
-            <IconButton onClick={onClick}>
+            <IconButton aria-label="edit" onClick={onClick}>
               <FontAwesomeIcon icon={faPen} />
             </IconButton>
           </components.Cell>
