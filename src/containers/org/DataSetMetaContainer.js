@@ -134,15 +134,20 @@ const DataSetMetaContainer = ({
     }
   }, [atlasDataSet, entitySet, parsedColumnInfo, propertyTypesHash]);
 
-  const components = useMemo(() => ({
-    Row: ({ data, components: innerComponents, headers } :any) => (
-      <EditableMetadataRow
-          data={data}
-          components={innerComponents}
-          headers={headers}
-          onClick={() => modalDispatch({ type: 'open', payload: data })} />
-    )
-  }), []);
+  const components = useMemo(() => {
+    if (parsedColumnInfo) {
+      return {
+        Row: ({ data, components: innerComponents, headers } :any) => (
+          <EditableMetadataRow
+              data={data}
+              components={innerComponents}
+              headers={headers}
+              onClick={() => modalDispatch({ type: 'open', payload: data })} />
+        )
+      };
+    }
+    return {};
+  }, [parsedColumnInfo]);
 
   if (metadataRS === RequestStates.PENDING) {
     return (
