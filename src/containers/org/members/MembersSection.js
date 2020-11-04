@@ -145,34 +145,31 @@ const MembersSection = ({
   const filteredMembersCount = filteredMembers.count();
   const pageMembers = filteredMembers.slice(paginationIndex, paginationIndex + MAX_PER_PAGE);
 
+  const disableAddMember = selectedRole ? false : !isOwner;
+
+  const handleAddMemberOnClick = () => {
+    if (selectedRole) {
+      setIsVisibleAssignRoleModal(true);
+    }
+    else {
+      setIsVisibleAddMemberToOrgModal(true);
+    }
+  };
+
   return (
     <MembersSectionGrid>
       <MembersSectionHeader as="h4">
         <span>{memberSectionHeader}</span>
-        {
-          isOwner && (
-            <Button
-                variant="text"
-                color="primary"
-                onClick={() => setIsVisibleAddMemberToOrgModal(true)}
-                startIcon={PlusIcon}>
-              Add Member
-            </Button>
-          )
-        }
       </MembersSectionHeader>
       <ControlsGrid>
         <SearchInput onChange={handleOnChangeMemberFilterQuery} placeholder="Filter members" />
-        {
-          selectedRole && (
-            <Button
-                color="primary"
-                onClick={() => setIsVisibleAssignRoleModal(true)}
-                startIcon={PlusIcon}>
-              Assign Role
-            </Button>
-          )
-        }
+        <Button
+            disabled={disableAddMember}
+            color="primary"
+            onClick={handleAddMemberOnClick}
+            startIcon={PlusIcon}>
+          Add Member
+        </Button>
         {
           selectedRole && (
             <Button onClick={goToRole}>Manage Role</Button>
