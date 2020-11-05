@@ -61,7 +61,7 @@ const MemberRolesContainer = ({
               onClick={handleOpen}
               organizationId={organizationId}
               role={role}
-              unassignable={isOwner} />
+              isUnassignable={isOwner} />
         ))
       }
       {

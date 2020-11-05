@@ -46,14 +46,14 @@ type Props = {
   onClick :(role :Role) => void;
   organizationId :UUID;
   role :Role;
-  unassignable :boolean;
+  isUnassignable :boolean;
 };
 
 const MemberRoleCard = ({
   onClick,
   organizationId,
   role,
-  unassignable,
+  isUnassignable,
 } :Props) => {
 
   const roleId :UUID = role.id || '';
@@ -74,7 +74,7 @@ const MemberRoleCard = ({
         </StyledLink>
       </Flex>
       {
-        unassignable && (
+        isUnassignable && (
           <IconButton aria-label="unassign-role" onClick={handleClick}>
             <FontAwesomeIcon fixedWidth icon={faTimes} />
           </IconButton>
