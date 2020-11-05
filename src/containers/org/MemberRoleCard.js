@@ -5,12 +5,10 @@ import styled from 'styled-components';
 import { faTimes } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Colors, IconButton } from 'lattice-ui-kit';
-import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import type { Role, UUID } from 'lattice';
 
 import { RoleIcon } from '../../assets/svg/icons';
-import { selectCurrentUserOrgOwner } from '../../core/redux/selectors';
 import { ORG_ID_PARAM, ORG_ROLE, ROLE_ID_PARAM } from '../../core/router/Routes';
 
 const { NEUTRAL } = Colors;
