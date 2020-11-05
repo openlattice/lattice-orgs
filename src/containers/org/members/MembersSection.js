@@ -232,7 +232,7 @@ const MembersSection = ({
               member={targetMember}
               onClose={() => setIsVisibleRemoveRoleFromMemberModal(false)}
               organizationId={organizationId}
-              roleId={(selectedRole.id :any)} />
+              role={selectedRole} />
         )
       }
       {

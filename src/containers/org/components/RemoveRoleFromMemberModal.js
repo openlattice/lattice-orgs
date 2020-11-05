@@ -9,7 +9,7 @@ import { ActionModal } from 'lattice-ui-kit';
 import { PersonUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { UUID } from 'lattice';
+import type { Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody } from '../../../components';
@@ -26,7 +26,7 @@ type Props = {
   member :any;
   onClose :() => void;
   organizationId :UUID;
-  roleId :UUID;
+  role ?:Role;
 };
 
 const RemoveRoleFromMemberModal = ({
@@ -34,18 +34,20 @@ const RemoveRoleFromMemberModal = ({
   member,
   onClose,
   organizationId,
-  roleId,
+  role,
 } :Props) => {
 
   const dispatch = useDispatch();
   const removeRoleRS :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_ROLE_FROM_MEMBER]);
   const memberLabel = getUserProfileLabel(member);
   const memberId = getUserId(member);
+  const roleId :UUID = role?.id || '';
+  const roleTitle :string = role?.title || '';
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <ModalBody>
-        <span>Are you sure you want to remove the following member from this role?</span>
+        <span>Are you sure you want to unassign this role from the following member?</span>
         <br />
         <span>{memberLabel}</span>
       </ModalBody>
@@ -87,8 +89,12 @@ const RemoveRoleFromMemberModal = ({
         onClose={handleOnClose}
         requestState={removeRoleRS}
         requestStateComponents={rsComponents}
-        textTitle="Confirm Removal" />
+        textTitle={`Unassign Role: ${roleTitle}`} />
   );
+};
+
+RemoveRoleFromMemberModal.defaultProps = {
+  role: {}
 };
 
 export default RemoveRoleFromMemberModal;

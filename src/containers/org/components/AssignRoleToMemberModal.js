@@ -71,7 +71,7 @@ const AssignRoleToMemberModal = ({
         requestState={addRoleRS}
         requestStateComponents={rsComponents}
         textPrimary="Assign"
-        textTitle={`Add Member: ${role.title}`}
+        textTitle={`Assign Role: ${role.title}`}
         viewportScrolling />
   );
 };
