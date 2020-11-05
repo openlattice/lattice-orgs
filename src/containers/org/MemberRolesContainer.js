@@ -60,7 +60,8 @@ const MemberRolesContainer = ({
               key={role.id}
               onClick={handleOpen}
               organizationId={organizationId}
-              role={role} />
+              role={role}
+              unassignable={isOwner} />
         ))
       }
       {
