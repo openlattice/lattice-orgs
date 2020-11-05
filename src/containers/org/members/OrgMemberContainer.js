@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import type { Organization, Principal, UUID } from 'lattice';
 
 import DataSetPermissionsContainer from '../DataSetPermissionsContainer';
+import MemberRolesContainer from '../MemberRolesContainer';
 import {
   CrumbItem,
   CrumbLink,
@@ -61,7 +62,7 @@ const OrgMemberContainer = ({
 
   const member :Map = useMemo(() => (
     orgMembers.find((orgMember :Map) => getSecurablePrincipalId(orgMember) === memberPrincipalId)
-  ), [organization]);
+  ), [orgMembers, memberPrincipalId]);
 
   const memberUserProfile :UserProfile = useMemo(() => (
     getUserProfile(member)
@@ -100,9 +101,17 @@ const OrgMemberContainer = ({
             <Typography gutterBottom variant="h1">{memberName}</Typography>
             <Typography variant="body1">These are the roles and data sets assigned to this member.</Typography>
             <Divider isVisible={false} margin={24} />
-            <Typography gutterBottom variant="h2">Data Sets</Typography>
+            <Typography variant="h2">Roles</Typography>
+            <Divider isVisible={false} margin={12} />
+            <MemberRolesContainer
+                member={member}
+                organizationId={organizationId}
+                roles={organization?.roles} />
+            <Divider isVisible={false} margin={12} />
+            <Typography variant="h2">Data Sets</Typography>
+            <Divider isVisible={false} margin={12} />
             <Typography variant="body1">Click on a data set to manage permissions.</Typography>
-            <Divider isVisible={false} margin={8} />
+            <Divider isVisible={false} margin={12} />
             <DataSetPermissionsContainer
                 organizationId={organizationId}
                 onSelect={setSelection}
