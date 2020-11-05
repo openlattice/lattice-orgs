@@ -26,7 +26,7 @@ type Props = {
   member :any;
   onClose :() => void;
   organizationId :UUID;
-  role ?:Role;
+  role :?Role;
 };
 
 const RemoveRoleFromMemberModal = ({
@@ -91,10 +91,6 @@ const RemoveRoleFromMemberModal = ({
         requestStateComponents={rsComponents}
         textTitle={`Unassign Role: ${roleTitle}`} />
   );
-};
-
-RemoveRoleFromMemberModal.defaultProps = {
-  role: {}
 };
 
 export default RemoveRoleFromMemberModal;
