@@ -164,8 +164,8 @@ const MembersSection = ({
       <ControlsGrid>
         <SearchInput onChange={handleOnChangeMemberFilterQuery} placeholder="Filter members" />
         <Button
-            disabled={disableAddMember}
             color="primary"
+            disabled={disableAddMember}
             onClick={handleAddMemberOnClick}
             startIcon={PlusIcon}>
           Add Member
@@ -179,9 +179,9 @@ const MembersSection = ({
       {
         filteredMembersCount > MAX_PER_PAGE && (
           <PaginationToolbar
-              page={paginationPage}
               count={filteredMembersCount}
               onPageChange={handleOnPageChange}
+              page={paginationPage}
               rowsPerPage={MAX_PER_PAGE} />
         )
       }
