@@ -15,13 +15,13 @@ const { NEUTRAL } = Colors;
 
 const RoleCard = styled.div`
   align-items: center;
+  background-color: ${NEUTRAL.N50};
   border-radius: 4px;
+  border: 1px solid ${NEUTRAL.N50};
   display: grid;
   grid-gap: 16px;
   grid-template-columns: 1fr auto;
   justify-content: space-between;
-  background-color: ${NEUTRAL.N50};
-  border: 1px solid ${NEUTRAL.N50};
   padding: 8px 24px;
 `;
 
@@ -75,7 +75,7 @@ const MemberRoleCard = ({
       </Flex>
       {
         unassignable && (
-          <IconButton onClick={handleClick}>
+          <IconButton aria-label="unassign-role" onClick={handleClick}>
             <FontAwesomeIcon fixedWidth icon={faTimes} />
           </IconButton>
         )
