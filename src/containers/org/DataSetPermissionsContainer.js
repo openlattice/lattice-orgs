@@ -11,7 +11,7 @@ import {
   Set,
   getIn,
 } from 'immutable';
-import { PaginationToolbar, Spinner, Typography } from 'lattice-ui-kit';
+import { Modal, PaginationToolbar, Spinner, Typography } from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -25,9 +25,11 @@ import type { RequestState } from 'redux-reqseq';
 
 import DataSetPermissionsCard from './DataSetPermissionsCard';
 import DataSetPermissionsModal from './DataSetPermissionsModal';
+import { AssignPermissionsToDataSetModal } from './components';
 
 import {
   ActionsGrid,
+  ModalSteps,
   PlusButton,
   SearchForm,
   StackGrid,
@@ -238,14 +240,25 @@ const DataSetPermissionsContainer = ({
           )
         }
       </StackGrid>
-      {
-        isVisibleAddDataSetModal && (
-          <DataSetPermissionsModal
-              onClose={() => setIsVisibleAddDataSetModal(false)}
-              organizationId={organizationId}
-              principal={principal} />
-        )
-      }
+      <Modal
+          isVisible={isVisibleAddDataSetModal}
+          onClose={() => setIsVisibleAddDataSetModal(false)}
+          viewportScrolling
+          withHeader={false}
+          withFooter={false}>
+        <ModalSteps>
+          {
+            ({ step, stepBack, stepNext }) => (
+              <AssignPermissionsToDataSetModal
+                  organizationId={organizationId}
+                  principal={principal}
+                  step={step}
+                  stepBack={stepBack}
+                  stepNext={stepNext} />
+            )
+          }
+        </ModalSteps>
+      </Modal>
     </>
   );
 };
