@@ -34,7 +34,7 @@ const ModalFooter = styled(LUKModalFooter)`
   padding: 30px 0;
 `;
 
-const AssignPermissionsToDataSetModal = ({
+const AssignPermissionsToDataSet = ({
   onClose,
   organizationId,
   principal,
@@ -170,4 +170,4 @@ const AssignPermissionsToDataSetModal = ({
   return null;
 };
 
-export default AssignPermissionsToDataSetModal;
+export default AssignPermissionsToDataSet;

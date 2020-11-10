@@ -29,7 +29,7 @@ import type {
 import type { RequestState } from 'redux-reqseq';
 
 import DataSetPermissionsCard from './DataSetPermissionsCard';
-import { AssignPermissionsToDataSetModal } from './components';
+import { AssignPermissionsToDataSet } from './components';
 
 import {
   ActionsGrid,
@@ -254,7 +254,7 @@ const DataSetPermissionsContainer = ({
         <ModalSteps>
           {
             ({ step, stepBack, stepNext }) => (
-              <AssignPermissionsToDataSetModal
+              <AssignPermissionsToDataSet
                   onClose={() => setIsVisibleAddDataSetModal(false)}
                   organizationId={organizationId}
                   principal={principal}
