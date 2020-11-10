@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useCallback, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import styled from 'styled-components';
 import {
@@ -59,7 +59,7 @@ const AssignPermissionsToDataSet = ({
 
   const assignPermissionsToDataSetRS :?RequestState = useRequestState([PERMISSIONS, ASSIGN_PERMISSIONS_TO_DATA_SET]);
 
-  const onCleanUp = useCallback(() => {
+  useEffect(() => () => {
     dispatch(clearSearchState(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
     dispatch(resetRequestState([ASSIGN_PERMISSIONS_TO_DATA_SET]));
   }, [dispatch]);
@@ -79,7 +79,7 @@ const AssignPermissionsToDataSet = ({
     return (
       <>
         <ModalHeader onClickClose={onClose} textTitle="Assign Permissions To Data Set" />
-        <ModalBody onCleanUp={onCleanUp}>
+        <ModalBody>
           <StepSelectDataSet
               organizationId={organizationId}
               setTargetDataSetId={setTargetDataSetId}
@@ -100,7 +100,7 @@ const AssignPermissionsToDataSet = ({
     return (
       <>
         <ModalHeader onClickClose={onClose} textTitle="Assign Permissions To Data Set" />
-        <ModalBody onCleanUp={onCleanUp}>
+        <ModalBody>
           <StepSelectPermissions
               setTargetPermissionOptions={setTargetPermissionOptions}
               targetDataSetTitle={targetDataSetTitle}
@@ -120,7 +120,7 @@ const AssignPermissionsToDataSet = ({
     return (
       <>
         <ModalHeader onClickClose={onClose} textTitle="Assign Permissions To Data Set" />
-        <ModalBody onCleanUp={onCleanUp}>
+        <ModalBody>
           <StepSelectProperties
               assignPermissionsToAllProperties={assignPermissionsToAllProperties}
               setAssignPermissionsToAllProperties={setAssignPermissionsToAllProperties}
@@ -149,7 +149,7 @@ const AssignPermissionsToDataSet = ({
     return (
       <>
         <ModalHeader onClickClose={onClose} textTitle="Assign Permissions To Data Set" />
-        <ModalBody onCleanUp={onCleanUp}>
+        <ModalBody>
           <StepConfirm
               assignPermissionsToAllProperties={assignPermissionsToAllProperties}
               assignPermissionsToDataSetRS={assignPermissionsToDataSetRS}
