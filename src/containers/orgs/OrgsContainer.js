@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 
 import { faPlus } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -19,6 +19,12 @@ import type { Organization, UUID } from 'lattice';
 
 import { ActionsGrid, Header, SimpleOrganizationCard } from '../../components';
 import { ORGANIZATIONS, ORGS } from '../../core/redux/constants';
+import {
+  FILTER,
+  INITIAL_PAGINATION_STATE,
+  PAGE,
+  paginationReducer,
+} from '../../utils/stateReducers/pagination';
 import { CreateOrgModal } from '../org/components';
 
 const MAX_PER_PAGE = 10;
@@ -30,27 +36,24 @@ const PlusIcon = (
 const OrgsContainer = () => {
 
   const [isVisibleAddOrgModal, setIsVisibleCreateOrgModal] = useState(false);
-  const [orgFilterQuery, setOrgFilterQuery] = useState('');
-  const [paginationIndex, setPaginationIndex] = useState(0);
-  const [paginationPage, setPaginationPage] = useState(0);
+  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
 
   const organizations :Map<UUID, Organization> = useSelector((s) => s.getIn([ORGANIZATIONS, ORGS]));
   const filteredOrganizations = organizations.filter((org :Organization, orgId :UUID) => (
-    org && (orgFilterQuery === orgId || org.title.toLowerCase().includes(orgFilterQuery.toLowerCase()))
+    org && (paginationState.query === orgId || org.title.toLowerCase().includes(paginationState.query.toLowerCase()))
   ));
   const filteredOrganizationsCount = filteredOrganizations.count();
   const pageOrganizations :Map<UUID, Organization> = filteredOrganizations.slice(
-    paginationIndex,
-    paginationIndex + MAX_PER_PAGE,
+    paginationState.start,
+    paginationState.start + MAX_PER_PAGE,
   );
 
   const handleOnChangeOrgFilter = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    setOrgFilterQuery(event.target.value || '');
+    paginationDispatch({ type: FILTER, query: event.target.value || '' });
   };
 
   const handleOnPageChange = ({ page, start }) => {
-    setPaginationIndex(start);
-    setPaginationPage(page);
+    paginationDispatch({ type: PAGE, page, start });
   };
 
   return (
@@ -74,7 +77,7 @@ const OrgsContainer = () => {
               {
                 filteredOrganizationsCount > MAX_PER_PAGE && (
                   <PaginationToolbar
-                      page={paginationPage}
+                      page={paginationState.page}
                       count={filteredOrganizationsCount}
                       onPageChange={handleOnPageChange}
                       rowsPerPage={MAX_PER_PAGE} />

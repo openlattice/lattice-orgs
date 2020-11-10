@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 
 import styled from 'styled-components';
 import {
@@ -61,6 +61,12 @@ import {
   clearSearchState,
   searchDataSetsToFilter as searchDataSets,
 } from '../../core/search/actions';
+import {
+  FILTER,
+  INITIAL_PAGINATION_STATE,
+  PAGE,
+  paginationReducer,
+} from '../../utils/stateReducers/pagination';
 import type { PermissionSelection } from '../../types';
 
 const { isNonEmptyString } = LangUtils;
@@ -88,8 +94,7 @@ const DataSetPermissionsContainer = ({
   const dispatch = useDispatch();
   const [isVisibleAddDataSetModal, setIsVisibleAddDataSetModal] = useState(false);
   const [keys, setKeys] = useState(List());
-  const [paginationIndex, setPaginationIndex] = useState(0);
-  const [paginationPage, setPaginationPage] = useState(0);
+  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
 
   const getDataSetPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_DATA_SET_PERMISSIONS]);
   const getPageDataSetPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_PAGE_DATA_SET_PERMISSIONS]);
@@ -104,7 +109,8 @@ const DataSetPermissionsContainer = ({
 
   const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, principal));
   const permissionsCount :number = permissions.count();
-  const pagePermissions :Map<List<UUID>, Ace> = permissions.slice(paginationIndex, paginationIndex + MAX_PER_PAGE);
+  const pagePermissions :Map<List<UUID>, Ace> = permissions
+    .slice(paginationState.start, paginationState.start + MAX_PER_PAGE);
   const pageDataSetIds :List<UUID> = pagePermissions.keySeq().flatten().toSet();
   const pageDataSetIdsHash :number = pageDataSetIds.hashCode();
   const pageAtlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets(pageDataSetIds));
@@ -183,14 +189,12 @@ const DataSetPermissionsContainer = ({
   };
 
   const handleOnPageChange = ({ page, start }) => {
-    setPaginationIndex(start);
-    setPaginationPage(page);
+    paginationDispatch({ type: PAGE, page, start });
     onSelect();
   };
 
   const handleOnSubmitDataSetQuery = (query :string) => {
-    setPaginationIndex(0);
-    setPaginationPage(0);
+    paginationDispatch({ type: FILTER, query });
     onSelect();
     dispatchDataSetSearch(query);
   };
@@ -214,7 +218,7 @@ const DataSetPermissionsContainer = ({
           <PaginationToolbar
               count={permissionsCount}
               onPageChange={handleOnPageChange}
-              page={paginationPage}
+              page={paginationState.page}
               rowsPerPage={MAX_PER_PAGE} />
         }
         {
