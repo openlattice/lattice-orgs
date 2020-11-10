@@ -2,25 +2,28 @@
  * @flow
  */
 
-import React, { useCallback, useEffect, useReducer } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import styled from 'styled-components';
-import { List, Map, Set } from 'immutable';
 import {
   ModalFooter as LUKModalFooter,
   ModalHeader as LUKModalHeader,
 } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { UUID } from 'lattice';
+import type { Principal, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import StepConfirm from './StepConfirm';
 import StepSelectDataSet from './StepSelectDataSet';
+import StepSelectPermissions from './StepSelectPermissions';
+import StepSelectProperties from './StepSelectProperties';
 
 import { ModalBody } from '../../../../components';
-import { ASSIGN_PERMISSIONS_TO_DATA_SET } from '../../../../core/permissions/actions';
+import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../../../core/permissions/actions';
 import { resetRequestState } from '../../../../core/redux/actions';
+import { PERMISSIONS } from '../../../../core/redux/constants';
 import { SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS, clearSearchState } from '../../../../core/search/actions';
 
 const ModalHeader = styled(LUKModalHeader)`
@@ -32,12 +35,16 @@ const ModalFooter = styled(LUKModalFooter)`
 `;
 
 const AssignPermissionsToDataSetModal = ({
+  onClose,
   organizationId,
+  principal,
   step,
   stepBack,
   stepNext,
 } :{
+  onClose :() => void;
   organizationId :UUID;
+  principal :Principal;
   step :number;
   stepBack :() => void;
   stepNext :() => void;
@@ -45,39 +52,122 @@ const AssignPermissionsToDataSetModal = ({
 
   const dispatch = useDispatch();
 
+  const [assignPermissionsToAllProperties, setAssignPermissionsToAllProperties] = useState(true);
+  const [targetDataSetId, setTargetDataSetId] = useState('');
+  const [targetDataSetTitle, setTargetDataSetTitle] = useState('');
+  const [targetPermissionOptions, setTargetPermissionOptions] = useState([]);
+
+  const assignPermissionsToDataSetRS :?RequestState = useRequestState([PERMISSIONS, ASSIGN_PERMISSIONS_TO_DATA_SET]);
+
   const onCleanUp = useCallback(() => {
     dispatch(clearSearchState(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
     dispatch(resetRequestState([ASSIGN_PERMISSIONS_TO_DATA_SET]));
   }, [dispatch]);
 
-  let stepComponent;
-  if (step === 0) {
-    stepComponent = <StepSelectDataSet organizationId={organizationId} />;
-  }
-  // else if (step === 1) {
-  //   stepComponent = <StepSelectPermissions />;
-  // }
-  // else if (step === 2) {
-  //   stepComponent = <StepSelectProperties />;
-  // }
-  // else if (step === 3) {
-  //   stepComponent = <StepConfirm />;
-  // }
+  const onConfirm = () => {
+    dispatch(
+      assignPermissionsToDataSet({
+        principal,
+        dataSetId: targetDataSetId,
+        permissionTypes: targetPermissionOptions.map((option) => option.value),
+        withProperties: assignPermissionsToAllProperties,
+      })
+    );
+  };
 
-  return (
-    <>
-      <ModalHeader textTitle="Assign Permissions To Data Set" />
-      <ModalBody onCleanUp={onCleanUp}>
-        <div>{stepComponent}</div>
-      </ModalBody>
-      <ModalFooter
-          onClickPrimary={stepNext}
-          onClickSecondary={stepBack}
-          shouldStretchButtons
-          textPrimary="Primary"
-          textSecondary="Secondary" />
-    </>
-  );
+  if (step === 0) {
+    return (
+      <>
+        <ModalHeader onClickClose={onClose} textTitle="Assign Permissions To Data Set" />
+        <ModalBody onCleanUp={onCleanUp}>
+          <StepSelectDataSet
+              organizationId={organizationId}
+              setTargetDataSetId={setTargetDataSetId}
+              setTargetDataSetTitle={setTargetDataSetTitle}
+              targetDataSetId={targetDataSetId} />
+        </ModalBody>
+        <ModalFooter
+            onClickPrimary={stepNext}
+            onClickSecondary={stepBack}
+            shouldStretchButtons
+            textPrimary="Continue"
+            textSecondary="" />
+      </>
+    );
+  }
+
+  if (step === 1) {
+    return (
+      <>
+        <ModalHeader onClickClose={onClose} textTitle="Assign Permissions To Data Set" />
+        <ModalBody onCleanUp={onCleanUp}>
+          <StepSelectPermissions
+              setTargetPermissionOptions={setTargetPermissionOptions}
+              targetDataSetTitle={targetDataSetTitle}
+              targetPermissionOptions={targetPermissionOptions} />
+        </ModalBody>
+        <ModalFooter
+            onClickPrimary={stepNext}
+            onClickSecondary={stepBack}
+            shouldStretchButtons
+            textPrimary="Continue"
+            textSecondary="Back" />
+      </>
+    );
+  }
+
+  if (step === 2) {
+    return (
+      <>
+        <ModalHeader onClickClose={onClose} textTitle="Assign Permissions To Data Set" />
+        <ModalBody onCleanUp={onCleanUp}>
+          <StepSelectProperties
+              assignPermissionsToAllProperties={assignPermissionsToAllProperties}
+              setAssignPermissionsToAllProperties={setAssignPermissionsToAllProperties}
+              targetDataSetTitle={targetDataSetTitle}
+              targetPermissionOptions={targetPermissionOptions} />
+        </ModalBody>
+        <ModalFooter
+            onClickPrimary={stepNext}
+            onClickSecondary={stepBack}
+            shouldStretchButtons
+            textPrimary="Continue"
+            textSecondary="Back" />
+      </>
+    );
+  }
+
+  if (step === 3) {
+    let onClickPrimary = onConfirm;
+    let textPrimary = 'Confirm';
+    let textSecondary = 'Back';
+    if (assignPermissionsToDataSetRS === RequestStates.SUCCESS) {
+      textPrimary = 'Close';
+      textSecondary = '';
+      onClickPrimary = onClose;
+    }
+    return (
+      <>
+        <ModalHeader onClickClose={onClose} textTitle="Assign Permissions To Data Set" />
+        <ModalBody onCleanUp={onCleanUp}>
+          <StepConfirm
+              assignPermissionsToAllProperties={assignPermissionsToAllProperties}
+              assignPermissionsToDataSetRS={assignPermissionsToDataSetRS}
+              targetDataSetTitle={targetDataSetTitle}
+              targetPermissionOptions={targetPermissionOptions} />
+        </ModalBody>
+        <ModalFooter
+            isPendingPrimary={assignPermissionsToDataSetRS === RequestStates.PENDING}
+            onClickPrimary={onClickPrimary}
+            onClickSecondary={stepBack}
+            shouldStretchButtons
+            textPrimary={textPrimary}
+            textSecondary={textSecondary} />
+      </>
+    );
+  }
+
+  return null;
 };
 
 export default AssignPermissionsToDataSetModal;

@@ -24,7 +24,6 @@ import type {
 import type { RequestState } from 'redux-reqseq';
 
 import DataSetPermissionsCard from './DataSetPermissionsCard';
-import DataSetPermissionsModal from './DataSetPermissionsModal';
 import { AssignPermissionsToDataSetModal } from './components';
 
 import {
@@ -178,10 +177,6 @@ const DataSetPermissionsContainer = ({
     }
   };
 
-  const handleOnClickAddDataSet = () => {
-    setIsVisibleAddDataSetModal(true);
-  };
-
   const handleOnPageChange = ({ page, start }) => {
     setPaginationIndex(start);
     setPaginationPage(page);
@@ -206,7 +201,7 @@ const DataSetPermissionsContainer = ({
       <StackGrid>
         <ActionsGrid>
           <SearchForm onSubmit={handleOnSubmitDataSetQuery} searchRequestState={searchDataSetsRS} />
-          <PlusButton aria-label="add data set" onClick={handleOnClickAddDataSet}>
+          <PlusButton aria-label="add data set" onClick={() => setIsVisibleAddDataSetModal(true)}>
             <Typography component="span">Add Data Set</Typography>
           </PlusButton>
         </ActionsGrid>
@@ -242,14 +237,16 @@ const DataSetPermissionsContainer = ({
       </StackGrid>
       <Modal
           isVisible={isVisibleAddDataSetModal}
-          onClose={() => setIsVisibleAddDataSetModal(false)}
+          onClose={() => {}}
+          shouldCloseOnOutsideClick={false}
           viewportScrolling
-          withHeader={false}
-          withFooter={false}>
+          withFooter={false}
+          withHeader={false}>
         <ModalSteps>
           {
             ({ step, stepBack, stepNext }) => (
               <AssignPermissionsToDataSetModal
+                  onClose={() => setIsVisibleAddDataSetModal(false)}
                   organizationId={organizationId}
                   principal={principal}
                   step={step}
