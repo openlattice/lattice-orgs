@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 
 import styled from 'styled-components';
 import { faTimes } from '@fortawesome/pro-light-svg-icons';
@@ -27,6 +27,7 @@ import { Header } from '../../../components';
 import { Routes } from '../../../core/router';
 import { goToRoute } from '../../../core/router/actions';
 import { getSecurablePrincipalId, getUserProfileLabel } from '../../../utils/PersonUtils';
+import { INITIAL_PAGINATION_STATE, paginationReducer } from '../../../utils/stateReducers/pagination';
 import { RemoveMemberFromOrgModal, RemoveRoleFromMemberModal } from '../components';
 import { filterOrganizationMember, isRoleAssignedToMember } from '../utils';
 
@@ -94,9 +95,7 @@ const MembersSection = ({
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
   const [isVisibleAddMemberToOrgModal, setIsVisibleAddMemberToOrgModal] = useState(false);
   const [isVisibleAssignRoleModal, setIsVisibleAssignRoleModal] = useState(false);
-  const [memberFilterQuery, setMemberFilterQuery] = useState('');
-  const [paginationIndex, setPaginationIndex] = useState(0);
-  const [paginationPage, setPaginationPage] = useState(0);
+  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
   const [targetMember, setTargetMember] = useState();
 
   const handleOnClickRemoveMember = (member :Map) => {
@@ -110,14 +109,11 @@ const MembersSection = ({
   };
 
   const handleOnChangeMemberFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    setPaginationIndex(0);
-    setPaginationPage(0);
-    setMemberFilterQuery(event.target.value || '');
+    paginationDispatch({ type: 'filter', query: event.target.value || '' });
   };
 
   const handleOnPageChange = ({ page, start }) => {
-    setPaginationIndex(start);
-    setPaginationPage(page);
+    paginationDispatch({ type: 'page', page, start });
   };
 
   const goToRole = () => {
@@ -139,11 +135,11 @@ const MembersSection = ({
     filteredMembers = filteredMembers.filter((member) => isRoleAssignedToMember(member, selectedRole.id));
     memberSectionHeader = selectedRole.title;
   }
-  if (memberFilterQuery) {
-    filteredMembers = filteredMembers.filter((member) => filterOrganizationMember(member, memberFilterQuery));
+  if (paginationState.query) {
+    filteredMembers = filteredMembers.filter((member) => filterOrganizationMember(member, paginationState.query));
   }
   const filteredMembersCount = filteredMembers.count();
-  const pageMembers = filteredMembers.slice(paginationIndex, paginationIndex + MAX_PER_PAGE);
+  const pageMembers = filteredMembers.slice(paginationState.start, paginationState.start + MAX_PER_PAGE);
 
   const disableAddMember = selectedRole ? false : !isOwner;
 
@@ -181,7 +177,7 @@ const MembersSection = ({
           <PaginationToolbar
               count={filteredMembersCount}
               onPageChange={handleOnPageChange}
-              page={paginationPage}
+              page={paginationState.page}
               rowsPerPage={MAX_PER_PAGE} />
         )
       }
