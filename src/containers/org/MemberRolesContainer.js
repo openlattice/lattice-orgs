@@ -2,6 +2,7 @@
 import React, { useMemo, useReducer } from 'react';
 
 import { Map } from 'immutable';
+import { PaginationToolbar, SearchInput } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 
@@ -11,6 +12,9 @@ import { isRoleAssignedToMember } from './utils';
 
 import { StackGrid } from '../../components';
 import { selectCurrentUserOrgOwner } from '../../core/redux/selectors';
+import { INITIAL_PAGINATION_STATE, paginationReducer } from '../../utils/stateReducers/pagination';
+
+const MAX_PER_PAGE = 10;
 
 const INITIAL_STATE :{ isVisible :boolean, selectedRole ?:Role } = {
   isVisible: false,
@@ -46,14 +50,35 @@ const MemberRolesContainer = ({
 
   const isOwner :boolean = useSelector(selectCurrentUserOrgOwner(organizationId));
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
+  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
 
-  const filteredRoles = useMemo(() => roles.filter((role) => isRoleAssignedToMember(member, role.id)), [member, roles]);
+  const filteredRoles = useMemo(() => roles
+    .filter((role) => (isRoleAssignedToMember(member, role.id))
+      && role.title.toLowerCase().includes(paginationState.query.toLowerCase())), [
+    member,
+    paginationState.query,
+    roles,
+  ]);
+
+  const handleOnChangeFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
+    paginationDispatch({ type: 'filter', query: event.target.value || '' });
+  };
+
+  const handleOnPageChange = ({ page, start }) => {
+    paginationDispatch({ type: 'page', page, start });
+  };
 
   const handleOpen = (payload) => modalDispatch({ type: 'open', payload });
   const handleClose = () => modalDispatch({ type: 'close' });
 
   return (
     <StackGrid>
+      <SearchInput onChange={handleOnChangeFilterQuery} placeholder="Filter roles" />
+      <PaginationToolbar
+          count={filteredRoles.length}
+          onPageChange={handleOnPageChange}
+          page={paginationState.page}
+          rowsPerPage={MAX_PER_PAGE} />
       {
         filteredRoles.map((role) => (
           <MemberRoleCard
