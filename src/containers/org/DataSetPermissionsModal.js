@@ -135,7 +135,7 @@ const DataSetPermissionsModal = ({
   };
 
   const dispatchDataSetSearch = (params :{ page ?:number, query ?:string, start ?:number } = {}) => {
-    const { page = 0, query = searchQuery, start = 0 } = params;
+    const { page = 1, query = searchQuery, start = 0 } = params;
     if (isNonEmptyString(query)) {
       dispatch(
         searchDataSetsToAssignPermissions({
