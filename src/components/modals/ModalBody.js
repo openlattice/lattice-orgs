@@ -18,7 +18,7 @@ const ModalBody = ({
   width,
 } :{|
   children :any;
-  onCleanUp :() => void;
+  onCleanUp ?:() => void;
   width ?:number;
 |}) => {
 
@@ -36,6 +36,7 @@ const ModalBody = ({
 };
 
 ModalBody.defaultProps = {
+  onCleanUp: undefined,
   width: 720,
 };
 

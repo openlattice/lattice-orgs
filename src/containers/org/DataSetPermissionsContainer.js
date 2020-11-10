@@ -11,7 +11,12 @@ import {
   Set,
   getIn,
 } from 'immutable';
-import { Modal, PaginationToolbar, Spinner, Typography } from 'lattice-ui-kit';
+import {
+  Modal,
+  PaginationToolbar,
+  Spinner,
+  Typography,
+} from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';

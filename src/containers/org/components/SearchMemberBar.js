@@ -25,7 +25,7 @@ import type { ReactSelectOption } from '../../../types';
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 type Props = {
-  onChange :(option :?ReactSelectOption) => void;
+  onChange :(option :?ReactSelectOption<string>) => void;
 };
 
 const SearchMemberBar = ({ onChange } :Props) => {
