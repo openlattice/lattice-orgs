@@ -33,10 +33,10 @@ import { AssignPermissionsToDataSet } from './components';
 
 import {
   ActionsGrid,
-  ModalSteps,
   PlusButton,
   SearchForm,
   StackGrid,
+  StepsController,
 } from '../../components';
 import {
   GET_DATA_SET_PERMISSIONS,
@@ -251,7 +251,7 @@ const DataSetPermissionsContainer = ({
           viewportScrolling
           withFooter={false}
           withHeader={false}>
-        <ModalSteps>
+        <StepsController>
           {
             ({ step, stepBack, stepNext }) => (
               <AssignPermissionsToDataSet
@@ -263,7 +263,7 @@ const DataSetPermissionsContainer = ({
                   stepNext={stepNext} />
             )
           }
-        </ModalSteps>
+        </StepsController>
       </Modal>
     </>
   );

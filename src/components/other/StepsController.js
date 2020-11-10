@@ -29,17 +29,17 @@ const reducer = (state = INITIAL_STATE, action) => {
   }
 };
 
-const ModalSteps = ({
+const StepsController = ({
   children,
 } :{
   children :any;
 }) => {
-  const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
+  const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   return children({
-    step: modalState.step,
-    stepBack: () => modalDispatch({ type: STEP_BACK }),
-    stepNext: () => modalDispatch({ type: STEP_NEXT }),
+    step: state.step,
+    stepBack: () => dispatch({ type: STEP_BACK }),
+    stepNext: () => dispatch({ type: STEP_NEXT }),
   });
 };
 
-export default ModalSteps;
+export default StepsController;
