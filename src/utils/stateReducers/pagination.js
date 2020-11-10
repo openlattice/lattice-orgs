@@ -1,23 +1,37 @@
-const INITIAL_PAGINATION_STATE = {
-  page: 1,
-  start: 0,
-  query: ''
+// @flow
+
+type State = {|
+  page :number;
+  query :string;
+  start :number;
+|};
+
+type Action = {
+  page ?:number;
+  query ?:string;
+  start ?:number;
+  type :string;
 };
 
-const paginationReducer = (state, action) => {
+const INITIAL_PAGINATION_STATE :State = {
+  page: 1,
+  query: '',
+  start: 0,
+};
+
+const paginationReducer = (state :State, action :Action) => {
   switch (action.type) {
     case 'page': {
       return {
         ...state,
-        page: action.page,
-        start: action.start,
+        page: action.page || INITIAL_PAGINATION_STATE.page,
+        start: action.start || INITIAL_PAGINATION_STATE.start,
       };
     }
     case 'filter': {
       return {
-        page: 1,
-        query: action.query,
-        start: 0,
+        ...INITIAL_PAGINATION_STATE,
+        query: action.query || INITIAL_PAGINATION_STATE.query,
       };
     }
     case 'reset':
