@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { AssignPermissionsToDataSetModal } from './assign-permissions-to-data-set';
+import { AssignPermissionsToDataSetModal } from './assign-permissions-to-data-set-modal';
 
 export { default as AddRoleToOrgModal } from './AddRoleToOrgModal';
 export { default as CreateOrgModal } from './CreateOrgModal';
