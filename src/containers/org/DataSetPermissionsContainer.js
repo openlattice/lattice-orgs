@@ -55,7 +55,12 @@ import {
   clearSearchState,
   searchDataSetsToFilter as searchDataSets,
 } from '../../core/search/actions';
-import { INITIAL_PAGINATION_STATE, paginationReducer } from '../../utils/stateReducers/pagination';
+import {
+  FILTER,
+  INITIAL_PAGINATION_STATE,
+  PAGE,
+  paginationReducer,
+} from '../../utils/stateReducers/pagination';
 import type { PermissionSelection } from '../../types';
 
 const { isNonEmptyString } = LangUtils;
@@ -182,12 +187,12 @@ const DataSetPermissionsContainer = ({
   };
 
   const handleOnPageChange = ({ page, start }) => {
-    paginationDispatch({ type: 'page', page, start });
+    paginationDispatch({ type: PAGE, page, start });
     onSelect();
   };
 
   const handleOnSubmitDataSetQuery = (query :string) => {
-    paginationDispatch({ type: 'reset' });
+    paginationDispatch({ type: FILTER, query });
     onSelect();
     dispatchDataSetSearch(query);
   };

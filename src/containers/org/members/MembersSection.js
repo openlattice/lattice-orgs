@@ -27,7 +27,12 @@ import { Header } from '../../../components';
 import { Routes } from '../../../core/router';
 import { goToRoute } from '../../../core/router/actions';
 import { getSecurablePrincipalId, getUserProfileLabel } from '../../../utils/PersonUtils';
-import { INITIAL_PAGINATION_STATE, paginationReducer } from '../../../utils/stateReducers/pagination';
+import {
+  FILTER,
+  INITIAL_PAGINATION_STATE,
+  PAGE,
+  paginationReducer,
+} from '../../../utils/stateReducers/pagination';
 import { RemoveMemberFromOrgModal, RemoveRoleFromMemberModal } from '../components';
 import { filterOrganizationMember, isRoleAssignedToMember } from '../utils';
 
@@ -109,11 +114,11 @@ const MembersSection = ({
   };
 
   const handleOnChangeMemberFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    paginationDispatch({ type: 'filter', query: event.target.value || '' });
+    paginationDispatch({ type: FILTER, query: event.target.value || '' });
   };
 
   const handleOnPageChange = ({ page, start }) => {
-    paginationDispatch({ type: 'page', page, start });
+    paginationDispatch({ type: PAGE, page, start });
   };
 
   const goToRole = () => {

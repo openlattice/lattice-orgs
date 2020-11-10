@@ -19,7 +19,12 @@ import type { Organization, UUID } from 'lattice';
 
 import { ActionsGrid, Header, SimpleOrganizationCard } from '../../components';
 import { ORGANIZATIONS, ORGS } from '../../core/redux/constants';
-import { INITIAL_PAGINATION_STATE, paginationReducer } from '../../utils/stateReducers/pagination';
+import {
+  FILTER,
+  INITIAL_PAGINATION_STATE,
+  PAGE,
+  paginationReducer,
+} from '../../utils/stateReducers/pagination';
 import { CreateOrgModal } from '../org/components';
 
 const MAX_PER_PAGE = 10;
@@ -44,11 +49,11 @@ const OrgsContainer = () => {
   );
 
   const handleOnChangeOrgFilter = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    paginationDispatch({ type: 'filter', query: event.target.value || '' });
+    paginationDispatch({ type: FILTER, query: event.target.value || '' });
   };
 
   const handleOnPageChange = ({ page, start }) => {
-    paginationDispatch({ type: 'page', page, start });
+    paginationDispatch({ type: PAGE, page, start });
   };
 
   return (

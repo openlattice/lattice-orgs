@@ -12,9 +12,13 @@ import { isRoleAssignedToMember } from './utils';
 
 import { StackGrid } from '../../components';
 import { selectCurrentUserOrgOwner } from '../../core/redux/selectors';
-import { INITIAL_PAGINATION_STATE, paginationReducer } from '../../utils/stateReducers/pagination';
-
-const MAX_PER_PAGE = 10;
+import { MAX_HITS_10 } from '../../core/search/constants';
+import {
+  FILTER,
+  INITIAL_PAGINATION_STATE,
+  PAGE,
+  paginationReducer,
+} from '../../utils/stateReducers/pagination';
 
 const INITIAL_STATE :{ isVisible :boolean, selectedRole ?:Role } = {
   isVisible: false,
@@ -52,20 +56,23 @@ const MemberRolesContainer = ({
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
 
-  const filteredRoles = useMemo(() => roles
-    .filter((role) => (isRoleAssignedToMember(member, role.id))
-      && role.title.toLowerCase().includes(paginationState.query.toLowerCase())), [
+  const filteredRoles = useMemo(() => (
+    roles.filter((role) => (
+      isRoleAssignedToMember(member, role.id)
+      && role.title.toLowerCase().includes(paginationState.query.toLowerCase())
+    ))
+  ), [
     member,
     paginationState.query,
     roles,
   ]);
 
   const handleOnChangeFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    paginationDispatch({ type: 'filter', query: event.target.value || '' });
+    paginationDispatch({ type: FILTER, query: event.target.value || '' });
   };
 
   const handleOnPageChange = ({ page, start }) => {
-    paginationDispatch({ type: 'page', page, start });
+    paginationDispatch({ type: PAGE, page, start });
   };
 
   const handleOpen = (payload) => modalDispatch({ type: 'open', payload });
@@ -78,7 +85,7 @@ const MemberRolesContainer = ({
           count={filteredRoles.length}
           onPageChange={handleOnPageChange}
           page={paginationState.page}
-          rowsPerPage={MAX_PER_PAGE} />
+          rowsPerPage={MAX_HITS_10} />
       {
         filteredRoles.map((role) => (
           <MemberRoleCard
