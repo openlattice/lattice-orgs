@@ -1,4 +1,7 @@
 // @flow
+const FILTER = 'filter';
+const PAGE = 'page';
+const RESET = 'reset';
 
 type State = {|
   page :number;
@@ -6,12 +9,12 @@ type State = {|
   start :number;
 |};
 
-type Action = {
+type Action = {|
   page ?:number;
   query ?:string;
   start ?:number;
-  type :string;
-};
+  type :'filter' | 'page' | 'reset';
+|};
 
 const INITIAL_PAGINATION_STATE :State = {
   page: 1,
@@ -21,20 +24,20 @@ const INITIAL_PAGINATION_STATE :State = {
 
 const paginationReducer = (state :State, action :Action) => {
   switch (action.type) {
-    case 'page': {
+    case PAGE: {
       return {
         ...state,
         page: action.page || INITIAL_PAGINATION_STATE.page,
         start: action.start || INITIAL_PAGINATION_STATE.start,
       };
     }
-    case 'filter': {
+    case FILTER: {
       return {
         ...INITIAL_PAGINATION_STATE,
         query: action.query || INITIAL_PAGINATION_STATE.query,
       };
     }
-    case 'reset':
+    case RESET:
       return INITIAL_PAGINATION_STATE;
     default:
       return state;
@@ -42,6 +45,9 @@ const paginationReducer = (state :State, action :Action) => {
 };
 
 export {
+  FILTER,
   INITIAL_PAGINATION_STATE,
-  paginationReducer
+  PAGE,
+  RESET,
+  paginationReducer,
 };
