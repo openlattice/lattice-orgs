@@ -79,6 +79,8 @@ const SpinnerWrapper = styled.div`
   flex-direction: column;
 `;
 
+const noop = () => {};
+
 const DataSetPermissionsContainer = ({
   onSelect,
   organizationId,
@@ -246,7 +248,7 @@ const DataSetPermissionsContainer = ({
       </StackGrid>
       <Modal
           isVisible={isVisibleAddDataSetModal}
-          onClose={() => {}}
+          onClose={noop}
           shouldCloseOnOutsideClick={false}
           viewportScrolling
           withFooter={false}
