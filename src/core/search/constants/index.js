@@ -23,7 +23,7 @@ const MAX_HITS_10000 :10000 = 10000;
 const INITIAL_STATE_SEARCH = Map({
   [ERROR]: false,
   [HITS]: List(),
-  [PAGE]: 0,
+  [PAGE]: 1,
   [QUERY]: '',
   [REQUEST_STATE]: RequestStates.STANDBY,
   [TOTAL_HITS]: 0,
