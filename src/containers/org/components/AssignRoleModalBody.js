@@ -32,7 +32,7 @@ const AssignRoleModalBody = ({ onChange, members } :Props) => {
     return options;
   }, [members, thisUserId]);
 
-  const handleChange = (option :?ReactSelectOption) => {
+  const handleChange = (option :?ReactSelectOption<string>) => {
     onChange(option?.value);
   };
 

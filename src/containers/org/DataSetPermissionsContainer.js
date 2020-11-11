@@ -11,7 +11,12 @@ import {
   Set,
   getIn,
 } from 'immutable';
-import { PaginationToolbar, Spinner, Typography } from 'lattice-ui-kit';
+import {
+  Modal,
+  PaginationToolbar,
+  Spinner,
+  Typography,
+} from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -24,13 +29,14 @@ import type {
 import type { RequestState } from 'redux-reqseq';
 
 import DataSetPermissionsCard from './DataSetPermissionsCard';
-import DataSetPermissionsModal from './DataSetPermissionsModal';
+import { AssignPermissionsToDataSet } from './components';
 
 import {
   ActionsGrid,
   PlusButton,
   SearchForm,
   StackGrid,
+  StepsController,
 } from '../../components';
 import {
   GET_DATA_SET_PERMISSIONS,
@@ -72,6 +78,8 @@ const SpinnerWrapper = styled.div`
   display: flex;
   flex-direction: column;
 `;
+
+const noop = () => {};
 
 const DataSetPermissionsContainer = ({
   onSelect,
@@ -182,10 +190,6 @@ const DataSetPermissionsContainer = ({
     }
   };
 
-  const handleOnClickAddDataSet = () => {
-    setIsVisibleAddDataSetModal(true);
-  };
-
   const handleOnPageChange = ({ page, start }) => {
     paginationDispatch({ type: PAGE, page, start });
     onSelect();
@@ -208,7 +212,7 @@ const DataSetPermissionsContainer = ({
       <StackGrid>
         <ActionsGrid>
           <SearchForm onSubmit={handleOnSubmitDataSetQuery} searchRequestState={searchDataSetsRS} />
-          <PlusButton aria-label="add data set" onClick={handleOnClickAddDataSet}>
+          <PlusButton aria-label="add data set" onClick={() => setIsVisibleAddDataSetModal(true)}>
             <Typography component="span">Add Data Set</Typography>
           </PlusButton>
         </ActionsGrid>
@@ -242,14 +246,27 @@ const DataSetPermissionsContainer = ({
           )
         }
       </StackGrid>
-      {
-        isVisibleAddDataSetModal && (
-          <DataSetPermissionsModal
-              onClose={() => setIsVisibleAddDataSetModal(false)}
-              organizationId={organizationId}
-              principal={principal} />
-        )
-      }
+      <Modal
+          isVisible={isVisibleAddDataSetModal}
+          onClose={noop}
+          shouldCloseOnOutsideClick={false}
+          viewportScrolling
+          withFooter={false}
+          withHeader={false}>
+        <StepsController>
+          {
+            ({ step, stepBack, stepNext }) => (
+              <AssignPermissionsToDataSet
+                  onClose={() => setIsVisibleAddDataSetModal(false)}
+                  organizationId={organizationId}
+                  principal={principal}
+                  step={step}
+                  stepBack={stepBack}
+                  stepNext={stepNext} />
+            )
+          }
+        </StepsController>
+      </Modal>
     </>
   );
 };
