@@ -12,7 +12,7 @@ import { ModalBody } from '../../../components';
 import type { ReactSelectOption } from '../../../types';
 
 type Props = {
-  onChange :(option :?ReactSelectOption) => void;
+  onChange :(option :?ReactSelectOption<string>) => void;
 };
 
 const AddMemberModalBody = ({ onChange } :Props) => (
