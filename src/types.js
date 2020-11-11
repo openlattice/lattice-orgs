@@ -23,9 +23,9 @@ type PermissionSelection = {|
   permissionType :PermissionType;
 |};
 
-type ReactSelectOption = {|
+type ReactSelectOption<V> = {|
   label :string;
-  value :mixed;
+  value :V;
 |};
 
 type SagaError = {
