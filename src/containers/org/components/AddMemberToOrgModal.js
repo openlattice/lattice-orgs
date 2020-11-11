@@ -39,7 +39,7 @@ const AddMemberToOrgModal = ({
   const [selectedMemberId, setMemberId] = useState();
   const requestState :?RequestState = useRequestState([ORGANIZATIONS, ADD_MEMBER_TO_ORGANIZATION]);
 
-  const onChange = (option :?ReactSelectOption) => {
+  const onChange = (option :?ReactSelectOption<string>) => {
     setMemberId(option?.value);
   };
 

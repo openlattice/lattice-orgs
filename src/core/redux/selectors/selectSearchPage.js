@@ -18,6 +18,6 @@ export default function selectSearchPage(action :string) {
       return getIn(state, [SEARCH, action, PAGE]);
     }
 
-    return 0;
+    return 1;
   };
 }
