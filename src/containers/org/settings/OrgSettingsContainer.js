@@ -14,6 +14,7 @@ import {
   Input,
   Modal,
   Spinner,
+  Typography,
 } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,8 +22,11 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { CopyButton, ElementWithButtonGrid, Header } from '../../../components';
+import { CopyButton, CrumbItem, CrumbLink, Crumbs, ElementWithButtonGrid, Header } from '../../../components';
+import { resetRequestState } from '../../../core/redux/actions';
 import { INTEGRATION_ACCOUNTS, IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
+import { selectOrganization } from '../../../core/redux/selectors';
+import { Routes } from '../../../core/router';
 import { DBMS_TYPES } from '../constants';
 import { generateIntegrationConfig } from '../utils';
 
@@ -94,14 +98,13 @@ type FormData = {
 };
 
 type Props = {
-  organization :Organization;
   organizationId :UUID;
 };
 
-const OrgSettingsContainer = ({ organizationId, organization } :Props) => {
+const OrgSettingsContainer = ({ organizationId } :Props) => {
 
   const dispatch = useDispatch();
-
+  const organization :?Organization = useSelector(selectOrganization(organizationId));
   const [integrationConfigFormData, setIntegrationConfigFormData] = useState(INITIAL_FORM_DATA);
   const [isVisibleGenerateConfigModal, setIsVisibleGenerateConfigModal] = useState(false);
 
@@ -116,10 +119,16 @@ const OrgSettingsContainer = ({ organizationId, organization } :Props) => {
     `jdbc:postgresql://atlas.openlattice.com:30001/org_${organizationId.replace(/-/g, '')}`
   ), [organizationId]);
 
+  const orgPath = useMemo(() => (
+    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
+  ), [organizationId]);
+
   useEffect(() => {
     dispatch(
       getOrganizationIntegrationAccount(organizationId)
     );
+
+    return () => dispatch(resetRequestState([GET_ORGANIZATION_INTEGRATION_ACCOUNT]));
   }, [dispatch, organizationId]);
 
   const handleOnClickCopy = (value :string) => {
@@ -163,7 +172,7 @@ const OrgSettingsContainer = ({ organizationId, organization } :Props) => {
     setIntegrationConfigFormData(newFormData);
   };
 
-  if (getIntegrationAccountRS === RequestStates.PENDING) {
+  if (getIntegrationAccountRS === RequestStates.PENDING || getIntegrationAccountRS === RequestStates.STANDBY) {
     return (
       <AppContentWrapper>
         <Spinner size="2x" />
@@ -173,15 +182,19 @@ const OrgSettingsContainer = ({ organizationId, organization } :Props) => {
 
   return (
     <AppContentWrapper>
-      <Header as="h3">Database Details</Header>
+      <Crumbs>
+        <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+        <CrumbItem>Database</CrumbItem>
+      </Crumbs>
+      <Typography gutterBottom variant="h1">Database Details</Typography>
       <br />
-      <Header as="h5">Organization ID</Header>
+      <Typography component="h2" variant="body2">Organization ID</Typography>
       <ElementWithButtonGrid fitContent>
         <Pre>{organizationId}</Pre>
         <CopyButton onClick={() => handleOnClickCopy(organizationId)} />
       </ElementWithButtonGrid>
       <br />
-      <Header as="h5">JDBC URL</Header>
+      <Typography component="h2" variant="body2">JDBC URL</Typography>
       <ElementWithButtonGrid fitContent>
         <Pre>{jdbcURL}</Pre>
         <CopyButton onClick={() => handleOnClickCopy(jdbcURL)} />
@@ -190,13 +203,13 @@ const OrgSettingsContainer = ({ organizationId, organization } :Props) => {
         isOwner && getIntegrationAccountRS === RequestStates.SUCCESS && (
           <>
             <br />
-            <Header as="h5">USER</Header>
+            <Typography component="h2" variant="body2">USER</Typography>
             <ElementWithButtonGrid fitContent>
               <Pre>{get(integrationAccount, 'user', '')}</Pre>
               <CopyButton onClick={() => handleOnClickCopy(integrationUser)} />
             </ElementWithButtonGrid>
             <br />
-            <Header as="h5">CREDENTIAL</Header>
+            <Typography component="h2" variant="body2">CREDENTIAL</Typography>
             <ElementWithButtonGrid fitContent>
               <Input disabled type="password" value="********************************" />
               <CopyButton onClick={() => handleOnClickCopy(integrationCredential)} />

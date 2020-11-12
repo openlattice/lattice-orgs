@@ -11,7 +11,7 @@ import type { ButtonProps } from './BaseButton';
 
 const CopyButton = ({ children, ...props } :ButtonProps) => (
   /* eslint-disable react/jsx-props-no-spreading */
-  <BaseButton {...props} icon={faCopy}>
+  <BaseButton {...props} color="default" icon={faCopy}>
     {children}
   </BaseButton>
   /* eslint-enable */
