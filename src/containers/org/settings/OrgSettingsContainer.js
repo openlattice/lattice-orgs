@@ -22,7 +22,13 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { CopyButton, CrumbItem, CrumbLink, Crumbs, ElementWithButtonGrid, Header } from '../../../components';
+import {
+  CopyButton,
+  CrumbItem,
+  CrumbLink,
+  Crumbs,
+  ElementWithButtonGrid,
+} from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { INTEGRATION_ACCOUNTS, IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
 import { selectOrganization } from '../../../core/redux/selectors';
@@ -141,16 +147,19 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
   };
 
   const handleOnClickGenerateIntegrationConfig = () => {
-    generateIntegrationConfig({
-      orgId: organizationId,
-      orgName: organization.title,
-      orgPassword: integrationCredential,
-      orgUsername: integrationUser,
-      targetDatabase: integrationConfigFormData.getIn(['fields', 'targetDatabase']),
-      targetPort: integrationConfigFormData.getIn(['fields', 'targetPort']),
-      targetServer: integrationConfigFormData.getIn(['fields', 'targetServer']),
-      targetDBMS: integrationConfigFormData.getIn(['fields', 'targetDBMS']),
-    });
+
+    if (organization) {
+      generateIntegrationConfig({
+        orgId: organizationId,
+        orgName: organization.title,
+        orgPassword: integrationCredential,
+        orgUsername: integrationUser,
+        targetDatabase: integrationConfigFormData.getIn(['fields', 'targetDatabase']),
+        targetPort: integrationConfigFormData.getIn(['fields', 'targetPort']),
+        targetServer: integrationConfigFormData.getIn(['fields', 'targetServer']),
+        targetDBMS: integrationConfigFormData.getIn(['fields', 'targetDBMS']),
+      });
+    }
   };
 
   const closeGenerateConfigModal = () => {
@@ -183,7 +192,7 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
   return (
     <AppContentWrapper>
       <Crumbs>
-        <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+        <CrumbLink to={orgPath}>{organization?.title || 'Organization'}</CrumbLink>
         <CrumbItem>Database</CrumbItem>
       </Crumbs>
       <Typography gutterBottom variant="h1">Database Details</Typography>
