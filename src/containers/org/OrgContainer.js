@@ -76,17 +76,25 @@ const OrgContainer = ({ organizationId } :Props) => {
     Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
+  const settingsPath = useMemo(() => (
+    Routes.ORG_SETTINGS.replace(Routes.ORG_ID_PARAM, organizationId)
+  ), [organizationId]);
+
   const dataSetCount = entitySetIds.count() + atlasDataSetIds.count();
 
   if (organization) {
     return (
       <AppContentWrapper>
-        <Typography variant="h1">{organization.title}</Typography>
+        <Typography gutterBottom variant="h1">{organization.title}</Typography>
         {
           isNonEmptyString(organization.description) && (
             <div>{organization.description}</div>
           )
         }
+        <ManageLink to={settingsPath}>
+          <span>Database Details</span>
+          <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
+        </ManageLink>
         <Boxes>
           <div>
             <span>Members</span>
