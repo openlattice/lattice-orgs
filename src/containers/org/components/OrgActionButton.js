@@ -4,10 +4,18 @@ import { faEllipsisH } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { Link, useRouteMatch } from 'react-router-dom';
+import type { Organization, UUID } from 'lattice';
 
-const OrgActionButton = () => {
+import OrgDescriptionModal from './OrgDescriptionModal';
+
+type Props = {
+  organization :Organization;
+};
+
+const OrgActionButton = ({ organization } :Props) => {
   const match = useRouteMatch();
   const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isDescriptionOpen, setDescriptionOpen] = useState(false);
   const anchorRef = useRef(null);
 
   const handleToggleMenu = () => {
@@ -48,13 +56,13 @@ const OrgActionButton = () => {
             vertical: 'top',
             horizontal: 'right',
           }}>
-        <MenuItem>
-          Edit Name
-        </MenuItem>
-        <MenuItem>
+        <MenuItem onClick={() => setDescriptionOpen(true)}>
           Edit Description
         </MenuItem>
       </Menu>
+      <OrgDescriptionModal
+          onClose={() => setDescriptionOpen(false)}
+          isVisible={isDescriptionOpen} />
     </>
   )
 };
