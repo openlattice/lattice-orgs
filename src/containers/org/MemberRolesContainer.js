@@ -67,6 +67,8 @@ const MemberRolesContainer = ({
     roles,
   ]);
 
+  const pagedRoles = filteredRoles.slice(paginationState.start, paginationState.start + MAX_HITS_10);
+
   const handleOnChangeFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
     paginationDispatch({ type: FILTER, query: event.target.value || '' });
   };
@@ -87,7 +89,7 @@ const MemberRolesContainer = ({
           page={paginationState.page}
           rowsPerPage={MAX_HITS_10} />
       {
-        filteredRoles.map((role) => (
+        pagedRoles.map((role) => (
           <MemberRoleCard
               key={role.id}
               onClick={handleOpen}
