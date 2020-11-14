@@ -71,28 +71,29 @@ const OrgActionButton = ({ organization } :Props) => {
   return (
     <>
       <IconButton
-          aria-controls={state.menuOpen ? 'button-action-menu' : undefined}
+          aria-controls={state.menuOpen ? 'organization-action-menu' : undefined}
           aria-expanded={state.menuOpen ? 'true' : undefined}
           aria-haspopup="menu"
-          aria-label="select additional action"
+          aria-label="organization action button"
           onClick={handleOpenMenu}
           ref={anchorRef}
           variant="text">
         <FontAwesomeIcon icon={faEllipsisH} />
       </IconButton>
       <Menu
-          elevation={4}
-          open={state.menuOpen}
-          onClose={handleCloseMenu}
           anchorEl={anchorRef.current}
-          getContentAnchorEl={null}
           anchorOrigin={{
+            horizontal: 'right',
             vertical: 'bottom',
-            horizontal: 'right',
           }}
+          elevation={4}
+          getContentAnchorEl={null}
+          id="organization-action-menu"
+          onClose={handleCloseMenu}
+          open={state.menuOpen}
           transformOrigin={{
-            vertical: 'top',
             horizontal: 'right',
+            vertical: 'top',
           }}>
         <MenuItem disabled={!isOwner} onClick={handleOpenDescription}>
           Edit Description
