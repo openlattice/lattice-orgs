@@ -50,40 +50,40 @@ const EditDescriptionBody = ({ organization, requestState } :Props) => {
         <StyledStack>
           <div>
             <Typography
-                display="block"
                 color="textSecondary"
                 component="label"
+                display="block"
                 gutterBottom
                 htmlFor="org-name"
                 variant="subtitle1">
               Name*
             </Typography>
             <Input
-                value={title}
                 id="org-name"
                 onChange={(e :SyntheticEvent<HTMLInputElement>) => setTitle(e.currentTarget.value)}
-                required />
+                required
+                value={title} />
           </div>
           <div>
             <Typography
-                display="block"
                 color="textSecondary"
                 component="label"
+                display="block"
                 gutterBottom
                 htmlFor="org-description"
                 variant="subtitle1">
               Description
             </Typography>
             <Input
-                value={description}
                 id="org-description"
-                onChange={(e :SyntheticEvent<HTMLInputElement>) => setDescription(e.currentTarget.value)} />
+                onChange={(e :SyntheticEvent<HTMLInputElement>) => setDescription(e.currentTarget.value)}
+                value={description} />
           </div>
         </StyledStack>
         <Button
-            isLoading={requestState === RequestStates.PENDING}
             color="primary"
             fullWidth
+            isLoading={requestState === RequestStates.PENDING}
             type="submit">
           Save
         </Button>
