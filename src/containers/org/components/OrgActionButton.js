@@ -57,10 +57,6 @@ const OrgActionButton = ({ organization } :Props) => {
   };
 
   const handleCloseMenu = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
     dispatch({ type: 'closeMenu' });
   };
 
