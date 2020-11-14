@@ -1,25 +1,59 @@
-import React, { useRef, useState } from 'react';
+// @flow
+import React, { useReducer, useRef } from 'react';
 
 import { faEllipsisH } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
-import { Link, useRouteMatch } from 'react-router-dom';
-import type { Organization, UUID } from 'lattice';
+import { useSelector } from 'react-redux';
+import type { Organization } from 'lattice';
 
 import OrgDescriptionModal from './OrgDescriptionModal';
+
+import { IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
+
+const INITIAL_STATE = {
+  menuOpen: false,
+  descriptionOpen: false,
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'closeMenu':
+      return {
+        ...state,
+        menuOpen: false,
+      };
+    case 'toggleMenu':
+      return {
+        ...state,
+        menuOpen: !state.menuOpen
+      };
+    case 'closeDescription':
+      return {
+        ...state,
+        descriptionOpen: false,
+      };
+    case 'openDescription':
+      return {
+        menuOpen: false,
+        descriptionOpen: true,
+      };
+    default:
+      return state;
+  }
+};
 
 type Props = {
   organization :Organization;
 };
 
 const OrgActionButton = ({ organization } :Props) => {
-  const match = useRouteMatch();
-  const [isMenuOpen, setMenuOpen] = useState(false);
-  const [isDescriptionOpen, setDescriptionOpen] = useState(false);
+  const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
+  const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organization.id]));
   const anchorRef = useRef(null);
 
   const handleToggleMenu = () => {
-    setMenuOpen(!isMenuOpen);
+    dispatch({ type: 'toggleMenu' });
   };
 
   const handleCloseMenu = (event) => {
@@ -27,14 +61,22 @@ const OrgActionButton = ({ organization } :Props) => {
       return;
     }
 
-    setMenuOpen(false);
+    dispatch({ type: 'closeMenu' });
+  };
+
+  const handleOpenDescription = () => {
+    dispatch({ type: 'openDescription' });
+  };
+
+  const handleCloseDescription = () => {
+    dispatch({ type: 'closeDescription' });
   };
 
   return (
     <>
       <IconButton
-          aria-controls={isMenuOpen ? 'button-action-menu' : undefined}
-          aria-expanded={isMenuOpen ? 'true' : undefined}
+          aria-controls={state.menuOpen ? 'button-action-menu' : undefined}
+          aria-expanded={state.menuOpen ? 'true' : undefined}
           aria-haspopup="menu"
           aria-label="select additional action"
           onClick={handleToggleMenu}
@@ -44,7 +86,7 @@ const OrgActionButton = ({ organization } :Props) => {
       </IconButton>
       <Menu
           elevation={4}
-          open={isMenuOpen}
+          open={state.menuOpen}
           onClose={handleCloseMenu}
           anchorEl={anchorRef.current}
           getContentAnchorEl={null}
@@ -56,15 +98,16 @@ const OrgActionButton = ({ organization } :Props) => {
             vertical: 'top',
             horizontal: 'right',
           }}>
-        <MenuItem onClick={() => setDescriptionOpen(true)}>
+        <MenuItem disabled={!isOwner} onClick={handleOpenDescription}>
           Edit Description
         </MenuItem>
       </Menu>
       <OrgDescriptionModal
-          onClose={() => setDescriptionOpen(false)}
-          isVisible={isDescriptionOpen} />
+          isVisible={state.descriptionOpen}
+          onClose={handleCloseDescription}
+          organization={organization} />
     </>
-  )
+  );
 };
 
 export default OrgActionButton;
