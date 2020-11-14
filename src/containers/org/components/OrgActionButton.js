@@ -23,10 +23,10 @@ const reducer = (state, action) => {
         ...state,
         menuOpen: false,
       };
-    case 'toggleMenu':
+    case 'openMenu':
       return {
         ...state,
-        menuOpen: !state.menuOpen
+        menuOpen: true,
       };
     case 'closeDescription':
       return {
@@ -52,8 +52,8 @@ const OrgActionButton = ({ organization } :Props) => {
   const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organization.id]));
   const anchorRef = useRef(null);
 
-  const handleToggleMenu = () => {
-    dispatch({ type: 'toggleMenu' });
+  const handleOpenMenu = () => {
+    dispatch({ type: 'openMenu' });
   };
 
   const handleCloseMenu = (event) => {
@@ -75,7 +75,7 @@ const OrgActionButton = ({ organization } :Props) => {
           aria-expanded={state.menuOpen ? 'true' : undefined}
           aria-haspopup="menu"
           aria-label="select additional action"
-          onClick={handleToggleMenu}
+          onClick={handleOpenMenu}
           ref={anchorRef}
           variant="text">
         <FontAwesomeIcon icon={faEllipsisH} />
