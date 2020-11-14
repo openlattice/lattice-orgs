@@ -56,7 +56,7 @@ const OrgActionButton = ({ organization } :Props) => {
     dispatch({ type: 'openMenu' });
   };
 
-  const handleCloseMenu = (event) => {
+  const handleCloseMenu = () => {
     dispatch({ type: 'closeMenu' });
   };
 
