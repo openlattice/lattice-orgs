@@ -11,6 +11,11 @@ import OrgDescriptionModal from './OrgDescriptionModal';
 
 import { IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
 
+const CLOSE_DESCRIPTION = 'CLOSE_DESCRIPTION';
+const CLOSE_MENU = 'CLOSE_MENU';
+const OPEN_DESCRIPTION = 'OPEN_DESCRIPTION';
+const OPEN_MENU = 'OPEN_MENU';
+
 const INITIAL_STATE = {
   menuOpen: false,
   descriptionOpen: false,
@@ -18,22 +23,22 @@ const INITIAL_STATE = {
 
 const reducer = (state, action) => {
   switch (action.type) {
-    case 'closeMenu':
+    case CLOSE_MENU:
       return {
         ...state,
         menuOpen: false,
       };
-    case 'openMenu':
+    case OPEN_MENU:
       return {
         ...state,
         menuOpen: true,
       };
-    case 'closeDescription':
+    case CLOSE_DESCRIPTION:
       return {
         ...state,
         descriptionOpen: false,
       };
-    case 'openDescription':
+    case OPEN_DESCRIPTION:
       return {
         menuOpen: false,
         descriptionOpen: true,
@@ -53,19 +58,19 @@ const OrgActionButton = ({ organization } :Props) => {
   const anchorRef = useRef(null);
 
   const handleOpenMenu = () => {
-    dispatch({ type: 'openMenu' });
+    dispatch({ type: OPEN_MENU });
   };
 
   const handleCloseMenu = () => {
-    dispatch({ type: 'closeMenu' });
+    dispatch({ type: CLOSE_MENU });
   };
 
   const handleOpenDescription = () => {
-    dispatch({ type: 'openDescription' });
+    dispatch({ type: OPEN_DESCRIPTION });
   };
 
   const handleCloseDescription = () => {
-    dispatch({ type: 'closeDescription' });
+    dispatch({ type: CLOSE_DESCRIPTION });
   };
 
   return (
