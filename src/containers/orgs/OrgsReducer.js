@@ -30,10 +30,12 @@ import {
 import {
   ADD_ROLE_TO_ORGANIZATION,
   CREATE_NEW_ORGANIZATION,
+  EDIT_ORGANIZATION_DETAILS,
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
   addRoleToOrganization,
   createNewOrganization,
+  editOrganizationDetails,
   initializeOrganization,
   removeRoleFromOrganization,
 } from '../org/actions';
@@ -79,6 +81,7 @@ const INITIAL_STATE :Map = fromJS({
   [ADD_ROLE_TO_MEMBER]: RS_INITIAL_STATE,
   [ADD_ROLE_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [CREATE_NEW_ORGANIZATION]: RS_INITIAL_STATE,
+  [EDIT_ORGANIZATION_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_ENTITY_SETS]: RS_INITIAL_STATE,
@@ -257,6 +260,27 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
         FINALLY: () => state.deleteIn([CREATE_NEW_ORGANIZATION, seqAction.id]),
       });
     }
+
+    case editOrganizationDetails.case(action.type):
+      return editOrganizationDetails.reducer(state, action, {
+        REQUEST: () => state
+          .setIn([EDIT_ORGANIZATION_DETAILS, REQUEST_STATE], RequestStates.PENDING)
+          .setIn([EDIT_ORGANIZATION_DETAILS, action.id], action),
+        SUCCESS: () => {
+          const { organizationId, title, description } = action.value;
+          const currentOrg :Organization = state.getIn([ORGS, organizationId]);
+          const updatedOrg = currentOrg.toImmutable().merge({
+            description,
+            title,
+          });
+
+          return state
+            .setIn([EDIT_ORGANIZATION_DETAILS, REQUEST_STATE], RequestStates.SUCCESS)
+            .setIn([ORGS, organizationId], new OrganizationBuilder(updatedOrg).build());
+        },
+        FAILURE: () => state.setIn([EDIT_ORGANIZATION_DETAILS, REQUEST_STATE], RequestStates.FAILURE),
+        FINALLY: () => state.deleteIn([EDIT_ORGANIZATION_DETAILS, action.id]),
+      });
 
     case getOrganizationsAndAuthorizations.case(action.type): {
       const seqAction :SequenceAction = action;

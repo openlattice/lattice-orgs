@@ -66,12 +66,11 @@ export default function* sagas() :Saga<*> {
     // OrgSagas
     fork(OrgSagas.addRoleToOrganizationWatcher),
     fork(OrgSagas.createNewOrganizationWatcher),
-    fork(OrgSagas.getShiproomMetadataWatcher),
     fork(OrgSagas.editMetadataWatcher),
+    fork(OrgSagas.editOrganizationDetailsWatcher),
+    fork(OrgSagas.getShiproomMetadataWatcher),
     fork(OrgSagas.initializeOrganizationWatcher),
     fork(OrgSagas.removeRoleFromOrganizationWatcher),
-
-    // OrgSagas
     fork(OrgsSagas.getOrganizationsAndAuthorizationsWatcher),
 
     // PermissionsSagas
