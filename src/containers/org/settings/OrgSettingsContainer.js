@@ -7,13 +7,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Map, fromJS, get } from 'immutable';
 import { Form } from 'lattice-fabricate';
-import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
   Button,
   Input,
   Modal,
-  Spinner,
   Typography,
 } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
@@ -29,16 +27,21 @@ import {
   Crumbs,
   ElementWithButtonGrid,
   Pre,
+  Spinner,
+  StackGrid,
 } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
-import { INTEGRATION_ACCOUNTS, IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
-import { selectOrganization } from '../../../core/redux/selectors';
+import { ORGANIZATIONS } from '../../../core/redux/constants';
+import {
+  selectOrganization,
+  selectOrganizationIntegrationDetails,
+  selectOrganizationIsOwner,
+} from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 import { clipboardWriteText } from '../../../utils';
+import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails } from '../actions';
 import { DBMS_TYPES } from '../constants';
 import { generateIntegrationConfig } from '../utils';
-
-const { GET_ORGANIZATION_INTEGRATION_ACCOUNT, getOrganizationIntegrationAccount } = OrganizationsApiActions;
 
 const dataSchema = {
   properties: {
@@ -109,12 +112,14 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
   const [integrationConfigFormData, setIntegrationConfigFormData] = useState(INITIAL_FORM_DATA);
   const [isVisibleGenerateConfigModal, setIsVisibleGenerateConfigModal] = useState(false);
 
-  const getIntegrationAccountRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_ACCOUNT]);
+  const getIntegrationDetailsRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_DETAILS]);
 
-  const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organizationId]));
-  const integrationAccount :?Map = useSelector((s) => s.getIn([ORGANIZATIONS, INTEGRATION_ACCOUNTS, organizationId]));
-  const integrationCredential :string = get(integrationAccount, 'credential', '');
-  const integrationUser :string = get(integrationAccount, 'user', '');
+  const isOwner :boolean = useSelector(selectOrganizationIsOwner(organizationId));
+  const integrationDetails :Map = useSelector(selectOrganizationIntegrationDetails(organizationId));
+
+  const databaseName :string = get(integrationDetails, 'databaseName', '');
+  const databaseCredential :string = get(integrationDetails, 'credential', '');
+  const databaseUserName :string = get(integrationDetails, 'userName', '');
 
   const jdbcURL = useMemo(() => (
     `jdbc:postgresql://atlas.openlattice.com:30001/org_${organizationId.replace(/-/g, '')}`
@@ -125,11 +130,8 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
   ), [organizationId]);
 
   useEffect(() => {
-    dispatch(
-      getOrganizationIntegrationAccount(organizationId)
-    );
-
-    return () => dispatch(resetRequestState([GET_ORGANIZATION_INTEGRATION_ACCOUNT]));
+    dispatch(getOrganizationIntegrationDetails(organizationId));
+    return () => dispatch(resetRequestState([GET_ORGANIZATION_INTEGRATION_DETAILS]));
   }, [dispatch, organizationId]);
 
   const handleOnClickGenerateIntegrationConfig = () => {
@@ -138,8 +140,8 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
       generateIntegrationConfig({
         orgId: organizationId,
         orgName: organization.title,
-        orgPassword: integrationCredential,
-        orgUsername: integrationUser,
+        orgPassword: databaseCredential,
+        orgUsername: databaseUserName,
         targetDatabase: integrationConfigFormData.getIn(['fields', 'targetDatabase']),
         targetPort: integrationConfigFormData.getIn(['fields', 'targetPort']),
         targetServer: integrationConfigFormData.getIn(['fields', 'targetServer']),
@@ -167,10 +169,10 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
     setIntegrationConfigFormData(newFormData);
   };
 
-  if (getIntegrationAccountRS === RequestStates.PENDING || getIntegrationAccountRS === RequestStates.STANDBY) {
+  if (getIntegrationDetailsRS === RequestStates.PENDING || getIntegrationDetailsRS === RequestStates.STANDBY) {
     return (
       <AppContentWrapper>
-        <Spinner size="2x" />
+        <Spinner />
       </AppContentWrapper>
     );
   }
@@ -181,56 +183,78 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
         <CrumbLink to={orgPath}>{organization?.title || 'Organization'}</CrumbLink>
         <CrumbItem>Database</CrumbItem>
       </Crumbs>
-      <Typography gutterBottom variant="h1">Database Details</Typography>
-      <br />
-      <Typography component="h2" variant="body2">Organization ID</Typography>
-      <ElementWithButtonGrid fitContent>
-        <Pre>{organizationId}</Pre>
-        <CopyButton onClick={() => clipboardWriteText(organizationId)} />
-      </ElementWithButtonGrid>
-      <br />
-      <Typography component="h2" variant="body2">JDBC URL</Typography>
-      <ElementWithButtonGrid fitContent>
-        <Pre>{jdbcURL}</Pre>
-        <CopyButton onClick={() => clipboardWriteText(jdbcURL)} />
-      </ElementWithButtonGrid>
-      {
-        isOwner && getIntegrationAccountRS === RequestStates.SUCCESS && (
-          <>
-            <br />
-            <Typography component="h2" variant="body2">USER</Typography>
-            <ElementWithButtonGrid fitContent>
-              <Pre>{get(integrationAccount, 'user', '')}</Pre>
-              <CopyButton onClick={() => clipboardWriteText(integrationUser)} />
-            </ElementWithButtonGrid>
-            <br />
-            <Typography component="h2" variant="body2">CREDENTIAL</Typography>
-            <ElementWithButtonGrid fitContent>
-              <Input disabled type="password" value="********************************" />
-              <CopyButton onClick={() => clipboardWriteText(integrationCredential)} />
-            </ElementWithButtonGrid>
-            <br />
-            <GenerateIntegrationConfigButton onClick={openGenerateConfigModal}>
-              Generate Integration Config
-            </GenerateIntegrationConfigButton>
-            <Modal
-                isVisible={isVisibleGenerateConfigModal}
-                onClickPrimary={handleOnClickGenerateIntegrationConfig}
-                onClose={closeGenerateConfigModal}
-                textPrimary="Generate"
-                textTitle="Generate Integration Configuration File"
-                viewportScrolling>
-              <Form
-                  formData={integrationConfigFormData.toJS()}
-                  hideSubmit
-                  noPadding
-                  onChange={handleOnChangeIntegrationConfigForm}
-                  schema={dataSchema}
-                  uiSchema={uiSchema} />
-            </Modal>
-          </>
-        )
-      }
+      <StackGrid>
+        <Typography variant="h1">Database Details</Typography>
+        <StackGrid gap={4}>
+          <Typography component="h2" variant="body2">ORGANIZATION ID</Typography>
+          <ElementWithButtonGrid fitContent>
+            <Pre>{organizationId}</Pre>
+            <CopyButton
+                aria-label="copy organization id"
+                onClick={() => clipboardWriteText(organizationId)} />
+          </ElementWithButtonGrid>
+        </StackGrid>
+        <StackGrid gap={4}>
+          <Typography component="h2" variant="body2">DATABASE NAME</Typography>
+          <ElementWithButtonGrid fitContent>
+            <Pre>{databaseName}</Pre>
+            <CopyButton
+                aria-label="copy organization id"
+                onClick={() => clipboardWriteText(databaseName)} />
+          </ElementWithButtonGrid>
+        </StackGrid>
+        <StackGrid gap={4}>
+          <Typography component="h2" variant="body2">JDBC URL</Typography>
+          <ElementWithButtonGrid fitContent>
+            <Pre>{jdbcURL}</Pre>
+            <CopyButton
+                aria-label="copy jdbc url"
+                onClick={() => clipboardWriteText(jdbcURL)} />
+          </ElementWithButtonGrid>
+        </StackGrid>
+        {
+          isOwner && getIntegrationDetailsRS === RequestStates.SUCCESS && (
+            <>
+              <StackGrid gap={4}>
+                <Typography component="h2" variant="body2">DATABASE USERNAME</Typography>
+                <ElementWithButtonGrid fitContent>
+                  <Pre>{databaseUserName}</Pre>
+                  <CopyButton
+                      aria-label="copy database username"
+                      onClick={() => clipboardWriteText(databaseUserName)} />
+                </ElementWithButtonGrid>
+              </StackGrid>
+              <StackGrid gap={4}>
+                <Typography component="h2" variant="body2">DATABASE CREDENTIAL</Typography>
+                <ElementWithButtonGrid fitContent>
+                  <Input disabled type="password" value="********************************" />
+                  <CopyButton
+                      aria-label="copy database credential"
+                      onClick={() => clipboardWriteText(databaseCredential)} />
+                </ElementWithButtonGrid>
+              </StackGrid>
+              <GenerateIntegrationConfigButton onClick={openGenerateConfigModal}>
+                Generate Integration Config
+              </GenerateIntegrationConfigButton>
+              <Modal
+                  isVisible={isVisibleGenerateConfigModal}
+                  onClickPrimary={handleOnClickGenerateIntegrationConfig}
+                  onClose={closeGenerateConfigModal}
+                  textPrimary="Generate"
+                  textTitle="Generate Integration Configuration File"
+                  viewportScrolling>
+                <Form
+                    formData={integrationConfigFormData.toJS()}
+                    hideSubmit
+                    noPadding
+                    onChange={handleOnChangeIntegrationConfigForm}
+                    schema={dataSchema}
+                    uiSchema={uiSchema} />
+              </Modal>
+            </>
+          )
+        }
+      </StackGrid>
     </AppContentWrapper>
   );
 };

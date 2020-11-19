@@ -19,6 +19,8 @@ export { default as selectEntitySetEntityType } from './selectEntitySetEntityTyp
 export { default as selectEntitySetPropertyTypes } from './selectEntitySetPropertyTypes';
 export { default as selectOrganizationAtlasDataSetIds } from './selectOrganizationAtlasDataSetIds';
 export { default as selectOrganizationEntitySetIds } from './selectOrganizationEntitySetIds';
+export { default as selectOrganizationIntegrationDetails } from './selectOrganizationIntegrationDetails';
+export { default as selectOrganizationIsOwner } from './selectOrganizationIsOwner';
 export { default as selectOrganizationMembers } from './selectOrganizationMembers';
 export { default as selectPermissions } from './selectPermissions';
 export { default as selectSearchHits } from './selectSearchHits';
