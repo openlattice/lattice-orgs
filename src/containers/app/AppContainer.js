@@ -25,6 +25,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { RequestState } from 'redux-reqseq';
 
 import { INITIALIZE_APPLICATION, initializeApplication } from './AppActions';
+import { AccountContainer } from '../account';
 
 import { OpenLatticeIconSVG } from '../../assets/svg/icons';
 import { BasicErrorComponent } from '../../components';
@@ -73,6 +74,7 @@ const AppContainer = () => {
             <AppHeaderWrapper appIcon={OpenLatticeIconSVG} appTitle="Organizations" logout={logout} user={user}>
               <AppNavigationWrapper>
                 <NavLink to={Routes.ROOT} />
+                <NavLink to={Routes.ACCOUNT}>Account</NavLink>
               </AppNavigationWrapper>
             </AppHeaderWrapper>
             {
@@ -94,6 +96,7 @@ const AppContainer = () => {
             {
               initAppRS === RequestStates.SUCCESS && (
                 <Switch>
+                  <Route path={Routes.ACCOUNT} component={AccountContainer} />
                   <Route path={Routes.ORG} component={OrgRouter} />
                   <Route path={Routes.ORGS} component={OrgsContainer} />
                   <Redirect to={Routes.ORGS} />

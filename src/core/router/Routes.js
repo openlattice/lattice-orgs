@@ -15,6 +15,8 @@ export {
 };
 
 const ROOT :'/' = '/';
+
+const ACCOUNT :'/account' = '/account';
 const ORGS :'/orgs' = '/orgs';
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
@@ -42,6 +44,7 @@ const ORG_MEMBER :'/orgs/:organizationId/members/:principalId' = `${ORG_MEMBERS}
 const ORG_SETTINGS :'/orgs/:organizationId/settings' = `${ORGS}/${ORG_ID_PARAM}/settings`;
 
 export {
+  ACCOUNT,
   ORG,
   ORGS,
   ORG_DATA_SET,

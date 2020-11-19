@@ -2,6 +2,8 @@
  * @flow
  */
 
+import type { ComponentType } from 'react';
+
 import styled, { css } from 'styled-components';
 import { Colors } from 'lattice-ui-kit';
 
@@ -9,7 +11,7 @@ const { NEUTRAL } = Colors;
 
 type Props = {
   isVisible ?:boolean;
-  margin :number;
+  margin ?:number;
 };
 
 const getComputedStyles = ({ isVisible = true, margin } :Props) => {
@@ -30,7 +32,7 @@ const getComputedStyles = ({ isVisible = true, margin } :Props) => {
   `;
 };
 
-const Divider = styled.hr`
+const Divider :ComponentType<Props> = styled.hr`
   border-color: ${NEUTRAL.N100};
   border-width: 1px;
   ${getComputedStyles}
