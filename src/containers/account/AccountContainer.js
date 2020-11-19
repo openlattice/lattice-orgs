@@ -80,14 +80,18 @@ const AccountContainer = () => {
           <Typography component="h2" variant="body2">USER ID</Typography>
           <ElementWithButtonGrid fitContent>
             <Pre>{thisUserInfo.id}</Pre>
-            <CopyButton onClick={() => clipboardWriteText(thisUserInfo.id)} />
+            <CopyButton
+                aria-label="copy user id"
+                onClick={() => clipboardWriteText(thisUserInfo.id)} />
           </ElementWithButtonGrid>
         </StackGrid>
         <StackGrid gap={4}>
           <Typography component="h2" variant="body2">AUTH0 JWT TOKEN</Typography>
           <ElementWithButtonGrid fitContent>
             {PasswordInput}
-            <CopyButton onClick={() => clipboardWriteText(AuthUtils.getAuthToken())} />
+            <CopyButton
+                aria-label="copy auth0 jwt token"
+                onClick={() => clipboardWriteText(AuthUtils.getAuthToken())} />
           </ElementWithButtonGrid>
         </StackGrid>
         {
@@ -97,14 +101,18 @@ const AccountContainer = () => {
                 <Typography component="h2" variant="body2">ATLAS USERNAME</Typography>
                 <ElementWithButtonGrid fitContent>
                   {PasswordInput}
-                  <CopyButton onClick={() => clipboardWriteText(atlasCredentials.get('username'))} />
+                  <CopyButton
+                      aria-label="copy atlas username"
+                      onClick={() => clipboardWriteText(atlasCredentials.get('username'))} />
                 </ElementWithButtonGrid>
               </StackGrid>
               <StackGrid gap={4}>
                 <Typography component="h2" variant="body2">ATLAS CREDENTIAL</Typography>
                 <ElementWithButtonGrid fitContent>
                   {PasswordInput}
-                  <CopyButton onClick={() => clipboardWriteText(atlasCredentials.get('credential'))} />
+                  <CopyButton
+                      aria-label="copy atlas credential"
+                      onClick={() => clipboardWriteText(atlasCredentials.get('credential'))} />
                 </ElementWithButtonGrid>
               </StackGrid>
             </>
