@@ -21,11 +21,12 @@ import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import {
+  ActionsGrid,
   CopyButton,
   CrumbItem,
   CrumbLink,
   Crumbs,
-  ElementWithButtonGrid,
+  EditButton,
   Pre,
   Spinner,
   StackGrid,
@@ -40,6 +41,7 @@ import {
 import { Routes } from '../../../core/router';
 import { clipboardWriteText } from '../../../utils';
 import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails } from '../actions';
+import { RenameOrgDatabaseModal } from '../components';
 import { DBMS_TYPES } from '../constants';
 import { generateIntegrationConfig } from '../utils';
 
@@ -108,12 +110,14 @@ type Props = {
 const OrgSettingsContainer = ({ organizationId } :Props) => {
 
   const dispatch = useDispatch();
-  const organization :?Organization = useSelector(selectOrganization(organizationId));
+
   const [integrationConfigFormData, setIntegrationConfigFormData] = useState(INITIAL_FORM_DATA);
   const [isVisibleGenerateConfigModal, setIsVisibleGenerateConfigModal] = useState(false);
+  const [isVisibleRenameModal, setIsVisibleRenameModal] = useState(false);
 
   const getIntegrationDetailsRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_DETAILS]);
 
+  const organization :?Organization = useSelector(selectOrganization(organizationId));
   const isOwner :boolean = useSelector(selectOrganizationIsOwner(organizationId));
   const integrationDetails :Map = useSelector(selectOrganizationIntegrationDetails(organizationId));
 
@@ -130,8 +134,13 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
   ), [organizationId]);
 
   useEffect(() => {
+  }, [dispatch, databaseName, organizationId]);
+
+  useEffect(() => {
     dispatch(getOrganizationIntegrationDetails(organizationId));
-    return () => dispatch(resetRequestState([GET_ORGANIZATION_INTEGRATION_DETAILS]));
+    return () => {
+      dispatch(resetRequestState([GET_ORGANIZATION_INTEGRATION_DETAILS]));
+    };
   }, [dispatch, organizationId]);
 
   const handleOnClickGenerateIntegrationConfig = () => {
@@ -185,53 +194,57 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
       </Crumbs>
       <StackGrid>
         <Typography variant="h1">Database Details</Typography>
-        <StackGrid gap={4}>
+        <div>
           <Typography component="h2" variant="body2">ORGANIZATION ID</Typography>
-          <ElementWithButtonGrid fitContent>
+          <ActionsGrid align={{ v: 'center' }} fit>
             <Pre>{organizationId}</Pre>
             <CopyButton
                 aria-label="copy organization id"
                 onClick={() => clipboardWriteText(organizationId)} />
-          </ElementWithButtonGrid>
-        </StackGrid>
-        <StackGrid gap={4}>
+          </ActionsGrid>
+        </div>
+        <div>
           <Typography component="h2" variant="body2">DATABASE NAME</Typography>
-          <ElementWithButtonGrid fitContent>
+          <ActionsGrid align={{ v: 'center' }} fit>
             <Pre>{databaseName}</Pre>
             <CopyButton
-                aria-label="copy organization id"
+                aria-label="copy database name"
                 onClick={() => clipboardWriteText(databaseName)} />
-          </ElementWithButtonGrid>
-        </StackGrid>
-        <StackGrid gap={4}>
+            <EditButton
+                aria-label="edit database name"
+                color="default"
+                onClick={() => setIsVisibleRenameModal(true)} />
+          </ActionsGrid>
+        </div>
+        <div>
           <Typography component="h2" variant="body2">JDBC URL</Typography>
-          <ElementWithButtonGrid fitContent>
+          <ActionsGrid align={{ v: 'center' }} fit>
             <Pre>{jdbcURL}</Pre>
             <CopyButton
                 aria-label="copy jdbc url"
                 onClick={() => clipboardWriteText(jdbcURL)} />
-          </ElementWithButtonGrid>
-        </StackGrid>
+          </ActionsGrid>
+        </div>
         {
           isOwner && getIntegrationDetailsRS === RequestStates.SUCCESS && (
             <>
-              <StackGrid gap={4}>
+              <div>
                 <Typography component="h2" variant="body2">DATABASE USERNAME</Typography>
-                <ElementWithButtonGrid fitContent>
+                <ActionsGrid align={{ v: 'center' }} fit>
                   <Pre>{databaseUserName}</Pre>
                   <CopyButton
                       aria-label="copy database username"
                       onClick={() => clipboardWriteText(databaseUserName)} />
-                </ElementWithButtonGrid>
-              </StackGrid>
+                </ActionsGrid>
+              </div>
               <StackGrid gap={4}>
                 <Typography component="h2" variant="body2">DATABASE CREDENTIAL</Typography>
-                <ElementWithButtonGrid fitContent>
+                <ActionsGrid fit>
                   <Input disabled type="password" value="********************************" />
                   <CopyButton
                       aria-label="copy database credential"
                       onClick={() => clipboardWriteText(databaseCredential)} />
-                </ElementWithButtonGrid>
+                </ActionsGrid>
               </StackGrid>
               <GenerateIntegrationConfigButton onClick={openGenerateConfigModal}>
                 Generate Integration Config
@@ -252,6 +265,14 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
                     uiSchema={uiSchema} />
               </Modal>
             </>
+          )
+        }
+        {
+          isOwner && (
+            <RenameOrgDatabaseModal
+                isVisible={isVisibleRenameModal}
+                onClose={() => setIsVisibleRenameModal(false)}
+                organizationId={organizationId} />
           )
         }
       </StackGrid>

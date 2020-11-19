@@ -41,7 +41,11 @@ import {
   initializeOrganization,
   removeRoleFromOrganization,
 } from '../org/actions';
-import { getOrganizationDataSetsReducer, getOrganizationIntegrationDetailsReducer } from '../org/reducers';
+import {
+  getOrganizationDataSetsReducer,
+  getOrganizationIntegrationDetailsReducer,
+  renameOrganizationDatabaseReducer,
+} from '../org/reducers';
 import { sortOrganizationMembers } from '../org/utils';
 import type { AuthorizationObject } from '../../types';
 
@@ -65,12 +69,14 @@ const {
   GET_ORGANIZATION_MEMBERS,
   REMOVE_MEMBER_FROM_ORGANIZATION,
   REMOVE_ROLE_FROM_MEMBER,
+  RENAME_ORGANIZATION_DATABASE,
   addMemberToOrganization,
   addRoleToMember,
   getOrganizationEntitySets,
   getOrganizationMembers,
   removeMemberFromOrganization,
   removeRoleFromMember,
+  renameOrganizationDatabase,
 } = OrganizationsApiActions;
 
 const { getUserId } = PersonUtils;
@@ -91,6 +97,7 @@ const INITIAL_STATE :Map = fromJS({
   [REMOVE_MEMBER_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
+  [RENAME_ORGANIZATION_DATABASE]: RS_INITIAL_STATE,
   // data
   [ATLAS_DATA_SET_IDS]: Map(),
   [ENTITY_SET_IDS]: Map(),
@@ -108,6 +115,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   if (action.type === getOrganizationIntegrationDetails.case(action.type)) {
     return getOrganizationIntegrationDetailsReducer(state, action);
+  }
+
+  if (action.type === renameOrganizationDatabase.case(action.type)) {
+    return renameOrganizationDatabaseReducer(state, action);
   }
 
   // TODO: refactor this reducer
