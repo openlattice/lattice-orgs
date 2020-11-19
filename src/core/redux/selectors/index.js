@@ -13,7 +13,6 @@ export const {
 
 export { default as selectAtlasCredentials } from './selectAtlasCredentials';
 export { default as selectAtlasDataSets } from './selectAtlasDataSets';
-export { default as selectCurrentUserOrgOwner } from './selectCurrentUserOrgOwner';
 export { default as selectDataSetProperties } from './selectDataSetProperties';
 export { default as selectEntitySetEntityType } from './selectEntitySetEntityType';
 export { default as selectEntitySetPropertyTypes } from './selectEntitySetPropertyTypes';

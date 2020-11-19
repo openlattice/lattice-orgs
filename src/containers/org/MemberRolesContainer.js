@@ -11,7 +11,7 @@ import { RemoveRoleFromMemberModal } from './components';
 import { isRoleAssignedToMember } from './utils';
 
 import { StackGrid } from '../../components';
-import { selectCurrentUserOrgOwner } from '../../core/redux/selectors';
+import { selectOrganizationIsOwner } from '../../core/redux/selectors';
 import { MAX_HITS_10 } from '../../core/search/constants';
 import {
   FILTER,
@@ -52,7 +52,7 @@ const MemberRolesContainer = ({
   roles,
 } :Props) => {
 
-  const isOwner :boolean = useSelector(selectCurrentUserOrgOwner(organizationId));
+  const isOwner :boolean = useSelector(selectOrganizationIsOwner(organizationId));
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
 
