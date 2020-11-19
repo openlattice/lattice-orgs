@@ -52,6 +52,7 @@ export default function* sagas() :Saga<*> {
     fork(OrganizationsApiSagas.updateOrganizationTitleWatcher),
     fork(OrganizationsApiSagas.updateRoleGrantWatcher),
     fork(PrincipalsApiSagas.getAllUsersWatcher),
+    fork(PrincipalsApiSagas.getAtlasCredentialsWatcher),
     fork(PrincipalsApiSagas.getSecurablePrincipalWatcher),
     fork(PrincipalsApiSagas.searchAllUsersWatcher),
 

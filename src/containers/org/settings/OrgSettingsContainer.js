@@ -28,11 +28,13 @@ import {
   CrumbLink,
   Crumbs,
   ElementWithButtonGrid,
+  Pre,
 } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { INTEGRATION_ACCOUNTS, IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
 import { selectOrganization } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
+import { clipboardWriteText } from '../../../utils';
 import { DBMS_TYPES } from '../constants';
 import { generateIntegrationConfig } from '../utils';
 
@@ -83,13 +85,6 @@ const INITIAL_FORM_DATA = fromJS({
   }
 });
 
-const Pre = styled.pre`
-  margin: 0;
-  overflow-wrap: break-word;
-  white-space: normal;
-  word-break: break-word;
-`;
-
 const GenerateIntegrationConfigButton = styled(Button)`
   width: fit-content;
 `;
@@ -136,15 +131,6 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
 
     return () => dispatch(resetRequestState([GET_ORGANIZATION_INTEGRATION_ACCOUNT]));
   }, [dispatch, organizationId]);
-
-  const handleOnClickCopy = (value :string) => {
-    if (isOwner) {
-      // TODO: consider using https://github.com/zenorocha/clipboard.js
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(value);
-      }
-    }
-  };
 
   const handleOnClickGenerateIntegrationConfig = () => {
 
@@ -200,13 +186,13 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
       <Typography component="h2" variant="body2">Organization ID</Typography>
       <ElementWithButtonGrid fitContent>
         <Pre>{organizationId}</Pre>
-        <CopyButton onClick={() => handleOnClickCopy(organizationId)} />
+        <CopyButton onClick={() => clipboardWriteText(organizationId)} />
       </ElementWithButtonGrid>
       <br />
       <Typography component="h2" variant="body2">JDBC URL</Typography>
       <ElementWithButtonGrid fitContent>
         <Pre>{jdbcURL}</Pre>
-        <CopyButton onClick={() => handleOnClickCopy(jdbcURL)} />
+        <CopyButton onClick={() => clipboardWriteText(jdbcURL)} />
       </ElementWithButtonGrid>
       {
         isOwner && getIntegrationAccountRS === RequestStates.SUCCESS && (
@@ -215,13 +201,13 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
             <Typography component="h2" variant="body2">USER</Typography>
             <ElementWithButtonGrid fitContent>
               <Pre>{get(integrationAccount, 'user', '')}</Pre>
-              <CopyButton onClick={() => handleOnClickCopy(integrationUser)} />
+              <CopyButton onClick={() => clipboardWriteText(integrationUser)} />
             </ElementWithButtonGrid>
             <br />
             <Typography component="h2" variant="body2">CREDENTIAL</Typography>
             <ElementWithButtonGrid fitContent>
               <Input disabled type="password" value="********************************" />
-              <CopyButton onClick={() => handleOnClickCopy(integrationCredential)} />
+              <CopyButton onClick={() => clipboardWriteText(integrationCredential)} />
             </ElementWithButtonGrid>
             <br />
             <GenerateIntegrationConfigButton onClick={openGenerateConfigModal}>
