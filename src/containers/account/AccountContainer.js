@@ -50,8 +50,7 @@ const AccountContainer = () => {
 
   useEffect(() => () => {
     dispatch(clearAtlasCredentials());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dispatch]);
 
   if (getAtlasCredentialsRS === RequestStates.PENDING || getAtlasCredentialsRS === RequestStates.STANDBY) {
     return (
