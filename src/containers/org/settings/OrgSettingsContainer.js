@@ -134,9 +134,6 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
   ), [organizationId]);
 
   useEffect(() => {
-  }, [dispatch, databaseName, organizationId]);
-
-  useEffect(() => {
     dispatch(getOrganizationIntegrationDetails(organizationId));
     return () => {
       dispatch(resetRequestState([GET_ORGANIZATION_INTEGRATION_DETAILS]));
