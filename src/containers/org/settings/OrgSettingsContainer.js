@@ -36,7 +36,7 @@ import { ORGANIZATIONS } from '../../../core/redux/constants';
 import {
   selectOrganization,
   selectOrganizationIntegrationDetails,
-  selectOrganizationIsOwner,
+  selectCurrentUserIsOrgOwner,
 } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 import { clipboardWriteText } from '../../../utils';
@@ -118,7 +118,7 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
   const getIntegrationDetailsRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_DETAILS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const isOwner :boolean = useSelector(selectOrganizationIsOwner(organizationId));
+  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
   const integrationDetails :Map = useSelector(selectOrganizationIntegrationDetails(organizationId));
 
   const databaseName :string = get(integrationDetails, 'databaseName', '');

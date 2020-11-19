@@ -10,7 +10,7 @@ import { IS_OWNER, ORGANIZATIONS } from '../constants';
 
 const { isValidUUID } = ValidationUtils;
 
-export default function selectOrganizationIsOwner(organizationId :UUID) {
+export default function selectCurrentUserIsOrgOwner(organizationId :UUID) {
 
   return (state :Map) :boolean => {
 
