@@ -20,7 +20,7 @@ import {
   ATLAS_DATA_SET_IDS,
   ENTITY_SET_IDS,
   ERROR,
-  INTEGRATION_ACCOUNTS,
+  INTEGRATION_DETAILS,
   IS_OWNER,
   MEMBERS,
   ORGS,
@@ -31,15 +31,21 @@ import {
   ADD_ROLE_TO_ORGANIZATION,
   CREATE_NEW_ORGANIZATION,
   EDIT_ORGANIZATION_DETAILS,
+  GET_ORGANIZATION_INTEGRATION_DETAILS,
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
   addRoleToOrganization,
   createNewOrganization,
   editOrganizationDetails,
+  getOrganizationIntegrationDetails,
   initializeOrganization,
   removeRoleFromOrganization,
 } from '../org/actions';
-import { getOrganizationDataSetsReducer } from '../org/reducers';
+import {
+  getOrganizationDataSetsReducer,
+  getOrganizationIntegrationDetailsReducer,
+  renameOrganizationDatabaseReducer,
+} from '../org/reducers';
 import { sortOrganizationMembers } from '../org/utils';
 import type { AuthorizationObject } from '../../types';
 
@@ -60,17 +66,17 @@ const {
   ADD_MEMBER_TO_ORGANIZATION,
   ADD_ROLE_TO_MEMBER,
   GET_ORGANIZATION_ENTITY_SETS,
-  GET_ORGANIZATION_INTEGRATION_ACCOUNT,
   GET_ORGANIZATION_MEMBERS,
   REMOVE_MEMBER_FROM_ORGANIZATION,
   REMOVE_ROLE_FROM_MEMBER,
+  RENAME_ORGANIZATION_DATABASE,
   addMemberToOrganization,
   addRoleToMember,
   getOrganizationEntitySets,
-  getOrganizationIntegrationAccount,
   getOrganizationMembers,
   removeMemberFromOrganization,
   removeRoleFromMember,
+  renameOrganizationDatabase,
 } = OrganizationsApiActions;
 
 const { getUserId } = PersonUtils;
@@ -85,16 +91,17 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_ENTITY_SETS]: RS_INITIAL_STATE,
-  [GET_ORGANIZATION_INTEGRATION_ACCOUNT]: RS_INITIAL_STATE,
+  [GET_ORGANIZATION_INTEGRATION_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_MEMBER_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
+  [RENAME_ORGANIZATION_DATABASE]: RS_INITIAL_STATE,
   // data
   [ATLAS_DATA_SET_IDS]: Map(),
   [ENTITY_SET_IDS]: Map(),
-  [INTEGRATION_ACCOUNTS]: Map(),
+  [INTEGRATION_DETAILS]: Map(),
   [IS_OWNER]: Map(),
   [MEMBERS]: Map(),
   [ORGS]: Map(),
@@ -104,6 +111,14 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   if (action.type === getOrganizationDataSets.case(action.type)) {
     return getOrganizationDataSetsReducer(state, action);
+  }
+
+  if (action.type === getOrganizationIntegrationDetails.case(action.type)) {
+    return getOrganizationIntegrationDetailsReducer(state, action);
+  }
+
+  if (action.type === renameOrganizationDatabase.case(action.type)) {
+    return renameOrganizationDatabaseReducer(state, action);
   }
 
   // TODO: refactor this reducer
@@ -351,36 +366,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           return state;
         },
         FINALLY: () => state.deleteIn([GET_ORGANIZATION_ENTITY_SETS, seqAction.id]),
-      });
-    }
-
-    case getOrganizationIntegrationAccount.case(action.type): {
-      const seqAction :SequenceAction = action;
-      return getOrganizationIntegrationAccount.reducer(state, action, {
-        REQUEST: () => state
-          .setIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, REQUEST_STATE], RequestStates.PENDING)
-          .setIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, seqAction.id], seqAction),
-        SUCCESS: () => {
-          const storedSeqAction :?SequenceAction = state.getIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, seqAction.id]);
-          if (storedSeqAction) {
-            const organizationId :UUID = storedSeqAction.value;
-            return state
-              .setIn([INTEGRATION_ACCOUNTS, organizationId], fromJS(seqAction.value))
-              .setIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, REQUEST_STATE], RequestStates.SUCCESS);
-          }
-          return state;
-        },
-        FAILURE: () => {
-          const storedSeqAction :?SequenceAction = state.getIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, seqAction.id]);
-          if (storedSeqAction) {
-            const organizationId :UUID = storedSeqAction.value;
-            return state
-              .deleteIn([INTEGRATION_ACCOUNTS, organizationId])
-              .setIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, REQUEST_STATE], RequestStates.FAILURE);
-          }
-          return state;
-        },
-        FINALLY: () => state.deleteIn([GET_ORGANIZATION_INTEGRATION_ACCOUNT, seqAction.id]),
       });
     }
 

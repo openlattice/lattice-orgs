@@ -17,8 +17,8 @@ import type { RequestState } from 'redux-reqseq';
 import { clearAtlasCredentials } from './actions';
 
 import {
+  ActionsGrid,
   CopyButton,
-  ElementWithButtonGrid,
   Pre,
   Spinner,
   StackGrid,
@@ -78,42 +78,42 @@ const AccountContainer = () => {
         </div>
         <StackGrid gap={4}>
           <Typography component="h2" variant="body2">USER ID</Typography>
-          <ElementWithButtonGrid fitContent>
+          <ActionsGrid align={{ v: 'center' }} fit>
             <Pre>{thisUserInfo.id}</Pre>
             <CopyButton
                 aria-label="copy user id"
                 onClick={() => clipboardWriteText(thisUserInfo.id)} />
-          </ElementWithButtonGrid>
+          </ActionsGrid>
         </StackGrid>
         <StackGrid gap={4}>
           <Typography component="h2" variant="body2">AUTH0 JWT TOKEN</Typography>
-          <ElementWithButtonGrid fitContent>
+          <ActionsGrid fit>
             {PasswordInput}
             <CopyButton
                 aria-label="copy auth0 jwt token"
                 onClick={() => clipboardWriteText(AuthUtils.getAuthToken())} />
-          </ElementWithButtonGrid>
+          </ActionsGrid>
         </StackGrid>
         {
           getAtlasCredentialsRS === RequestStates.SUCCESS && (
             <>
               <StackGrid gap={4}>
                 <Typography component="h2" variant="body2">ATLAS USERNAME</Typography>
-                <ElementWithButtonGrid fitContent>
+                <ActionsGrid fit>
                   {PasswordInput}
                   <CopyButton
                       aria-label="copy atlas username"
                       onClick={() => clipboardWriteText(atlasCredentials.get('username'))} />
-                </ElementWithButtonGrid>
+                </ActionsGrid>
               </StackGrid>
               <StackGrid gap={4}>
                 <Typography component="h2" variant="body2">ATLAS CREDENTIAL</Typography>
-                <ElementWithButtonGrid fitContent>
+                <ActionsGrid fit>
                   {PasswordInput}
                   <CopyButton
                       aria-label="copy atlas credential"
                       onClick={() => clipboardWriteText(atlasCredentials.get('credential'))} />
-                </ElementWithButtonGrid>
+                </ActionsGrid>
               </StackGrid>
             </>
           )
