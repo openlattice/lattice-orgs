@@ -88,6 +88,18 @@ const OrgDataSetsContainer = ({
     }
   };
 
+  useEffect(() => {
+    if (searchOrgDataSetsRS === RequestStates.STANDBY) {
+      dispatch(
+        searchOrganizationDataSets({
+          organizationId,
+          maxHits: MAX_HITS_10,
+          query: '*',
+        })
+      );
+    }
+  }, [dispatch, organizationId, searchOrganizationDataSets]);
+
   if (organization) {
     return (
       <>
@@ -96,33 +108,39 @@ const OrgDataSetsContainer = ({
             <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
             <CrumbItem>Data Sets</CrumbItem>
           </Crumbs>
-          <Typography variant="h1">Data Sets</Typography>
-        </AppContentWrapper>
-        <AppContentWrapper>
-          <StackGrid gap={16}>
-            <SearchForm
-                onSubmit={(query :string) => dispatchDataSetSearch({ query })}
-                searchQuery={searchQuery}
-                searchRequestState={searchOrgDataSetsRS} />
-            {
-              <PaginationToolbar
-                  count={totalHits}
-                  onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
-                  page={searchPage}
-                  rowsPerPage={MAX_HITS_10} />
-            }
-            {
-              searchOrgDataSetsRS === RequestStates.PENDING && (
-                <Spinner />
-              )
-            }
-            {
-              searchOrgDataSetsRS === RequestStates.SUCCESS && (
-                pageDataSetIds.valueSeq().map((id :UUID) => (
-                  <DataSetSearchResultCard key={id} dataSetId={id} organizationId={organizationId} />
-                ))
-              )
-            }
+          <StackGrid gap={48}>
+            <Typography variant="h1">Data Sets</Typography>
+            <StackGrid>
+              <Typography>
+                Search for a data set belonging to this organization. Click on a data set to view its details and
+                properties.
+              </Typography>
+              <SearchForm
+                  onSubmit={(query :string) => dispatchDataSetSearch({ query })}
+                  searchQuery={searchQuery}
+                  searchRequestState={searchOrgDataSetsRS} />
+              {
+                searchOrgDataSetsRS !== RequestStates.STANDBY && (
+                  <PaginationToolbar
+                      count={totalHits}
+                      onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
+                      page={searchPage}
+                      rowsPerPage={MAX_HITS_10} />
+                )
+              }
+              {
+                searchOrgDataSetsRS === RequestStates.PENDING && (
+                  <Spinner />
+                )
+              }
+              {
+                searchOrgDataSetsRS === RequestStates.SUCCESS && (
+                  pageDataSetIds.valueSeq().map((id :UUID) => (
+                    <DataSetSearchResultCard key={id} dataSetId={id} organizationId={organizationId} />
+                  ))
+                )
+              }
+            </StackGrid>
           </StackGrid>
         </AppContentWrapper>
       </>
