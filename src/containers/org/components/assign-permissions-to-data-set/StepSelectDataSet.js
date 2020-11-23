@@ -2,11 +2,16 @@
  * @flow
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 
 import styled from 'styled-components';
 import { Map, Set, getIn } from 'immutable';
-import { PaginationToolbar, Radio, Typography } from 'lattice-ui-kit';
+import {
+  Checkbox,
+  PaginationToolbar,
+  Radio,
+  Typography,
+} from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -56,6 +61,7 @@ const StepSelectDataSet = ({
 }) => {
 
   const dispatch = useDispatch();
+  const [searchOnlyOrgDataSets, setSearchOnlyOrgDataSets] = useState(true);
 
   const searchDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS]);
 
@@ -78,7 +84,7 @@ const StepSelectDataSet = ({
           page,
           query,
           start,
-          all: true,
+          all: !searchOnlyOrgDataSets,
           maxHits: MAX_HITS_10,
         })
       );
@@ -101,6 +107,10 @@ const StepSelectDataSet = ({
         <SearchForm
             onSubmit={(query :string) => dispatchDataSetSearch({ query })}
             searchRequestState={searchDataSetsRS} />
+        <Checkbox
+            checked={searchOnlyOrgDataSets}
+            label="Search only for data sets that belong to this organization"
+            onChange={() => setSearchOnlyOrgDataSets(!searchOnlyOrgDataSets)} />
       </StackGrid>
       {
         searchDataSetsRS === RequestStates.PENDING && (
