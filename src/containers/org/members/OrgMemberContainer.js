@@ -17,7 +17,7 @@ import {
   CrumbItem,
   CrumbLink,
   Crumbs,
-  Divider,
+  StackGrid,
 } from '../../../components';
 import { selectOrganizationMembers } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
@@ -98,25 +98,30 @@ const OrgMemberContainer = ({
               <CrumbLink to={membersPath}>Members</CrumbLink>
               <CrumbItem>{memberName}</CrumbItem>
             </Crumbs>
-            <Typography gutterBottom variant="h1">{memberName}</Typography>
-            <Typography variant="body1">These are the roles and data sets assigned to this member.</Typography>
-            <Divider isVisible={false} margin={24} />
-            <Typography variant="h2">Roles</Typography>
-            <Divider isVisible={false} margin={12} />
-            <MemberRolesContainer
-                member={member}
-                organizationId={organizationId}
-                roles={organization?.roles} />
-            <Divider isVisible={false} margin={12} />
-            <Typography variant="h2">Data Sets</Typography>
-            <Divider isVisible={false} margin={12} />
-            <Typography variant="body1">Click on a data set to manage permissions.</Typography>
-            <Divider isVisible={false} margin={12} />
-            <DataSetPermissionsContainer
-                organizationId={organizationId}
-                onSelect={setSelection}
-                principal={memberPrincipal}
-                selection={selection} />
+            <StackGrid gap={48}>
+              <StackGrid>
+                <Typography variant="h1">{memberName}</Typography>
+                <Typography>
+                  Below are all of the roles assigned to this member and data sets this member has permissions on.
+                </Typography>
+              </StackGrid>
+              <StackGrid>
+                <Typography variant="h2">Roles</Typography>
+                <MemberRolesContainer
+                    member={member}
+                    organizationId={organizationId}
+                    roles={organization?.roles} />
+              </StackGrid>
+              <StackGrid>
+                <Typography variant="h2">Data Sets</Typography>
+                <Typography>Click on a data set to manage this member&apos;s permissions.</Typography>
+                <DataSetPermissionsContainer
+                    organizationId={organizationId}
+                    onSelect={setSelection}
+                    principal={memberPrincipal}
+                    selection={selection} />
+              </StackGrid>
+            </StackGrid>
           </AppContentWrapper>
         </ContentColumn>
         {

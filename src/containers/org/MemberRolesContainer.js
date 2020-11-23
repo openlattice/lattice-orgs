@@ -1,8 +1,11 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React, { useMemo, useReducer } from 'react';
 
 import { Map } from 'immutable';
-import { PaginationToolbar, SearchInput } from 'lattice-ui-kit';
+import { PaginationToolbar, SearchInput, Typography } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 
@@ -56,7 +59,7 @@ const MemberRolesContainer = ({
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
 
-  const filteredRoles = useMemo(() => (
+  const filteredRoles :Role[] = useMemo(() => (
     roles.filter((role) => (
       isRoleAssignedToMember(member, role.id)
       && role.title.toLowerCase().includes(paginationState.query.toLowerCase())
@@ -67,7 +70,13 @@ const MemberRolesContainer = ({
     roles,
   ]);
 
-  const pagedRoles = filteredRoles.slice(paginationState.start, paginationState.start + MAX_HITS_10);
+  if (filteredRoles.length === 0) {
+    return (
+      <Typography>No roles are assigned to this member.</Typography>
+    );
+  }
+
+  const pagedRoles :Role[] = filteredRoles.slice(paginationState.start, paginationState.start + MAX_HITS_10);
 
   const handleOnChangeFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
     paginationDispatch({ type: FILTER, query: event.target.value || '' });
