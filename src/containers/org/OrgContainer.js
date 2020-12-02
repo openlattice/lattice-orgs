@@ -15,7 +15,7 @@ import type { Organization, UUID } from 'lattice';
 
 import OrgActionButton from './components/OrgActionButton';
 
-import { CrumbLink } from '../../components';
+import { ActionWrapper, CrumbLink } from '../../components';
 import { selectOrganizationAtlasDataSetIds, selectOrganizationEntitySetIds } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 
@@ -47,12 +47,6 @@ const Boxes = styled.div`
       font-size: 50px;
     }
   }
-`;
-
-const ActionHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
 `;
 
 const ManageLink = styled(CrumbLink)`
@@ -93,10 +87,10 @@ const OrgContainer = ({ organizationId } :Props) => {
   if (organization) {
     return (
       <AppContentWrapper>
-        <ActionHeader>
+        <ActionWrapper>
           <Typography gutterBottom variant="h1">{organization.title}</Typography>
           <OrgActionButton organization={organization} />
-        </ActionHeader>
+        </ActionWrapper>
         {
           isNonEmptyString(organization.description) && (
             <div>{organization.description}</div>
