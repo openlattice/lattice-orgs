@@ -12,7 +12,7 @@ import type { UUID } from 'lattice';
 import PromoteTableModal from './PromoteTableModal';
 
 import { DATA_SET_SCHEMA, EDM, IS_OWNER, PERMISSIONS } from '../../../../core/redux/constants';
-import { selectDataSetSchema } from '../../../../core/redux/selectors';
+import { selectCurrentUserIsOrgOwner, selectDataSetSchema } from '../../../../core/redux/selectors';
 import { OPENLATTICE } from '../../../../utils/constants';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
@@ -64,7 +64,7 @@ const DataSetActionButton = ({ dataSet, isAtlas, organizationId } :Props) => {
   const dispatch = useDispatch();
   const [state, stateDispatch] = useReducer(reducer, INITIAL_STATE);
   const dataSetId = isAtlas ? getIn(dataSet, ['table', 'id']) : get(dataSet, 'id');
-  const isOwner :boolean = useSelector((s) => s.getIn([PERMISSIONS, IS_OWNER, dataSetId]));
+  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
   const dataSetSchema = useSelector(selectDataSetSchema(dataSetId));
   const isPromoted = dataSetSchema === OPENLATTICE;
 
