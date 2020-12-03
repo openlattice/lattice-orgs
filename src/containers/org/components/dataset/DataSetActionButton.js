@@ -102,10 +102,10 @@ const DataSetActionButton = ({ dataSet, isAtlas, organizationId } :Props) => {
   return (
     <>
       <IconButton
-          aria-controls={state.menuOpen ? 'organization-action-menu' : undefined}
+          aria-controls={state.menuOpen ? 'dataset-action-menu' : undefined}
           aria-expanded={state.menuOpen ? 'true' : undefined}
           aria-haspopup="menu"
-          aria-label="organization action button"
+          aria-label="dataset action button"
           onClick={handleOpenMenu}
           ref={anchorRef}
           variant="text">
@@ -119,7 +119,7 @@ const DataSetActionButton = ({ dataSet, isAtlas, organizationId } :Props) => {
           }}
           elevation={4}
           getContentAnchorEl={null}
-          id="organization-action-menu"
+          id="dataset-action-menu"
           onClose={handleCloseMenu}
           open={state.menuOpen}
           transformOrigin={{
