@@ -11,7 +11,6 @@ import type { UUID } from 'lattice';
 
 import PromoteTableModal from './PromoteTableModal';
 
-import { DATA_SET_SCHEMA, EDM, IS_OWNER, PERMISSIONS } from '../../../../core/redux/constants';
 import { selectCurrentUserIsOrgOwner, selectDataSetSchema } from '../../../../core/redux/selectors';
 import { OPENLATTICE } from '../../../../utils/constants';
 
