@@ -130,7 +130,7 @@ const DataSetActionButton = ({ dataSet, isAtlas, organizationId } :Props) => {
           {
             isPromoted
               ? 'Promoted'
-              : 'Promote Table'
+              : 'Promote Data Set'
           }
         </MenuItem>
       </Menu>

@@ -40,7 +40,7 @@ const PromoteTableModal = ({
     <Modal
         isVisible={isVisible}
         onClose={onClose}
-        textTitle="Promote Table"
+        textTitle="Promote Data Set"
         viewportScrolling
         withFooter={false}>
       <PromoteBody
