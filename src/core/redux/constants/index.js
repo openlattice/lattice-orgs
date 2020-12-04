@@ -37,6 +37,7 @@ export const ATLAS_CREDENTIALS :'atlasCredentials' = 'atlasCredentials';
 export const ATLAS_DATA_SETS :'atlasDataSets' = 'atlasDataSets';
 export const ATLAS_DATA_SET_IDS :'atlasDataSetIds' = 'atlasDataSetIds';
 export const DATABASE_NAME :'databaseName' = 'databaseName';
+export const DATA_SET_SCHEMA :'dataSetSchema' = 'dataSetSchema';
 export const ENTITY_SET_IDS :'entitySetIds' = 'entitySetIds';
 export const INTEGRATION_DETAILS :'integrationDetails' = 'integrationDetails';
 export const IS_OWNER :'isOwner' = 'isOwner';
