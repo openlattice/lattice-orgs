@@ -15,6 +15,7 @@ export { default as selectAtlasCredentials } from './selectAtlasCredentials';
 export { default as selectAtlasDataSets } from './selectAtlasDataSets';
 export { default as selectCurrentUserIsOrgOwner } from './selectCurrentUserIsOrgOwner';
 export { default as selectDataSetProperties } from './selectDataSetProperties';
+export { default as selectDataSetSchema } from './selectDataSetSchema';
 export { default as selectEntitySetEntityType } from './selectEntitySetEntityType';
 export { default as selectEntitySetPropertyTypes } from './selectEntitySetPropertyTypes';
 export { default as selectOrganizationAtlasDataSetIds } from './selectOrganizationAtlasDataSetIds';
