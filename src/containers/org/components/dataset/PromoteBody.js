@@ -55,7 +55,7 @@ const PromoteBody = ({ dataSet, organizationId, requestState } :Props) => {
       <Typography
           color="textSecondary"
           gutterBottom>
-        {`Promote the ${tableName} table to the OpenLattice schema.`}
+        {`Promote the ${tableName} data set to the OpenLattice schema.`}
       </Typography>
       <Button
           color="primary"
