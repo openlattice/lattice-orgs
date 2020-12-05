@@ -23,6 +23,7 @@ import searchEntitySetMetaDataReducer from './searchEntitySetMetaDataReducer';
 import { RESET_REQUEST_STATE } from '../../redux/actions';
 import {
   ATLAS_DATA_SETS,
+  DATA_SET_SCHEMA,
   ENTITY_SETS,
   ENTITY_SETS_INDEX_MAP,
   ENTITY_TYPES,
@@ -78,6 +79,7 @@ const INITIAL_STATE :Map = fromJS({
   [PROMOTE_STAGING_TABLE]: RS_INITIAL_STATE,
   // data
   [ATLAS_DATA_SETS]: Map(),
+  [DATA_SET_SCHEMA]: Map(),
   [ENTITY_SETS]: List(),
   [ENTITY_SETS_INDEX_MAP]: Map(),
   [ENTITY_TYPES]: List(),
