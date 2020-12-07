@@ -30,21 +30,19 @@ const RoleDetailsModal = ({
 } :Props) => {
   const dispatch = useDispatch();
   const roleId :UUID = role?.id || '';
-  const roleTitle :string = role?.title || '';
   const organizationId :string = organization?.id || '';
-  const orgTitle :string = organization?.title || '';
   const requestState :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_ROLE_FROM_ORGANIZATION]);
   const rolePath = ORG_MEMBERS.replace(ORG_ID_PARAM, organizationId);
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <ModalBody>
-        <span>{`Are you sure you want to remove the role ${roleTitle} from ${orgTitle}?`}</span>
+        <span>Are you sure you want to delete this role? This action cannot be undone.</span>
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
       <ModalBody>
-        <span>Success!</span>
+        <span>This role has been deleted.</span>
       </ModalBody>
     ),
     [RequestStates.FAILURE]: (
@@ -77,11 +75,12 @@ const RoleDetailsModal = ({
   return (
     <ActionModal
         isVisible={isVisible}
+        textPrimary="Delete"
         onClickPrimary={handleOnClickPrimary}
         onClose={onClose}
         requestState={requestState}
         requestStateComponents={rsComponents}
-        textTitle={`Remove Role: ${roleTitle}`} />
+        textTitle="Delete Role" />
   );
 };
 
