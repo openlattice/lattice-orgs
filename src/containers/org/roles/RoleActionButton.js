@@ -7,19 +7,23 @@ import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Organization, Role } from 'lattice';
 
+import RemoveRoleFromOrgModal from './RemoveRoleFromOrgModal';
 import RoleDetailsModal from './RoleDetailsModal';
 
 import { IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
 
 const CLOSE_DETAILS = 'CLOSE_DETAILS';
 const CLOSE_MENU = 'CLOSE_MENU';
+const CLOSE_REMOVE_ROLE = 'CLOSE_REMOVE_ROLE';
 const OPEN_DETAILS = 'OPEN_DETAILS';
 const OPEN_MENU = 'OPEN_MENU';
+const OPEN_REMOVE_ROLE = 'OPEN_REMOVE_ROLE';
 
 const INITIAL_STATE = {
-  menuOpen: false,
   detailsOpen: false,
   descriptionOpen: false,
+  menuOpen: false,
+  removeRoleOpen: false,
 };
 
 const reducer = (state, action) => {
@@ -34,6 +38,11 @@ const reducer = (state, action) => {
         ...state,
         menuOpen: false,
       };
+    case CLOSE_REMOVE_ROLE:
+      return {
+        ...state,
+        removeRoleOpen: false,
+      };
     case OPEN_DETAILS:
       return {
         menuOpen: false,
@@ -43,6 +52,12 @@ const reducer = (state, action) => {
       return {
         ...state,
         menuOpen: true,
+      };
+    case OPEN_REMOVE_ROLE:
+      return {
+        ...state,
+        menuOpen: false,
+        removeRoleOpen: true,
       };
     default:
       return state;
@@ -75,6 +90,14 @@ const RoleActionButton = ({ organization, role } :Props) => {
     dispatch({ type: CLOSE_DETAILS });
   };
 
+  const handleOpenRemoveRole = () => {
+    dispatch({ type: OPEN_REMOVE_ROLE });
+  };
+
+  const handleCloseRemoveRole = () => {
+    dispatch({ type: CLOSE_REMOVE_ROLE });
+  };
+
   return (
     <>
       <IconButton
@@ -105,7 +128,15 @@ const RoleActionButton = ({ organization, role } :Props) => {
         <MenuItem disabled={!isOwner} onClick={handleOpenDetails}>
           Edit Role Details
         </MenuItem>
+        <MenuItem disabled={!isOwner} onClick={handleOpenRemoveRole}>
+          Remove Role From Organization
+        </MenuItem>
       </Menu>
+      <RemoveRoleFromOrgModal
+          isVisible={state.removeRoleOpen}
+          onClose={handleCloseRemoveRole}
+          organization={organization}
+          role={role} />
       <RoleDetailsModal
           isVisible={state.detailsOpen}
           onClose={handleCloseDetails}
