@@ -15,7 +15,7 @@ import type { Organization, UUID } from 'lattice';
 
 import OrgActionButton from './components/OrgActionButton';
 
-import { CrumbLink } from '../../components';
+import { ActionHeader, CrumbLink } from '../../components';
 import { selectOrganizationAtlasDataSetIds, selectOrganizationEntitySetIds } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 
@@ -47,12 +47,6 @@ const Boxes = styled.div`
       font-size: 50px;
     }
   }
-`;
-
-const ActionHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
 `;
 
 const ManageLink = styled(CrumbLink)`
