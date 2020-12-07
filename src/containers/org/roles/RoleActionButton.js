@@ -126,10 +126,10 @@ const RoleActionButton = ({ organization, role } :Props) => {
             vertical: 'top',
           }}>
         <MenuItem disabled={!isOwner} onClick={handleOpenDetails}>
-          Edit Role Details
+          Edit Details
         </MenuItem>
         <MenuItem disabled={!isOwner} onClick={handleOpenRemoveRole}>
-          Remove Role From Organization
+          Delete Role
         </MenuItem>
       </Menu>
       <RemoveRoleFromOrgModal
