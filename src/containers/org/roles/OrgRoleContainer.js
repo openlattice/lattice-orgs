@@ -11,7 +11,9 @@ import { useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
 import DataSetPermissionsContainer from '../DataSetPermissionsContainer';
+import RoleActionButton from './RoleActionButton';
 import {
+  ActionHeader,
   CrumbItem,
   CrumbLink,
   Crumbs,
@@ -76,7 +78,10 @@ const OrgRoleContainer = ({
               <CrumbItem>Roles</CrumbItem>
               <CrumbItem>{role.title}</CrumbItem>
             </Crumbs>
-            <Typography gutterBottom variant="h1">{role.title}</Typography>
+            <ActionHeader>
+              <Typography gutterBottom variant="h1">{role.title}</Typography>
+              <RoleActionButton organization={organization} role={role} />
+            </ActionHeader>
             {
               isNonEmptyString(role.description) && (
                 <Typography variant="body1">{role.description}</Typography>
