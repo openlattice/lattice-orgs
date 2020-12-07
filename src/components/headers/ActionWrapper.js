@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
-const ActionHeader = styled.div`
+const ActionWrapper = styled.div`
+  align-items: flex-start;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
 `;
 
-export default ActionHeader;
+export default ActionWrapper;

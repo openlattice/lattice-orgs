@@ -18,11 +18,13 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import DataSetActionButton from './components/dataset/DataSetActionButton';
 import DataSetDataContainer from './DataSetDataContainer';
 import DataSetMetaContainer from './DataSetMetaContainer';
 import { getShiproomMetadata } from './actions';
 
 import {
+  ActionWrapper,
   CrumbItem,
   CrumbLink,
   Crumbs,
@@ -103,11 +105,17 @@ const OrgDataSetContainer = ({
     return (
       <>
         <AppContentWrapper>
-          <Crumbs>
-            <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-            <CrumbLink to={dataSetsPath}>Data Sets</CrumbLink>
-            <CrumbItem>{title || name}</CrumbItem>
-          </Crumbs>
+          <ActionWrapper>
+            <Crumbs>
+              <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+              <CrumbLink to={dataSetsPath}>Data Sets</CrumbLink>
+              <CrumbItem>{title || name}</CrumbItem>
+            </Crumbs>
+            <DataSetActionButton
+                dataSet={atlasDataSet || entitySet}
+                isAtlas={!!atlasDataSet}
+                organizationId={organizationId} />
+          </ActionWrapper>
           {
             getOrSelectDataSetRS === RequestStates.PENDING && (
               <Spinner />

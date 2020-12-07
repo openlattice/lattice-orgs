@@ -13,7 +13,7 @@ import type { Organization, Role, UUID } from 'lattice';
 import DataSetPermissionsContainer from '../DataSetPermissionsContainer';
 import RoleActionButton from './RoleActionButton';
 import {
-  ActionHeader,
+  ActionWrapper,
   CrumbItem,
   CrumbLink,
   Crumbs,
@@ -78,10 +78,10 @@ const OrgRoleContainer = ({
               <CrumbItem>Roles</CrumbItem>
               <CrumbItem>{role.title}</CrumbItem>
             </Crumbs>
-            <ActionHeader>
+            <ActionWrapper>
               <Typography gutterBottom variant="h1">{role.title}</Typography>
               <RoleActionButton organization={organization} role={role} />
-            </ActionHeader>
+            </ActionWrapper>
             {
               isNonEmptyString(role.description) && (
                 <Typography variant="body1">{role.description}</Typography>

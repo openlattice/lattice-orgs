@@ -15,7 +15,7 @@ import type { Organization, UUID } from 'lattice';
 
 import OrgActionButton from './components/OrgActionButton';
 
-import { ActionHeader, CrumbLink } from '../../components';
+import { ActionWrapper, CrumbLink } from '../../components';
 import { selectOrganizationAtlasDataSetIds, selectOrganizationEntitySetIds } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 
@@ -87,10 +87,10 @@ const OrgContainer = ({ organizationId } :Props) => {
   if (organization) {
     return (
       <AppContentWrapper>
-        <ActionHeader>
+        <ActionWrapper>
           <Typography gutterBottom variant="h1">{organization.title}</Typography>
           <OrgActionButton organization={organization} />
-        </ActionHeader>
+        </ActionWrapper>
         {
           isNonEmptyString(organization.description) && (
             <div>{organization.description}</div>
