@@ -5,7 +5,7 @@ import { faEllipsisH } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
-import type { Organization } from 'lattice';
+import type { Organization, Role } from 'lattice';
 
 import RoleDetailsModal from './RoleDetailsModal';
 
@@ -51,6 +51,7 @@ const reducer = (state, action) => {
 
 type Props = {
   organization :Organization;
+  role :Role;
 };
 
 const RoleActionButton = ({ organization, role } :Props) => {
