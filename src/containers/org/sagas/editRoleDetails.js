@@ -28,13 +28,6 @@ function* editRoleDetailsWorker(action :SequenceAction) :Saga<void> {
       organizationId
     } = action.value;
 
-    console.log({
-      title,
-      description,
-      roleId,
-      organizationId
-    });
-
     const titleRequest = call(
       updateRoleTitleWorker,
       updateRoleTitle({
