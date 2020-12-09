@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   List,
   Map,
-  get,
   getIn
 } from 'immutable';
 import { Types } from 'lattice';
@@ -16,7 +15,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
 
 import AssembleMenuItem from './AssembleMenuItem';
-import AssembleMenuItemContent from './AssembleMenuItemContent';
 import PromoteTableModal from './PromoteTableModal';
 
 import {
@@ -25,7 +23,6 @@ import {
   selectDataSetSchema
 } from '../../../../core/redux/selectors';
 import { OPENLATTICE } from '../../../../utils/constants';
-import { getOrganizationsAndAuthorizations } from '../../../orgs/actions';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
 const { EntitySetFlagTypes, PermissionTypes } = Types;
@@ -34,10 +31,6 @@ const CLOSE_PROMOTE_DIALOG = 'CLOSE_PROMOTE_DIALOG';
 const CLOSE_MENU = 'CLOSE_MENU';
 const OPEN_PROMOTE_DIALOG = 'OPEN_PROMOTE_DIALOG';
 const OPEN_MENU = 'OPEN_MENU';
-const OPEN_ASSEMBLE_DIALOG = 'OPEN_ASSEMBLE_DIALOG';
-const CLOSE_ASSEMBLE_DIALOG = 'CLOSE_ASSEMBLE_DIALOG';
-const OPEN_DISASSEMBLE_DIALOG = 'OPEN_DISASSEMBLE_DIALOG';
-const CLOSE_DISASSEMBLE_DIALOG = 'CLOSE_DISASSEMBLE_DIALOG';
 
 const INITIAL_STATE = {
   assembleOpen: false,
@@ -69,28 +62,6 @@ const reducer = (state, action) => {
         menuOpen: false,
         promoteOpen: true,
       };
-    case OPEN_ASSEMBLE_DIALOG:
-      return {
-        ...state,
-        assembleOpen: true,
-        menuOpen: false,
-      };
-    case CLOSE_ASSEMBLE_DIALOG:
-      return {
-        ...state,
-        assembleOpen: false,
-      };
-    case OPEN_DISASSEMBLE_DIALOG:
-      return {
-        ...state,
-        disassembleOpen: true,
-        menuOpen: false,
-      };
-    case CLOSE_DISASSEMBLE_DIALOG:
-      return {
-        ...state,
-        disassembleOpen: false,
-      };
     default:
       return state;
   }
@@ -112,7 +83,7 @@ const DataSetActionButton = ({ dataSet, isAtlas, organizationId } :Props) => {
   );
   const dataSetSchema = useSelector(selectDataSetSchema(dataSetId));
   const isPromoted = dataSetSchema === OPENLATTICE;
-  const isAssembled = isAtlas ? false : get(dataSet, 'flags', []).includes(EntitySetFlagTypes.TRANSPORTED);
+  const isAssembled = isAtlas ? false : !!dataSet?.flags?.includes(EntitySetFlagTypes.TRANSPORTED);
 
   useEffect(() => {
     if (isAtlas) {
@@ -144,14 +115,6 @@ const DataSetActionButton = ({ dataSet, isAtlas, organizationId } :Props) => {
 
   const handleClosePromote = () => {
     stateDispatch({ type: CLOSE_PROMOTE_DIALOG });
-  };
-
-  const handleOpenAssemble = () => {
-    stateDispatch({ type: OPEN_ASSEMBLE_DIALOG });
-  };
-
-  const handleOpenDisassemble = () => {
-    stateDispatch({ type: OPEN_DISASSEMBLE_DIALOG });
   };
 
   return (

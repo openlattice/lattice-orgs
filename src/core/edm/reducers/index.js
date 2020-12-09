@@ -10,6 +10,7 @@ import {
   SearchApiActions,
 } from 'lattice-sagas';
 
+import destroyTransportedOrganizationEntitySetReducer from './destroyTransportedOrganizationEntitySetReducer';
 import getEntityDataModelTypesReducer from './getEntityDataModelTypesReducer';
 import getEntitySetReducer from './getEntitySetReducer';
 import getEntitySetsReducer from './getEntitySetsReducer';
@@ -19,6 +20,7 @@ import getOrganizationDataSetSchemaReducer from './getOrganizationDataSetSchemaR
 import getOrganizationDataSetsReducer from './getOrganizationDataSetsReducer';
 import promoteStagingTableReducer from './promoteStagingTableReducer';
 import searchEntitySetMetaDataReducer from './searchEntitySetMetaDataReducer';
+import transportOrganizationEntitySetReducer from './transportOrganizationEntitySetReducer';
 
 import { RESET_REQUEST_STATE } from '../../redux/actions';
 import {
@@ -102,6 +104,9 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
     case RESET_REQUEST_STATE:
       return resetRequestStateReducer(state, action);
 
+    case destroyTransportedOrganizationEntitySet.case(action.type):
+      return destroyTransportedOrganizationEntitySetReducer(state, action);
+
     case getEntityDataModelTypes.case(action.type):
       return getEntityDataModelTypesReducer(state, action);
 
@@ -128,6 +133,9 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case searchEntitySetMetaData.case(action.type):
       return searchEntitySetMetaDataReducer(state, action);
+
+    case transportOrganizationEntitySet.case(action.type):
+      return transportOrganizationEntitySetReducer(state, action);
 
     default:
       return state;

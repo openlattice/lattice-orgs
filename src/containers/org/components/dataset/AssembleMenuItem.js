@@ -32,7 +32,8 @@ const AssembleMenuItem = ({
   entitySetId,
   isAssembled,
   organizationId,
-} :Props) => {
+  ...rest
+} :Props, ref) => {
   const dispatch = useDispatch();
   const destroyRS :?RequestState = useRequestState([EDM, DESTROY_TRANSPORTED_ORGANIZATION_ENTITY_SET]);
   const transportRS :?RequestState = useRequestState([EDM, TRANSPORT_ORGANIZATION_ENTITY_SET]);
@@ -55,11 +56,14 @@ const AssembleMenuItem = ({
 
   return (
     <MenuItem
+      // eslint-disable-next-line
+        {...rest}
         disabled={disabled}
-        onClick={handleClick}>
+        onClick={handleClick}
+        ref={ref}>
       <AssembleMenuItemContent isAssembled={isAssembled} isLoading={isLoading} />
     </MenuItem>
   );
 };
 
-export default AssembleMenuItem;
+export default React.forwardRef<any, MenuItem>(AssembleMenuItem);
