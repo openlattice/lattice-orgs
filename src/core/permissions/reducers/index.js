@@ -5,11 +5,11 @@
 import { Map, fromJS } from 'immutable';
 
 import assignPermissionsToDataSetReducer from './assignPermissionsToDataSetReducer';
+import getCurrentDataSetAuthorizationsReducer from './getCurrentDataSetAuthorizationsReducer';
 import getDataSetPermissionsReducer from './getDataSetPermissionsReducer';
 import getOwnerStatusReducer from './getOwnerStatusReducer';
 import getPageDataSetPermissionsReducer from './getPageDataSetPermissionsReducer';
 import getPermissionsReducer from './getPermissionsReducer';
-import getUserDataSetAuthorizationsReducer from './getUserDataSetAuthorizationsReducer';
 import setPermissionsReducer from './setPermissionsReducer';
 
 import { RESET_REQUEST_STATE } from '../../redux/actions';
@@ -28,11 +28,11 @@ import {
   GET_PERMISSIONS,
   SET_PERMISSIONS,
   assignPermissionsToDataSet,
+  getCurrentDataSetAuthorizations,
   getDataSetPermissions,
   getOwnerStatus,
   getPageDataSetPermissions,
   getPermissions,
-  getUserDataSetAuthorizations,
   setPermissions,
 } from '../actions';
 
@@ -78,8 +78,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return getPermissionsReducer(state, action);
     }
 
-    case getUserDataSetAuthorizations.case(action.type): {
-      return getUserDataSetAuthorizationsReducer(state, action);
+    case getCurrentDataSetAuthorizations.case(action.type): {
+      return getCurrentDataSetAuthorizationsReducer(state, action);
     }
     case setPermissions.case(action.type): {
       return setPermissionsReducer(state, action);

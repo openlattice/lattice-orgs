@@ -88,7 +88,7 @@ export default function* sagas() :Saga<*> {
     fork(PermissionsSagas.getOwnerStatusWatcher),
     fork(PermissionsSagas.getPageDataSetPermissionsWatcher),
     fork(PermissionsSagas.getPermissionsWatcher),
-    fork(PermissionsSagas.getUserDataSetAuthorizationsWatcher),
+    fork(PermissionsSagas.getCurrentDataSetAuthorizationsWatcher),
     fork(PermissionsSagas.setPermissionsWatcher),
 
     // RoutingSagas

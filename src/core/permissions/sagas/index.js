@@ -7,5 +7,5 @@ export * from './getDataSetPermissions';
 export * from './getOwnerStatus';
 export * from './getPageDataSetPermissions';
 export * from './getPermissions';
-export * from './getUserDataSetAuthorizations';
+export * from './getCurrentDataSetAuthorizations';
 export * from './setPermissions';
