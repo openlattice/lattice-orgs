@@ -58,7 +58,7 @@ const AssembleMenuItem = ({
     <MenuItem
       // eslint-disable-next-line
         {...rest}
-        disabled={disabled}
+        disabled={disabled || isLoading}
         onClick={handleClick}
         ref={ref}>
       <AssembleMenuItemContent isAssembled={isAssembled} isLoading={isLoading} />
