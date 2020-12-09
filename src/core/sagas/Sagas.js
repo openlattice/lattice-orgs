@@ -40,6 +40,7 @@ export default function* sagas() :Saga<*> {
     fork(OrganizationsApiSagas.createRoleWatcher),
     fork(OrganizationsApiSagas.deleteOrganizationWatcher),
     fork(OrganizationsApiSagas.deleteRoleWatcher),
+    fork(OrganizationsApiSagas.destroyTransportedOrganizationEntitySetWatcher),
     fork(OrganizationsApiSagas.getAllOrganizationsWatcher),
     fork(OrganizationsApiSagas.getOrganizationDatabaseNameWatcher),
     fork(OrganizationsApiSagas.getOrganizationEntitySetsWatcher),
@@ -53,6 +54,7 @@ export default function* sagas() :Saga<*> {
     fork(OrganizationsApiSagas.removeRoleFromMemberWatcher),
     fork(OrganizationsApiSagas.renameOrganizationDatabaseWatcher),
     fork(OrganizationsApiSagas.revokeTrustFromOrganizationWatcher),
+    fork(OrganizationsApiSagas.transportOrganizationEntitySetWatcher),
     fork(OrganizationsApiSagas.updateOrganizationDescriptionWatcher),
     fork(OrganizationsApiSagas.updateOrganizationTitleWatcher),
     fork(OrganizationsApiSagas.updateRoleGrantWatcher),
@@ -86,6 +88,7 @@ export default function* sagas() :Saga<*> {
     fork(PermissionsSagas.getOwnerStatusWatcher),
     fork(PermissionsSagas.getPageDataSetPermissionsWatcher),
     fork(PermissionsSagas.getPermissionsWatcher),
+    fork(PermissionsSagas.getUserDataSetAuthorizationsWatcher),
     fork(PermissionsSagas.setPermissionsWatcher),
 
     // RoutingSagas

@@ -36,6 +36,7 @@ export const ACES :'aces' = 'aces';
 export const ATLAS_CREDENTIALS :'atlasCredentials' = 'atlasCredentials';
 export const ATLAS_DATA_SETS :'atlasDataSets' = 'atlasDataSets';
 export const ATLAS_DATA_SET_IDS :'atlasDataSetIds' = 'atlasDataSetIds';
+export const CURRENT :'current' = 'current';
 export const DATABASE_NAME :'databaseName' = 'databaseName';
 export const DATA_SET_SCHEMA :'dataSetSchema' = 'dataSetSchema';
 export const ENTITY_SET_IDS :'entitySetIds' = 'entitySetIds';

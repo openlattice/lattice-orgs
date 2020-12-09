@@ -9,10 +9,16 @@ import getDataSetPermissionsReducer from './getDataSetPermissionsReducer';
 import getOwnerStatusReducer from './getOwnerStatusReducer';
 import getPageDataSetPermissionsReducer from './getPageDataSetPermissionsReducer';
 import getPermissionsReducer from './getPermissionsReducer';
+import getUserDataSetAuthorizationsReducer from './getUserDataSetAuthorizationsReducer';
 import setPermissionsReducer from './setPermissionsReducer';
 
 import { RESET_REQUEST_STATE } from '../../redux/actions';
-import { ACES, IS_OWNER, RS_INITIAL_STATE } from '../../redux/constants';
+import {
+  ACES,
+  CURRENT,
+  IS_OWNER,
+  RS_INITIAL_STATE
+} from '../../redux/constants';
 import { resetRequestStateReducer } from '../../redux/reducers';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
@@ -26,6 +32,7 @@ import {
   getOwnerStatus,
   getPageDataSetPermissions,
   getPermissions,
+  getUserDataSetAuthorizations,
   setPermissions,
 } from '../actions';
 
@@ -39,6 +46,7 @@ const INITIAL_STATE :Map = fromJS({
   [SET_PERMISSIONS]: RS_INITIAL_STATE,
   // data
   [ACES]: Map(),
+  [CURRENT]: Map(),
   [IS_OWNER]: Map(),
 });
 
@@ -70,6 +78,9 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return getPermissionsReducer(state, action);
     }
 
+    case getUserDataSetAuthorizations.case(action.type): {
+      return getUserDataSetAuthorizationsReducer(state, action);
+    }
     case setPermissions.case(action.type): {
       return setPermissionsReducer(state, action);
     }
