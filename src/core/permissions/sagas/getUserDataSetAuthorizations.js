@@ -8,26 +8,22 @@ import {
   takeEvery,
 } from '@redux-saga/core/effects';
 import { List, Map } from 'immutable';
-import { Models, Types } from 'lattice';
+import { Models } from 'lattice';
 import {
   AuthorizationsApiActions,
   AuthorizationsApiSagas,
 } from 'lattice-sagas';
-import { Logger, ValidationUtils } from 'lattice-utils';
+import { Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { ERR_INVALID_UUID } from '../../../utils/constants/errors';
 import { GET_USER_DATA_SET_AUTHORIZATIONS, getUserDataSetAuthorizations } from '../actions';
 import type { AuthorizationObject } from '../../../types';
-
-const { isValidUUID } = ValidationUtils;
 
 const LOG = new Logger('PermissionsSagas');
 
 const { AccessCheck, AccessCheckBuilder } = Models;
-const { PermissionTypes } = Types;
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 
@@ -50,7 +46,7 @@ function* getUserDataSetAuthorizationsWorker(action :SequenceAction) :Saga<Worke
     const authorization :AuthorizationObject = response.data[0];
 
     workerResponse = {
-      data: Map([[List(acl), authorization]])
+      data: Map([[List(authorization.aclKey), authorization.permissions]])
     };
     yield put(getUserDataSetAuthorizations.success(action.id, workerResponse.data));
   }
