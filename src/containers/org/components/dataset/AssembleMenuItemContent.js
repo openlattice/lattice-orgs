@@ -16,7 +16,6 @@ type Props = {
 const AssembleMenuItemContent = ({ isAssembled, isLoading } :Props) => {
 
   const label = isAssembled ? 'Disassemble' : 'Assemble';
-  // const status
   return (
     <Typography>
       { label }
