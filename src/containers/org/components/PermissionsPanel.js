@@ -19,6 +19,7 @@ import {
 import { Models } from 'lattice';
 import {
   Button,
+  CardSegment,
   Checkbox,
   Colors,
   IconButton,
@@ -38,7 +39,7 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { Divider, GridCardSegment } from '../../../components';
+import { Divider, SpaceBetweenGrid } from '../../../components';
 import { SET_PERMISSIONS, setPermissions } from '../../../core/permissions/actions';
 import { PERMISSIONS } from '../../../core/redux/constants';
 import { selectDataSetProperties, selectPermissions } from '../../../core/redux/selectors';
@@ -289,36 +290,42 @@ const PermissionsPanel = ({
       </PanelHeader>
       <Divider isVisible={false} margin={24} />
       <div>
-        <GridCardSegment padding="8px 0">
-          <Typography>Data Set</Typography>
-          <Checkbox checked={isPermissionAssignedToDataSet} onChange={handleOnChangePermission} />
-        </GridCardSegment>
-        <GridCardSegment padding="8px 0">
-          <Typography>All properties</Typography>
-          <IconButton
-              aria-label="permissions toggle for all properties"
-              onClick={togglePermissionAssignmentAll}>
-            <FontAwesomeIcon
-                color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
-                fixedWidth
-                icon={faToggleOn}
-                transform={{ rotate: isPermissionAssignedToAll ? 0 : 180 }}
-                size="lg" />
-          </IconButton>
-        </GridCardSegment>
-        <GridCardSegment padding="8px 0">
-          <Typography>Only non-pii properties</Typography>
-          <IconButton
-              aria-label="permissions toggle for only non-pii properties"
-              onClick={togglePermissionAssignmentOnlyNonPII}>
-            <FontAwesomeIcon
-                color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
-                fixedWidth
-                icon={faToggleOn}
-                transform={{ rotate: isPermissionAssignedToOnlyNonPII ? 0 : 180 }}
-                size="lg" />
-          </IconButton>
-        </GridCardSegment>
+        <CardSegment padding="8px 0">
+          <SpaceBetweenGrid>
+            <Typography>Data Set</Typography>
+            <Checkbox checked={isPermissionAssignedToDataSet} onChange={handleOnChangePermission} />
+          </SpaceBetweenGrid>
+        </CardSegment>
+        <CardSegment padding="8px 0">
+          <SpaceBetweenGrid>
+            <Typography>All properties</Typography>
+            <IconButton
+                aria-label="permissions toggle for all properties"
+                onClick={togglePermissionAssignmentAll}>
+              <FontAwesomeIcon
+                  color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
+                  fixedWidth
+                  icon={faToggleOn}
+                  transform={{ rotate: isPermissionAssignedToAll ? 0 : 180 }}
+                  size="lg" />
+            </IconButton>
+          </SpaceBetweenGrid>
+        </CardSegment>
+        <CardSegment padding="8px 0">
+          <SpaceBetweenGrid>
+            <Typography>Only non-pii properties</Typography>
+            <IconButton
+                aria-label="permissions toggle for only non-pii properties"
+                onClick={togglePermissionAssignmentOnlyNonPII}>
+              <FontAwesomeIcon
+                  color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
+                  fixedWidth
+                  icon={faToggleOn}
+                  transform={{ rotate: isPermissionAssignedToOnlyNonPII ? 0 : 180 }}
+                  size="lg" />
+            </IconButton>
+          </SpaceBetweenGrid>
+        </CardSegment>
         {
           properties.valueSeq().map((property :PropertyType | Map) => {
             const propertyId :UUID = property.id || get(property, 'id');
@@ -328,20 +335,22 @@ const PermissionsPanel = ({
             const ace :?Ace = localPermissions.get(key);
             const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
             return (
-              <GridCardSegment key={propertyId} padding="8px 0">
-                <div>
-                  <Typography>{propertyTitle}</Typography>
-                  {
-                    propertyTypeFQN && (
-                      <Typography variant="caption">{propertyTypeFQN}</Typography>
-                    )
-                  }
-                </div>
-                <Checkbox
-                    checked={isPermissionAssigned}
-                    data-property-id={propertyId}
-                    onChange={handleOnChangePermission} />
-              </GridCardSegment>
+              <CardSegment key={propertyId} padding="8px 0">
+                <SpaceBetweenGrid>
+                  <div>
+                    <Typography>{propertyTitle}</Typography>
+                    {
+                      propertyTypeFQN && (
+                        <Typography variant="caption">{propertyTypeFQN}</Typography>
+                      )
+                    }
+                  </div>
+                  <Checkbox
+                      checked={isPermissionAssigned}
+                      data-property-id={propertyId}
+                      onChange={handleOnChangePermission} />
+                </SpaceBetweenGrid>
+              </CardSegment>
             );
           })
         }

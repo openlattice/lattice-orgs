@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Map, Set, getIn } from 'immutable';
 import {
+  CardSegment,
   Checkbox,
   PaginationToolbar,
   Radio,
@@ -20,8 +21,8 @@ import type { RequestState } from 'redux-reqseq';
 
 import {
   DataSetTitle,
-  GridCardSegment,
   SearchForm,
+  SpaceBetweenGrid,
   Spinner,
   StackGrid,
 } from '../../../../components';
@@ -133,18 +134,20 @@ const StepSelectDataSet = ({
                 <div>
                   {
                     pageEntitySets.valueSeq().map((dataSet :EntitySet) => (
-                      <GridCardSegment key={dataSet.id} padding="8px 0">
-                        <div>
-                          <DataSetTitle isAtlasDataSet={false}>{dataSet.title || dataSet.name}</DataSetTitle>
-                          <Typography variant="caption">{dataSet.id}</Typography>
-                        </div>
-                        <Radio
-                            checked={targetDataSetId === dataSet.id}
-                            data-id={dataSet.id}
-                            data-title={dataSet.title}
-                            name="select-data-set"
-                            onChange={handleOnChangeSelectDataSet} />
-                      </GridCardSegment>
+                      <CardSegment key={dataSet.id} padding="8px 0">
+                        <SpaceBetweenGrid>
+                          <div>
+                            <DataSetTitle isAtlasDataSet={false}>{dataSet.title || dataSet.name}</DataSetTitle>
+                            <Typography variant="caption">{dataSet.id}</Typography>
+                          </div>
+                          <Radio
+                              checked={targetDataSetId === dataSet.id}
+                              data-id={dataSet.id}
+                              data-title={dataSet.title}
+                              name="select-data-set"
+                              onChange={handleOnChangeSelectDataSet} />
+                        </SpaceBetweenGrid>
+                      </CardSegment>
                     ))
                   }
                 </div>
@@ -173,18 +176,20 @@ const StepSelectDataSet = ({
                       const name :string = getIn(dataSet, ['table', 'name']);
                       const title :UUID = getIn(dataSet, ['table', 'title']);
                       return (
-                        <GridCardSegment key={id} padding="8px 0">
-                          <div>
-                            <DataSetTitle isAtlasDataSet>{title || name}</DataSetTitle>
-                            <Typography variant="caption">{id}</Typography>
-                          </div>
-                          <Radio
-                              checked={targetDataSetId === id}
-                              data-id={id}
-                              data-title={title}
-                              name="select-data-set"
-                              onChange={handleOnChangeSelectDataSet} />
-                        </GridCardSegment>
+                        <CardSegment key={id} padding="8px 0">
+                          <SpaceBetweenGrid>
+                            <div>
+                              <DataSetTitle isAtlasDataSet>{title || name}</DataSetTitle>
+                              <Typography variant="caption">{id}</Typography>
+                            </div>
+                            <Radio
+                                checked={targetDataSetId === id}
+                                data-id={id}
+                                data-title={title}
+                                name="select-data-set"
+                                onChange={handleOnChangeSelectDataSet} />
+                          </SpaceBetweenGrid>
+                        </CardSegment>
                       );
                     })
                   }
