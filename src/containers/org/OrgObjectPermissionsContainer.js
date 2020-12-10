@@ -38,10 +38,10 @@ import { resetRequestState } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectObjectPermissions, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-import { ObjectPermissionsCard } from '../permissions';
+import { ObjectPermissionsCardStack } from '../permissions';
 import type { ReactSelectOption } from '../../types';
 
-const { PermissionTypes, PrincipalTypes } = Types;
+const { PermissionTypes } = Types;
 
 const PERMISSION_TYPE_OPTIONS = [
   { label: PermissionTypes.OWNER, value: PermissionTypes.OWNER },
@@ -62,7 +62,7 @@ const OrgObjectPermissionsContainer = ({
 }) => {
 
   const dispatch = useDispatch();
-  const [selectedPermissionTypes, setSelectedPermissionTypes] = useState([]);
+  const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
 
   const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORGANIZATION_OBJECT_PERMISSIONS]);
 
@@ -70,7 +70,6 @@ const OrgObjectPermissionsContainer = ({
 
   const key = useMemo(() => List([organizationId]), [organizationId]);
   const permissions :List<Ace> = useSelector(selectObjectPermissions(key));
-  const permissionsCount :number = permissions.count();
 
   useEffect(() => {
     if (getOrgObjectPermissionsRS === RequestStates.STANDBY) {
@@ -90,10 +89,10 @@ const OrgObjectPermissionsContainer = ({
 
     const handleOnChangeSelect = (options :?ReactSelectOption<PermissionType>[]) => {
       if (!options) {
-        setSelectedPermissionTypes([]);
+        setFilterByPermissionTypes([]);
       }
       else {
-        setSelectedPermissionTypes(options.map((option) => option.value));
+        setFilterByPermissionTypes(options.map((option) => option.value));
       }
     };
 
@@ -127,29 +126,10 @@ const OrgObjectPermissionsContainer = ({
                   <Typography component="span">Assign Permissions</Typography>
                 </PlusButton>
               </SearchFilterAssignPermissionsGrid>
-              {
-                permissionsCount === 0 && (
-                  <Typography>No permissions.</Typography>
-                )
-              }
-              {
-                permissionsCount > 0 && (
-                  <div>
-                    {
-                      permissions
-                        .filter((ace :Ace) => (
-                          (ace.principal.type === PrincipalTypes.ROLE || ace.principal.type === PrincipalTypes.USER)
-                          && (
-                            selectedPermissionTypes.every((pt :PermissionType) => ace.permissions.includes(pt))
-                          )
-                        ))
-                        .map((ace :Ace) => (
-                          <ObjectPermissionsCard ace={ace} key={ace.principal.id} organizationId={organizationId} />
-                        ))
-                    }
-                  </div>
-                )
-              }
+              <ObjectPermissionsCardStack
+                  filterByPermissionTypes={filterByPermissionTypes}
+                  organizationId={organizationId}
+                  permissions={permissions} />
             </StackGrid>
           )
         }
