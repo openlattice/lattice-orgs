@@ -59,7 +59,6 @@ const OrgRouter = () => {
   const matchOrganizationDataSets = useRouteMatch(Routes.ORG_DATA_SETS);
   const matchOrganizationMember = useRouteMatch(Routes.ORG_MEMBER);
   const matchOrganizationPermissions = useRouteMatch(Routes.ORG_OBJ_PERMISSIONS);
-  console.log(matchOrganizationPermissions);
   const matchOrganizationRole = useRouteMatch(Routes.ORG_ROLE);
 
   if (matchOrganizationDataSet) {
