@@ -2,21 +2,34 @@
  * @flow
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
+import styled from 'styled-components';
 import { List } from 'immutable';
 import { Types } from 'lattice';
-import { AppContentWrapper, Typography } from 'lattice-ui-kit';
+import {
+  AppContentWrapper,
+  CheckboxSelect,
+  SearchInput,
+  Typography,
+} from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { Ace, Organization, UUID } from 'lattice';
+import type {
+  Ace,
+  Organization,
+  PermissionType,
+  UUID,
+} from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import {
+  ActionsGrid,
   CrumbItem,
   CrumbLink,
   Crumbs,
+  PlusButton,
   Spinner,
   StackGrid,
 } from '../../components';
@@ -26,8 +39,21 @@ import { PERMISSIONS } from '../../core/redux/constants';
 import { selectObjectPermissions, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { ObjectPermissionsCard } from '../permissions';
+import type { ReactSelectOption } from '../../types';
 
-const { PrincipalTypes } = Types;
+const { PermissionTypes, PrincipalTypes } = Types;
+
+const PERMISSION_TYPE_OPTIONS = [
+  { label: PermissionTypes.OWNER, value: PermissionTypes.OWNER },
+  { label: PermissionTypes.READ, value: PermissionTypes.READ },
+  { label: PermissionTypes.WRITE, value: PermissionTypes.WRITE },
+  { label: PermissionTypes.LINK, value: PermissionTypes.LINK },
+  { label: PermissionTypes.MATERIALIZE, value: PermissionTypes.MATERIALIZE },
+];
+
+const SearchFilterAssignPermissionsGrid = styled(ActionsGrid)`
+  grid-template-columns: 2fr minmax(200px, 1fr) auto;
+`;
 
 const OrgObjectPermissionsContainer = ({
   organizationId,
@@ -36,6 +62,7 @@ const OrgObjectPermissionsContainer = ({
 }) => {
 
   const dispatch = useDispatch();
+  const [selectedPermissionTypes, setSelectedPermissionTypes] = useState([]);
 
   const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORGANIZATION_OBJECT_PERMISSIONS]);
 
@@ -60,6 +87,16 @@ const OrgObjectPermissionsContainer = ({
   ), [organizationId]);
 
   if (organization) {
+
+    const handleOnChangeSelect = (options :?ReactSelectOption<PermissionType>[]) => {
+      if (!options) {
+        setSelectedPermissionTypes([]);
+      }
+      else {
+        setSelectedPermissionTypes(options.map((option) => option.value));
+      }
+    };
+
     return (
       <AppContentWrapper>
         <Crumbs>
@@ -78,6 +115,18 @@ const OrgObjectPermissionsContainer = ({
               <Typography>
                 Below are the users and roles that are granted permissions on this object.
               </Typography>
+              <SearchFilterAssignPermissionsGrid>
+                <SearchInput />
+                <CheckboxSelect
+                    hideSelectedOptions
+                    isClearable
+                    onChange={handleOnChangeSelect}
+                    options={PERMISSION_TYPE_OPTIONS}
+                    placeholder="Filter by permission" />
+                <PlusButton aria-label="assign permissions">
+                  <Typography component="span">Assign Permissions</Typography>
+                </PlusButton>
+              </SearchFilterAssignPermissionsGrid>
               {
                 permissionsCount === 0 && (
                   <Typography>No permissions.</Typography>
@@ -89,10 +138,13 @@ const OrgObjectPermissionsContainer = ({
                     {
                       permissions
                         .filter((ace :Ace) => (
-                          ace.principal.type === PrincipalTypes.ROLE || ace.principal.type === PrincipalTypes.USER
+                          (ace.principal.type === PrincipalTypes.ROLE || ace.principal.type === PrincipalTypes.USER)
+                          && (
+                            selectedPermissionTypes.every((pt :PermissionType) => ace.permissions.includes(pt))
+                          )
                         ))
                         .map((ace :Ace) => (
-                          <ObjectPermissionsCard ace={ace} key={ace.principal.id} />
+                          <ObjectPermissionsCard ace={ace} key={ace.principal.id} organizationId={organizationId} />
                         ))
                     }
                   </div>
