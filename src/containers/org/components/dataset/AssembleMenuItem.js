@@ -12,7 +12,7 @@ import AssembleMenuItemContent from './AssembleMenuItemContent';
 
 import { EDM } from '../../../../core/redux/constants';
 
-const { isPending } = ReduxUtils;
+const { isPending, reduceRequestStates } = ReduxUtils;
 const {
   DESTROY_TRANSPORTED_ORGANIZATION_ENTITY_SET,
   TRANSPORT_ORGANIZATION_ENTITY_SET,
@@ -37,7 +37,7 @@ const AssembleMenuItem = ({
   const dispatch = useDispatch();
   const destroyRS :?RequestState = useRequestState([EDM, DESTROY_TRANSPORTED_ORGANIZATION_ENTITY_SET]);
   const transportRS :?RequestState = useRequestState([EDM, TRANSPORT_ORGANIZATION_ENTITY_SET]);
-  const isLoading = isPending(destroyRS) || isPending(transportRS);
+  const isLoading = isPending(reduceRequestStates([destroyRS, transportRS]));
 
   const handleClick = () => {
     if (isAssembled) {
