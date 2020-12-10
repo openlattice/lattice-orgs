@@ -66,25 +66,21 @@ const ObjectPermissionsCardStack = ({
       }
       {
         permissionsCount > 0 && (
-          <div>
-            {
-              permissions
-                .filter((ace :Ace) => (
-                  (ace.principal.type === PrincipalTypes.ROLE || ace.principal.type === PrincipalTypes.USER)
-                  && (
-                    filterByPermissionTypes.every((pt :PermissionType) => ace.permissions.includes(pt))
-                  )
-                ))
-                .map((ace :Ace) => (
-                  <ObjectPermissionsCard
-                      ace={ace}
-                      key={ace.principal.id}
-                      organizationId={organizationId}
-                      organizationMembers={organizationMembers}
-                      organizationRoles={organizationRoles} />
-                ))
-            }
-          </div>
+          permissions
+            .filter((ace :Ace) => (
+              (ace.principal.type === PrincipalTypes.ROLE || ace.principal.type === PrincipalTypes.USER)
+              && (
+                filterByPermissionTypes.every((pt :PermissionType) => ace.permissions.includes(pt))
+              )
+            ))
+            .map((ace :Ace) => (
+              <ObjectPermissionsCard
+                  ace={ace}
+                  key={ace.principal.id}
+                  organizationId={organizationId}
+                  organizationMembers={organizationMembers}
+                  organizationRoles={organizationRoles} />
+            ))
         )
       }
     </div>
