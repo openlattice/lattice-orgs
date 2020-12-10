@@ -2,10 +2,11 @@
  * @flow
  */
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import {
   CardSegment,
@@ -14,9 +15,20 @@ import {
   Typography,
 } from 'lattice-ui-kit';
 import { LangUtils } from 'lattice-utils';
-import type { Ace, PermissionType } from 'lattice';
+import { useDispatch, useSelector } from 'react-redux';
+import type {
+  Ace,
+  Organization,
+  PermissionType,
+  Principal,
+  Role,
+  UUID,
+} from 'lattice';
 
 import { SpaceBetweenGrid } from '../../components';
+import { selectOrganization, selectOrganizationMembers } from '../../core/redux/selectors';
+import { getPrincipal } from '../../utils';
+import { getUserProfileLabel } from '../../utils/PersonUtils';
 
 const { PermissionTypes, PrincipalTypes } = Types;
 const { isNonEmptyString } = LangUtils;
@@ -31,25 +43,49 @@ const ORDERED_PERMISSIONS = [
 
 const ObjectPermissionsCard = ({
   ace,
+  organizationId,
 } :{
   ace :Ace;
+  organizationId :UUID;
 }) => {
 
   const [isOpen, setIsOpen] = useState(false);
 
+  const organization :?Organization = useSelector(selectOrganization(organizationId));
+  const rolesByPrincipalId :Map<string, Role> = useMemo(() => (
+    Map().withMutations((mutableMap :Map<string, Role>) => {
+      organization?.roles.forEach((role :Role) => {
+        mutableMap.set(role.principal.id, role);
+      });
+    })
+  ), [organization]);
+
+  const members :List<Map> = useSelector(selectOrganizationMembers(organizationId));
+  const membersByPrincipalId :Map<string, Map> = useMemo(() => (
+    Map().withMutations((mutableMap :Map<string, Map>) => {
+      members.forEach((member :Map) => {
+        const principal :?Principal = getPrincipal(member);
+        if (principal) {
+          mutableMap.set(principal.id, member);
+        }
+      });
+    })
+  ), [members]);
+
   let title = '';
   if (ace.principal.type === PrincipalTypes.ROLE) {
-    // const role :?Role = rolesByPrincipalId.get(ace.principal.id);
-    // if (role) {
-    //   title = role.title;
-    // }
+    // TODO: it's not guaranteed that this role belongs to this organization, in which case it's not clear exactly
+    // how we're going to resolve the role title
+    const role :?Role = rolesByPrincipalId.get(ace.principal.id);
+    if (role) {
+      title = role.title;
+    }
   }
   else if (ace.principal.type === PrincipalTypes.USER) {
-    // NOTE: it's not guaranteed that this user will be a member of the org, in which case
-    // we have a problem... we can't get their "profile" to show their name
-    // https://jira.openlattice.com/browse/LATTICE-2645
-    // const member :?Map = membersByPrincipalId.get(ace.principal.id);
-    // title = getUserProfileLabel(member);
+    // TODO: it's not guaranteed that this user is a member of this organization, in which case it's not clear exactly
+    // how we're going to resolve the user's name (or rather, something other than the user_id)
+    const member :?Map = membersByPrincipalId.get(ace.principal.id);
+    title = getUserProfileLabel(member);
   }
 
   if (!isNonEmptyString(title)) {
@@ -65,12 +101,12 @@ const ObjectPermissionsCard = ({
     <CardSegment padding="24px 0">
       <SpaceBetweenGrid>
         <Typography component="span">{title}</Typography>
-        <div>
+        <SpaceBetweenGrid gap={8}>
           <Typography component="span">{permissions}</Typography>
           <IconButton onClick={() => setIsOpen(!isOpen)}>
             <FontAwesomeIcon fixedWidth icon={isOpen ? faChevronUp : faChevronDown} />
           </IconButton>
-        </div>
+        </SpaceBetweenGrid>
       </SpaceBetweenGrid>
       {
         isOpen && (
