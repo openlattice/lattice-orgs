@@ -29,6 +29,7 @@ import {
   CrumbItem,
   CrumbLink,
   Crumbs,
+  Divider,
   PlusButton,
   Spinner,
   StackGrid,
@@ -126,6 +127,7 @@ const OrgObjectPermissionsContainer = ({
                   <Typography component="span">Assign Permissions</Typography>
                 </PlusButton>
               </SearchFilterAssignPermissionsGrid>
+              <Divider isVisible={false} margin={0} />
               <ObjectPermissionsCardStack
                   filterByPermissionTypes={filterByPermissionTypes}
                   organizationId={organizationId}
