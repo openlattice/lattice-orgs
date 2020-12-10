@@ -6,8 +6,8 @@ import React, { useState } from 'react';
 
 import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Map } from 'immutable';
-import { Types } from 'lattice';
+import { List, Map, Set } from 'immutable';
+import { Models, Types } from 'lattice';
 import {
   CardSegment,
   Checkbox,
@@ -15,18 +15,21 @@ import {
   Typography,
 } from 'lattice-ui-kit';
 import { LangUtils } from 'lattice-utils';
+import { useDispatch } from 'react-redux';
 import type {
   Ace,
   PermissionType,
   Principal,
   Role,
-  // UUID,
+  UUID,
 } from 'lattice';
 
 import { SpaceBetweenGrid } from '../../components';
+import { setPermissions } from '../../core/permissions/actions';
 import { getUserProfileLabel } from '../../utils/PersonUtils';
 
-const { PermissionTypes, PrincipalTypes } = Types;
+const { AceBuilder, AclBuilder, AclDataBuilder } = Models;
+const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
 const { isNonEmptyString } = LangUtils;
 
 const ORDERED_PERMISSIONS = [
@@ -39,16 +42,17 @@ const ORDERED_PERMISSIONS = [
 
 const ObjectPermissionsCard = ({
   ace,
-  // organizationId,
+  organizationId,
   organizationMembers,
   organizationRoles,
 } :{
   ace :Ace;
-  // organizationId :UUID;
+  organizationId :UUID;
   organizationMembers :Map<Principal, Map>;
   organizationRoles :Map<Principal, Role>;
 }) => {
 
+  const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
 
   let title = '';
@@ -76,6 +80,22 @@ const ObjectPermissionsCard = ({
     .map((permissionType :PermissionType) => permissionType.toLowerCase())
     .join(', ');
 
+  const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
+
+    const permissionType = event.currentTarget.dataset.permissionType;
+    const key = List([organizationId]);
+
+    const updatedAcePermissions = event.currentTarget.checked
+      // add permission
+      ? Set(ace.permissions).add(permissionType)
+      // remove permission
+      : Set(ace.permissions).delete(permissionType);
+
+    const updatedAce = (new AceBuilder()).setPermissions(updatedAcePermissions).setPrincipal(ace.principal).build();
+    const updatedPermissions :Map<List<UUID>, Ace> = Map().set(key, updatedAce);
+    dispatch(setPermissions(updatedPermissions));
+  };
+
   return (
     <CardSegment padding="24px 0">
       <SpaceBetweenGrid>
@@ -94,8 +114,9 @@ const ObjectPermissionsCard = ({
               <SpaceBetweenGrid>
                 <Typography component="span">{permissionType.toLowerCase()}</Typography>
                 <Checkbox
+                    data-permission-type={permissionType}
                     checked={ace.permissions.includes(permissionType)}
-                    onChange={() => {}} />
+                    onChange={handleOnChangePermission} />
               </SpaceBetweenGrid>
             </CardSegment>
           ))
