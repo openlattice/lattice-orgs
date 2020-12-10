@@ -45,9 +45,6 @@ export const SHIPROOM :'shiproom' = 'shiproom';
 export const USER_SEARCH_RESULTS :'userSearchResults' = 'userSearchResults';
 
 // TODO: does this belong here?
-export const INITIAL_SEARCH_RESULTS :Map = Map();
-
-// TODO: does this belong here?
 export const RS_INITIAL_STATE = {
   [ERROR]: false,
   [REQUEST_STATE]: RequestStates.STANDBY,
