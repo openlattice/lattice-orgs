@@ -28,8 +28,8 @@ import { SpaceBetweenGrid } from '../../components';
 import { setPermissions } from '../../core/permissions/actions';
 import { getUserProfileLabel } from '../../utils/PersonUtils';
 
-const { AceBuilder, AclBuilder, AclDataBuilder } = Models;
-const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
+const { AceBuilder } = Models;
+const { PermissionTypes, PrincipalTypes } = Types;
 const { isNonEmptyString } = LangUtils;
 
 const ORDERED_PERMISSIONS = [
@@ -82,18 +82,21 @@ const ObjectPermissionsCard = ({
 
   const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
 
-    const permissionType = event.currentTarget.dataset.permissionType;
+    const { permissionType } = event.currentTarget.dataset;
     const key = List([organizationId]);
 
-    const updatedAcePermissions = event.currentTarget.checked
-      // add permission
-      ? Set(ace.permissions).add(permissionType)
-      // remove permission
-      : Set(ace.permissions).delete(permissionType);
+    if (PermissionTypes[permissionType]) {
 
-    const updatedAce = (new AceBuilder()).setPermissions(updatedAcePermissions).setPrincipal(ace.principal).build();
-    const updatedPermissions :Map<List<UUID>, Ace> = Map().set(key, updatedAce);
-    dispatch(setPermissions(updatedPermissions));
+      const updatedAcePermissions = event.currentTarget.checked
+        // add permission
+        ? Set(ace.permissions).add(permissionType)
+        // remove permission
+        : Set(ace.permissions).delete(permissionType);
+
+      const updatedAce = (new AceBuilder()).setPermissions(updatedAcePermissions).setPrincipal(ace.principal).build();
+      const updatedPermissions :Map<List<UUID>, Ace> = Map().set(key, updatedAce);
+      dispatch(setPermissions(updatedPermissions));
+    }
   };
 
   return (
