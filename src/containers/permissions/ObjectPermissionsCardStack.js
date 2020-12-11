@@ -26,10 +26,12 @@ const { PrincipalTypes } = Types;
 
 const ObjectPermissionsCardStack = ({
   filterByPermissionTypes,
+  filterByQuery,
   organizationId,
   permissions,
 } :{
   filterByPermissionTypes :Array<PermissionType>;
+  filterByQuery :string;
   organizationId :UUID;
   permissions :List<Ace>;
 }) => {
@@ -76,6 +78,7 @@ const ObjectPermissionsCardStack = ({
             .map((ace :Ace) => (
               <ObjectPermissionsCard
                   ace={ace}
+                  filterByQuery={filterByQuery}
                   key={ace.principal.id}
                   organizationId={organizationId}
                   organizationMembers={organizationMembers}

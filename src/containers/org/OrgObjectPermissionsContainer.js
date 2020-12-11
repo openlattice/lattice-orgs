@@ -64,6 +64,7 @@ const OrgObjectPermissionsContainer = ({
 
   const dispatch = useDispatch();
   const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
+  const [filterByQuery, setFilterByQuery] = useState('');
 
   const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORGANIZATION_OBJECT_PERMISSIONS]);
 
@@ -97,6 +98,10 @@ const OrgObjectPermissionsContainer = ({
       }
     };
 
+    const handleOnChangeFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
+      setFilterByQuery(event.target.value || '');
+    };
+
     return (
       <AppContentWrapper>
         <Crumbs>
@@ -116,7 +121,7 @@ const OrgObjectPermissionsContainer = ({
                 Below are the users and roles that are granted permissions on this object.
               </Typography>
               <SearchFilterAssignPermissionsGrid>
-                <SearchInput />
+                <SearchInput onChange={handleOnChangeFilterQuery} />
                 <CheckboxSelect
                     hideSelectedOptions
                     isClearable
@@ -130,6 +135,7 @@ const OrgObjectPermissionsContainer = ({
               <Divider isVisible={false} margin={0} />
               <ObjectPermissionsCardStack
                   filterByPermissionTypes={filterByPermissionTypes}
+                  filterByQuery={filterByQuery}
                   organizationId={organizationId}
                   permissions={permissions} />
             </StackGrid>

@@ -45,11 +45,13 @@ const ORDERED_PERMISSIONS = [
 
 const ObjectPermissionsCard = ({
   ace,
+  filterByQuery,
   organizationId,
   organizationMembers,
   organizationRoles,
 } :{
   ace :Ace;
+  filterByQuery :string;
   organizationId :UUID;
   organizationMembers :Map<Principal, Map>;
   organizationRoles :Map<Principal, Role>;
@@ -105,6 +107,11 @@ const ObjectPermissionsCard = ({
       );
     }
   };
+
+  // TODO: this is probably not good enough, plan to revisit
+  if (!title.toLowerCase().includes(filterByQuery.toLowerCase())) {
+    return null;
+  }
 
   // TODO: it would be really nice to have the spinner align with the chevron
   // TODO: spinner doesn't have a min-height like the checkbox, so the row height drops when showing the spinner
