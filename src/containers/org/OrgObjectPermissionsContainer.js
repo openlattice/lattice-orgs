@@ -45,11 +45,11 @@ import type { ReactSelectOption } from '../../types';
 const { PermissionTypes } = Types;
 
 const PERMISSION_TYPE_OPTIONS = [
-  { label: PermissionTypes.OWNER, value: PermissionTypes.OWNER },
-  { label: PermissionTypes.READ, value: PermissionTypes.READ },
-  { label: PermissionTypes.WRITE, value: PermissionTypes.WRITE },
-  { label: PermissionTypes.LINK, value: PermissionTypes.LINK },
-  { label: PermissionTypes.MATERIALIZE, value: PermissionTypes.MATERIALIZE },
+  { label: PermissionTypes.OWNER.toLowerCase(), value: PermissionTypes.OWNER },
+  { label: PermissionTypes.READ.toLowerCase(), value: PermissionTypes.READ },
+  { label: PermissionTypes.WRITE.toLowerCase(), value: PermissionTypes.WRITE },
+  { label: PermissionTypes.LINK.toLowerCase(), value: PermissionTypes.LINK },
+  { label: PermissionTypes.MATERIALIZE.toLowerCase(), value: PermissionTypes.MATERIALIZE },
 ];
 
 const SearchFilterAssignPermissionsGrid = styled(ActionsGrid)`
