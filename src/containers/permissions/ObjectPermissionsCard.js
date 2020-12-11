@@ -14,8 +14,9 @@ import {
   IconButton,
   Typography,
 } from 'lattice-ui-kit';
-import { LangUtils } from 'lattice-utils';
+import { LangUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
+import { RequestStates } from 'redux-reqseq';
 import type {
   Ace,
   PermissionType,
@@ -23,13 +24,15 @@ import type {
   Role,
   UUID,
 } from 'lattice';
+import type { RequestState } from 'redux-reqseq';
 
-import { SpaceBetweenGrid } from '../../components';
-import { setPermissions } from '../../core/permissions/actions';
+import { SpaceBetweenGrid, Spinner } from '../../components';
+import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
+import { PERMISSIONS } from '../../core/redux/constants';
 import { getUserProfileLabel } from '../../utils/PersonUtils';
 
 const { AceBuilder } = Models;
-const { PermissionTypes, PrincipalTypes } = Types;
+const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
 const { isNonEmptyString } = LangUtils;
 
 const ORDERED_PERMISSIONS = [
@@ -54,6 +57,8 @@ const ObjectPermissionsCard = ({
 
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
+
+  const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
 
   let title = '';
   if (ace.principal.type === PrincipalTypes.ROLE) {
@@ -83,22 +88,26 @@ const ObjectPermissionsCard = ({
   const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
 
     const { permissionType } = event.currentTarget.dataset;
+
+    // TODO: this needs to change to be a proper acl key, not just the org id
     const key = List([organizationId]);
 
     if (PermissionTypes[permissionType]) {
-
-      const updatedAcePermissions = event.currentTarget.checked
-        // add permission
-        ? Set(ace.permissions).add(permissionType)
-        // remove permission
-        : Set(ace.permissions).delete(permissionType);
-
-      const updatedAce = (new AceBuilder()).setPermissions(updatedAcePermissions).setPrincipal(ace.principal).build();
-      const updatedPermissions :Map<List<UUID>, Ace> = Map().set(key, updatedAce);
-      dispatch(setPermissions(updatedPermissions));
+      const aceForUpdate = (new AceBuilder())
+        .setPermissions(Set([permissionType]))
+        .setPrincipal(ace.principal)
+        .build();
+      dispatch(
+        updatePermissions({
+          actionType: event.currentTarget.checked ? ActionTypes.ADD : ActionTypes.REMOVE,
+          permissions: Map().set(key, aceForUpdate),
+        })
+      );
     }
   };
 
+  // TODO: it would be really nice to have the spinner align with the chevron
+  // TODO: spinner doesn't have a min-height like the checkbox, so the row height drops when showing the spinner
   return (
     <CardSegment padding="24px 0">
       <SpaceBetweenGrid>
@@ -116,10 +125,19 @@ const ObjectPermissionsCard = ({
             <CardSegment borderless key={permissionType} padding="0 0 0 64px">
               <SpaceBetweenGrid>
                 <Typography component="span">{permissionType.toLowerCase()}</Typography>
-                <Checkbox
-                    data-permission-type={permissionType}
-                    checked={ace.permissions.includes(permissionType)}
-                    onChange={handleOnChangePermission} />
+                {
+                  updatePermissionsRS === RequestStates.PENDING && (
+                    <Spinner size="lg" />
+                  )
+                }
+                {
+                  updatePermissionsRS !== RequestStates.PENDING && (
+                    <Checkbox
+                        data-permission-type={permissionType}
+                        checked={ace.permissions.includes(permissionType)}
+                        onChange={handleOnChangePermission} />
+                  )
+                }
               </SpaceBetweenGrid>
             </CardSegment>
           ))

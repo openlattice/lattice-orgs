@@ -26,6 +26,7 @@ function* setPermissionsWorker(action :SequenceAction) :Saga<*> {
   try {
     yield put(setPermissions.request(action.id, action.value));
 
+    // TODO: remove setPermissions and use updatePermissions instead
     const permissions :Map<List<UUID>, Ace> = action.value;
 
     const updates = [];
