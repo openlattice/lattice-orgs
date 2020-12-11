@@ -121,7 +121,7 @@ const ObjectPermissionsCard = ({
         <Typography component="span">{title}</Typography>
         <SpaceBetweenGrid gap={8}>
           <Typography component="span">{permissions}</Typography>
-          <IconButton onClick={() => setIsOpen(!isOpen)}>
+          <IconButton aria-label="toggle open/close" onClick={() => setIsOpen(!isOpen)}>
             <FontAwesomeIcon fixedWidth icon={isOpen ? faChevronUp : faChevronDown} />
           </IconButton>
         </SpaceBetweenGrid>
