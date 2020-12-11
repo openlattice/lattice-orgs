@@ -128,7 +128,7 @@ const OrgObjectPermissionsContainer = ({
                     onChange={handleOnChangeSelect}
                     options={PERMISSION_TYPE_OPTIONS}
                     placeholder="Filter by permission" />
-                <PlusButton aria-label="assign permissions">
+                <PlusButton aria-label="assign permissions" isDisabled>
                   <Typography component="span">Assign Permissions</Typography>
                 </PlusButton>
               </SearchFilterAssignPermissionsGrid>
