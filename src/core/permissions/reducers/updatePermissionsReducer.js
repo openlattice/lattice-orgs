@@ -59,15 +59,6 @@ export default function reducer(state :Map, action :SequenceAction) {
               }
               else if (actionType === ActionTypes.REMOVE) {
                 updatedPermissions = updatedPermissions.subtract(ace.permissions);
-                // NOTE: this doesn't actually work, leaving it in for now in case we need it after the bug is fixed:
-                // https://jira.openlattice.com/browse/LATTICE-2648
-                /*
-                 * if we're doing a REMOVE and the resulting permissions would be [] or ["DISCOVER"], then we should
-                 * actually remove the ace itself by using SET instead of REMOVE and passing all the aces minus this one
-                 */
-                // if (updatedPermissions.isEmpty() || updatedPermissions.equals(Set([PermissionTypes.DISCOVER]))) {
-                //   return storedAces.delete(targetIndex);
-                // }
               }
 
               const updatedAce :Ace = (new AceBuilder())

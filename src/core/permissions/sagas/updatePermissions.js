@@ -37,43 +37,17 @@ function* updatePermissionsWorker(action :SequenceAction) :Saga<*> {
       permissions :Map<List<UUID>, Ace>;
     } = action.value;
 
-    // const aces :Map<List<UUID>, List<Ace>> = yield select((state) => state.getIn([PERMISSIONS, ACES]));
-
     const updates = [];
     permissions.forEach((ace :Ace, key :List<UUID>) => {
 
-      const finalAces = [ace];
-      const finalActionType = actionType;
-
-      // NOTE: this doesn't actually work, leaving it in for now in case we need it after the bug is fixed:
-      // https://jira.openlattice.com/browse/LATTICE-2648
-      /*
-       * if we're doing a REMOVE and the resulting permissions would be [] or ["DISCOVER"], then we should
-       * actually remove the ace itself by using SET instead of REMOVE and passing all the aces minus this one
-       */
-      // if (actionType === ActionTypes.REMOVE) {
-      //   const storedAces :List<Ace> = aces.get(key);
-      //   const targetIndex :number = storedAces.findIndex((storedAce :Ace) => (
-      //     storedAce.principal.id === ace.principal.id && storedAce.principal.type === ace.principal.type
-      //   ));
-      //   const targetAce :Ace = storedAces.get(targetIndex);
-      //   const updatedPermissions :Set<PermissionType> = Set(targetAce.permissions).subtract(ace.permissions);
-      //   if (updatedPermissions.isEmpty() || updatedPermissions.equals(Set([PermissionTypes.DISCOVER]))) {
-      //     finalActionType = ActionTypes.SET;
-      //     finalAces = storedAces.delete(targetIndex);
-      //     // any aces with empty permissions will cause the request will fail, so we'll filter those out too
-      //     finalAces = finalAces.filter((storedAce :Ace) => storedAce.permissions.length > 0);
-      //   }
-      // }
-
       const acl = (new AclBuilder())
-        .setAces(finalAces)
+        .setAces([ace])
         .setAclKey(key)
         .build();
 
       const aclData = (new AclDataBuilder())
         .setAcl(acl)
-        .setAction(finalActionType)
+        .setAction(actionType)
         .build();
 
       updates.push(aclData);
