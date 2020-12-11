@@ -3,7 +3,7 @@
  */
 
 import { List, Map } from 'immutable';
-import { Models } from 'lattice';
+import { Models, Types } from 'lattice';
 import { RequestStates } from 'redux-reqseq';
 import type { Ace, AclObject, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
@@ -19,6 +19,7 @@ import {
 } from '../actions';
 
 const { AclBuilder } = Models;
+const { PermissionTypes } = Types;
 
 export default function reducer(state :Map, action :SequenceAction) {
 
@@ -32,7 +33,16 @@ export default function reducer(state :Map, action :SequenceAction) {
           const acls :AclObject[] = action.value;
           acls.forEach((aclObj :AclObject) => {
             const acl = (new AclBuilder(aclObj)).build();
-            mutableAces.set(List(acl.aclKey), List(acl.aces));
+            const filteredAces = List(acl.aces)
+              // NOTE: empty permissions, i.e. [], is effectively the same as not having any permissions, but the ace
+              // is still around. once this bug is fixed, we can probably take out the filter
+              // https://jira.openlattice.com/browse/LATTICE-2648
+              .filter((ace :Ace) => ace.permissions.length > 0)
+              // NOTE: we're ignoring the DISCOVER permission type, i.e. filter out ["DISCOVER"]
+              // https://jira.openlattice.com/browse/LATTICE-2578
+              // https://jira.openlattice.com/browse/APPS-2381
+              .filterNot((ace :Ace) => ace.permissions.length === 1 && ace.permissions[0] === PermissionTypes.DISCOVER);
+            mutableAces.set(List(acl.aclKey), filteredAces);
           });
         });
         return state
