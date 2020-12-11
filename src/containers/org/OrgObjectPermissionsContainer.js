@@ -4,6 +4,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 
+import _debounce from 'lodash/debounce';
 import styled from 'styled-components';
 import { List } from 'immutable';
 import { Types } from 'lattice';
@@ -98,8 +99,12 @@ const OrgObjectPermissionsContainer = ({
       }
     };
 
+    const debounceFilterByQuery = _debounce((query :string) => {
+      setFilterByQuery(query);
+    }, 250);
+
     const handleOnChangeFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
-      setFilterByQuery(event.target.value || '');
+      debounceFilterByQuery(event.target.value || '');
     };
 
     return (
