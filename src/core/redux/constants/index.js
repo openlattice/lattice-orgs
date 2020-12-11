@@ -2,7 +2,6 @@
  * @flow
  */
 
-import { Map } from 'immutable';
 import { ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 
