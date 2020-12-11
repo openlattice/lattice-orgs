@@ -306,8 +306,8 @@ const PermissionsPanel = ({
                   color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
                   fixedWidth
                   icon={faToggleOn}
-                  transform={{ rotate: isPermissionAssignedToAll ? 0 : 180 }}
-                  size="lg" />
+                  size="lg"
+                  transform={{ rotate: isPermissionAssignedToAll ? 0 : 180 }} />
             </IconButton>
           </SpaceBetweenGrid>
         </CardSegment>
@@ -321,8 +321,8 @@ const PermissionsPanel = ({
                   color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
                   fixedWidth
                   icon={faToggleOn}
-                  transform={{ rotate: isPermissionAssignedToOnlyNonPII ? 0 : 180 }}
-                  size="lg" />
+                  size="lg"
+                  transform={{ rotate: isPermissionAssignedToOnlyNonPII ? 0 : 180 }} />
             </IconButton>
           </SpaceBetweenGrid>
         </CardSegment>
