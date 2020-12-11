@@ -71,7 +71,7 @@ const OrgObjectPermissionsContainer = ({
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
 
-  const key = useMemo(() => List([organizationId]), [organizationId]);
+  const key = List([organizationId]);
   const permissions :List<Ace> = useSelector(selectObjectPermissions(key));
 
   useEffect(() => {
