@@ -27,14 +27,16 @@ const { PrincipalTypes } = Types;
 const ObjectPermissionsCardStack = ({
   filterByPermissionTypes,
   filterByQuery,
+  objectKey,
   organizationId,
   permissions,
-} :{
+} :{|
   filterByPermissionTypes :Array<PermissionType>;
   filterByQuery :string;
+  objectKey :List<UUID>;
   organizationId :UUID;
   permissions :List<Ace>;
-}) => {
+|}) => {
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const organizationRoles :Map<Principal, Role> = useMemo(() => (
@@ -80,7 +82,7 @@ const ObjectPermissionsCardStack = ({
                   ace={ace}
                   filterByQuery={filterByQuery}
                   key={ace.principal.id}
-                  organizationId={organizationId}
+                  objectKey={objectKey}
                   organizationMembers={organizationMembers}
                   organizationRoles={organizationRoles} />
             ))

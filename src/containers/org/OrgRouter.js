@@ -21,10 +21,11 @@ import OrgContainer from './OrgContainer';
 import OrgDataSetContainer from './OrgDataSetContainer';
 import OrgDataSetsContainer from './OrgDataSetsContainer';
 import OrgObjectPermissionsContainer from './OrgObjectPermissionsContainer';
+import OrgRoleContainer from './OrgRoleContainer';
+import OrgRoleObjectPermissionsContainer from './OrgRoleObjectPermissionsContainer';
 import OrgSettingsContainer from './settings/OrgSettingsContainer';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from './actions';
 import { OrgMemberContainer, OrgMembersContainer } from './members';
-import { OrgRoleContainer } from './roles';
 
 import { BasicErrorComponent } from '../../components';
 import { resetRequestState } from '../../core/redux/actions';
@@ -58,8 +59,9 @@ const OrgRouter = () => {
   const matchOrganizationDataSet = useRouteMatch(Routes.ORG_DATA_SET);
   const matchOrganizationDataSets = useRouteMatch(Routes.ORG_DATA_SETS);
   const matchOrganizationMember = useRouteMatch(Routes.ORG_MEMBER);
-  const matchOrganizationPermissions = useRouteMatch(Routes.ORG_OBJ_PERMISSIONS);
   const matchOrganizationRole = useRouteMatch(Routes.ORG_ROLE);
+  const matchOrgObjectPermissions = useRouteMatch(Routes.ORG_OBJECT_PERMISSIONS);
+  const matchOrgRoleObjectPermissions = useRouteMatch(Routes.ORG_ROLE_OBJECT_PERMISSIONS);
 
   if (matchOrganizationDataSet) {
     organizationId = getParamFromMatch(matchOrganizationDataSet, Routes.ORG_ID_PARAM);
@@ -72,12 +74,16 @@ const OrgRouter = () => {
     organizationId = getParamFromMatch(matchOrganizationMember, Routes.ORG_ID_PARAM);
     memberPrincipalId = getParamFromMatch(matchOrganizationMember, Routes.PRINCIPAL_ID_PARAM);
   }
+  else if (matchOrgRoleObjectPermissions) {
+    organizationId = getParamFromMatch(matchOrgRoleObjectPermissions, Routes.ORG_ID_PARAM);
+    roleId = getParamFromMatch(matchOrgRoleObjectPermissions, Routes.ROLE_ID_PARAM);
+  }
   else if (matchOrganizationRole) {
     organizationId = getParamFromMatch(matchOrganizationRole, Routes.ORG_ID_PARAM);
     roleId = getParamFromMatch(matchOrganizationRole, Routes.ROLE_ID_PARAM);
   }
-  else if (matchOrganizationPermissions) {
-    organizationId = getParamFromMatch(matchOrganizationPermissions, Routes.ORG_ID_PARAM);
+  else if (matchOrgObjectPermissions) {
+    organizationId = getParamFromMatch(matchOrgObjectPermissions, Routes.ORG_ID_PARAM);
   }
   // NOTE: check matchOrganization last because it's less specific than the others
   else if (matchOrganization) {
@@ -160,6 +166,12 @@ const OrgRouter = () => {
         : null
     );
 
+    const renderOrgRoleObjectPermissionsContainer = () => (
+      (organizationId && roleId)
+        ? <OrgRoleObjectPermissionsContainer organizationId={organizationId} roleId={roleId} />
+        : null
+    );
+
     const renderOrgSettingsContainer = () => (
       (organizationId)
         ? <OrgSettingsContainer organizationId={organizationId} />
@@ -172,9 +184,10 @@ const OrgRouter = () => {
         <Route path={Routes.ORG_DATA_SETS} render={renderOrgDataSetsContainer} />
         <Route path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
         <Route path={Routes.ORG_MEMBERS} render={renderOrgMembersContainer} />
-        <Route path={Routes.ORG_OBJ_PERMISSIONS} render={renderOrgObjectPermissionsContainer} />
+        <Route path={Routes.ORG_ROLE_OBJECT_PERMISSIONS} render={renderOrgRoleObjectPermissionsContainer} />
         <Route path={Routes.ORG_ROLE} render={renderOrgRoleContainer} />
         <Route path={Routes.ORG_SETTINGS} render={renderOrgSettingsContainer} />
+        <Route path={Routes.ORG_OBJECT_PERMISSIONS} render={renderOrgObjectPermissionsContainer} />
         <Route path={Routes.ORG} render={renderOrgContainer} />
       </Switch>
     );

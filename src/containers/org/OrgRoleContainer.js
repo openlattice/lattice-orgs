@@ -10,15 +10,16 @@ import { LangUtils, ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
-import DataSetPermissionsContainer from '../DataSetPermissionsContainer';
+import DataSetPermissionsContainer from './DataSetPermissionsContainer';
+import { PermissionsPanel } from './components';
+
 import {
   CrumbItem,
   CrumbLink,
   Crumbs,
   Divider,
-} from '../../../components';
-import { Routes } from '../../../core/router';
-import { PermissionsPanel } from '../components';
+} from '../../components';
+import { Routes } from '../../core/router';
 
 const { isNonEmptyString } = LangUtils;
 const { selectOrganization } = ReduxUtils;
