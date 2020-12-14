@@ -35,7 +35,7 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { GET_ORGANIZATION_OBJECT_PERMISSIONS, getOrganizationObjectPermissions } from '../../core/permissions/actions';
+import { GET_ORG_OBJECT_PERMISSIONS, getOrgObjectPermissions } from '../../core/permissions/actions';
 import { resetRequestState } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectObjectPermissions, selectOrganization } from '../../core/redux/selectors';
@@ -67,7 +67,7 @@ const OrgObjectPermissionsContainer = ({
   const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
   const [filterByQuery, setFilterByQuery] = useState('');
 
-  const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORGANIZATION_OBJECT_PERMISSIONS]);
+  const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORG_OBJECT_PERMISSIONS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
 
@@ -76,12 +76,12 @@ const OrgObjectPermissionsContainer = ({
 
   useEffect(() => {
     if (getOrgObjectPermissionsRS === RequestStates.STANDBY) {
-      dispatch(getOrganizationObjectPermissions(List().push(key)));
+      dispatch(getOrgObjectPermissions(List().push(key)));
     }
   }, [dispatch, getOrgObjectPermissionsRS, key, permissions]);
 
   useEffect(() => () => {
-    dispatch(resetRequestState([GET_ORGANIZATION_OBJECT_PERMISSIONS]));
+    dispatch(resetRequestState([GET_ORG_OBJECT_PERMISSIONS]));
   }, [dispatch]);
 
   const orgPath = useMemo(() => (

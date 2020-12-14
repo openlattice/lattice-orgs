@@ -6,7 +6,7 @@ import { Map, fromJS } from 'immutable';
 
 import assignPermissionsToDataSetReducer from './assignPermissionsToDataSetReducer';
 import getDataSetPermissionsReducer from './getDataSetPermissionsReducer';
-import getOrganizationObjectPermissionsReducer from './getOrganizationObjectPermissionsReducer';
+import getOrgObjectPermissionsReducer from './getOrgObjectPermissionsReducer';
 import getOwnerStatusReducer from './getOwnerStatusReducer';
 import getPageDataSetPermissionsReducer from './getPageDataSetPermissionsReducer';
 import getPermissionsReducer from './getPermissionsReducer';
@@ -19,7 +19,7 @@ import { resetRequestStateReducer } from '../../redux/reducers';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   GET_DATA_SET_PERMISSIONS,
-  GET_ORGANIZATION_OBJECT_PERMISSIONS,
+  GET_ORG_OBJECT_PERMISSIONS,
   GET_OWNER_STATUS,
   GET_PAGE_DATA_SET_PERMISSIONS,
   GET_PERMISSIONS,
@@ -27,7 +27,7 @@ import {
   UPDATE_PERMISSIONS,
   assignPermissionsToDataSet,
   getDataSetPermissions,
-  getOrganizationObjectPermissions,
+  getOrgObjectPermissions,
   getOwnerStatus,
   getPageDataSetPermissions,
   getPermissions,
@@ -39,7 +39,7 @@ const INITIAL_STATE :Map = fromJS({
   // actions
   [ASSIGN_PERMISSIONS_TO_DATA_SET]: RS_INITIAL_STATE,
   [GET_DATA_SET_PERMISSIONS]: RS_INITIAL_STATE,
-  [GET_ORGANIZATION_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
+  [GET_ORG_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
   [GET_OWNER_STATUS]: RS_INITIAL_STATE,
   [GET_PAGE_DATA_SET_PERMISSIONS]: RS_INITIAL_STATE,
   [GET_PERMISSIONS]: RS_INITIAL_STATE,
@@ -66,8 +66,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return getDataSetPermissionsReducer(state, action);
     }
 
-    case getOrganizationObjectPermissions.case(action.type): {
-      return getOrganizationObjectPermissionsReducer(state, action);
+    case getOrgObjectPermissions.case(action.type): {
+      return getOrgObjectPermissionsReducer(state, action);
     }
 
     case getOwnerStatus.case(action.type): {
