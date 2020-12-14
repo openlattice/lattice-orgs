@@ -16,6 +16,9 @@ const getDataSetPermissions :RequestSequence = newRequestSequence(GET_DATA_SET_P
 const GET_ORG_OBJECT_PERMISSIONS :'GET_ORG_OBJECT_PERMISSIONS' = 'GET_ORG_OBJECT_PERMISSIONS';
 const getOrgObjectPermissions :RequestSequence = newRequestSequence(GET_ORG_OBJECT_PERMISSIONS);
 
+const GET_ORG_ROLE_OBJECT_PERMISSIONS :'GET_ORG_ROLE_OBJECT_PERMISSIONS' = 'GET_ORG_ROLE_OBJECT_PERMISSIONS';
+const getOrgRoleObjectPermissions :RequestSequence = newRequestSequence(GET_ORG_ROLE_OBJECT_PERMISSIONS);
+
 const GET_OWNER_STATUS :'GET_OWNER_STATUS' = 'GET_OWNER_STATUS';
 const getOwnerStatus :RequestSequence = newRequestSequence(GET_OWNER_STATUS);
 
@@ -35,6 +38,7 @@ export {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   GET_DATA_SET_PERMISSIONS,
   GET_ORG_OBJECT_PERMISSIONS,
+  GET_ORG_ROLE_OBJECT_PERMISSIONS,
   GET_OWNER_STATUS,
   GET_PAGE_DATA_SET_PERMISSIONS,
   GET_PERMISSIONS,
@@ -43,6 +47,7 @@ export {
   assignPermissionsToDataSet,
   getDataSetPermissions,
   getOrgObjectPermissions,
+  getOrgRoleObjectPermissions,
   getOwnerStatus,
   getPageDataSetPermissions,
   getPermissions,
