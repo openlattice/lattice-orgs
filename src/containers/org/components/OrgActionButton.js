@@ -1,7 +1,7 @@
 // @flow
 import React, { useReducer, useRef } from 'react';
 
-import { faEllipsisH } from '@fortawesome/pro-regular-svg-icons';
+import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
@@ -83,7 +83,7 @@ const OrgActionButton = ({ organization } :Props) => {
           onClick={handleOpenMenu}
           ref={anchorRef}
           variant="text">
-        <FontAwesomeIcon icon={faEllipsisH} />
+        <FontAwesomeIcon fixedWidth icon={faEllipsisV} />
       </IconButton>
       <Menu
           anchorEl={anchorRef.current}

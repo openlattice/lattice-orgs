@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Colors, IconButton, Typography } from 'lattice-ui-kit';
 import type { PermissionType } from 'lattice';
 
-import { GridCardSegment, StackGrid } from '../../../../components';
+import { SpaceBetweenGrid, StackGrid } from '../../../../components';
 import type { ReactSelectOption } from '../../../../types';
 
 const { NEUTRAL, PURPLE } = Colors;
@@ -41,7 +41,7 @@ const StepSelectProperties = ({
         You can assign permissions to either the data set and all properties, or just the data set itself.
         Permissions on individual properties can be assigned later.
       </Typography>
-      <GridCardSegment padding="0">
+      <SpaceBetweenGrid>
         <Typography variant="body1">
           {`Assign ${permissions} to all properties:`}
         </Typography>
@@ -55,7 +55,7 @@ const StepSelectProperties = ({
               transform={{ rotate: assignPermissionsToAllProperties ? 0 : 180 }}
               size="lg" />
         </IconButton>
-      </GridCardSegment>
+      </SpaceBetweenGrid>
     </StackGrid>
   );
 };
