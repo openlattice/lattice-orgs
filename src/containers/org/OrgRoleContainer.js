@@ -11,8 +11,7 @@ import { useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
 import DataSetPermissionsContainer from './DataSetPermissionsContainer';
-import RoleActionButton from './RoleActionButton';
-import { PermissionsPanel } from './components';
+import { PermissionsPanel, RoleActionButton } from './components';
 
 import {
   CrumbItem,
