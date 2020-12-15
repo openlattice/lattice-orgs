@@ -2,7 +2,6 @@
  * @flow
  */
 
-import { Map } from 'immutable';
 import { ReduxConstants } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 
@@ -43,9 +42,6 @@ export const INTEGRATION_DETAILS :'integrationDetails' = 'integrationDetails';
 export const IS_OWNER :'isOwner' = 'isOwner';
 export const SHIPROOM :'shiproom' = 'shiproom';
 export const USER_SEARCH_RESULTS :'userSearchResults' = 'userSearchResults';
-
-// TODO: does this belong here?
-export const INITIAL_SEARCH_RESULTS :Map = Map();
 
 // TODO: does this belong here?
 export const RS_INITIAL_STATE = {

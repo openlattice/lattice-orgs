@@ -14,11 +14,11 @@ import RoleActionButton from './RoleActionButton';
 
 import DataSetPermissionsContainer from '../DataSetPermissionsContainer';
 import {
-  ActionWrapper,
   CrumbItem,
   CrumbLink,
   Crumbs,
   Divider,
+  SpaceBetweenGrid,
 } from '../../../components';
 import { Routes } from '../../../core/router';
 import { goToRoute } from '../../../core/router/actions';
@@ -85,10 +85,10 @@ const OrgRoleContainer = ({
               <CrumbItem>Roles</CrumbItem>
               <CrumbItem>{role.title}</CrumbItem>
             </Crumbs>
-            <ActionWrapper>
+            <SpaceBetweenGrid>
               <Typography gutterBottom variant="h1">{role.title}</Typography>
               <RoleActionButton organization={organization} role={role} />
-            </ActionWrapper>
+            </SpaceBetweenGrid>
             {
               isNonEmptyString(role.description) && (
                 <Typography variant="body1">{role.description}</Typography>
