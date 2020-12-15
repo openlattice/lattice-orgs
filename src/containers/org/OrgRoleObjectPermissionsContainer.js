@@ -127,7 +127,7 @@ const OrgRoleObjectPermissionsContainer = ({
         {
           getOrgRoleObjectPermissionsRS === RequestStates.SUCCESS && (
             <StackGrid>
-              <Typography variant="h1">Permissions</Typography>
+              <Typography variant="h1">Role Permissions</Typography>
               <Typography>
                 Below are the users and roles that are granted permissions on this object.
               </Typography>
