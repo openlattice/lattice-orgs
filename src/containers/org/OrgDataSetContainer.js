@@ -24,11 +24,11 @@ import DataSetMetaContainer from './DataSetMetaContainer';
 import { getShiproomMetadata } from './actions';
 
 import {
-  ActionWrapper,
   CrumbItem,
   CrumbLink,
   Crumbs,
   NavContentWrapper,
+  SpaceBetweenGrid,
   Spinner,
   StackGrid,
 } from '../../components';
@@ -105,17 +105,11 @@ const OrgDataSetContainer = ({
     return (
       <>
         <AppContentWrapper>
-          <ActionWrapper>
-            <Crumbs>
-              <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-              <CrumbLink to={dataSetsPath}>Data Sets</CrumbLink>
-              <CrumbItem>{title || name}</CrumbItem>
-            </Crumbs>
-            <DataSetActionButton
-                dataSet={atlasDataSet || entitySet}
-                isAtlas={!!atlasDataSet}
-                organizationId={organizationId} />
-          </ActionWrapper>
+          <Crumbs>
+            <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+            <CrumbLink to={dataSetsPath}>Data Sets</CrumbLink>
+            <CrumbItem>{title || name}</CrumbItem>
+          </Crumbs>
           {
             getOrSelectDataSetRS === RequestStates.PENDING && (
               <Spinner />
@@ -125,7 +119,13 @@ const OrgDataSetContainer = ({
             getOrSelectDataSetRS === RequestStates.SUCCESS && (
               <StackGrid gap={48}>
                 <StackGrid>
-                  <Typography variant="h1">{title || name}</Typography>
+                  <SpaceBetweenGrid>
+                    <Typography variant="h1">{title || name}</Typography>
+                    <DataSetActionButton
+                        dataSet={atlasDataSet || entitySet}
+                        isAtlas={!!atlasDataSet}
+                        organizationId={organizationId} />
+                  </SpaceBetweenGrid>
                   <Typography>{description || name}</Typography>
                 </StackGrid>
                 <StackGrid>

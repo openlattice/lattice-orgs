@@ -15,7 +15,7 @@ import {
   getPageDataSetPermissions,
 } from '../actions';
 
-const LOG = new Logger('SearchSagas');
+const LOG = new Logger('PermissionsSagas');
 
 function* getPageDataSetPermissionsWorker(action :SequenceAction) :Saga<*> {
 

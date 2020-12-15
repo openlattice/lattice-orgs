@@ -41,6 +41,9 @@ const ORG_MEMBERS :'/orgs/:organizationId/members' = `${ORG}/members`;
 const ORG_MEMBER :'/orgs/:organizationId/members/:principalId' = `${ORG_MEMBERS}/${PRINCIPAL_ID_PARAM}`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_OBJ_PERMISSIONS :'/orgs/:organizationId/permissions' = `${ORG}/permissions`;
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_SETTINGS :'/orgs/:organizationId/settings' = `${ORGS}/${ORG_ID_PARAM}/settings`;
 
 export {
@@ -52,6 +55,7 @@ export {
   ORG_DATA_SET_DATA,
   ORG_MEMBER,
   ORG_MEMBERS,
+  ORG_OBJ_PERMISSIONS,
   ORG_ROLE,
   ORG_SETTINGS,
   ROOT,
