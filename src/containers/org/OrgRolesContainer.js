@@ -2,10 +2,9 @@
  * @flow
  */
 
-import React, { useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useReducer, useState } from 'react';
 
 import styled from 'styled-components';
-import { List, Map, Set } from 'immutable';
 import {
   AppContentWrapper,
   CardSegment,
@@ -13,18 +12,9 @@ import {
   SearchInput,
   Typography,
 } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { RequestStates } from 'redux-reqseq';
-import type {
-  Ace,
-  Organization,
-  PermissionType,
-  Role,
-  UUID,
-} from 'lattice';
-import type { RequestState } from 'redux-reqseq';
+import type { Organization, Role, UUID } from 'lattice';
 
 import { AddRoleToOrgModal } from './components';
 
@@ -33,9 +23,7 @@ import {
   CrumbItem,
   CrumbLink,
   Crumbs,
-  Divider,
   PlusButton,
-  Spinner,
   StackGrid,
 } from '../../components';
 import { selectCurrentUserIsOrgOwner, selectOrganization } from '../../core/redux/selectors';
@@ -61,8 +49,10 @@ const RoleLink = styled(Link)`
 
 const OrgRolesContainer = ({
   organizationId,
+  organizationRoute,
 } :{|
   organizationId :UUID;
+  organizationRoute :string;
 |}) => {
 
   const [isVisibleAddRoleToOrgModal, setIsVisibleAddRoleToOrgModal] = useState(false);
@@ -70,10 +60,6 @@ const OrgRolesContainer = ({
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
-
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
 
   if (organization) {
 
@@ -97,7 +83,7 @@ const OrgRolesContainer = ({
     return (
       <AppContentWrapper>
         <Crumbs>
-          <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+          <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
           <CrumbItem>Roles</CrumbItem>
         </Crumbs>
         <StackGrid gap={24}>

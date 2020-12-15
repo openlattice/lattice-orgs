@@ -20,7 +20,6 @@ import {
   Divider,
   SpaceBetweenGrid
 } from '../../components';
-import { Routes } from '../../core/router';
 
 const { isNonEmptyString } = LangUtils;
 const { selectOrganization } = ReduxUtils;
@@ -46,10 +45,14 @@ const PanelColumn = styled.div`
 
 const OrgRoleContainer = ({
   organizationId,
+  organizationRoute,
   roleId,
+  rolesRoute,
 } :{|
   organizationId :UUID;
+  organizationRoute :string;
   roleId :UUID;
+  rolesRoute :string;
 |}) => {
 
   const [selection, setSelection] = useState();
@@ -58,14 +61,6 @@ const OrgRoleContainer = ({
   const role :?Role = useMemo(() => (
     organization?.roles.find((orgRole) => orgRole.id === roleId)
   ), [organization, roleId]);
-
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
-  const rolesPath = useMemo(() => (
-    Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
 
   if (organization && role) {
 
@@ -78,8 +73,8 @@ const OrgRoleContainer = ({
         <ContentColumn>
           <AppContentWrapper>
             <Crumbs>
-              <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-              <CrumbLink to={rolesPath}>Roles</CrumbLink>
+              <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+              <CrumbLink to={rolesRoute}>Roles</CrumbLink>
               <CrumbItem>{role.title}</CrumbItem>
             </Crumbs>
             <SpaceBetweenGrid>

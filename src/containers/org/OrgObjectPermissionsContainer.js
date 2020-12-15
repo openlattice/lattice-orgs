@@ -38,7 +38,6 @@ import { GET_ORG_OBJECT_PERMISSIONS, getOrgObjectPermissions } from '../../core/
 import { resetRequestState } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectObjectPermissions, selectOrganization } from '../../core/redux/selectors';
-import { Routes } from '../../core/router';
 import { ObjectPermissionsCardStack } from '../permissions';
 import { PERMISSION_TYPE_RS_OPTIONS } from '../permissions/constants';
 import type { ReactSelectOption } from '../../types';
@@ -49,8 +48,10 @@ const ObjectPermissionsActionGrid = styled(ActionsGrid)`
 
 const OrgObjectPermissionsContainer = ({
   organizationId,
+  organizationRoute,
 } :{
   organizationId :UUID;
+  organizationRoute :string;
 }) => {
 
   const dispatch = useDispatch();
@@ -74,10 +75,6 @@ const OrgObjectPermissionsContainer = ({
     dispatch(resetRequestState([GET_ORG_OBJECT_PERMISSIONS]));
   }, [dispatch]);
 
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
   if (organization) {
 
     const handleOnChangeSelect = (options :?ReactSelectOption<PermissionType>[]) => {
@@ -100,7 +97,7 @@ const OrgObjectPermissionsContainer = ({
     return (
       <AppContentWrapper>
         <Crumbs>
-          <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+          <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
           <CrumbItem>Permissions</CrumbItem>
         </Crumbs>
         {
