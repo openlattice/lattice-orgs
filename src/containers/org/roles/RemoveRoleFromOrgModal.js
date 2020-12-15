@@ -18,7 +18,7 @@ type Props = {
   role :Role;
 };
 
-const RoleDetailsModal = ({
+const RemoveRoleFromOrgModal = ({
   isVisible,
   onClose,
   organization,
@@ -51,4 +51,4 @@ const RoleDetailsModal = ({
   );
 };
 
-export default RoleDetailsModal;
+export default RemoveRoleFromOrgModal;
