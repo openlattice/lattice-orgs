@@ -34,11 +34,10 @@ import {
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import {
+  selectCurrentUserIsOrgOwner,
   selectOrganization,
   selectOrganizationIntegrationDetails,
-  selectCurrentUserIsOrgOwner,
 } from '../../../core/redux/selectors';
-import { Routes } from '../../../core/router';
 import { clipboardWriteText } from '../../../utils';
 import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails } from '../actions';
 import { RenameOrgDatabaseModal } from '../components';
