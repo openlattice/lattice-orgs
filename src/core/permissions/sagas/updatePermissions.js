@@ -4,30 +4,38 @@
 
 import { call, put, takeEvery } from '@redux-saga/core/effects';
 import { List } from 'immutable';
-import { Models, Types } from 'lattice';
+import { Models } from 'lattice';
 import { PermissionsApiActions, PermissionsApiSagas } from 'lattice-sagas';
 import { Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
-import type { Ace, UUID } from 'lattice';
+import type {
+  Ace,
+  ActionType,
+  UUID,
+} from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { SET_PERMISSIONS, setPermissions } from '../actions';
+import { UPDATE_PERMISSIONS, updatePermissions } from '../actions';
 
 const LOG = new Logger('PermissionsSagas');
 
 const { AclBuilder, AclDataBuilder } = Models;
-const { ActionTypes } = Types;
 const { updateAcls } = PermissionsApiActions;
 const { updateAclsWorker } = PermissionsApiSagas;
 
-function* setPermissionsWorker(action :SequenceAction) :Saga<*> {
+function* updatePermissionsWorker(action :SequenceAction) :Saga<*> {
 
   try {
-    yield put(setPermissions.request(action.id, action.value));
+    yield put(updatePermissions.request(action.id, action.value));
 
-    // TODO: remove setPermissions and use updatePermissions instead
-    const permissions :Map<List<UUID>, Ace> = action.value;
+    const {
+      actionType,
+      permissions,
+    } :{
+      actionType :ActionType;
+      permissions :Map<List<UUID>, Ace>;
+    } = action.value;
 
     const updates = [];
     permissions.forEach((ace :Ace, key :List<UUID>) => {
@@ -39,7 +47,7 @@ function* setPermissionsWorker(action :SequenceAction) :Saga<*> {
 
       const aclData = (new AclDataBuilder())
         .setAcl(acl)
-        .setAction(ActionTypes.SET)
+        .setAction(actionType)
         .build();
 
       updates.push(aclData);
@@ -48,23 +56,23 @@ function* setPermissionsWorker(action :SequenceAction) :Saga<*> {
     const response :WorkerResponse = yield call(updateAclsWorker, updateAcls(updates));
     if (response.error) throw response.error;
 
-    yield put(setPermissions.success(action.id));
+    yield put(updatePermissions.success(action.id));
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(setPermissions.failure(action.id, error));
+    yield put(updatePermissions.failure(action.id, error));
   }
   finally {
-    yield put(setPermissions.finally(action.id));
+    yield put(updatePermissions.finally(action.id));
   }
 }
 
-function* setPermissionsWatcher() :Saga<*> {
+function* updatePermissionsWatcher() :Saga<*> {
 
-  yield takeEvery(SET_PERMISSIONS, setPermissionsWorker);
+  yield takeEvery(UPDATE_PERMISSIONS, updatePermissionsWorker);
 }
 
 export {
-  setPermissionsWatcher,
-  setPermissionsWorker,
+  updatePermissionsWatcher,
+  updatePermissionsWorker,
 };
