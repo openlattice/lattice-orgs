@@ -63,6 +63,10 @@ const OrgRoleContainer = ({
     Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
+  const rolesPath = useMemo(() => (
+    Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId)
+  ), [organizationId]);
+
   if (organization && role) {
 
     const handleOnClosePermissionsPanel = () => {
@@ -75,7 +79,7 @@ const OrgRoleContainer = ({
           <AppContentWrapper>
             <Crumbs>
               <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-              <CrumbItem>Roles</CrumbItem>
+              <CrumbLink to={rolesPath}>Roles</CrumbLink>
               <CrumbItem>{role.title}</CrumbItem>
             </Crumbs>
             <SpaceBetweenGrid>

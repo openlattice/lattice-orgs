@@ -23,6 +23,7 @@ import OrgDataSetsContainer from './OrgDataSetsContainer';
 import OrgObjectPermissionsContainer from './OrgObjectPermissionsContainer';
 import OrgRoleContainer from './OrgRoleContainer';
 import OrgRoleObjectPermissionsContainer from './OrgRoleObjectPermissionsContainer';
+import OrgRolesContainer from './OrgRolesContainer';
 import OrgSettingsContainer from './settings/OrgSettingsContainer';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from './actions';
 import { OrgMemberContainer, OrgMembersContainer } from './members';
@@ -60,6 +61,7 @@ const OrgRouter = () => {
   const matchOrganizationDataSets = useRouteMatch(Routes.ORG_DATA_SETS);
   const matchOrganizationMember = useRouteMatch(Routes.ORG_MEMBER);
   const matchOrganizationRole = useRouteMatch(Routes.ORG_ROLE);
+  const matchOrganizationRoles = useRouteMatch(Routes.ORG_ROLES);
   const matchOrgObjectPermissions = useRouteMatch(Routes.ORG_OBJECT_PERMISSIONS);
   const matchOrgRoleObjectPermissions = useRouteMatch(Routes.ORG_ROLE_OBJECT_PERMISSIONS);
 
@@ -81,6 +83,9 @@ const OrgRouter = () => {
   else if (matchOrganizationRole) {
     organizationId = getParamFromMatch(matchOrganizationRole, Routes.ORG_ID_PARAM);
     roleId = getParamFromMatch(matchOrganizationRole, Routes.ROLE_ID_PARAM);
+  }
+  else if (matchOrganizationRoles) {
+    organizationId = getParamFromMatch(matchOrganizationRoles, Routes.ORG_ID_PARAM);
   }
   else if (matchOrgObjectPermissions) {
     organizationId = getParamFromMatch(matchOrgObjectPermissions, Routes.ORG_ID_PARAM);
@@ -166,6 +171,12 @@ const OrgRouter = () => {
         : null
     );
 
+    const renderOrgRolesContainer = () => (
+      (organizationId)
+        ? <OrgRolesContainer organizationId={organizationId} />
+        : null
+    );
+
     const renderOrgRoleObjectPermissionsContainer = () => (
       (organizationId && roleId)
         ? <OrgRoleObjectPermissionsContainer organizationId={organizationId} roleId={roleId} />
@@ -186,6 +197,7 @@ const OrgRouter = () => {
         <Route path={Routes.ORG_MEMBERS} render={renderOrgMembersContainer} />
         <Route path={Routes.ORG_ROLE_OBJECT_PERMISSIONS} render={renderOrgRoleObjectPermissionsContainer} />
         <Route path={Routes.ORG_ROLE} render={renderOrgRoleContainer} />
+        <Route path={Routes.ORG_ROLES} render={renderOrgRolesContainer} />
         <Route path={Routes.ORG_SETTINGS} render={renderOrgSettingsContainer} />
         <Route path={Routes.ORG_OBJECT_PERMISSIONS} render={renderOrgObjectPermissionsContainer} />
         <Route path={Routes.ORG} render={renderOrgContainer} />
