@@ -5,7 +5,7 @@ import { faEllipsisH } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
-import type { Organization, Role } from 'lattice';
+import type { Organization, Role, UUID } from 'lattice';
 
 import RemoveRoleFromOrgModal from './RemoveRoleFromOrgModal';
 import RoleDetailsModal from './RoleDetailsModal';
@@ -72,6 +72,8 @@ type Props = {
 const RoleActionButton = ({ organization, role } :Props) => {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organization.id]));
+  const roleId :UUID = role?.id || '';
+  const organizationId :string = organization?.id || '';
   const anchorRef = useRef(null);
 
   const handleOpenMenu = () => {
@@ -135,8 +137,8 @@ const RoleActionButton = ({ organization, role } :Props) => {
       <RemoveRoleFromOrgModal
           isVisible={state.removeRoleOpen}
           onClose={handleCloseRemoveRole}
-          organization={organization}
-          role={role} />
+          organizationId={organizationId}
+          roleId={roleId} />
       <RoleDetailsModal
           isVisible={state.detailsOpen}
           onClose={handleCloseDetails}
