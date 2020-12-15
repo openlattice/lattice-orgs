@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
 import DataSetPermissionsContainer from './DataSetPermissionsContainer';
+import RoleActionButton from './RoleActionButton';
 import { PermissionsPanel } from './components';
 
 import {
@@ -18,6 +19,7 @@ import {
   CrumbLink,
   Crumbs,
   Divider,
+  SpaceBetweenGrid
 } from '../../components';
 import { Routes } from '../../core/router';
 
@@ -77,7 +79,10 @@ const OrgRoleContainer = ({
               <CrumbItem>Roles</CrumbItem>
               <CrumbItem>{role.title}</CrumbItem>
             </Crumbs>
-            <Typography gutterBottom variant="h1">{role.title}</Typography>
+            <SpaceBetweenGrid>
+              <Typography gutterBottom variant="h1">{role.title}</Typography>
+              <RoleActionButton organization={organization} role={role} />
+            </SpaceBetweenGrid>
             {
               isNonEmptyString(role.description) && (
                 <Typography variant="body1">{role.description}</Typography>
