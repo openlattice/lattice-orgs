@@ -126,7 +126,7 @@ const ObjectPermissionsCard = ({
       {
         isOpen && (
           ORDERED_PERMISSIONS.map((permissionType :PermissionType) => (
-            <CardSegment borderless key={permissionType} padding="0 0 0 64px">
+            <CardSegment borderless key={permissionType} padding="0">
               <SpaceBetweenGrid>
                 <Typography component="span">{permissionType.toLowerCase()}</Typography>
                 {
