@@ -8,7 +8,7 @@ import type { ComponentType } from 'react';
 import _isInteger from 'lodash/isInteger';
 import styled, { css } from 'styled-components';
 
-type Props = {|
+type ActionsGridProps = {|
   align ?:{|
     h ?:'start' | 'center' | 'end';
     v ?:'start' | 'center' | 'end';
@@ -23,7 +23,7 @@ const getComputedStyles = ({
   children,
   fit,
   gap
-} :Props) => {
+} :ActionsGridProps) => {
 
   const count = Children.count(children) - 1;
 
@@ -40,7 +40,7 @@ const getComputedStyles = ({
   `;
 };
 
-const ActionsGrid :ComponentType<Props> = styled.div`
+const ActionsGrid :ComponentType<ActionsGridProps> = styled.div`
   display: grid;
   flex: 1;
   grid-auto-flow: column;
@@ -52,3 +52,4 @@ const ActionsGrid :ComponentType<Props> = styled.div`
 `;
 
 export default ActionsGrid;
+export type { ActionsGridProps };
