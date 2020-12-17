@@ -20,6 +20,7 @@ import type {
   Ace,
   Organization,
   PermissionType,
+  Role,
   UUID,
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -34,7 +35,7 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { GET_ORG_OBJECT_PERMISSIONS, getOrgObjectPermissions } from '../../core/permissions/actions';
+import { GET_ORG_ROLE_OBJECT_PERMISSIONS, getOrgRoleObjectPermissions } from '../../core/permissions/actions';
 import { resetRequestState } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectObjectPermissions, selectOrganization } from '../../core/redux/selectors';
@@ -47,38 +48,51 @@ const ObjectPermissionsActionGrid = styled(ActionsGrid)`
   grid-template-columns: 2fr minmax(200px, 1fr) auto;
 `;
 
-const OrgObjectPermissionsContainer = ({
+const OrgRoleObjectPermissionsContainer = ({
   organizationId,
+  roleId,
 } :{
   organizationId :UUID;
+  roleId :UUID;
 }) => {
 
   const dispatch = useDispatch();
   const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
   const [filterByQuery, setFilterByQuery] = useState('');
 
-  const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORG_OBJECT_PERMISSIONS]);
+  const getOrgRoleObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORG_ROLE_OBJECT_PERMISSIONS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
+  const role :?Role = useMemo(() => (
+    organization?.roles.find((orgRole) => orgRole.id === roleId)
+  ), [organization, roleId]);
 
-  const objectKey = useMemo(() => List([organizationId]), [organizationId]);
+  const objectKey = useMemo(() => List([organizationId, roleId]), [organizationId, roleId]);
   const permissions :List<Ace> = useSelector(selectObjectPermissions(objectKey));
 
   useEffect(() => {
-    if (getOrgObjectPermissionsRS === RequestStates.STANDBY) {
-      dispatch(getOrgObjectPermissions(List().push(objectKey)));
+    if (getOrgRoleObjectPermissionsRS === RequestStates.STANDBY) {
+      dispatch(getOrgRoleObjectPermissions(List().push(objectKey)));
     }
-  }, [dispatch, getOrgObjectPermissionsRS, objectKey, permissions]);
+  }, [dispatch, getOrgRoleObjectPermissionsRS, objectKey, permissions]);
 
   useEffect(() => () => {
-    dispatch(resetRequestState([GET_ORG_OBJECT_PERMISSIONS]));
+    dispatch(resetRequestState([GET_ORG_ROLE_OBJECT_PERMISSIONS]));
   }, [dispatch]);
 
   const orgPath = useMemo(() => (
     Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
-  if (organization) {
+  const rolesPath = useMemo(() => (
+    Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId)
+  ), [organizationId]);
+
+  const rolePath = useMemo(() => (
+    Routes.ORG_ROLE.replace(Routes.ORG_ID_PARAM, organizationId).replace(Routes.ROLE_ID_PARAM, roleId)
+  ), [organizationId, roleId]);
+
+  if (organization && role) {
 
     const handleOnChangeSelect = (options :?ReactSelectOption<PermissionType>[]) => {
       if (!options) {
@@ -101,15 +115,17 @@ const OrgObjectPermissionsContainer = ({
       <AppContentWrapper>
         <Crumbs>
           <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+          <CrumbLink to={rolesPath}>Roles</CrumbLink>
+          <CrumbLink to={rolePath}>{role.title || 'Role'}</CrumbLink>
           <CrumbItem>Permissions</CrumbItem>
         </Crumbs>
         {
-          getOrgObjectPermissionsRS === RequestStates.PENDING && (
+          getOrgRoleObjectPermissionsRS === RequestStates.PENDING && (
             <Spinner />
           )
         }
         {
-          getOrgObjectPermissionsRS === RequestStates.SUCCESS && (
+          getOrgRoleObjectPermissionsRS === RequestStates.SUCCESS && (
             <StackGrid>
               <Typography variant="h1">Permissions</Typography>
               <Typography>
@@ -144,4 +160,4 @@ const OrgObjectPermissionsContainer = ({
   return null;
 };
 
-export default OrgObjectPermissionsContainer;
+export default OrgRoleObjectPermissionsContainer;

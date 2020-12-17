@@ -46,16 +46,16 @@ const ORDERED_PERMISSIONS = [
 const ObjectPermissionsCard = ({
   ace,
   filterByQuery,
-  organizationId,
+  objectKey,
   organizationMembers,
   organizationRoles,
-} :{
+} :{|
   ace :Ace;
   filterByQuery :string;
-  organizationId :UUID;
+  objectKey :List<UUID>;
   organizationMembers :Map<Principal, Map>;
   organizationRoles :Map<Principal, Role>;
-}) => {
+|}) => {
 
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
@@ -91,9 +91,6 @@ const ObjectPermissionsCard = ({
 
     const { permissionType } = event.currentTarget.dataset;
 
-    // TODO: this needs to change to be a proper acl key, not just the org id
-    const key = List([organizationId]);
-
     if (PermissionTypes[permissionType]) {
       const aceForUpdate = (new AceBuilder())
         .setPermissions(Set([permissionType]))
@@ -102,7 +99,7 @@ const ObjectPermissionsCard = ({
       dispatch(
         updatePermissions({
           actionType: event.currentTarget.checked ? ActionTypes.ADD : ActionTypes.REMOVE,
-          permissions: Map().set(key, aceForUpdate),
+          permissions: Map().set(objectKey, aceForUpdate),
         })
       );
     }
