@@ -27,12 +27,14 @@ const { PrincipalTypes } = Types;
 const ObjectPermissionsCardStack = ({
   filterByPermissionTypes,
   filterByQuery,
+  isDataSet,
   objectKey,
   organizationId,
   permissions,
 } :{|
   filterByPermissionTypes :Array<PermissionType>;
   filterByQuery :string;
+  isDataSet :boolean;
   objectKey :List<UUID>;
   organizationId :UUID;
   permissions :List<Ace>;
@@ -81,6 +83,7 @@ const ObjectPermissionsCardStack = ({
               <ObjectPermissionsCard
                   ace={ace}
                   filterByQuery={filterByQuery}
+                  isDataSet={isDataSet}
                   key={ace.principal.id}
                   objectKey={objectKey}
                   organizationMembers={organizationMembers}
@@ -90,6 +93,10 @@ const ObjectPermissionsCardStack = ({
       }
     </div>
   );
+};
+
+ObjectPermissionsCardStack.defaultProps = {
+  isDataSet: false,
 };
 
 export default ObjectPermissionsCardStack;

@@ -105,7 +105,7 @@ const OrgDataSetObjectPermissionsContainer = ({
         )
       }
       {
-        getOrgDataSetObjectPermissionsRS === RequestStates.SUCCESS && (
+        reducedRS === RequestStates.SUCCESS && (
           <StackGrid>
             <Typography variant="h1">Permissions</Typography>
             <Typography>
@@ -118,6 +118,7 @@ const OrgDataSetObjectPermissionsContainer = ({
             <ObjectPermissionsCardStack
                 filterByPermissionTypes={filterByPermissionTypes}
                 filterByQuery={filterByQuery}
+                isDataSet
                 objectKey={objectKey}
                 organizationId={organizationId}
                 permissions={permissions} />

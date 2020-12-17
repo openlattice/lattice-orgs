@@ -2,8 +2,10 @@
  * @flow
  */
 
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
+import type { ComponentType } from 'react';
 
+import styled from 'styled-components';
 import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map, Set } from 'immutable';
@@ -11,6 +13,7 @@ import { Models, Types } from 'lattice';
 import {
   CardSegment,
   Checkbox,
+  Colors,
   IconButton,
   Typography,
 } from 'lattice-ui-kit';
@@ -26,11 +29,12 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { SpaceBetweenGrid, Spinner } from '../../components';
+import { SpaceBetweenGrid, Spinner, StackGrid } from '../../components';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { getUserProfileLabel } from '../../utils/PersonUtils';
 
+const { NEUTRAL } = Colors;
 const { AceBuilder } = Models;
 const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
 const { isNonEmptyString } = LangUtils;
@@ -43,15 +47,33 @@ const ORDERED_PERMISSIONS = [
   PermissionTypes.MATERIALIZE,
 ];
 
+const Card :ComponentType<{|
+  bgColor ?:string;
+  children :any;
+  indent ?:number;
+|}> = styled.div`
+  background-color: ${({ bgColor }) => (bgColor || 'white')};
+  border-radius: 5px;
+  margin-left: ${({ indent = 0 }) => indent * 32}px;
+`;
+
+const SpinnerWrapper = styled.div`
+  display: flex;
+  margin-right: -4px; /* for alignment with checkbox / chevron */
+  min-height: 40px; /* because checkbox has this min-height */
+`;
+
 const ObjectPermissionsCard = ({
   ace,
   filterByQuery,
+  isDataSet,
   objectKey,
   organizationMembers,
   organizationRoles,
 } :{|
   ace :Ace;
   filterByQuery :string;
+  isDataSet :boolean;
   objectKey :List<UUID>;
   organizationMembers :Map<Principal, Map>;
   organizationRoles :Map<Principal, Role>;
@@ -59,6 +81,7 @@ const ObjectPermissionsCard = ({
 
   const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState(false);
+  const [openPermissionType, setOpenPermissionType] = useState('');
 
   const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
 
@@ -110,43 +133,90 @@ const ObjectPermissionsCard = ({
     return null;
   }
 
-  // TODO: it would be really nice to have the spinner align with the chevron
-  // TODO: spinner doesn't have a min-height like the checkbox, so the row height drops when showing the spinner
+  const toggleOpenPermissionType = (permissionType :PermissionType) => {
+    if (openPermissionType === permissionType) {
+      setOpenPermissionType('');
+    }
+    else {
+      setOpenPermissionType(permissionType);
+    }
+  };
+
   return (
     <CardSegment padding="24px 0">
-      <SpaceBetweenGrid>
-        <Typography component="span">{title}</Typography>
-        <SpaceBetweenGrid gap={8}>
-          <Typography component="span">{permissions}</Typography>
-          <IconButton aria-label="toggle open/close" onClick={() => setIsOpen(!isOpen)}>
-            <FontAwesomeIcon fixedWidth icon={isOpen ? faChevronUp : faChevronDown} />
-          </IconButton>
-        </SpaceBetweenGrid>
-      </SpaceBetweenGrid>
-      {
-        isOpen && (
-          ORDERED_PERMISSIONS.map((permissionType :PermissionType) => (
-            <CardSegment borderless key={permissionType} padding="0">
-              <SpaceBetweenGrid>
-                <Typography component="span">{permissionType.toLowerCase()}</Typography>
-                {
-                  updatePermissionsRS === RequestStates.PENDING && (
-                    <Spinner size="lg" />
-                  )
-                }
-                {
-                  updatePermissionsRS !== RequestStates.PENDING && (
-                    <Checkbox
-                        data-permission-type={permissionType}
-                        checked={ace.permissions.includes(permissionType)}
-                        onChange={handleOnChangePermission} />
-                  )
-                }
-              </SpaceBetweenGrid>
-            </CardSegment>
-          ))
-        )
-      }
+      <StackGrid gap={8}>
+        <CardSegment borderless padding="0 2px 0 0">
+          <SpaceBetweenGrid>
+            <Typography component="span">{title}</Typography>
+            <SpaceBetweenGrid gap={8}>
+              <Typography component="span">{permissions}</Typography>
+              <IconButton aria-label="toggle open/close" onClick={() => setIsOpen(!isOpen)}>
+                <FontAwesomeIcon fixedWidth icon={isOpen ? faChevronUp : faChevronDown} />
+              </IconButton>
+            </SpaceBetweenGrid>
+          </SpaceBetweenGrid>
+        </CardSegment>
+        {
+          isOpen && (
+            ORDERED_PERMISSIONS.map((permissionType :PermissionType) => {
+              const isOpenPermissionType = openPermissionType === permissionType;
+              const bgColor = isDataSet ? NEUTRAL.N50 : undefined;
+              const padding = isDataSet ? '2px 2px 2px 16px' : '0 12px 0 0';
+              return (
+                <Fragment key={permissionType}>
+                  <Card bgColor={bgColor} indent={2}>
+                    <CardSegment padding={padding}>
+                      <SpaceBetweenGrid>
+                        <Typography component="span">{permissionType.toLowerCase()}</Typography>
+                        {
+                          isDataSet && (
+                            <IconButton
+                                aria-label="toggle open/close permission type"
+                                onClick={() => toggleOpenPermissionType(permissionType)}>
+                              <FontAwesomeIcon fixedWidth icon={isOpenPermissionType ? faChevronUp : faChevronDown} />
+                            </IconButton>
+                          )
+                        }
+                        {
+                          !isDataSet && updatePermissionsRS === RequestStates.PENDING && (
+                            <SpinnerWrapper>
+                              <Spinner size="lg" />
+                            </SpinnerWrapper>
+                          )
+                        }
+                        {
+                          !isDataSet && updatePermissionsRS !== RequestStates.PENDING && (
+                            <Checkbox
+                                data-permission-type={permissionType}
+                                checked={ace.permissions.includes(permissionType)}
+                                onChange={handleOnChangePermission} />
+                          )
+                        }
+                      </SpaceBetweenGrid>
+                    </CardSegment>
+                  </Card>
+                  {
+                    isOpenPermissionType && (
+                      <Card indent={3}>
+                        <CardSegment borderless key={permissionType} padding="0 12px 0 0">
+                          <SpaceBetweenGrid>
+                            <Typography component="span">Data Set Object</Typography>
+                            <Checkbox
+                                data-object-key={objectKey}
+                                data-permission-type={permissionType}
+                                checked={ace.permissions.includes(permissionType)}
+                                onChange={() => {}} />
+                          </SpaceBetweenGrid>
+                        </CardSegment>
+                      </Card>
+                    )
+                  }
+                </Fragment>
+              );
+            })
+          )
+        }
+      </StackGrid>
     </CardSegment>
   );
 };
