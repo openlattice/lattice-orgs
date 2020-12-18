@@ -39,7 +39,6 @@ import { GET_ORG_ROLE_OBJECT_PERMISSIONS, getOrgRoleObjectPermissions } from '..
 import { resetRequestState } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectObjectPermissions, selectOrganization } from '../../core/redux/selectors';
-import { Routes } from '../../core/router';
 import { ObjectPermissionsCardStack } from '../permissions';
 import { PERMISSION_TYPE_RS_OPTIONS } from '../permissions/constants';
 import type { ReactSelectOption } from '../../types';
@@ -50,10 +49,16 @@ const ObjectPermissionsActionGrid = styled(ActionsGrid)`
 
 const OrgRoleObjectPermissionsContainer = ({
   organizationId,
+  organizationRoute,
   roleId,
+  roleRoute,
+  rolesRoute,
 } :{
   organizationId :UUID;
+  organizationRoute :string;
   roleId :UUID;
+  roleRoute :string;
+  rolesRoute :string;
 }) => {
 
   const dispatch = useDispatch();
@@ -80,18 +85,6 @@ const OrgRoleObjectPermissionsContainer = ({
     dispatch(resetRequestState([GET_ORG_ROLE_OBJECT_PERMISSIONS]));
   }, [dispatch]);
 
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
-  const rolesPath = useMemo(() => (
-    Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
-  const rolePath = useMemo(() => (
-    Routes.ORG_ROLE.replace(Routes.ORG_ID_PARAM, organizationId).replace(Routes.ROLE_ID_PARAM, roleId)
-  ), [organizationId, roleId]);
-
   if (organization && role) {
 
     const handleOnChangeSelect = (options :?ReactSelectOption<PermissionType>[]) => {
@@ -114,9 +107,9 @@ const OrgRoleObjectPermissionsContainer = ({
     return (
       <AppContentWrapper>
         <Crumbs>
-          <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-          <CrumbLink to={rolesPath}>Roles</CrumbLink>
-          <CrumbLink to={rolePath}>{role.title || 'Role'}</CrumbLink>
+          <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+          <CrumbLink to={rolesRoute}>Roles</CrumbLink>
+          <CrumbLink to={roleRoute}>{role.title || 'Role'}</CrumbLink>
           <CrumbItem>Permissions</CrumbItem>
         </Crumbs>
         {

@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 
 import { Map, getIn } from 'immutable';
 import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
@@ -42,11 +42,19 @@ import {
 import { Routes } from '../../core/router';
 
 const OrgDataSetContainer = ({
+  dataSetDataRoute,
   dataSetId,
+  dataSetRoute,
+  dataSetsRoute,
   organizationId,
+  organizationRoute,
 } :{|
+  dataSetDataRoute :string;
   dataSetId :UUID;
+  dataSetRoute :string;
+  dataSetsRoute :string;
   organizationId :UUID;
+  organizationRoute :string;
 |}) => {
 
   const dispatch = useDispatch();
@@ -72,26 +80,6 @@ const OrgDataSetContainer = ({
     dispatch(getShiproomMetadata({ dataSetId, organizationId }));
   }, [dispatch, dataSetId, organizationId]);
 
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
-  const dataSetsPath = useMemo(() => (
-    Routes.ORG_DATA_SETS.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
-  const dataSetPath = useMemo(() => (
-    Routes.ORG_DATA_SET
-      .replace(Routes.ORG_ID_PARAM, organizationId)
-      .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
-  ), [dataSetId, organizationId]);
-
-  const dataSetDataPath = useMemo(() => (
-    Routes.ORG_DATA_SET_DATA
-      .replace(Routes.ORG_ID_PARAM, organizationId)
-      .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
-  ), [dataSetId, organizationId]);
-
   if (organization) {
 
     const renderDataSetDataContainer = () => (
@@ -106,8 +94,8 @@ const OrgDataSetContainer = ({
       <>
         <AppContentWrapper>
           <Crumbs>
-            <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-            <CrumbLink to={dataSetsPath}>Data Sets</CrumbLink>
+            <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+            <CrumbLink to={dataSetsRoute}>Data Sets</CrumbLink>
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
           {
@@ -152,10 +140,10 @@ const OrgDataSetContainer = ({
             <>
               <NavContentWrapper bgColor="white">
                 <AppNavigationWrapper borderless>
-                  <NavLink exact strict to={dataSetPath}>About</NavLink>
+                  <NavLink exact strict to={dataSetRoute}>About</NavLink>
                   {
                     entitySet && (
-                      <NavLink to={dataSetDataPath}>Data</NavLink>
+                      <NavLink to={dataSetDataRoute}>Data</NavLink>
                     )
                   }
                 </AppNavigationWrapper>
