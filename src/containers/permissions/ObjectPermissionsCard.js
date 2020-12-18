@@ -8,7 +8,12 @@ import type { ComponentType } from 'react';
 import styled from 'styled-components';
 import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List, Map, Set } from 'immutable';
+import {
+  List,
+  Map,
+  Set,
+  get,
+} from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   CardSegment,
@@ -24,6 +29,7 @@ import type {
   Ace,
   PermissionType,
   Principal,
+  PropertyType,
   Role,
   UUID,
 } from 'lattice';
@@ -70,6 +76,7 @@ const ObjectPermissionsCard = ({
   objectKey,
   organizationMembers,
   organizationRoles,
+  properties,
 } :{|
   ace :Ace;
   filterByQuery :string;
@@ -77,6 +84,7 @@ const ObjectPermissionsCard = ({
   objectKey :List<UUID>;
   organizationMembers :Map<Principal, Map>;
   organizationRoles :Map<Principal, Role>;
+  properties :Map<UUID, PropertyType | Map>;
 |}) => {
 
   const dispatch = useDispatch();
@@ -207,6 +215,25 @@ const ObjectPermissionsCard = ({
                                 checked={ace.permissions.includes(permissionType)}
                                 onChange={() => {}} />
                           </SpaceBetweenGrid>
+                          {
+                            properties.valueSeq().map((property :PropertyType | Map) => {
+                              const propertyId :UUID = property.id || get(property, 'id');
+                              const propertyTitle :UUID = property.title || get(property, 'title');
+                              const propertyTypeFQN :?string = property?.type?.toString() || '';
+                              return (
+                                <SpaceBetweenGrid key={propertyId}>
+                                  <Typography data-property-id={propertyId} title={propertyTypeFQN}>
+                                    {propertyTitle}
+                                  </Typography>
+                                  <Checkbox
+                                      data-property-id={propertyId}
+                                      data-permission-type={permissionType}
+                                      // checked={ace.permissions.includes(permissionType)}
+                                      onChange={() => {}} />
+                                </SpaceBetweenGrid>
+                              );
+                            })
+                          }
                         </CardSegment>
                       </Card>
                     )

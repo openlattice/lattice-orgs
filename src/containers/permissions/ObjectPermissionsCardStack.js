@@ -13,13 +13,14 @@ import type {
   Organization,
   PermissionType,
   Principal,
+  PropertyType,
   Role,
   UUID,
 } from 'lattice';
 
 import ObjectPermissionsCard from './ObjectPermissionsCard';
 
-import { selectOrganization, selectOrganizationMembers } from '../../core/redux/selectors';
+import { selectDataSetProperties, selectOrganization, selectOrganizationMembers } from '../../core/redux/selectors';
 import { getPrincipal } from '../../utils';
 
 const { PrincipalTypes } = Types;
@@ -39,6 +40,8 @@ const ObjectPermissionsCardStack = ({
   organizationId :UUID;
   permissions :List<Ace>;
 |}) => {
+
+  const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(objectKey.get(0)));
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const organizationRoles :Map<Principal, Role> = useMemo(() => (
@@ -87,7 +90,8 @@ const ObjectPermissionsCardStack = ({
                   key={ace.principal.id}
                   objectKey={objectKey}
                   organizationMembers={organizationMembers}
-                  organizationRoles={organizationRoles} />
+                  organizationRoles={organizationRoles}
+                  properties={properties} />
             ))
         )
       }
