@@ -85,11 +85,10 @@ const ObjectPermissionsContainer = ({
       {
         initializeRS === RequestStates.SUCCESS && !isEmptyPrincipals && (
           principals
-            .filter((principal :Principal) => (
-              (get(permissions, principal) || Map()).valueSeq().reduce((yay :boolean, ace :Ace) => (
-                yay && filterByPermissionTypes.every((pt :PermissionType) => ace.permissions.includes(pt))
-              ), true)
-            ))
+            .filter((principal :Principal) => {
+              const ace :?Ace = (get(permissions, principal) || Map()).get(objectKey);
+              return filterByPermissionTypes.every((pt :PermissionType) => ace?.permissions.includes(pt));
+            })
             .map((principal :Principal) => (
               <PrincipalPermissionsContainer
                   filterByQuery={filterByQuery}

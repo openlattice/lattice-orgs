@@ -118,16 +118,12 @@ const PrincipalPermissionsContainer = ({
     title = principal.id;
   }
 
-  const overallPermissionsString = useMemo(() => {
-    const flattenedPermissions :Set<PermissionType> = permissions.valueSeq()
-      .map((ace :Ace) => Set(ace.permissions))
-      .flatten()
-      .toSet();
-    return ORDERED_PERMISSIONS
-      .filter((permissionType :PermissionType) => flattenedPermissions.includes(permissionType))
+  const objectPermissionsString = useMemo(() => (
+    ORDERED_PERMISSIONS
+      .filter((permissionType :PermissionType) => objectAce?.permissions.includes(permissionType))
       .map((permissionType :PermissionType) => permissionType.toLowerCase())
-      .join(', ');
-  }, [permissions]);
+      .join(', ')
+  ), [objectAce]);
 
   const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
 
@@ -170,7 +166,7 @@ const PrincipalPermissionsContainer = ({
           <SpaceBetweenGrid>
             <Typography component="span">{title}</Typography>
             <SpaceBetweenGrid gap={8}>
-              <Typography component="span">{overallPermissionsString}</Typography>
+              <Typography component="span">{objectPermissionsString}</Typography>
               <IconButton aria-label="toggle open/close" onClick={() => setIsOpen(!isOpen)}>
                 <FontAwesomeIcon fixedWidth icon={isOpen ? faChevronUp : faChevronDown} />
               </IconButton>
