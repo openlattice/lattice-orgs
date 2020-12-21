@@ -4,7 +4,7 @@
 
 import * as UsersActions from './actions';
 
-export { default as UsersReducer } from './UsersReducer';
+export { default as UsersReducer } from './reducers';
 
 export {
   UsersActions,

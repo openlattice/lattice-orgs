@@ -15,7 +15,7 @@ import type { Organization, UUID } from 'lattice';
 
 import OrgActionButton from './components/OrgActionButton';
 
-import { ActionWrapper, CrumbLink } from '../../components';
+import { CrumbLink, SpaceBetweenGrid, StackGrid } from '../../components';
 import { selectOrganizationAtlasDataSetIds, selectOrganizationEntitySetIds } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 
@@ -87,19 +87,21 @@ const OrgContainer = ({ organizationId } :Props) => {
   if (organization) {
     return (
       <AppContentWrapper>
-        <ActionWrapper>
-          <Typography gutterBottom variant="h1">{organization.title}</Typography>
-          <OrgActionButton organization={organization} />
-        </ActionWrapper>
-        {
-          isNonEmptyString(organization.description) && (
-            <div>{organization.description}</div>
-          )
-        }
-        <ManageLink to={settingsPath}>
-          <span>Database Details</span>
-          <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
-        </ManageLink>
+        <StackGrid>
+          <SpaceBetweenGrid>
+            <Typography variant="h1">{organization.title}</Typography>
+            <OrgActionButton organization={organization} />
+          </SpaceBetweenGrid>
+          {
+            isNonEmptyString(organization.description) && (
+              <div>{organization.description}</div>
+            )
+          }
+          <ManageLink to={settingsPath}>
+            <span>Database Details</span>
+            <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
+          </ManageLink>
+        </StackGrid>
         <Boxes>
           <div>
             <span>Members</span>

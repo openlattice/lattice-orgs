@@ -31,17 +31,20 @@ import {
   ADD_ROLE_TO_ORGANIZATION,
   CREATE_NEW_ORGANIZATION,
   EDIT_ORGANIZATION_DETAILS,
+  EDIT_ROLE_DETAILS,
   GET_ORGANIZATION_INTEGRATION_DETAILS,
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
   addRoleToOrganization,
   createNewOrganization,
   editOrganizationDetails,
+  editRoleDetails,
   getOrganizationIntegrationDetails,
   initializeOrganization,
   removeRoleFromOrganization,
 } from '../org/actions';
 import {
+  editRoleDetailsReducer,
   getOrganizationDataSetsReducer,
   getOrganizationIntegrationDetailsReducer,
   renameOrganizationDatabaseReducer,
@@ -88,6 +91,7 @@ const INITIAL_STATE :Map = fromJS({
   [ADD_ROLE_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [CREATE_NEW_ORGANIZATION]: RS_INITIAL_STATE,
   [EDIT_ORGANIZATION_DETAILS]: RS_INITIAL_STATE,
+  [EDIT_ROLE_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_ENTITY_SETS]: RS_INITIAL_STATE,
@@ -108,6 +112,10 @@ const INITIAL_STATE :Map = fromJS({
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
+
+  if (action.type === editRoleDetails.case(action.type)) {
+    return editRoleDetailsReducer(state, action);
+  }
 
   if (action.type === getOrganizationDataSets.case(action.type)) {
     return getOrganizationDataSetsReducer(state, action);

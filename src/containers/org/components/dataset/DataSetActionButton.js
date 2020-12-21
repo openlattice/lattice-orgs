@@ -1,7 +1,7 @@
 // @flow
 import React, { useEffect, useReducer, useRef } from 'react';
 
-import { faEllipsisH } from '@fortawesome/pro-regular-svg-icons';
+import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   List,
@@ -163,7 +163,7 @@ const DataSetActionButton = ({
           onClick={handleOpenMenu}
           ref={anchorRef}
           variant="text">
-        <FontAwesomeIcon icon={faEllipsisH} />
+        <FontAwesomeIcon fixedWidth icon={faEllipsisV} />
       </IconButton>
       <Menu
           anchorEl={anchorRef.current}

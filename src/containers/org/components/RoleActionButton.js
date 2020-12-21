@@ -5,43 +5,44 @@ import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
-import type { Organization } from 'lattice';
+import type { Organization, Role } from 'lattice';
 
-import OrgDescriptionModal from './OrgDescriptionModal';
+import RoleDetailsModal from './RoleDetailsModal';
 
 import { IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
 
-const CLOSE_DESCRIPTION = 'CLOSE_DESCRIPTION';
+const CLOSE_DETAILS = 'CLOSE_DETAILS';
 const CLOSE_MENU = 'CLOSE_MENU';
-const OPEN_DESCRIPTION = 'OPEN_DESCRIPTION';
+const OPEN_DETAILS = 'OPEN_DETAILS';
 const OPEN_MENU = 'OPEN_MENU';
 
 const INITIAL_STATE = {
   menuOpen: false,
+  detailsOpen: false,
   descriptionOpen: false,
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
+    case CLOSE_DETAILS:
+      return {
+        ...state,
+        detailsOpen: false,
+      };
     case CLOSE_MENU:
       return {
         ...state,
         menuOpen: false,
       };
+    case OPEN_DETAILS:
+      return {
+        menuOpen: false,
+        detailsOpen: true,
+      };
     case OPEN_MENU:
       return {
         ...state,
         menuOpen: true,
-      };
-    case CLOSE_DESCRIPTION:
-      return {
-        ...state,
-        descriptionOpen: false,
-      };
-    case OPEN_DESCRIPTION:
-      return {
-        menuOpen: false,
-        descriptionOpen: true,
       };
     default:
       return state;
@@ -50,9 +51,10 @@ const reducer = (state, action) => {
 
 type Props = {
   organization :Organization;
+  role :Role;
 };
 
-const OrgActionButton = ({ organization } :Props) => {
+const RoleActionButton = ({ organization, role } :Props) => {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organization.id]));
   const anchorRef = useRef(null);
@@ -65,21 +67,21 @@ const OrgActionButton = ({ organization } :Props) => {
     dispatch({ type: CLOSE_MENU });
   };
 
-  const handleOpenDescription = () => {
-    dispatch({ type: OPEN_DESCRIPTION });
+  const handleOpenDetails = () => {
+    dispatch({ type: OPEN_DETAILS });
   };
 
-  const handleCloseDescription = () => {
-    dispatch({ type: CLOSE_DESCRIPTION });
+  const handleCloseDetails = () => {
+    dispatch({ type: CLOSE_DETAILS });
   };
 
   return (
     <>
       <IconButton
-          aria-controls={state.menuOpen ? 'organization-action-menu' : undefined}
+          aria-controls={state.menuOpen ? 'role-action-menu' : undefined}
           aria-expanded={state.menuOpen ? 'true' : undefined}
           aria-haspopup="menu"
-          aria-label="organization action button"
+          aria-label="role action button"
           onClick={handleOpenMenu}
           ref={anchorRef}
           variant="text">
@@ -93,23 +95,24 @@ const OrgActionButton = ({ organization } :Props) => {
           }}
           elevation={4}
           getContentAnchorEl={null}
-          id="organization-action-menu"
+          id="role-action-menu"
           onClose={handleCloseMenu}
           open={state.menuOpen}
           transformOrigin={{
             horizontal: 'right',
             vertical: 'top',
           }}>
-        <MenuItem disabled={!isOwner} onClick={handleOpenDescription}>
-          Edit Description
+        <MenuItem disabled={!isOwner} onClick={handleOpenDetails}>
+          Edit Role Details
         </MenuItem>
       </Menu>
-      <OrgDescriptionModal
-          isVisible={state.descriptionOpen}
-          onClose={handleCloseDescription}
-          organization={organization} />
+      <RoleDetailsModal
+          isVisible={state.detailsOpen}
+          onClose={handleCloseDetails}
+          organization={organization}
+          role={role} />
     </>
   );
 };
 
-export default OrgActionButton;
+export default RoleActionButton;
