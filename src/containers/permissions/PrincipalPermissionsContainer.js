@@ -2,7 +2,12 @@
  * @flow
  */
 
-import React, { Fragment, useMemo, useState } from 'react';
+import React, {
+  Fragment,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import type { ComponentType } from 'react';
 
 import _capitalize from 'lodash/capitalize';
@@ -84,9 +89,16 @@ const PrincipalPermissionsContainer = ({
 
   const [isOpen, setIsOpen] = useState(false);
   const [openPermissionType, setOpenPermissionType] = useState('');
+  const [targetPropertyId, setTargetPropertyId] = useState('');
 
   const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
   const user :Map = useSelector(selectUser(principal.id));
+
+  useEffect(() => {
+    if (updatePermissionsRS !== RequestStates.PENDING) {
+      setTargetPropertyId('');
+    }
+  }, [updatePermissionsRS]);
 
   const objectAce :?Ace = permissions.get(objectKey);
 
@@ -118,7 +130,7 @@ const PrincipalPermissionsContainer = ({
     const { propertyId } = event.currentTarget.dataset;
     const permissionType :?PermissionType = PermissionTypes[event.currentTarget.dataset.permissionType];
 
-    if (permissionType) {
+    if (permissionType && updatePermissionsRS !== RequestStates.PENDING) {
       const aceForUpdate = (new AceBuilder()).setPermissions([permissionType]).setPrincipal(principal).build();
       const targetKey :List<UUID> = propertyId ? List([objectKey.get(0), propertyId]) : objectKey;
       dispatch(
@@ -127,6 +139,9 @@ const PrincipalPermissionsContainer = ({
           permissions: Map().set(targetKey, aceForUpdate),
         })
       );
+      if (propertyId) {
+        setTargetPropertyId(propertyId);
+      }
     }
   };
 
@@ -221,20 +236,19 @@ const PrincipalPermissionsContainer = ({
                                     {propertyTitle}
                                   </Typography>
                                   {
-                                    updatePermissionsRS === RequestStates.PENDING && (
-                                      <SpinnerWrapper>
-                                        <Spinner size="lg" />
-                                      </SpinnerWrapper>
-                                    )
-                                  }
-                                  {
-                                    updatePermissionsRS !== RequestStates.PENDING && (
-                                      <Checkbox
-                                          data-permission-type={permissionType}
-                                          data-property-id={propertyId}
-                                          checked={ace?.permissions.includes(permissionType)}
-                                          onChange={handleOnChangePermission} />
-                                    )
+                                    updatePermissionsRS === RequestStates.PENDING && targetPropertyId === propertyId
+                                      ? (
+                                        <SpinnerWrapper>
+                                          <Spinner size="lg" />
+                                        </SpinnerWrapper>
+                                      )
+                                      : (
+                                        <Checkbox
+                                            data-permission-type={permissionType}
+                                            data-property-id={propertyId}
+                                            checked={ace?.permissions.includes(permissionType)}
+                                            onChange={handleOnChangePermission} />
+                                      )
                                   }
                                 </SpaceBetweenGrid>
                               );
