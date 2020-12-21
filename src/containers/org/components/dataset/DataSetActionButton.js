@@ -14,7 +14,6 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Spinner,
 } from 'lattice-ui-kit';
 import { useDispatch, useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
@@ -75,14 +74,12 @@ const reducer = (state, action) => {
 type Props = {
   dataSet :Map;
   isAtlas :boolean;
-  isLoading :boolean;
   organizationId :UUID;
 };
 
 const DataSetActionButton = ({
   dataSet,
   isAtlas,
-  isLoading,
   organizationId
 } :Props) => {
   const dispatch = useDispatch();
@@ -128,31 +125,6 @@ const DataSetActionButton = ({
     stateDispatch({ type: CLOSE_PROMOTE_DIALOG });
   };
 
-  const menuList = (
-    <>
-      {
-        isAtlas && (
-          <MenuItem disabled={!isOrgOwner || isPromoted} onClick={handleOpenPromote}>
-            {
-              isPromoted
-                ? 'Promoted'
-                : 'Promote Data Set'
-            }
-          </MenuItem>
-        )
-      }
-      {
-        !isAtlas && (
-          <AssembleMenuItem
-              disabled={!hasMaterialize || isAtlas}
-              entitySetId={dataSetId}
-              isAssembled={isAssembled}
-              organizationId={organizationId} />
-        )
-      }
-    </>
-  );
-
   return (
     <>
       <IconButton
@@ -181,13 +153,25 @@ const DataSetActionButton = ({
             vertical: 'top',
           }}>
         {
-          isLoading && (
-            <MenuItem alignItems="center">
-              <Spinner />
+          isAtlas && (
+            <MenuItem disabled={!isOrgOwner || isPromoted} onClick={handleOpenPromote}>
+              {
+                isPromoted
+                  ? 'Promoted'
+                  : 'Promote Data Set'
+              }
             </MenuItem>
           )
         }
-        { !isLoading && menuList }
+        {
+          !isAtlas && (
+            <AssembleMenuItem
+                disabled={!hasMaterialize || isAtlas}
+                entitySetId={dataSetId}
+                isAssembled={isAssembled}
+                organizationId={organizationId} />
+          )
+        }
       </Menu>
       <PromoteTableModal
           dataSet={dataSet}
@@ -201,7 +185,6 @@ const DataSetActionButton = ({
 DataSetActionButton.defaultProps = {
   dataSet: Map(),
   isAtlas: false,
-  isLoading: true,
 };
 
 export default DataSetActionButton;

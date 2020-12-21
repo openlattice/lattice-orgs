@@ -113,7 +113,6 @@ const OrgDataSetContainer = ({
                     <DataSetActionButton
                         dataSet={atlasDataSet || entitySet}
                         isAtlas={!!atlasDataSet}
-                        isLoading={isPending(getOrSelectDataSetRS) || isStandby(getOrSelectDataSetRS)}
                         organizationId={organizationId} />
                   </SpaceBetweenGrid>
                   <Typography>{description || name}</Typography>
