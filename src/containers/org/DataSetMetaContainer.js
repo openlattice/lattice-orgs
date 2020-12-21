@@ -114,7 +114,7 @@ const DataSetMetaContainer = ({
   useEffect(() => {
     dispatch(getOwnerStatus(dataSetId));
     dispatch(getCurrentDataSetAuthorizations({
-      acl: [dataSetId],
+      aclKey: [dataSetId],
       permissions: [PermissionTypes.MATERIALIZE]
     }));
   }, [dispatch, dataSetId]);

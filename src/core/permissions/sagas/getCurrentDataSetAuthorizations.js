@@ -33,11 +33,11 @@ function* getCurrentDataSetAuthorizationsWorker(action :SequenceAction) :Saga<Wo
 
   try {
     yield put(getCurrentDataSetAuthorizations.request(action.id, action.value));
-    const { acl, permissions } = action.value;
+    const { aclKey, permissions } = action.value;
 
     const accessChecks :AccessCheck[] = [
       (new AccessCheckBuilder())
-        .setAclKey(acl)
+        .setAclKey(aclKey)
         .setPermissions(permissions)
         .build()
     ];
