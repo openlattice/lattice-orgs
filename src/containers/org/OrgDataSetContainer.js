@@ -40,7 +40,7 @@ import {
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 
-const { isPending, isSuccess, isStandby } = ReduxUtils;
+const { isPending, isSuccess } = ReduxUtils;
 
 const OrgDataSetContainer = ({
   dataSetDataRoute,
