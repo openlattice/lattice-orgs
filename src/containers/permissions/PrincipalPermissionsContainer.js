@@ -14,12 +14,7 @@ import _capitalize from 'lodash/capitalize';
 import styled from 'styled-components';
 import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  List,
-  Map,
-  Set,
-  get,
-} from 'immutable';
+import { List, Map, get } from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   CardSegment,
