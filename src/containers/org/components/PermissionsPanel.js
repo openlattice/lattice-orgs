@@ -111,7 +111,7 @@ const PermissionsPanel = ({
   const principalPermissionsHash = principalPermissions.hashCode();
 
   useEffect(() => {
-    setLocalPermissions(permissions);
+    setLocalPermissions(principalPermissions);
   }, [principalPermissionsHash]);
 
   useEffect(() => {
