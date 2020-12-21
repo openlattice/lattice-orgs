@@ -53,14 +53,18 @@ const { AceBuilder } = Models;
 const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
 const { isNonEmptyString } = LangUtils;
 
-const Card :ComponentType<{|
-  bgColor ?:string;
+const PermissionTypeWrapper :ComponentType<{|
   children :any;
-  indent ?:number;
+  isDataSet ?:boolean;
 |}> = styled.div`
-  background-color: ${({ bgColor }) => (bgColor || 'white')};
+  background-color: ${({ isDataSet }) => (isDataSet ? NEUTRAL.N50 : 'white')};
   border-radius: 5px;
-  margin-left: ${({ indent = 0 }) => indent * 32}px;
+  margin-left: 64px;
+  padding: ${({ isDataSet }) => (isDataSet ? '2px 2px 2px 16px' : '0 12px 0 0')};
+`;
+
+const PropertiesWrapper = styled.div`
+  margin: 8px 12px 8px 96px;
 `;
 
 const SpinnerWrapper = styled.div`
@@ -177,85 +181,87 @@ const PrincipalPermissionsContainer = ({
           isOpen && (
             ORDERED_PERMISSIONS.map((permissionType :PermissionType) => {
               const isOpenPermissionType = openPermissionType === permissionType;
-              const bgColor = isDataSet ? NEUTRAL.N50 : undefined;
-              const padding = isDataSet ? '2px 2px 2px 16px' : '0 12px 0 0';
               return (
                 <Fragment key={permissionType}>
-                  <Card bgColor={bgColor} indent={2}>
-                    <CardSegment padding={padding}>
-                      <SpaceBetweenGrid>
-                        <Typography component="span">{_capitalize(permissionType)}</Typography>
-                        {
-                          isDataSet && (
-                            <IconButton
-                                aria-label="toggle open/close permission type"
-                                onClick={() => toggleOpenPermissionType(permissionType)}>
-                              <FontAwesomeIcon fixedWidth icon={isOpenPermissionType ? faChevronUp : faChevronDown} />
-                            </IconButton>
-                          )
-                        }
-                        {
-                          !isDataSet && updatePermissionsRS === RequestStates.PENDING && (
-                            <SpinnerWrapper>
-                              <Spinner size="lg" />
-                            </SpinnerWrapper>
-                          )
-                        }
-                        {
-                          !isDataSet && updatePermissionsRS !== RequestStates.PENDING && (
-                            <Checkbox
-                                data-permission-type={permissionType}
-                                checked={objectAce?.permissions.includes(permissionType)}
-                                onChange={handleOnChangePermission} />
-                          )
-                        }
-                      </SpaceBetweenGrid>
-                    </CardSegment>
-                  </Card>
+                  <PermissionTypeWrapper isDataSet={isDataSet}>
+                    <SpaceBetweenGrid>
+                      <Typography component="span">{_capitalize(permissionType)}</Typography>
+                      {
+                        isDataSet && (
+                          <IconButton
+                              aria-label="toggle open/close permission type"
+                              onClick={() => toggleOpenPermissionType(permissionType)}>
+                            <FontAwesomeIcon fixedWidth icon={isOpenPermissionType ? faChevronUp : faChevronDown} />
+                          </IconButton>
+                        )
+                      }
+                      {
+                        !isDataSet && updatePermissionsRS === RequestStates.PENDING && (
+                          <SpinnerWrapper>
+                            <Spinner size="lg" />
+                          </SpinnerWrapper>
+                        )
+                      }
+                      {
+                        !isDataSet && updatePermissionsRS !== RequestStates.PENDING && (
+                          <Checkbox
+                              data-permission-type={permissionType}
+                              checked={objectAce?.permissions.includes(permissionType)}
+                              onChange={handleOnChangePermission} />
+                        )
+                      }
+                    </SpaceBetweenGrid>
+                  </PermissionTypeWrapper>
                   {
                     isOpenPermissionType && (
-                      <Card indent={3}>
-                        <CardSegment borderless key={permissionType} padding="0 12px 0 0">
-                          <SpaceBetweenGrid>
-                            <Typography component="span">Data Set Object</Typography>
-                            <Checkbox
-                                data-permission-type={permissionType}
-                                checked={objectAce?.permissions.includes(permissionType)}
-                                onChange={handleOnChangePermission} />
-                          </SpaceBetweenGrid>
-                          {
-                            properties.valueSeq().map((property :PropertyType | Map) => {
-                              const propertyId :UUID = property.id || get(property, 'id');
-                              const propertyTitle :UUID = property.title || get(property, 'title');
-                              const propertyTypeFQN :?string = property?.type?.toString() || '';
-                              const key :List<UUID> = List([objectKey.get(0), propertyId]);
-                              const ace :?Ace = permissions.get(key);
-                              return (
-                                <SpaceBetweenGrid key={propertyId}>
-                                  <Typography data-property-id={propertyId} title={propertyTypeFQN}>
-                                    {propertyTitle}
-                                  </Typography>
-                                  {
-                                    updatePermissionsRS === RequestStates.PENDING && targetPropertyId === propertyId
-                                      ? (
-                                        <SpinnerWrapper>
-                                          <Spinner size="lg" />
-                                        </SpinnerWrapper>
-                                      )
-                                      : (
-                                        <Checkbox
-                                            data-permission-type={permissionType}
-                                            data-property-id={propertyId}
-                                            checked={ace?.permissions.includes(permissionType)}
-                                            onChange={handleOnChangePermission} />
-                                      )
-                                  }
-                                </SpaceBetweenGrid>
-                              );
-                            })
-                          }
-                        </CardSegment>
-                      </Card>
+                      <PropertiesWrapper key={permissionType}>
+                        <StackGrid>
+                          <div>
+                            <Typography gutterBottom variant="body2">Object</Typography>
+                            <SpaceBetweenGrid>
+                              <Typography component="span">Data Set Object</Typography>
+                              <Checkbox
+                                  data-permission-type={permissionType}
+                                  checked={objectAce?.permissions.includes(permissionType)}
+                                  onChange={handleOnChangePermission} />
+                            </SpaceBetweenGrid>
+                          </div>
+                          <div>
+                            <Typography gutterBottom variant="body2">Properties</Typography>
+                            {
+                              properties.valueSeq().map((property :PropertyType | Map) => {
+                                const propertyId :UUID = property.id || get(property, 'id');
+                                const propertyTitle :UUID = property.title || get(property, 'title');
+                                const propertyTypeFQN :?string = property?.type?.toString() || '';
+                                const key :List<UUID> = List([objectKey.get(0), propertyId]);
+                                const ace :?Ace = permissions.get(key);
+                                return (
+                                  <SpaceBetweenGrid key={propertyId}>
+                                    <Typography data-property-id={propertyId} title={propertyTypeFQN}>
+                                      {propertyTitle}
+                                    </Typography>
+                                    {
+                                      updatePermissionsRS === RequestStates.PENDING && targetPropertyId === propertyId
+                                        ? (
+                                          <SpinnerWrapper>
+                                            <Spinner size="lg" />
+                                          </SpinnerWrapper>
+                                        )
+                                        : (
+                                          <Checkbox
+                                              data-permission-type={permissionType}
+                                              data-property-id={propertyId}
+                                              checked={ace?.permissions.includes(permissionType)}
+                                              onChange={handleOnChangePermission} />
+                                        )
+                                    }
+                                  </SpaceBetweenGrid>
+                                );
+                              })
+                            }
+                          </div>
+                        </StackGrid>
+                      </PropertiesWrapper>
                     )
                   }
                 </Fragment>
