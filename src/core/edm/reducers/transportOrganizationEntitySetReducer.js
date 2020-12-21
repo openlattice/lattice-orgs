@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { List, Map } from 'immutable';
+import { List, Map, Set } from 'immutable';
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
@@ -37,7 +37,7 @@ export default function transportOrganizationEntitySetReducer(state :Map, action
         const entitySet :EntitySet = entitySets.get(index);
         const newEntitySet = (new EntitySetBuilder(entitySet));
         if (Array.isArray(entitySet.flags)) {
-          const flags = [...entitySet.flags, EntitySetFlagTypes.TRANSPORTED];
+          const flags = Set([...entitySet.flags, EntitySetFlagTypes.TRANSPORTED]).toArray();
           newEntitySet.setFlags(flags);
         }
         else {
