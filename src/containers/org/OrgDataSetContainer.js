@@ -6,11 +6,10 @@ import React, { useEffect, useMemo } from 'react';
 
 import { Map, getIn } from 'immutable';
 import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import { RequestStates } from 'redux-reqseq';
 import type {
   EntitySet,
   Organization,
@@ -40,6 +39,8 @@ import {
   selectOrganization,
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
+
+const { isPending, isSuccess, isStandby } = ReduxUtils;
 
 const OrgDataSetContainer = ({
   dataSetId,
@@ -114,15 +115,16 @@ const OrgDataSetContainer = ({
             <DataSetActionButton
                 dataSet={atlasDataSet || entitySet}
                 isAtlas={!!atlasDataSet}
+                isLoading={isPending(getOrSelectDataSetRS) || isStandby(getOrSelectDataSetRS)}
                 organizationId={organizationId} />
           </ActionWrapper>
           {
-            getOrSelectDataSetRS === RequestStates.PENDING && (
+            isPending(getOrSelectDataSetRS) && (
               <Spinner />
             )
           }
           {
-            getOrSelectDataSetRS === RequestStates.SUCCESS && (
+            isSuccess(getOrSelectDataSetRS) && (
               <StackGrid gap={48}>
                 <StackGrid>
                   <Typography variant="h1">{title || name}</Typography>
@@ -148,7 +150,7 @@ const OrgDataSetContainer = ({
           }
         </AppContentWrapper>
         {
-          getOrSelectDataSetRS === RequestStates.SUCCESS && (
+          isSuccess(getOrSelectDataSetRS) && (
             <>
               <NavContentWrapper bgColor="white">
                 <AppNavigationWrapper borderless>
