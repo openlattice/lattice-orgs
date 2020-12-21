@@ -9,6 +9,14 @@ import type { ReactSelectOption } from '../../../types';
 
 const { PermissionTypes } = Types;
 
+const ORDERED_PERMISSIONS = [
+  PermissionTypes.OWNER,
+  PermissionTypes.READ,
+  PermissionTypes.WRITE,
+  PermissionTypes.LINK,
+  PermissionTypes.MATERIALIZE,
+];
+
 const PERMISSION_TYPE_RS_OPTIONS :ReactSelectOption<PermissionType>[] = [
   { label: PermissionTypes.OWNER.toLowerCase(), value: PermissionTypes.OWNER },
   { label: PermissionTypes.READ.toLowerCase(), value: PermissionTypes.READ },
@@ -18,5 +26,6 @@ const PERMISSION_TYPE_RS_OPTIONS :ReactSelectOption<PermissionType>[] = [
 ];
 
 export {
+  ORDERED_PERMISSIONS,
   PERMISSION_TYPE_RS_OPTIONS,
 };

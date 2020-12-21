@@ -31,6 +31,9 @@ const getPageDataSetPermissions :RequestSequence = newRequestSequence(GET_PAGE_D
 const GET_PERMISSIONS :'GET_PERMISSIONS' = 'GET_PERMISSIONS';
 const getPermissions :RequestSequence = newRequestSequence(GET_PERMISSIONS);
 
+const INITIALIZE_OBJECT_PERMISSIONS :'INITIALIZE_OBJECT_PERMISSIONS' = 'INITIALIZE_OBJECT_PERMISSIONS';
+const initializeObjectPermissions :RequestSequence = newRequestSequence(INITIALIZE_OBJECT_PERMISSIONS);
+
 const SET_PERMISSIONS :'SET_PERMISSIONS' = 'SET_PERMISSIONS';
 const setPermissions :RequestSequence = newRequestSequence(SET_PERMISSIONS);
 
@@ -46,6 +49,7 @@ export {
   GET_OWNER_STATUS,
   GET_PAGE_DATA_SET_PERMISSIONS,
   GET_PERMISSIONS,
+  INITIALIZE_OBJECT_PERMISSIONS,
   SET_PERMISSIONS,
   UPDATE_PERMISSIONS,
   assignPermissionsToDataSet,
@@ -56,6 +60,7 @@ export {
   getOwnerStatus,
   getPageDataSetPermissions,
   getPermissions,
+  initializeObjectPermissions,
   setPermissions,
   updatePermissions,
 };

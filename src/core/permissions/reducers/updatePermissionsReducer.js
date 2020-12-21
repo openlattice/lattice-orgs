@@ -51,22 +51,31 @@ export default function reducer(state :Map, action :SequenceAction) {
               const targetIndex :number = storedAces.findIndex((storedAce :Ace) => (
                 storedAce.principal.id === ace.principal.id && storedAce.principal.type === ace.principal.type
               ));
-              const targetAce :Ace = storedAces.get(targetIndex);
 
-              let updatedPermissions :Set<PermissionType> = Set(targetAce.permissions);
-              if (actionType === ActionTypes.ADD) {
-                updatedPermissions = updatedPermissions.union(ace.permissions);
+              if (targetIndex >= 0) {
+                const targetAce :Ace = storedAces.get(targetIndex);
+
+                let updatedPermissions :Set<PermissionType> = Set(targetAce.permissions);
+                if (actionType === ActionTypes.ADD) {
+                  updatedPermissions = updatedPermissions.union(ace.permissions);
+                }
+                else if (actionType === ActionTypes.REMOVE) {
+                  updatedPermissions = updatedPermissions.subtract(ace.permissions);
+                }
+
+                const updatedAce :Ace = (new AceBuilder())
+                  .setPermissions(updatedPermissions)
+                  .setPrincipal(targetAce.principal)
+                  .build();
+
+                return storedAces.set(targetIndex, updatedAce);
               }
-              else if (actionType === ActionTypes.REMOVE) {
-                updatedPermissions = updatedPermissions.subtract(ace.permissions);
+
+              if (targetIndex === -1 && actionType === ActionTypes.ADD) {
+                return storedAces.push(ace);
               }
 
-              const updatedAce :Ace = (new AceBuilder())
-                .setPermissions(updatedPermissions)
-                .setPrincipal(targetAce.principal)
-                .build();
-
-              return storedAces.set(targetIndex, updatedAce);
+              return storedAces;
             });
           });
         });

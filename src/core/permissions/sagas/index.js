@@ -10,5 +10,6 @@ export * from './getOrgRoleObjectPermissions';
 export * from './getOwnerStatus';
 export * from './getPageDataSetPermissions';
 export * from './getPermissions';
+export * from './initializeObjectPermissions';
 export * from './setPermissions';
 export * from './updatePermissions';

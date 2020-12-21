@@ -11,8 +11,6 @@ import selectEntitySetPropertyTypes from './selectEntitySetPropertyTypes';
 
 const { isValidUUID } = ValidationUtils;
 
-const EMPTY_MAP = Map();
-
 export default function selectDataSetProperties(dataSetId :UUID) {
 
   return (state :Map) :Map<UUID, PropertyType | Map> => {
@@ -35,6 +33,6 @@ export default function selectDataSetProperties(dataSetId :UUID) {
       return selectEntitySetPropertyTypes(dataSetId)(state);
     }
 
-    return EMPTY_MAP;
+    return Map();
   };
 }

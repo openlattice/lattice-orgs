@@ -2,9 +2,10 @@
  * @flow
  */
 
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useMemo, useState } from 'react';
 import type { ComponentType } from 'react';
 
+import _capitalize from 'lodash/capitalize';
 import styled from 'styled-components';
 import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -23,35 +24,29 @@ import {
   Typography,
 } from 'lattice-ui-kit';
 import { LangUtils, useRequestState } from 'lattice-utils';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type {
   Ace,
   PermissionType,
   Principal,
   PropertyType,
-  Role,
   UUID,
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import { ORDERED_PERMISSIONS } from './constants';
+
 import { SpaceBetweenGrid, Spinner, StackGrid } from '../../components';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
+import { selectUser } from '../../core/redux/selectors';
 import { getUserProfileLabel } from '../../utils/PersonUtils';
 
 const { NEUTRAL } = Colors;
 const { AceBuilder } = Models;
 const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
 const { isNonEmptyString } = LangUtils;
-
-const ORDERED_PERMISSIONS = [
-  PermissionTypes.OWNER,
-  PermissionTypes.READ,
-  PermissionTypes.WRITE,
-  PermissionTypes.LINK,
-  PermissionTypes.MATERIALIZE,
-];
 
 const Card :ComponentType<{|
   bgColor ?:string;
@@ -69,68 +64,67 @@ const SpinnerWrapper = styled.div`
   min-height: 40px; /* because checkbox has this min-height */
 `;
 
-const ObjectPermissionsCard = ({
-  ace,
+const PrincipalPermissionsContainer = ({
   filterByQuery,
   isDataSet,
   objectKey,
-  organizationMembers,
-  organizationRoles,
+  permissions,
+  principal,
   properties,
 } :{|
-  ace :Ace;
   filterByQuery :string;
   isDataSet :boolean;
   objectKey :List<UUID>;
-  organizationMembers :Map<Principal, Map>;
-  organizationRoles :Map<Principal, Role>;
+  permissions :Map<List<UUID>, Ace>;
+  principal :Principal;
   properties :Map<UUID, PropertyType | Map>;
 |}) => {
 
   const dispatch = useDispatch();
+
   const [isOpen, setIsOpen] = useState(false);
   const [openPermissionType, setOpenPermissionType] = useState('');
 
   const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
+  const user :Map = useSelector(selectUser(principal.id));
+
+  const objectAce :?Ace = permissions.get(objectKey);
 
   let title = '';
-  if (ace.principal.type === PrincipalTypes.ROLE) {
-    // TODO: it's not guaranteed that this role belongs to this organization, in which case it's not clear exactly
-    // how we're going to resolve the role title
-    const role :?Role = organizationRoles.get(ace.principal);
-    if (role) {
-      title = role.title;
-    }
+  if (principal.type === PrincipalTypes.ROLE) {
+    title = principal.id.substring(principal.id.indexOf('|') + 1);
   }
-  else if (ace.principal.type === PrincipalTypes.USER) {
-    // TODO: it's not guaranteed that this user is a member of this organization, in which case it's not clear exactly
-    // how we're going to resolve the user's name (or rather, something other than the user_id)
-    const member :?Map = organizationMembers.get(ace.principal);
-    title = getUserProfileLabel(member);
+  else if (principal.type === PrincipalTypes.USER) {
+    title = getUserProfileLabel(user);
   }
 
   if (!isNonEmptyString(title)) {
-    title = ace.principal.id;
+    title = principal.id;
   }
 
-  const permissions = ORDERED_PERMISSIONS
-    .filter((permissionType :PermissionType) => ace.permissions.includes(permissionType))
-    .map((permissionType :PermissionType) => permissionType.toLowerCase())
-    .join(', ');
+  const overallPermissionsString = useMemo(() => {
+    const flattenedPermissions :Set<PermissionType> = permissions.valueSeq()
+      .map((ace :Ace) => Set(ace.permissions))
+      .flatten()
+      .toSet();
+    return ORDERED_PERMISSIONS
+      .filter((permissionType :PermissionType) => flattenedPermissions.includes(permissionType))
+      .map((permissionType :PermissionType) => permissionType.toLowerCase())
+      .join(', ');
+  }, [permissions]);
 
   const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
 
-    const { permissionType } = event.currentTarget.dataset;
+    const { propertyId } = event.currentTarget.dataset;
+    const permissionType :?PermissionType = PermissionTypes[event.currentTarget.dataset.permissionType];
 
-    if (PermissionTypes[permissionType]) {
-      const aceForUpdate = (new AceBuilder())
-        .setPermissions(Set([permissionType]))
-        .setPrincipal(ace.principal)
-        .build();
+    if (permissionType) {
+      const aceForUpdate = (new AceBuilder()).setPermissions([permissionType]).setPrincipal(principal).build();
+      const targetKey :List<UUID> = propertyId ? List([objectKey.get(0), propertyId]) : objectKey;
       dispatch(
         updatePermissions({
           actionType: event.currentTarget.checked ? ActionTypes.ADD : ActionTypes.REMOVE,
-          permissions: Map().set(objectKey, aceForUpdate),
+          permissions: Map().set(targetKey, aceForUpdate),
         })
       );
     }
@@ -157,7 +151,7 @@ const ObjectPermissionsCard = ({
           <SpaceBetweenGrid>
             <Typography component="span">{title}</Typography>
             <SpaceBetweenGrid gap={8}>
-              <Typography component="span">{permissions}</Typography>
+              <Typography component="span">{overallPermissionsString}</Typography>
               <IconButton aria-label="toggle open/close" onClick={() => setIsOpen(!isOpen)}>
                 <FontAwesomeIcon fixedWidth icon={isOpen ? faChevronUp : faChevronDown} />
               </IconButton>
@@ -175,7 +169,7 @@ const ObjectPermissionsCard = ({
                   <Card bgColor={bgColor} indent={2}>
                     <CardSegment padding={padding}>
                       <SpaceBetweenGrid>
-                        <Typography component="span">{permissionType.toLowerCase()}</Typography>
+                        <Typography component="span">{_capitalize(permissionType)}</Typography>
                         {
                           isDataSet && (
                             <IconButton
@@ -196,7 +190,7 @@ const ObjectPermissionsCard = ({
                           !isDataSet && updatePermissionsRS !== RequestStates.PENDING && (
                             <Checkbox
                                 data-permission-type={permissionType}
-                                checked={ace.permissions.includes(permissionType)}
+                                checked={objectAce?.permissions.includes(permissionType)}
                                 onChange={handleOnChangePermission} />
                           )
                         }
@@ -210,26 +204,38 @@ const ObjectPermissionsCard = ({
                           <SpaceBetweenGrid>
                             <Typography component="span">Data Set Object</Typography>
                             <Checkbox
-                                data-object-key={objectKey}
                                 data-permission-type={permissionType}
-                                checked={ace.permissions.includes(permissionType)}
-                                onChange={() => {}} />
+                                checked={objectAce?.permissions.includes(permissionType)}
+                                onChange={handleOnChangePermission} />
                           </SpaceBetweenGrid>
                           {
                             properties.valueSeq().map((property :PropertyType | Map) => {
                               const propertyId :UUID = property.id || get(property, 'id');
                               const propertyTitle :UUID = property.title || get(property, 'title');
                               const propertyTypeFQN :?string = property?.type?.toString() || '';
+                              const key :List<UUID> = List([objectKey.get(0), propertyId]);
+                              const ace :?Ace = permissions.get(key);
                               return (
                                 <SpaceBetweenGrid key={propertyId}>
                                   <Typography data-property-id={propertyId} title={propertyTypeFQN}>
                                     {propertyTitle}
                                   </Typography>
-                                  <Checkbox
-                                      data-property-id={propertyId}
-                                      data-permission-type={permissionType}
-                                      // checked={ace.permissions.includes(permissionType)}
-                                      onChange={() => {}} />
+                                  {
+                                    updatePermissionsRS === RequestStates.PENDING && (
+                                      <SpinnerWrapper>
+                                        <Spinner size="lg" />
+                                      </SpinnerWrapper>
+                                    )
+                                  }
+                                  {
+                                    updatePermissionsRS !== RequestStates.PENDING && (
+                                      <Checkbox
+                                          data-permission-type={permissionType}
+                                          data-property-id={propertyId}
+                                          checked={ace?.permissions.includes(permissionType)}
+                                          onChange={handleOnChangePermission} />
+                                    )
+                                  }
                                 </SpaceBetweenGrid>
                               );
                             })
@@ -248,4 +254,4 @@ const ObjectPermissionsCard = ({
   );
 };
 
-export default ObjectPermissionsCard;
+export default PrincipalPermissionsContainer;
