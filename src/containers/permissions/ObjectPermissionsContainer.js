@@ -23,7 +23,7 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import ObjectPrincipalPermissionsCard from './ObjectPrincipalPermissionsCard';
+import PrincipalPermissionsCard from './PrincipalPermissionsCard';
 
 import { Spinner, StackGrid } from '../../components';
 import { INITIALIZE_OBJECT_PERMISSIONS, initializeObjectPermissions } from '../../core/permissions/actions';
@@ -90,7 +90,7 @@ const ObjectPermissionsContainer = ({
               return filterByPermissionTypes.every((pt :PermissionType) => ace?.permissions.includes(pt));
             })
             .map((principal :Principal) => (
-              <ObjectPrincipalPermissionsCard
+              <PrincipalPermissionsCard
                   filterByQuery={filterByQuery}
                   isDataSet={isDataSet}
                   key={principal.id}
