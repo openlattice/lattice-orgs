@@ -68,7 +68,7 @@ const SpinnerWrapper = styled.div`
   min-height: 40px; /* because checkbox has this min-height */
 `;
 
-const PrincipalPermissionsCard = ({
+const ObjectPermissionsCard = ({
   filterByQuery,
   isDataSet,
   objectKey,
@@ -265,4 +265,4 @@ const PrincipalPermissionsCard = ({
   );
 };
 
-export default PrincipalPermissionsCard;
+export default ObjectPermissionsCard;
