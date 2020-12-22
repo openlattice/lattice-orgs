@@ -10,6 +10,9 @@ import type { RequestSequence } from 'redux-reqseq';
 const ASSIGN_PERMISSIONS_TO_DATA_SET :'ASSIGN_PERMISSIONS_TO_DATA_SET' = 'ASSIGN_PERMISSIONS_TO_DATA_SET';
 const assignPermissionsToDataSet :RequestSequence = newRequestSequence(ASSIGN_PERMISSIONS_TO_DATA_SET);
 
+const GET_CURRENT_DATA_SET_AUTHORIZATIONS :'GET_CURRENT_DATA_SET_AUTHORIZATIONS' = 'GET_CURRENT_DATA_SET_AUTHORIZATIONS';
+const getCurrentDataSetAuthorizations :RequestSequence = newRequestSequence(GET_CURRENT_DATA_SET_AUTHORIZATIONS);
+
 const GET_DATA_SET_PERMISSIONS :'GET_DATA_SET_PERMISSIONS' = 'GET_DATA_SET_PERMISSIONS';
 const getDataSetPermissions :RequestSequence = newRequestSequence(GET_DATA_SET_PERMISSIONS);
 
@@ -42,6 +45,7 @@ const updatePermissions :RequestSequence = newRequestSequence(UPDATE_PERMISSIONS
 
 export {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
+  GET_CURRENT_DATA_SET_AUTHORIZATIONS,
   GET_DATA_SET_PERMISSIONS,
   GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
   GET_ORG_OBJECT_PERMISSIONS,
@@ -53,6 +57,7 @@ export {
   SET_PERMISSIONS,
   UPDATE_PERMISSIONS,
   assignPermissionsToDataSet,
+  getCurrentDataSetAuthorizations,
   getDataSetPermissions,
   getOrgDataSetObjectPermissions,
   getOrgObjectPermissions,

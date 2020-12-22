@@ -5,6 +5,7 @@
 import { Map, fromJS } from 'immutable';
 
 import assignPermissionsToDataSetReducer from './assignPermissionsToDataSetReducer';
+import getCurrentDataSetAuthorizationsReducer from './getCurrentDataSetAuthorizationsReducer';
 import getDataSetPermissionsReducer from './getDataSetPermissionsReducer';
 import getOrgDataSetObjectPermissionsReducer from './getOrgDataSetObjectPermissionsReducer';
 import getOrgObjectPermissionsReducer from './getOrgObjectPermissionsReducer';
@@ -17,7 +18,12 @@ import setPermissionsReducer from './setPermissionsReducer';
 import updatePermissionsReducer from './updatePermissionsReducer';
 
 import { RESET_REQUEST_STATE } from '../../redux/actions';
-import { ACES, IS_OWNER, RS_INITIAL_STATE } from '../../redux/constants';
+import {
+  ACES,
+  CURRENT,
+  IS_OWNER,
+  RS_INITIAL_STATE
+} from '../../redux/constants';
 import { resetRequestStateReducer } from '../../redux/reducers';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
@@ -32,6 +38,7 @@ import {
   SET_PERMISSIONS,
   UPDATE_PERMISSIONS,
   assignPermissionsToDataSet,
+  getCurrentDataSetAuthorizations,
   getDataSetPermissions,
   getOrgDataSetObjectPermissions,
   getOrgObjectPermissions,
@@ -59,6 +66,7 @@ const INITIAL_STATE :Map = fromJS({
   [UPDATE_PERMISSIONS]: RS_INITIAL_STATE,
   // data
   [ACES]: Map(),
+  [CURRENT]: Map(),
   [IS_OWNER]: Map(),
 });
 
@@ -72,6 +80,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case assignPermissionsToDataSet.case(action.type): {
       return assignPermissionsToDataSetReducer(state, action);
+    }
+
+    case getCurrentDataSetAuthorizations.case(action.type): {
+      return getCurrentDataSetAuthorizationsReducer(state, action);
     }
 
     case getDataSetPermissions.case(action.type): {
