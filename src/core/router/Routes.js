@@ -41,6 +41,9 @@ const ORG_MEMBER :'/orgs/:organizationId/members/:principalId' = `${ORG_MEMBERS}
 const ORG_OBJECT_PERMISSIONS :'/orgs/:organizationId/permissions' = `${ORG}/permissions`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_PEOPLE :'/orgs/:organizationId/people' = `${ORG}/people`;
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_ROLES :'/orgs/:organizationId/roles' = `${ORG}/roles`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
@@ -62,6 +65,7 @@ export {
   ORG_MEMBER,
   ORG_MEMBERS,
   ORG_OBJECT_PERMISSIONS,
+  ORG_PEOPLE,
   ORG_ROLE,
   ORG_ROLES,
   ORG_ROLE_OBJECT_PERMISSIONS,
