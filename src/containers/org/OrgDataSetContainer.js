@@ -6,11 +6,10 @@ import React, { useEffect } from 'react';
 
 import { Map, getIn } from 'immutable';
 import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import { RequestStates } from 'redux-reqseq';
 import type {
   EntitySet,
   Organization,
@@ -40,6 +39,8 @@ import {
   selectOrganization,
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
+
+const { isPending, isSuccess } = ReduxUtils;
 
 const OrgDataSetContainer = ({
   dataSetDataRoute,
@@ -99,12 +100,12 @@ const OrgDataSetContainer = ({
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
           {
-            getOrSelectDataSetRS === RequestStates.PENDING && (
+            isPending(getOrSelectDataSetRS) && (
               <Spinner />
             )
           }
           {
-            getOrSelectDataSetRS === RequestStates.SUCCESS && (
+            isSuccess(getOrSelectDataSetRS) && (
               <StackGrid gap={48}>
                 <StackGrid>
                   <SpaceBetweenGrid>
@@ -136,7 +137,7 @@ const OrgDataSetContainer = ({
           }
         </AppContentWrapper>
         {
-          getOrSelectDataSetRS === RequestStates.SUCCESS && (
+          isSuccess(getOrSelectDataSetRS) && (
             <>
               <NavContentWrapper bgColor="white">
                 <AppNavigationWrapper borderless>

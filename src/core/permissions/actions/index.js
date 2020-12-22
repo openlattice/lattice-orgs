@@ -34,6 +34,9 @@ const setPermissions :RequestSequence = newRequestSequence(SET_PERMISSIONS);
 const UPDATE_PERMISSIONS :'UPDATE_PERMISSIONS' = 'UPDATE_PERMISSIONS';
 const updatePermissions :RequestSequence = newRequestSequence(UPDATE_PERMISSIONS);
 
+const GET_CURRENT_DATA_SET_AUTHORIZATIONS :'GET_CURRENT_DATA_SET_AUTHORIZATIONS' = 'GET_CURRENT_DATA_SET_AUTHORIZATIONS';
+const getCurrentDataSetAuthorizations :RequestSequence = newRequestSequence(GET_CURRENT_DATA_SET_AUTHORIZATIONS);
+
 export {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   GET_DATA_SET_PERMISSIONS,
@@ -42,6 +45,7 @@ export {
   GET_OWNER_STATUS,
   GET_PAGE_DATA_SET_PERMISSIONS,
   GET_PERMISSIONS,
+  GET_CURRENT_DATA_SET_AUTHORIZATIONS,
   SET_PERMISSIONS,
   UPDATE_PERMISSIONS,
   assignPermissionsToDataSet,
@@ -51,6 +55,7 @@ export {
   getOwnerStatus,
   getPageDataSetPermissions,
   getPermissions,
+  getCurrentDataSetAuthorizations,
   setPermissions,
   updatePermissions,
 };

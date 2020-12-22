@@ -3,6 +3,7 @@
  */
 
 export * from './assignPermissionsToDataSet';
+export * from './getCurrentDataSetAuthorizations';
 export * from './getDataSetPermissions';
 export * from './getOrgObjectPermissions';
 export * from './getOrgRoleObjectPermissions';
