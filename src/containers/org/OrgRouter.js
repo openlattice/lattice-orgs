@@ -21,6 +21,7 @@ import OrgContainer from './OrgContainer';
 import OrgDataSetContainer from './OrgDataSetContainer';
 import OrgDataSetsContainer from './OrgDataSetsContainer';
 import OrgObjectPermissionsContainer from './OrgObjectPermissionsContainer';
+import OrgPeopleContainer from './members/OrgPeopleContainer';
 import OrgRoleContainer from './OrgRoleContainer';
 import OrgRoleObjectPermissionsContainer from './OrgRoleObjectPermissionsContainer';
 import OrgRolesContainer from './OrgRolesContainer';
@@ -234,6 +235,12 @@ const OrgRouter = () => {
         : null
     );
 
+    const renderOrgPeopleContainer = () => (
+      (organizationId)
+        ? <OrgPeopleContainer organizationId={organizationId} organizationRoute={organizationRoute} />
+        : null
+    );
+
     const renderOrgRoleContainer = () => (
       (organizationId && roleId)
         ? (
@@ -276,6 +283,7 @@ const OrgRouter = () => {
         <Route path={Routes.ORG_DATA_SET} render={renderOrgDataSetContainer} />
         <Route path={Routes.ORG_DATA_SETS} render={renderOrgDataSetsContainer} />
         <Route path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
+        <Route path={Routes.ORG_PEOPLE} render={renderOrgPeopleContainer} />
         <Route path={Routes.ORG_MEMBERS} render={renderOrgMembersContainer} />
         <Route path={Routes.ORG_ROLE_OBJECT_PERMISSIONS} render={renderOrgRoleObjectPermissionsContainer} />
         <Route path={Routes.ORG_ROLE} render={renderOrgRoleContainer} />
