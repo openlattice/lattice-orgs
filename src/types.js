@@ -18,7 +18,7 @@ type AuthorizationObject = {|
   };
 |};
 
-type PermissionSelection = {|
+type DataSetPermissionTypeSelection = {|
   dataSetId :UUID;
   permissionType :PermissionType;
 |};
@@ -41,7 +41,7 @@ type SearchEntitySetsHit = {
 
 export type {
   AuthorizationObject,
-  PermissionSelection,
+  DataSetPermissionTypeSelection,
   ReactSelectOption,
   SagaError,
   SearchEntitySetsHit,

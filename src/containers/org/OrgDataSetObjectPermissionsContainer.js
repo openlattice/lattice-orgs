@@ -25,7 +25,7 @@ import {
   selectEntitySets,
   selectOrganization,
 } from '../../core/redux/selectors';
-import { ObjectPermissionsActionsGrid, ObjectPermissionsContainer } from '../permissions';
+import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
 
 const OrgDataSetObjectPermissionsContainer = ({
   dataSetId,
@@ -74,9 +74,11 @@ const OrgDataSetObjectPermissionsContainer = ({
         <Typography>
           Below are the users, roles, and organizations that are granted permissions on this object.
         </Typography>
-        <ObjectPermissionsActionsGrid
+        <PermissionsActionsGrid
+            assignPermissionsText="Add permission"
             onChangeFilterByPermissionTypes={setFilterByPermissionTypes}
-            onChangeFilterByQuery={setFilterByQuery} />
+            onChangeFilterByQuery={setFilterByQuery}
+            onClickAssignPermissions={() => {}} />
         <Divider isVisible={false} margin={0} />
         <ObjectPermissionsContainer
             filterByPermissionTypes={filterByPermissionTypes}

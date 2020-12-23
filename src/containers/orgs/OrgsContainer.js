@@ -11,8 +11,8 @@ import {
   AppContentWrapper,
   Button,
   CardStack,
-  Input,
   PaginationToolbar,
+  SearchInput,
 } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
@@ -61,7 +61,7 @@ const OrgsContainer = () => {
       <AppContentWrapper>
         <Header as="h2">Organizations</Header>
         <ActionsGrid>
-          <Input onChange={handleOnChangeOrgFilter} placeholder="Filter organizations" />
+          <SearchInput onChange={handleOnChangeOrgFilter} placeholder="Filter organizations" />
           <Button
               color="primary"
               onClick={() => setIsVisibleCreateOrgModal(true)}

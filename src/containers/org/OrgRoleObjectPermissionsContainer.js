@@ -23,7 +23,7 @@ import { GET_ORG_ROLE_OBJECT_PERMISSIONS, getOrgRoleObjectPermissions } from '..
 import { resetRequestState } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectOrganization } from '../../core/redux/selectors';
-import { ObjectPermissionsActionsGrid, ObjectPermissionsContainer } from '../permissions';
+import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
 
 const OrgRoleObjectPermissionsContainer = ({
   organizationId,
@@ -78,9 +78,11 @@ const OrgRoleObjectPermissionsContainer = ({
           <Typography>
             Below are the users and roles that are granted permissions on this object.
           </Typography>
-          <ObjectPermissionsActionsGrid
+          <PermissionsActionsGrid
+              assignPermissionsText="Add permission"
               onChangeFilterByPermissionTypes={setFilterByPermissionTypes}
-              onChangeFilterByQuery={setFilterByQuery} />
+              onChangeFilterByQuery={setFilterByQuery}
+              onClickAssignPermissions={() => {}} />
           <Divider isVisible={false} margin={0} />
           <ObjectPermissionsContainer
               filterByPermissionTypes={filterByPermissionTypes}
