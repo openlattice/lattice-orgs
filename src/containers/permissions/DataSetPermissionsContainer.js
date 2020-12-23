@@ -40,7 +40,7 @@ import {
   selectOrganizationEntitySetIds,
   selectPermissionsByPrincipal,
 } from '../../core/redux/selectors';
-import { getDataSetId, getDataSetTitle } from '../../utils';
+import { getDataSetField } from '../../utils';
 import { INITIAL_PAGINATION_STATE, PAGE, paginationReducer } from '../../utils/stateReducers/pagination';
 import type { DataSetPermissionTypeSelection } from '../../types';
 import type { State as PaginationState } from '../../utils/stateReducers/pagination';
@@ -99,7 +99,7 @@ const DataSetPermissionsContainer = ({
       const dataSetId :UUID = key.get(0);
       const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
       const entitySet :?EntitySet = entitySets.get(dataSetId);
-      const dataSetTitle :string = getDataSetTitle(atlasDataSet || entitySet);
+      const dataSetTitle :string = getDataSetField(atlasDataSet || entitySet, 'title');
       return (
         dataSetTitle.toLowerCase().includes(filterByQuery.toLowerCase())
         && filterByPermissionTypes.every((pt :PermissionType) => ace?.permissions.includes(pt))
@@ -182,7 +182,7 @@ const DataSetPermissionsContainer = ({
       {
         reducedRS === RequestStates.SUCCESS && filteredPermissionsCount !== 0 && (
           pageDataSets.valueSeq().map((dataSet :EntitySet | Map) => {
-            const dataSetId :UUID = getDataSetId(dataSet);
+            const dataSetId :UUID = getDataSetField(dataSet, 'id');
             return (
               <DataSetPermissionsCard
                   dataSet={dataSet}

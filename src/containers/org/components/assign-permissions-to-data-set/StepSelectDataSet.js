@@ -5,7 +5,7 @@
 import React, { useState } from 'react';
 
 import styled from 'styled-components';
-import { Map, Set, getIn } from 'immutable';
+import { Map, Set } from 'immutable';
 import {
   CardSegment,
   Checkbox,
@@ -39,6 +39,7 @@ import {
   searchDataSetsToAssignPermissions,
 } from '../../../../core/search/actions';
 import { MAX_HITS_10 } from '../../../../core/search/constants';
+import { getDataSetField } from '../../../../utils';
 
 const { isNonEmptyString } = LangUtils;
 const { selectEntitySets } = ReduxUtils;
@@ -137,13 +138,13 @@ const StepSelectDataSet = ({
                       <CardSegment key={dataSet.id} padding="8px 0">
                         <SpaceBetweenGrid>
                           <div>
-                            <DataSetTitle isAtlasDataSet={false}>{dataSet.title || dataSet.name}</DataSetTitle>
+                            <DataSetTitle dataSet={dataSet} />
                             <Typography variant="caption">{dataSet.id}</Typography>
                           </div>
                           <Radio
                               checked={targetDataSetId === dataSet.id}
                               data-id={dataSet.id}
-                              data-title={dataSet.title}
+                              data-title={dataSet.title || dataSet.name}
                               name="select-data-set"
                               onChange={handleOnChangeSelectDataSet} />
                         </SpaceBetweenGrid>
@@ -172,20 +173,20 @@ const StepSelectDataSet = ({
                 <div>
                   {
                     pageAtlasDataSets.valueSeq().map((dataSet :EntitySet | Map) => {
-                      const id :UUID = getIn(dataSet, ['table', 'id']);
-                      const name :string = getIn(dataSet, ['table', 'name']);
-                      const title :UUID = getIn(dataSet, ['table', 'title']);
+                      const id :UUID = getDataSetField(dataSet, 'id');
+                      const name :string = getDataSetField(dataSet, 'name');
+                      const title :string = getDataSetField(dataSet, 'title');
                       return (
                         <CardSegment key={id} padding="8px 0">
                           <SpaceBetweenGrid>
                             <div>
-                              <DataSetTitle isAtlasDataSet>{title || name}</DataSetTitle>
+                              <DataSetTitle dataSet={dataSet} />
                               <Typography variant="caption">{id}</Typography>
                             </div>
                             <Radio
                                 checked={targetDataSetId === id}
                                 data-id={id}
-                                data-title={title}
+                                data-title={title || name}
                                 name="select-data-set"
                                 onChange={handleOnChangeSelectDataSet} />
                           </SpaceBetweenGrid>

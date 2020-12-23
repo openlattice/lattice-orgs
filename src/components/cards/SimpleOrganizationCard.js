@@ -4,37 +4,20 @@
 
 import React from 'react';
 
-import styled from 'styled-components';
 import { faUserFriends } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Card, CardSegment, Colors } from 'lattice-ui-kit';
+import { Card, CardSegment, Typography } from 'lattice-ui-kit';
 import { useGoToRoute } from 'lattice-utils';
 import type { Organization, UUID } from 'lattice';
 
 import { Routes } from '../../core/router';
-import { Header } from '../headers';
+import { GapGrid, StackGrid } from '../grids';
 
-const { NEUTRAL } = Colors;
-
-const OrgSummarySection = styled.div`
-  display: grid;
-  grid-gap: 8px;
-`;
-
-const MembersIcon = styled(FontAwesomeIcon).attrs({ icon: faUserFriends })`
-  margin-right: 10px;
-`;
-
-const OrgMetaSection = styled.div`
-  color: ${NEUTRAL.N500};
-  font-weight: normal;
-`;
-
-type Props = {
+const SimpleOrganizationCard = ({
+  organization,
+} :{|
   organization :Organization;
-};
-
-const SimpleOrganizationCard = ({ organization } :Props) => {
+|}) => {
 
   const organizationId :UUID = (organization.id :any);
   const goToOrganization = useGoToRoute(
@@ -45,14 +28,14 @@ const SimpleOrganizationCard = ({ organization } :Props) => {
   return (
     <Card id={organizationId} onClick={goToOrganization}>
       <CardSegment padding="24px">
-        <Header align="start" as="h4">{organization.title}</Header>
-        <OrgSummarySection>
-          <div><span>{organization.description}</span></div>
-          <OrgMetaSection>
-            <MembersIcon />
-            <span>{organization.members.length}</span>
-          </OrgMetaSection>
-        </OrgSummarySection>
+        <StackGrid gap={8}>
+          <Typography component="h2" variant="h4">{organization.title}</Typography>
+          <Typography>{organization.description}</Typography>
+          <GapGrid>
+            <FontAwesomeIcon fixedWidth icon={faUserFriends} />
+            <Typography>{organization.members.length}</Typography>
+          </GapGrid>
+        </StackGrid>
       </CardSegment>
     </Card>
   );

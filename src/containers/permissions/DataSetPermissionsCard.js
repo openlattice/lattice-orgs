@@ -23,15 +23,9 @@ import type {
 
 import { ORDERED_PERMISSIONS } from './constants';
 
-import { AtlasDataSetIcon, EntitySetIcon } from '../../assets/svg/icons';
-import { GapGrid, SpaceBetweenGrid, StackGrid } from '../../components';
+import { DataSetTitle, SpaceBetweenGrid, StackGrid } from '../../components';
 import { selectDataSetProperties, selectPermissionsByPrincipal } from '../../core/redux/selectors';
-import {
-  getDataSetId,
-  getDataSetKeys,
-  getDataSetTitle,
-  isAtlasDataSet,
-} from '../../utils';
+import { getDataSetField, getDataSetKeys } from '../../utils';
 import type { DataSetPermissionTypeSelection } from '../../types';
 
 const { NEUTRAL, PURPLE } = Colors;
@@ -80,7 +74,7 @@ const DataSetPermissionsCard = ({
   selection :?DataSetPermissionTypeSelection;
 |}) => {
 
-  const dataSetId :UUID = getDataSetId(dataSet);
+  const dataSetId :UUID = getDataSetField(dataSet, 'id');
 
   const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(dataSetId));
   const keys :List<List<UUID>> = useMemo(() => (
@@ -140,14 +134,7 @@ const DataSetPermissionsCard = ({
     <StackGrid gap={8}>
       <DataSetCard onClick={handleOnClickDataSetCard}>
         <SpaceBetweenGrid>
-          <GapGrid gap={8}>
-            {
-              isAtlasDataSet(dataSet)
-                ? <AtlasDataSetIcon />
-                : <EntitySetIcon />
-            }
-            <Typography>{getDataSetTitle(dataSet)}</Typography>
-          </GapGrid>
+          <DataSetTitle dataSet={dataSet} />
           <Typography component="span">{permissionTypeSummaryString}</Typography>
         </SpaceBetweenGrid>
       </DataSetCard>
