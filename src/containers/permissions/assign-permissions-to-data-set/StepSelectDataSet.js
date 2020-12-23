@@ -25,21 +25,21 @@ import {
   SpaceBetweenGrid,
   Spinner,
   StackGrid,
-} from '../../../../components';
-import { ATLAS_DATA_SET_IDS, ENTITY_SET_IDS, SEARCH } from '../../../../core/redux/constants';
+} from '../../../components';
+import { ATLAS_DATA_SET_IDS, ENTITY_SET_IDS, SEARCH } from '../../../core/redux/constants';
 import {
   selectAtlasDataSets,
   selectSearchHits,
   selectSearchPage,
   selectSearchQuery,
   selectSearchTotalHits,
-} from '../../../../core/redux/selectors';
+} from '../../../core/redux/selectors';
 import {
   SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS,
   searchDataSetsToAssignPermissions,
-} from '../../../../core/search/actions';
-import { MAX_HITS_10 } from '../../../../core/search/constants';
-import { getDataSetField } from '../../../../utils';
+} from '../../../core/search/actions';
+import { MAX_HITS_10 } from '../../../core/search/constants';
+import { getDataSetField } from '../../../utils';
 
 const { isNonEmptyString } = LangUtils;
 const { selectEntitySets } = ReduxUtils;

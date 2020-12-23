@@ -9,8 +9,8 @@ import { Types } from 'lattice';
 import { Select, Typography } from 'lattice-ui-kit';
 import type { PermissionType } from 'lattice';
 
-import { StackGrid } from '../../../../components';
-import type { ReactSelectOption } from '../../../../types';
+import { StackGrid } from '../../../components';
+import type { ReactSelectOption } from '../../../types';
 
 const { PermissionTypes } = Types;
 

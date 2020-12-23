@@ -20,11 +20,11 @@ import StepSelectDataSet from './StepSelectDataSet';
 import StepSelectPermissions from './StepSelectPermissions';
 import StepSelectProperties from './StepSelectProperties';
 
-import { ModalBody } from '../../../../components';
-import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../../../core/permissions/actions';
-import { resetRequestState } from '../../../../core/redux/actions';
-import { PERMISSIONS } from '../../../../core/redux/constants';
-import { SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS, clearSearchState } from '../../../../core/search/actions';
+import { ModalBody } from '../../../components';
+import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../../core/permissions/actions';
+import { resetRequestState } from '../../../core/redux/actions';
+import { PERMISSIONS } from '../../../core/redux/constants';
+import { SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS, clearSearchState } from '../../../core/search/actions';
 
 const ModalHeader = styled(LUKModalHeader)`
   padding: 30px 0;

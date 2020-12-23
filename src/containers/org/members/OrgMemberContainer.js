@@ -21,8 +21,12 @@ import {
 } from '../../../components';
 import { selectOrganizationMembers } from '../../../core/redux/selectors';
 import { getPrincipal, getSecurablePrincipalId, getUserProfile } from '../../../utils';
-import { DataSetPermissionsContainer, PermissionsActionsGrid, PermissionsPanel } from '../../permissions';
-import { AssignPermissionsToDataSet } from '../components';
+import {
+  AssignPermissionsToDataSet,
+  DataSetPermissionsContainer,
+  PermissionsActionsGrid,
+  PermissionsPanel,
+} from '../../permissions';
 import type { UserProfile } from '../../../types';
 
 const { selectOrganization } = ReduxUtils;
