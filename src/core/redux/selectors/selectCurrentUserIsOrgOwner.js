@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { Map, getIn, hasIn } from 'immutable';
+import { Map, getIn } from 'immutable';
 import { ValidationUtils } from 'lattice-utils';
 import type { UUID } from 'lattice';
 
@@ -15,9 +15,7 @@ export default function selectCurrentUserIsOrgOwner(organizationId :UUID) {
   return (state :Map) :boolean => {
 
     if (isValidUUID(organizationId)) {
-      if (hasIn(state, [ORGANIZATIONS, IS_OWNER, organizationId])) {
-        return getIn(state, [ORGANIZATIONS, IS_OWNER, organizationId]);
-      }
+      return getIn(state, [ORGANIZATIONS, IS_OWNER, organizationId]);
     }
 
     return false;
