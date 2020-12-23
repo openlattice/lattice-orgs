@@ -10,7 +10,7 @@ import { LangUtils, ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
-import { AssignPermissionsToDataSet, PermissionsPanel, RoleActionButton } from './components';
+import { AssignPermissionsToDataSet, RoleActionButton } from './components';
 
 import {
   CrumbItem,
@@ -20,7 +20,7 @@ import {
   StackGrid,
   StepsController,
 } from '../../components';
-import { DataSetPermissionsContainer, PermissionsActionsGrid } from '../permissions';
+import { DataSetPermissionsContainer, PermissionsActionsGrid, PermissionsPanel } from '../permissions';
 
 const { isNonEmptyString } = LangUtils;
 const { selectOrganization } = ReduxUtils;
