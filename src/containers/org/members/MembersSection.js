@@ -26,7 +26,7 @@ import AssignRoleToMemberModal from '../components/AssignRoleToMemberModal';
 import { Header } from '../../../components';
 import { Routes } from '../../../core/router';
 import { goToRoute } from '../../../core/router/actions';
-import { getSecurablePrincipalId, getUserProfileLabel } from '../../../utils/PersonUtils';
+import { getSecurablePrincipalId, getUserTitle } from '../../../utils';
 import {
   FILTER,
   INITIAL_PAGINATION_STATE,
@@ -199,7 +199,7 @@ const MembersSection = ({
           return (
             <MemberWrapper key={userId}>
               <MemberLink to={memberPath}>
-                {getUserProfileLabel(member, thisUserId)}
+                {getUserTitle(member, thisUserId)}
               </MemberLink>
               <IconButton onClick={() => handleOnClickRemoveMember(member)}>
                 <FontAwesomeIcon fixedWidth icon={faTimes} />

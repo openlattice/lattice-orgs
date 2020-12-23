@@ -20,11 +20,10 @@ import {
   StepsController,
 } from '../../../components';
 import { selectOrganizationMembers } from '../../../core/redux/selectors';
-import { getPrincipal } from '../../../utils';
-import { getSecurablePrincipalId, getUserProfile } from '../../../utils/PersonUtils';
+import { getPrincipal, getSecurablePrincipalId, getUserProfile } from '../../../utils';
 import { DataSetPermissionsContainer, PermissionsActionsGrid } from '../../permissions';
 import { AssignPermissionsToDataSet, PermissionsPanel } from '../components';
-import type { UserProfile } from '../../../utils/PersonUtils';
+import type { UserProfile } from '../../../types';
 
 const { selectOrganization } = ReduxUtils;
 

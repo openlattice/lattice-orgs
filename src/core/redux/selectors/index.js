@@ -29,3 +29,4 @@ export { default as selectSearchPage } from './selectSearchPage';
 export { default as selectSearchQuery } from './selectSearchQuery';
 export { default as selectSearchTotalHits } from './selectSearchTotalHits';
 export { default as selectUser } from './selectUser';
+export { default as selectUsers } from './selectUsers';

@@ -7,7 +7,7 @@ import { Select, Typography } from 'lattice-ui-kit';
 import { PersonUtils } from 'lattice-utils';
 
 import { ModalBody } from '../../../components';
-import { getUserProfileLabel } from '../../../utils/PersonUtils';
+import { getUserTitle } from '../../../utils';
 import type { ReactSelectOption } from '../../../types';
 
 const { getUserId } = PersonUtils;
@@ -25,7 +25,7 @@ const AssignRoleModalBody = ({ onChange, members } :Props) => {
     const options = [];
     members.forEach((member) => {
       options.push({
-        label: getUserProfileLabel(member, thisUserId),
+        label: getUserTitle(member, thisUserId),
         value: getUserId(member)
       });
     });

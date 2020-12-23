@@ -39,10 +39,17 @@ type SearchEntitySetsHit = {
   propertyTypes :PropertyTypeObject[];
 };
 
+type UserProfile = {
+  familyName :string;
+  givenName :string;
+  name :string;
+};
+
 export type {
   AuthorizationObject,
   DataSetPermissionTypeSelection,
   ReactSelectOption,
   SagaError,
   SearchEntitySetsHit,
+  UserProfile,
 };

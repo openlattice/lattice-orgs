@@ -16,6 +16,7 @@ import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map, get } from 'immutable';
 import { Models, Types } from 'lattice';
+import { AuthUtils } from 'lattice-auth';
 import {
   CardSegment,
   Checkbox,
@@ -23,7 +24,7 @@ import {
   IconButton,
   Typography,
 } from 'lattice-ui-kit';
-import { LangUtils, useRequestState } from 'lattice-utils';
+import { useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type {
@@ -41,12 +42,11 @@ import { SpaceBetweenGrid, Spinner, StackGrid } from '../../components';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectUser } from '../../core/redux/selectors';
-import { getUserProfileLabel } from '../../utils/PersonUtils';
+import { getPrincipalTitle } from '../../utils';
 
 const { NEUTRAL } = Colors;
 const { AceBuilder } = Models;
-const { ActionTypes, PermissionTypes, PrincipalTypes } = Types;
-const { isNonEmptyString } = LangUtils;
+const { ActionTypes, PermissionTypes } = Types;
 
 const PermissionTypeWrapper :ComponentType<{|
   children :any;
@@ -69,14 +69,12 @@ const SpinnerWrapper = styled.div`
 `;
 
 const ObjectPermissionsCard = ({
-  filterByQuery,
   isDataSet,
   objectKey,
   permissions,
   principal,
   properties,
 } :{|
-  filterByQuery :string;
   isDataSet :boolean;
   objectKey :List<UUID>;
   permissions :Map<List<UUID>, Ace>;
@@ -91,7 +89,11 @@ const ObjectPermissionsCard = ({
   const [targetPropertyId, setTargetPropertyId] = useState('');
 
   const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
+
   const user :Map = useSelector(selectUser(principal.id));
+  const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
+  const thisUserId = thisUserInfo.id;
+  const title :string = getPrincipalTitle(principal, user, thisUserId);
 
   useEffect(() => {
     if (updatePermissionsRS !== RequestStates.PENDING) {
@@ -100,18 +102,6 @@ const ObjectPermissionsCard = ({
   }, [updatePermissionsRS]);
 
   const objectAce :?Ace = permissions.get(objectKey);
-
-  let title = '';
-  if (principal.type === PrincipalTypes.ROLE) {
-    title = principal.id.substring(principal.id.indexOf('|') + 1);
-  }
-  else if (principal.type === PrincipalTypes.USER) {
-    title = getUserProfileLabel(user);
-  }
-
-  if (!isNonEmptyString(title)) {
-    title = principal.id;
-  }
 
   const objectPermissionsString = useMemo(() => (
     ORDERED_PERMISSIONS
@@ -139,11 +129,6 @@ const ObjectPermissionsCard = ({
       }
     }
   };
-
-  // TODO: this is probably not good enough, plan to revisit
-  if (!title.toLowerCase().includes(filterByQuery.toLowerCase())) {
-    return null;
-  }
 
   const toggleOpenPermissionType = (permissionType :PermissionType) => {
     if (openPermissionType === permissionType) {
