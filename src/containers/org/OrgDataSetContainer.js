@@ -4,7 +4,7 @@
 
 import React, { useEffect } from 'react';
 
-import { Map, getIn } from 'immutable';
+import { Map } from 'immutable';
 import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -35,6 +35,7 @@ import {
   selectOrganization,
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
+import { getDataSetField } from '../../utils';
 
 const { isPending, isSuccess } = ReduxUtils;
 
@@ -64,10 +65,12 @@ const OrgDataSetContainer = ({
 
   const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
   const entitySet :?EntitySet = entitySets.get(dataSetId);
-  const description :string = entitySet?.description || getIn(atlasDataSet, ['table', 'description']);
-  const name :string = entitySet?.name || getIn(atlasDataSet, ['table', 'name']);
-  const title :string = entitySet?.title || getIn(atlasDataSet, ['table', 'title']);
-  const contacts :string[] = entitySet?.contacts || [];
+  const dataSet = atlasDataSet || entitySet;
+
+  const description :string = getDataSetField(dataSet, 'description');
+  const name :string = getDataSetField(dataSet, 'name');
+  const title :string = getDataSetField(dataSet, 'title');
+  const contacts :string[] = getDataSetField(dataSet, 'contacts') || [];
 
   useEffect(() => {
     dispatch(getOrSelectDataSet({ dataSetId, organizationId }));
@@ -106,7 +109,7 @@ const OrgDataSetContainer = ({
                 <StackGrid>
                   <SpaceBetweenGrid>
                     <Typography variant="h1">{title || name}</Typography>
-                    <DataSetActionButton dataSet={atlasDataSet || entitySet} organizationId={organizationId} />
+                    <DataSetActionButton dataSet={dataSet} organizationId={organizationId} />
                   </SpaceBetweenGrid>
                   <Typography>{description || name}</Typography>
                 </StackGrid>
