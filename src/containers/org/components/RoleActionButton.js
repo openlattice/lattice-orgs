@@ -1,15 +1,20 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React, { useReducer, useRef } from 'react';
 
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
+import { useGoToRoute } from 'lattice-utils';
 import { useSelector } from 'react-redux';
-import type { Organization, Role } from 'lattice';
+import type { Organization, Role, UUID } from 'lattice';
 
 import RoleDetailsModal from './RoleDetailsModal';
 
-import { IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
+import { selectCurrentUserIsOrgOwner } from '../../../core/redux/selectors';
+import { Routes } from '../../../core/router';
 
 const CLOSE_DETAILS = 'CLOSE_DETAILS';
 const CLOSE_MENU = 'CLOSE_MENU';
@@ -49,15 +54,26 @@ const reducer = (state, action) => {
   }
 };
 
-type Props = {
+const RoleActionButton = ({
+  organization,
+  role,
+} :{|
   organization :Organization;
   role :Role;
-};
+|}) => {
 
-const RoleActionButton = ({ organization, role } :Props) => {
+  const organizationId :UUID = (organization.id :any);
+  const roleId :UUID = (role.id :any);
+
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
-  const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organization.id]));
+  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
   const anchorRef = useRef(null);
+
+  const goToOrganization = useGoToRoute(
+    Routes.ORG_ROLE_OBJECT_PERMISSIONS
+      .replace(Routes.ORG_ID_PARAM, organizationId)
+      .replace(Routes.ROLE_ID_PARAM, roleId)
+  );
 
   const handleOpenMenu = () => {
     dispatch({ type: OPEN_MENU });
@@ -104,6 +120,9 @@ const RoleActionButton = ({ organization, role } :Props) => {
           }}>
         <MenuItem disabled={!isOwner} onClick={handleOpenDetails}>
           Edit Role Details
+        </MenuItem>
+        <MenuItem disabled={!isOwner} onClick={goToOrganization}>
+          Manage Permissions
         </MenuItem>
       </Menu>
       <RoleDetailsModal
