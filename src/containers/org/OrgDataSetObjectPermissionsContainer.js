@@ -4,7 +4,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { List, Map, getIn } from 'immutable';
+import { List, Map } from 'immutable';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { useDispatch, useSelector } from 'react-redux';
 import type { EntitySet, Organization, UUID } from 'lattice';
@@ -25,6 +25,7 @@ import {
   selectEntitySets,
   selectOrganization,
 } from '../../core/redux/selectors';
+import { getDataSetField } from '../../utils';
 import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
 
 const OrgDataSetObjectPermissionsContainer = ({
@@ -58,8 +59,9 @@ const OrgDataSetObjectPermissionsContainer = ({
 
   const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
   const entitySet :?EntitySet = entitySets.get(dataSetId);
-  const name :string = entitySet?.name || getIn(atlasDataSet, ['table', 'name']);
-  const title :string = entitySet?.title || getIn(atlasDataSet, ['table', 'title']);
+  const dataSet = atlasDataSet || entitySet;
+  const name :string = getDataSetField(dataSet, 'name');
+  const title :string = getDataSetField(dataSet, 'title');
 
   return (
     <AppContentWrapper>
