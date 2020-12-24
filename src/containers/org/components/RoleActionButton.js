@@ -69,7 +69,7 @@ const RoleActionButton = ({
   const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
   const anchorRef = useRef(null);
 
-  const goToOrganization = useGoToRoute(
+  const goToManagePermissions = useGoToRoute(
     Routes.ORG_ROLE_OBJECT_PERMISSIONS
       .replace(Routes.ORG_ID_PARAM, organizationId)
       .replace(Routes.ROLE_ID_PARAM, roleId)
@@ -121,7 +121,7 @@ const RoleActionButton = ({
         <MenuItem disabled={!isOwner} onClick={handleOpenDetails}>
           Edit Role Details
         </MenuItem>
-        <MenuItem disabled={!isOwner} onClick={goToOrganization}>
+        <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
           Manage Permissions
         </MenuItem>
       </Menu>

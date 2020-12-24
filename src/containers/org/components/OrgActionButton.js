@@ -1,15 +1,20 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React, { useReducer, useRef } from 'react';
 
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
+import { useGoToRoute } from 'lattice-utils';
 import { useSelector } from 'react-redux';
-import type { Organization } from 'lattice';
+import type { Organization, UUID } from 'lattice';
 
 import OrgDescriptionModal from './OrgDescriptionModal';
 
-import { IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
+import { selectCurrentUserIsOrgOwner } from '../../../core/redux/selectors';
+import { Routes } from '../../../core/router';
 
 const CLOSE_DESCRIPTION = 'CLOSE_DESCRIPTION';
 const CLOSE_MENU = 'CLOSE_MENU';
@@ -53,9 +58,16 @@ type Props = {
 };
 
 const OrgActionButton = ({ organization } :Props) => {
+
+  const organizationId :UUID = (organization.id :any);
+
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
-  const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organization.id]));
+  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
   const anchorRef = useRef(null);
+
+  const goToManagePermissions = useGoToRoute(
+    Routes.ORG_OBJECT_PERMISSIONS.replace(Routes.ORG_ID_PARAM, organizationId)
+  );
 
   const handleOpenMenu = () => {
     dispatch({ type: OPEN_MENU });
@@ -102,6 +114,9 @@ const OrgActionButton = ({ organization } :Props) => {
           }}>
         <MenuItem disabled={!isOwner} onClick={handleOpenDescription}>
           Edit Description
+        </MenuItem>
+        <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
+          Manage Permissions
         </MenuItem>
       </Menu>
       <OrgDescriptionModal
