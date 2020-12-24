@@ -75,9 +75,11 @@ const reducer = (state, action) => {
 
 const DataSetActionButton = ({
   dataSet,
+  isOwner,
   organizationId,
 } :{|
   dataSet :EntitySet | Map;
+  isOwner :boolean;
   organizationId :UUID;
 |}) => {
 
@@ -89,7 +91,6 @@ const DataSetActionButton = ({
   const [state, stateDispatch] = useReducer(reducer, INITIAL_STATE);
   const isOrgOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
   const hasMaterialize :boolean = useSelector(selectCurrentAuthorization(dataSetKey, PermissionTypes.MATERIALIZE));
-  const hasOwner :boolean = useSelector(selectCurrentAuthorization(dataSetKey, PermissionTypes.OWNER));
   const dataSetSchema = useSelector(selectDataSetSchema(dataSetId));
   const isPromoted = dataSetSchema === OPENLATTICE;
   const isAssembled = isAtlas ? false : !!dataSet?.flags?.includes(EntitySetFlagTypes.TRANSPORTED);
@@ -179,7 +180,7 @@ const DataSetActionButton = ({
                 organizationId={organizationId} />
           )
         }
-        <MenuItem disabled={!hasOwner} onClick={goToManagePermissions}>
+        <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
           Manage Permissions
         </MenuItem>
       </Menu>

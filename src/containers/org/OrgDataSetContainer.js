@@ -32,6 +32,7 @@ import { EDM } from '../../core/redux/constants';
 import {
   selectAtlasDataSets,
   selectEntitySets,
+  selectIsOwner,
   selectOrganization,
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
@@ -62,6 +63,7 @@ const OrgDataSetContainer = ({
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets([dataSetId]));
   const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets([dataSetId]));
+  const isOwner :boolean = useSelector(selectIsOwner(dataSetId));
 
   const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
   const entitySet :?EntitySet = entitySets.get(dataSetId);
@@ -87,7 +89,7 @@ const OrgDataSetContainer = ({
     );
 
     const renderDataSetMetaContainer = () => (
-      <DataSetMetaContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} />
+      <DataSetMetaContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} isOwner={isOwner} />
     );
 
     return (
@@ -109,7 +111,7 @@ const OrgDataSetContainer = ({
                 <StackGrid>
                   <SpaceBetweenGrid>
                     <Typography variant="h1">{title || name}</Typography>
-                    <DataSetActionButton dataSet={dataSet} organizationId={organizationId} />
+                    <DataSetActionButton dataSet={dataSet} isOwner={isOwner} organizationId={organizationId} />
                   </SpaceBetweenGrid>
                   <Typography>{description || name}</Typography>
                 </StackGrid>
