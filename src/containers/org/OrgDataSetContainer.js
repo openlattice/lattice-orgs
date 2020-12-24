@@ -10,11 +10,7 @@ import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import type {
-  EntitySet,
-  Organization,
-  UUID,
-} from 'lattice';
+import type { EntitySet, Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import DataSetActionButton from './components/dataset/DataSetActionButton';
@@ -110,10 +106,7 @@ const OrgDataSetContainer = ({
                 <StackGrid>
                   <SpaceBetweenGrid>
                     <Typography variant="h1">{title || name}</Typography>
-                    <DataSetActionButton
-                        dataSet={atlasDataSet || entitySet}
-                        isAtlas={!!atlasDataSet}
-                        organizationId={organizationId} />
+                    <DataSetActionButton dataSet={atlasDataSet || entitySet} organizationId={organizationId} />
                   </SpaceBetweenGrid>
                   <Typography>{description || name}</Typography>
                 </StackGrid>

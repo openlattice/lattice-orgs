@@ -53,11 +53,11 @@ const reducer = (state, action) => {
   }
 };
 
-type Props = {
+const OrgActionButton = ({
+  organization,
+} :{|
   organization :Organization;
-};
-
-const OrgActionButton = ({ organization } :Props) => {
+|}) => {
 
   const organizationId :UUID = (organization.id :any);
 
