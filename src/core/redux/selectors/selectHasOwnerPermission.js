@@ -10,7 +10,7 @@ import { IS_OWNER, PERMISSIONS } from '../constants';
 
 const { isValidUUID } = ValidationUtils;
 
-export default function selectIsOwner(id :UUID) {
+export default function selectHasOwnerPermission(id :UUID) {
 
   return (state :Map) :boolean => {
 

@@ -32,7 +32,7 @@ import { EDM } from '../../core/redux/constants';
 import {
   selectAtlasDataSets,
   selectEntitySets,
-  selectIsOwner,
+  selectHasOwnerPermission,
   selectOrganization,
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
@@ -63,7 +63,7 @@ const OrgDataSetContainer = ({
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets([dataSetId]));
   const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets([dataSetId]));
-  const isOwner :boolean = useSelector(selectIsOwner(dataSetId));
+  const isOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
 
   const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
   const entitySet :?EntitySet = entitySets.get(dataSetId);
