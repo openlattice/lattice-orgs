@@ -78,9 +78,7 @@ const DataSetPermissionsContainer = ({
   const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets(atlasDataSetIds));
   const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
   const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets(entitySetIds));
-  const atlasDataSetIdsHash :number = atlasDataSetIds.hashCode();
   const atlasDataSetsHash :number = atlasDataSets.hashCode();
-  const entitySetIdsHash :number = entitySetIds.hashCode();
   const entitySetsHash :number = entitySets.hashCode();
 
   const keys :List<List<UUID>> = useMemo(() => (
@@ -89,7 +87,7 @@ const DataSetPermissionsContainer = ({
       .union(entitySetIds)
       .map((id :UUID) => List([id]))
       .toList()
-  ), [atlasDataSetIdsHash, entitySetIdsHash]);
+  ), [atlasDataSetIds, entitySetIds]);
 
   const permissions :Map<Principal, Map<List<UUID>, Ace>> = useSelector(selectPermissionsByPrincipal(keys));
   const permissionsHash :number = permissions.hashCode();
@@ -140,9 +138,9 @@ const DataSetPermissionsContainer = ({
       );
     }
   }, [
-    atlasDataSetIdsHash,
+    atlasDataSetIds,
     dispatch,
-    entitySetIdsHash,
+    entitySetIds,
     organizationId,
     pageDataSetIdsHash,
   ]);
