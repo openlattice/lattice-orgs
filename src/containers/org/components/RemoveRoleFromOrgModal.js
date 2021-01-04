@@ -5,7 +5,7 @@ import { Modal } from 'lattice-ui-kit';
 import { useDispatch } from 'react-redux';
 import type { UUID } from 'lattice';
 
-import ResetOnUnmount from '../components/ResetOnUnmount';
+import ResetOnUnmount from './ResetOnUnmount';
 import { REMOVE_ROLE_FROM_ORGANIZATION, removeRoleFromOrganization } from '../actions';
 
 const resetStatePath = [REMOVE_ROLE_FROM_ORGANIZATION];
