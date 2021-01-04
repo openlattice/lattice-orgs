@@ -2,11 +2,7 @@
  * @flow
  */
 
-import React, {
-  useEffect,
-  useMemo,
-  useState
-} from 'react';
+import React, { useEffect, useState } from 'react';
 
 import styled from 'styled-components';
 import { List } from 'immutable';
@@ -25,12 +21,8 @@ import {
   Divider,
   Header,
 } from '../../../components';
-import {
-  IS_OWNER,
-  ORGANIZATIONS,
-} from '../../../core/redux/constants';
+import { IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
 import { selectOrganizationMembers } from '../../../core/redux/selectors';
-import { Routes } from '../../../core/router';
 import { UsersActions } from '../../../core/users';
 
 const { resetUserSearchResults } = UsersActions;
@@ -45,11 +37,13 @@ const ContainerGrid = styled.div`
 const MEMBERS_DESCRIPTION = 'Members can be granted data permissions on an individual level or by an assigned role.'
   + ' Click on a role to manage its people or datasets.';
 
-type Props = {
+const OrgMembersContainer = ({
+  organizationId,
+  organizationRoute,
+} :{|
   organizationId :UUID;
-};
-
-const OrgMembersContainer = ({ organizationId } :Props) => {
+  organizationRoute :string;
+|}) => {
 
   const dispatch = useDispatch();
 
@@ -63,10 +57,6 @@ const OrgMembersContainer = ({ organizationId } :Props) => {
     dispatch(resetUserSearchResults());
   }, [dispatch]);
 
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
   if (organization) {
 
     const handleOnSelectRole = (roleId :?UUID) => {
@@ -77,7 +67,7 @@ const OrgMembersContainer = ({ organizationId } :Props) => {
     return (
       <AppContentWrapper>
         <Crumbs>
-          <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+          <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
           <CrumbItem>Members</CrumbItem>
         </Crumbs>
         <Header as="h2">Members</Header>

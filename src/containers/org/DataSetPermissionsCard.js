@@ -33,7 +33,7 @@ import type {
 } from 'lattice';
 
 import { DataSetTitle } from '../../components';
-import { selectEntitySetEntityType, selectPermissions } from '../../core/redux/selectors';
+import { selectEntitySetEntityType, selectPermissionsByPrincipal } from '../../core/redux/selectors';
 import type { PermissionSelection } from '../../types';
 
 const { NEUTRAL, PURPLE } = Colors;
@@ -127,18 +127,19 @@ const DataSetPermissionsCard = ({
     })
   ), [dataSet, dataSetId, entityType]);
 
-  const propertyTypePermissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, principal));
-  const propertyTypePermissionsHash :number = propertyTypePermissions.hashCode();
+  const permissions :Map<Principal, Map<List<UUID>, Ace>> = useSelector(selectPermissionsByPrincipal(keys));
+  const principalPermissions :Map<List<UUID>, Ace> = permissions.get(principal) || Map();
+  const principalPermissionsHash = principalPermissions.hashCode();
 
   const counts :Map<PermissionType, number> = useMemo(() => (
     Map().withMutations((mutableMap) => {
-      propertyTypePermissions.forEach((ace :Ace) => {
+      principalPermissions.forEach((ace :Ace) => {
         ace.permissions.forEach((permission :PermissionType) => {
           mutableMap.update(permission, (count :number = 0) => count + 1);
         });
       });
     })
-  ), [propertyTypePermissionsHash]);
+  ), [principalPermissionsHash]);
   const countsHash :number = counts.hashCode();
 
   const permissionLabel = useMemo(() => (
