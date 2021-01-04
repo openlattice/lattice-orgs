@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 
 import { List, Map, get } from 'immutable';
+import { Types } from 'lattice';
 import { AppContentWrapper, Spinner, Table } from 'lattice-ui-kit';
 import {
   DataUtils,
@@ -18,7 +19,11 @@ import {
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { EntitySet, PropertyType, UUID } from 'lattice';
+import type {
+  EntitySet,
+  PropertyType,
+  UUID
+} from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import EditMetadataModal from './components/EditMetadataModal';
@@ -26,9 +31,11 @@ import EditableMetadataRow from './components/EditableMetadataRow';
 import { GET_SHIPROOM_METADATA } from './actions';
 
 import { FQNS } from '../../core/edm/constants';
-import { getOwnerStatus } from '../../core/permissions/actions';
+import { getCurrentDataSetAuthorizations, getOwnerStatus } from '../../core/permissions/actions';
 import { IS_OWNER, PERMISSIONS, SHIPROOM } from '../../core/redux/constants';
 import { selectEntitySetPropertyTypes } from '../../core/redux/selectors';
+
+const { PermissionTypes } = Types;
 
 const LOG = new Logger('DataSetMetaContainer');
 
@@ -106,6 +113,10 @@ const DataSetMetaContainer = ({
 
   useEffect(() => {
     dispatch(getOwnerStatus(dataSetId));
+    dispatch(getCurrentDataSetAuthorizations({
+      aclKey: [dataSetId],
+      permissions: [PermissionTypes.MATERIALIZE]
+    }));
   }, [dispatch, dataSetId]);
 
   useEffect(() => {
