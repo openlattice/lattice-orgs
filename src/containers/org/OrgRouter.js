@@ -19,6 +19,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import OrgContainer from './OrgContainer';
 import OrgDataSetContainer from './OrgDataSetContainer';
+import OrgDataSetObjectPermissionsContainer from './OrgDataSetObjectPermissionsContainer';
 import OrgDataSetsContainer from './OrgDataSetsContainer';
 import OrgObjectPermissionsContainer from './OrgObjectPermissionsContainer';
 import OrgRoleContainer from './OrgRoleContainer';
@@ -66,8 +67,13 @@ const OrgRouter = () => {
   const matchOrganizationRoles = useRouteMatch(Routes.ORG_ROLES);
   const matchOrgObjectPermissions = useRouteMatch(Routes.ORG_OBJECT_PERMISSIONS);
   const matchOrgRoleObjectPermissions = useRouteMatch(Routes.ORG_ROLE_OBJECT_PERMISSIONS);
+  const matchOrgDataSetObjectPermissions = useRouteMatch(Routes.ORG_DATA_SET_OBJECT_PERMISSIONS);
 
-  if (matchOrganizationDataSet) {
+  if (matchOrgDataSetObjectPermissions) {
+    organizationId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.ORG_ID_PARAM);
+    dataSetId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.DATA_SET_ID_PARAM);
+  }
+  else if (matchOrganizationDataSet) {
     organizationId = getParamFromMatch(matchOrganizationDataSet, Routes.ORG_ID_PARAM);
     dataSetId = getParamFromMatch(matchOrganizationDataSet, Routes.DATA_SET_ID_PARAM);
   }
@@ -210,6 +216,19 @@ const OrgRouter = () => {
         : null
     );
 
+    const renderOrgDataSetObjectPermissionsContainer = () => (
+      (organizationId && dataSetId)
+        ? (
+          <OrgDataSetObjectPermissionsContainer
+              dataSetId={dataSetId}
+              dataSetRoute={dataSetRoute}
+              dataSetsRoute={dataSetsRoute}
+              organizationId={organizationId}
+              organizationRoute={organizationRoute} />
+        )
+        : null
+    );
+
     const renderOrgMemberContainer = () => (
       (organizationId && memberPrincipalId)
         ? (
@@ -273,6 +292,7 @@ const OrgRouter = () => {
 
     return (
       <Switch>
+        <Route path={Routes.ORG_DATA_SET_OBJECT_PERMISSIONS} render={renderOrgDataSetObjectPermissionsContainer} />
         <Route path={Routes.ORG_DATA_SET} render={renderOrgDataSetContainer} />
         <Route path={Routes.ORG_DATA_SETS} render={renderOrgDataSetsContainer} />
         <Route path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
