@@ -2,5 +2,5 @@
  * @flow
  */
 
-export { default as ObjectPermissionsCard } from './ObjectPermissionsCard';
-export { default as ObjectPermissionsCardStack } from './ObjectPermissionsCardStack';
+export { default as ObjectPermissionsActionsGrid } from './ObjectPermissionsActionsGrid';
+export { default as ObjectPermissionsContainer } from './ObjectPermissionsContainer';

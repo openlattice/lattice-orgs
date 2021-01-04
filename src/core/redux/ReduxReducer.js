@@ -18,8 +18,8 @@ import {
   USERS,
 } from './constants';
 
-import { AppReducer } from '../../containers/app';
 import { AccountReducer } from '../../containers/account';
+import { AppReducer } from '../../containers/app';
 import { ShiproomReducer } from '../../containers/org/reducers';
 import { OrgsReducer } from '../../containers/orgs';
 import { EDMReducer } from '../edm';
