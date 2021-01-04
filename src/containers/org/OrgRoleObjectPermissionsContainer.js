@@ -20,6 +20,7 @@ import type {
   Ace,
   Organization,
   PermissionType,
+  Role,
   UUID,
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -34,7 +35,7 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { GET_ORG_OBJECT_PERMISSIONS, getOrgObjectPermissions } from '../../core/permissions/actions';
+import { GET_ORG_ROLE_OBJECT_PERMISSIONS, getOrgRoleObjectPermissions } from '../../core/permissions/actions';
 import { resetRequestState } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectObjectPermissions, selectOrganization } from '../../core/redux/selectors';
@@ -46,36 +47,45 @@ const ObjectPermissionsActionGrid = styled(ActionsGrid)`
   grid-template-columns: 2fr minmax(200px, 1fr) auto;
 `;
 
-const OrgObjectPermissionsContainer = ({
+const OrgRoleObjectPermissionsContainer = ({
   organizationId,
   organizationRoute,
+  roleId,
+  roleRoute,
+  rolesRoute,
 } :{
   organizationId :UUID;
   organizationRoute :string;
+  roleId :UUID;
+  roleRoute :string;
+  rolesRoute :string;
 }) => {
 
   const dispatch = useDispatch();
   const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
   const [filterByQuery, setFilterByQuery] = useState('');
 
-  const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORG_OBJECT_PERMISSIONS]);
+  const getOrgRoleObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORG_ROLE_OBJECT_PERMISSIONS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
+  const role :?Role = useMemo(() => (
+    organization?.roles.find((orgRole) => orgRole.id === roleId)
+  ), [organization, roleId]);
 
-  const objectKey = useMemo(() => List([organizationId]), [organizationId]);
+  const objectKey = useMemo(() => List([organizationId, roleId]), [organizationId, roleId]);
   const permissions :List<Ace> = useSelector(selectObjectPermissions(objectKey));
 
   useEffect(() => {
-    if (getOrgObjectPermissionsRS === RequestStates.STANDBY) {
-      dispatch(getOrgObjectPermissions(List().push(objectKey)));
+    if (getOrgRoleObjectPermissionsRS === RequestStates.STANDBY) {
+      dispatch(getOrgRoleObjectPermissions(List().push(objectKey)));
     }
-  }, [dispatch, getOrgObjectPermissionsRS, objectKey, permissions]);
+  }, [dispatch, getOrgRoleObjectPermissionsRS, objectKey, permissions]);
 
   useEffect(() => () => {
-    dispatch(resetRequestState([GET_ORG_OBJECT_PERMISSIONS]));
+    dispatch(resetRequestState([GET_ORG_ROLE_OBJECT_PERMISSIONS]));
   }, [dispatch]);
 
-  if (organization) {
+  if (organization && role) {
 
     const handleOnChangeSelect = (options :?ReactSelectOption<PermissionType>[]) => {
       if (!options) {
@@ -98,15 +108,17 @@ const OrgObjectPermissionsContainer = ({
       <AppContentWrapper>
         <Crumbs>
           <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+          <CrumbLink to={rolesRoute}>Roles</CrumbLink>
+          <CrumbLink to={roleRoute}>{role.title || 'Role'}</CrumbLink>
           <CrumbItem>Permissions</CrumbItem>
         </Crumbs>
         {
-          getOrgObjectPermissionsRS === RequestStates.PENDING && (
+          getOrgRoleObjectPermissionsRS === RequestStates.PENDING && (
             <Spinner />
           )
         }
         {
-          getOrgObjectPermissionsRS === RequestStates.SUCCESS && (
+          getOrgRoleObjectPermissionsRS === RequestStates.SUCCESS && (
             <StackGrid>
               <Typography variant="h1">Permissions</Typography>
               <Typography>
@@ -141,4 +153,4 @@ const OrgObjectPermissionsContainer = ({
   return null;
 };
 
-export default OrgObjectPermissionsContainer;
+export default OrgRoleObjectPermissionsContainer;

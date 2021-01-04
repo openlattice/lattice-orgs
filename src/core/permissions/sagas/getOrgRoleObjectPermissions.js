@@ -10,40 +10,40 @@ import type { SequenceAction } from 'redux-reqseq';
 import { getPermissionsWorker } from './getPermissions';
 
 import {
-  GET_ORGANIZATION_OBJECT_PERMISSIONS,
-  getOrganizationObjectPermissions,
+  GET_ORG_ROLE_OBJECT_PERMISSIONS,
+  getOrgRoleObjectPermissions,
   getPermissions,
 } from '../actions';
 
 const LOG = new Logger('PermissionsSagas');
 
 // TODO: create a wrapperWorker as an abstraction around this exact logic
-function* getOrganizationObjectPermissionsWorker(action :SequenceAction) :Saga<*> {
+function* getOrgRoleObjectPermissionsWorker(action :SequenceAction) :Saga<*> {
 
   try {
-    yield put(getOrganizationObjectPermissions.request(action.id, action.value));
+    yield put(getOrgRoleObjectPermissions.request(action.id, action.value));
     const response = yield call(getPermissionsWorker, getPermissions(action.value));
     if (response.error) throw response.error;
-    yield put(getOrganizationObjectPermissions.success(action.id, response.data));
+    yield put(getOrgRoleObjectPermissions.success(action.id, response.data));
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(getOrganizationObjectPermissions.failure(action.id, error));
+    yield put(getOrgRoleObjectPermissions.failure(action.id, error));
   }
   finally {
-    yield put(getOrganizationObjectPermissions.finally(action.id));
+    yield put(getOrgRoleObjectPermissions.finally(action.id));
   }
 }
 
-function* getOrganizationObjectPermissionsWatcher() :Saga<*> {
+function* getOrgRoleObjectPermissionsWatcher() :Saga<*> {
 
   yield takeEvery(
-    GET_ORGANIZATION_OBJECT_PERMISSIONS,
-    getOrganizationObjectPermissionsWorker,
+    GET_ORG_ROLE_OBJECT_PERMISSIONS,
+    getOrgRoleObjectPermissionsWorker,
   );
 }
 
 export {
-  getOrganizationObjectPermissionsWatcher,
-  getOrganizationObjectPermissionsWorker,
+  getOrgRoleObjectPermissionsWatcher,
+  getOrgRoleObjectPermissionsWorker,
 };

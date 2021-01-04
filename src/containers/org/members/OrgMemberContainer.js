@@ -20,7 +20,6 @@ import {
   StackGrid,
 } from '../../../components';
 import { selectOrganizationMembers } from '../../../core/redux/selectors';
-import { Routes } from '../../../core/router';
 import { getPrincipal } from '../../../utils';
 import { getSecurablePrincipalId, getUserProfile } from '../../../utils/PersonUtils';
 import { PermissionsPanel } from '../components';
@@ -49,10 +48,14 @@ const PanelColumn = styled.div`
 
 const OrgMemberContainer = ({
   memberPrincipalId,
+  membersRoute,
   organizationId,
+  organizationRoute,
 } :{|
   memberPrincipalId :UUID;
+  membersRoute :string;
   organizationId :UUID;
+  organizationRoute :string;
 |}) => {
 
   const [selection, setSelection] = useState();
@@ -72,14 +75,6 @@ const OrgMemberContainer = ({
     getPrincipal(member)
   ), [member]);
 
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
-  const membersPath = useMemo(() => (
-    Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
   if (organization && memberPrincipal) {
 
     // TODO: this will need to be more fancy
@@ -94,8 +89,8 @@ const OrgMemberContainer = ({
         <ContentColumn>
           <AppContentWrapper>
             <Crumbs>
-              <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-              <CrumbLink to={membersPath}>Members</CrumbLink>
+              <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+              <CrumbLink to={membersRoute}>Members</CrumbLink>
               <CrumbItem>{memberName}</CrumbItem>
             </Crumbs>
             <StackGrid gap={48}>

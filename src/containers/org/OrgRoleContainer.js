@@ -10,19 +10,18 @@ import { LangUtils, ReduxUtils } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
-import RoleActionButton from './RoleActionButton';
+import DataSetPermissionsContainer from './DataSetPermissionsContainer';
+import { PermissionsPanel, RoleActionButton } from './components';
 
-import DataSetPermissionsContainer from '../DataSetPermissionsContainer';
 import {
   CrumbItem,
   CrumbLink,
   Crumbs,
   Divider,
   SpaceBetweenGrid,
-} from '../../../components';
-import { Routes } from '../../../core/router';
-import { goToRoute } from '../../../core/router/actions';
-import { PermissionsPanel } from '../components';
+} from '../../components';
+import { Routes } from '../../core/router';
+import { goToRoute } from '../../core/router/actions';
 
 const { isNonEmptyString } = LangUtils;
 const { selectOrganization } = ReduxUtils;
@@ -48,10 +47,14 @@ const PanelColumn = styled.div`
 
 const OrgRoleContainer = ({
   organizationId,
+  organizationRoute,
   roleId,
+  rolesRoute,
 } :{|
   organizationId :UUID;
+  organizationRoute :string;
   roleId :UUID;
+  rolesRoute :string;
 |}) => {
   const dispatch = useDispatch();
   const [selection, setSelection] = useState();
@@ -59,9 +62,6 @@ const OrgRoleContainer = ({
   const role :?Role = useMemo(() => (
     organization?.roles.find((orgRole) => orgRole.id === roleId)
   ), [organization, roleId]);
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
 
   useEffect(() => {
     if (organization && !role) {
@@ -81,8 +81,8 @@ const OrgRoleContainer = ({
         <ContentColumn>
           <AppContentWrapper>
             <Crumbs>
-              <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-              <CrumbItem>Roles</CrumbItem>
+              <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+              <CrumbLink to={rolesRoute}>Roles</CrumbLink>
               <CrumbItem>{role.title}</CrumbItem>
             </Crumbs>
             <SpaceBetweenGrid>
