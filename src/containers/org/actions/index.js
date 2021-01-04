@@ -19,6 +19,9 @@ const editMetadata :RequestSequence = newRequestSequence(EDIT_METADATA);
 const EDIT_ORGANIZATION_DETAILS :'EDIT_ORGANIZATION_DETAILS' = 'EDIT_ORGANIZATION_DETAILS';
 const editOrganizationDetails :RequestSequence = newRequestSequence(EDIT_ORGANIZATION_DETAILS);
 
+const EDIT_ROLE_DETAILS :'EDIT_ROLE_DETAILS' = 'EDIT_ROLE_DETAILS';
+const editRoleDetails :RequestSequence = newRequestSequence(EDIT_ROLE_DETAILS);
+
 const GET_ORGANIZATION_INTEGRATION_DETAILS :'GET_ORGANIZATION_INTEGRATION_DETAILS' = 'GET_ORGANIZATION_INTEGRATION_DETAILS';
 const getOrganizationIntegrationDetails :RequestSequence = newRequestSequence(GET_ORGANIZATION_INTEGRATION_DETAILS);
 
@@ -36,6 +39,7 @@ export {
   CREATE_NEW_ORGANIZATION,
   EDIT_METADATA,
   EDIT_ORGANIZATION_DETAILS,
+  EDIT_ROLE_DETAILS,
   GET_ORGANIZATION_INTEGRATION_DETAILS,
   GET_SHIPROOM_METADATA,
   INITIALIZE_ORGANIZATION,
@@ -44,6 +48,7 @@ export {
   createNewOrganization,
   editMetadata,
   editOrganizationDetails,
+  editRoleDetails,
   getOrganizationIntegrationDetails,
   getShiproomMetadata,
   initializeOrganization,

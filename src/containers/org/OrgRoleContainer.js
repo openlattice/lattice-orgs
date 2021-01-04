@@ -10,15 +10,16 @@ import { LangUtils, ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
-import DataSetPermissionsContainer from '../DataSetPermissionsContainer';
+import DataSetPermissionsContainer from './DataSetPermissionsContainer';
+import { PermissionsPanel, RoleActionButton } from './components';
+
 import {
   CrumbItem,
   CrumbLink,
   Crumbs,
   Divider,
-} from '../../../components';
-import { Routes } from '../../../core/router';
-import { PermissionsPanel } from '../components';
+  SpaceBetweenGrid
+} from '../../components';
 
 const { isNonEmptyString } = LangUtils;
 const { selectOrganization } = ReduxUtils;
@@ -44,10 +45,14 @@ const PanelColumn = styled.div`
 
 const OrgRoleContainer = ({
   organizationId,
+  organizationRoute,
   roleId,
+  rolesRoute,
 } :{|
   organizationId :UUID;
+  organizationRoute :string;
   roleId :UUID;
+  rolesRoute :string;
 |}) => {
 
   const [selection, setSelection] = useState();
@@ -56,10 +61,6 @@ const OrgRoleContainer = ({
   const role :?Role = useMemo(() => (
     organization?.roles.find((orgRole) => orgRole.id === roleId)
   ), [organization, roleId]);
-
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
 
   if (organization && role) {
 
@@ -72,11 +73,14 @@ const OrgRoleContainer = ({
         <ContentColumn>
           <AppContentWrapper>
             <Crumbs>
-              <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
-              <CrumbItem>Roles</CrumbItem>
+              <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+              <CrumbLink to={rolesRoute}>Roles</CrumbLink>
               <CrumbItem>{role.title}</CrumbItem>
             </Crumbs>
-            <Typography gutterBottom variant="h1">{role.title}</Typography>
+            <SpaceBetweenGrid>
+              <Typography gutterBottom variant="h1">{role.title}</Typography>
+              <RoleActionButton organization={organization} role={role} />
+            </SpaceBetweenGrid>
             {
               isNonEmptyString(role.description) && (
                 <Typography variant="body1">{role.description}</Typography>
