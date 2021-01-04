@@ -4,148 +4,79 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import _debounce from 'lodash/debounce';
-import styled from 'styled-components';
 import { List } from 'immutable';
-import { Types } from 'lattice';
-import {
-  AppContentWrapper,
-  CheckboxSelect,
-  SearchInput,
-  Typography,
-} from 'lattice-ui-kit';
+import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type {
-  Ace,
-  Organization,
-  PermissionType,
-  UUID,
-} from 'lattice';
+import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import {
-  ActionsGrid,
   CrumbItem,
   CrumbLink,
   Crumbs,
   Divider,
-  PlusButton,
-  Spinner,
   StackGrid,
 } from '../../components';
-import { GET_ORGANIZATION_OBJECT_PERMISSIONS, getOrganizationObjectPermissions } from '../../core/permissions/actions';
+import { GET_ORG_OBJECT_PERMISSIONS, getOrgObjectPermissions } from '../../core/permissions/actions';
 import { resetRequestState } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
-import { selectObjectPermissions, selectOrganization } from '../../core/redux/selectors';
-import { Routes } from '../../core/router';
-import { ObjectPermissionsCardStack } from '../permissions';
-import type { ReactSelectOption } from '../../types';
-
-const { PermissionTypes } = Types;
-
-const PERMISSION_TYPE_OPTIONS = [
-  { label: PermissionTypes.OWNER.toLowerCase(), value: PermissionTypes.OWNER },
-  { label: PermissionTypes.READ.toLowerCase(), value: PermissionTypes.READ },
-  { label: PermissionTypes.WRITE.toLowerCase(), value: PermissionTypes.WRITE },
-  { label: PermissionTypes.LINK.toLowerCase(), value: PermissionTypes.LINK },
-  { label: PermissionTypes.MATERIALIZE.toLowerCase(), value: PermissionTypes.MATERIALIZE },
-];
-
-const SearchFilterAssignPermissionsGrid = styled(ActionsGrid)`
-  grid-template-columns: 2fr minmax(200px, 1fr) auto;
-`;
+import { selectOrganization } from '../../core/redux/selectors';
+import { ObjectPermissionsActionsGrid, ObjectPermissionsContainer } from '../permissions';
 
 const OrgObjectPermissionsContainer = ({
   organizationId,
+  organizationRoute,
 } :{
   organizationId :UUID;
+  organizationRoute :string;
 }) => {
 
   const dispatch = useDispatch();
+
   const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
   const [filterByQuery, setFilterByQuery] = useState('');
 
-  const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORGANIZATION_OBJECT_PERMISSIONS]);
+  const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORG_OBJECT_PERMISSIONS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
 
-  const key = List([organizationId]);
-  const permissions :List<Ace> = useSelector(selectObjectPermissions(key));
+  const objectKey = useMemo(() => List([organizationId]), [organizationId]);
 
   useEffect(() => {
     if (getOrgObjectPermissionsRS === RequestStates.STANDBY) {
-      dispatch(getOrganizationObjectPermissions(List().push(key)));
+      dispatch(getOrgObjectPermissions(List().push(objectKey)));
     }
-  }, [dispatch, getOrgObjectPermissionsRS, key, permissions]);
+  }, [dispatch, getOrgObjectPermissionsRS, objectKey]);
 
   useEffect(() => () => {
-    dispatch(resetRequestState([GET_ORGANIZATION_OBJECT_PERMISSIONS]));
+    dispatch(resetRequestState([GET_ORG_OBJECT_PERMISSIONS]));
   }, [dispatch]);
 
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
   if (organization) {
-
-    const handleOnChangeSelect = (options :?ReactSelectOption<PermissionType>[]) => {
-      if (!options) {
-        setFilterByPermissionTypes([]);
-      }
-      else {
-        setFilterByPermissionTypes(options.map((option) => option.value));
-      }
-    };
-
-    const debounceFilterByQuery = _debounce((query :string) => {
-      setFilterByQuery(query);
-    }, 250);
-
-    const handleOnChangeFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
-      debounceFilterByQuery(event.target.value || '');
-    };
 
     return (
       <AppContentWrapper>
         <Crumbs>
-          <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+          <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
           <CrumbItem>Permissions</CrumbItem>
         </Crumbs>
-        {
-          getOrgObjectPermissionsRS === RequestStates.PENDING && (
-            <Spinner />
-          )
-        }
-        {
-          getOrgObjectPermissionsRS === RequestStates.SUCCESS && (
-            <StackGrid>
-              <Typography variant="h1">Permissions</Typography>
-              <Typography>
-                Below are the users and roles that are granted permissions on this object.
-              </Typography>
-              <SearchFilterAssignPermissionsGrid>
-                <SearchInput onChange={handleOnChangeFilterQuery} />
-                <CheckboxSelect
-                    hideSelectedOptions
-                    isClearable
-                    onChange={handleOnChangeSelect}
-                    options={PERMISSION_TYPE_OPTIONS}
-                    placeholder="Filter by permission" />
-                <PlusButton aria-label="assign permissions" isDisabled>
-                  <Typography component="span">Assign Permissions</Typography>
-                </PlusButton>
-              </SearchFilterAssignPermissionsGrid>
-              <Divider isVisible={false} margin={0} />
-              <ObjectPermissionsCardStack
-                  filterByPermissionTypes={filterByPermissionTypes}
-                  filterByQuery={filterByQuery}
-                  organizationId={organizationId}
-                  permissions={permissions} />
-            </StackGrid>
-          )
-        }
+        <StackGrid>
+          <Typography variant="h1">Permissions</Typography>
+          <Typography>
+            Below are the users and roles that are granted permissions on this object.
+          </Typography>
+          <ObjectPermissionsActionsGrid
+              onChangeFilterByPermissionTypes={setFilterByPermissionTypes}
+              onChangeFilterByQuery={setFilterByQuery} />
+          <Divider isVisible={false} margin={0} />
+          <ObjectPermissionsContainer
+              filterByPermissionTypes={filterByPermissionTypes}
+              filterByQuery={filterByQuery}
+              objectKey={objectKey}
+              organizationId={organizationId} />
+        </StackGrid>
       </AppContentWrapper>
     );
   }

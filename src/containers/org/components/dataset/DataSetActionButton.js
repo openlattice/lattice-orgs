@@ -3,18 +3,33 @@ import React, { useEffect, useReducer, useRef } from 'react';
 
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Map, get, getIn } from 'immutable';
+import {
+  List,
+  Map,
+  getIn
+} from 'immutable';
+import { Types } from 'lattice';
 import { DataSetsApiActions } from 'lattice-sagas';
-import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
+import {
+  IconButton,
+  Menu,
+  MenuItem,
+} from 'lattice-ui-kit';
 import { useDispatch, useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
 
+import AssembleMenuItem from './AssembleMenuItem';
 import PromoteTableModal from './PromoteTableModal';
 
-import { selectCurrentUserIsOrgOwner, selectDataSetSchema } from '../../../../core/redux/selectors';
+import {
+  selectCurrentAuthorization,
+  selectCurrentUserIsOrgOwner,
+  selectDataSetSchema
+} from '../../../../core/redux/selectors';
 import { OPENLATTICE } from '../../../../utils/constants';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
+const { EntitySetFlagTypes, PermissionTypes } = Types;
 
 const CLOSE_PROMOTE_DIALOG = 'CLOSE_PROMOTE_DIALOG';
 const CLOSE_MENU = 'CLOSE_MENU';
@@ -22,6 +37,8 @@ const OPEN_PROMOTE_DIALOG = 'OPEN_PROMOTE_DIALOG';
 const OPEN_MENU = 'OPEN_MENU';
 
 const INITIAL_STATE = {
+  assembleOpen: false,
+  disassembleOpen: false,
   menuOpen: false,
   promoteOpen: false,
 };
@@ -45,6 +62,7 @@ const reducer = (state, action) => {
       };
     case OPEN_PROMOTE_DIALOG:
       return {
+        ...state,
         menuOpen: false,
         promoteOpen: true,
       };
@@ -59,13 +77,21 @@ type Props = {
   organizationId :UUID;
 };
 
-const DataSetActionButton = ({ dataSet, isAtlas, organizationId } :Props) => {
+const DataSetActionButton = ({
+  dataSet,
+  isAtlas,
+  organizationId
+} :Props) => {
   const dispatch = useDispatch();
   const [state, stateDispatch] = useReducer(reducer, INITIAL_STATE);
-  const dataSetId = isAtlas ? getIn(dataSet, ['table', 'id']) : get(dataSet, 'id');
-  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+  const dataSetId = isAtlas ? getIn(dataSet, ['table', 'id']) : dataSet.id;
+  const isOrgOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+  const hasMaterialize :boolean = useSelector(
+    selectCurrentAuthorization(List([dataSetId]), PermissionTypes.MATERIALIZE)
+  );
   const dataSetSchema = useSelector(selectDataSetSchema(dataSetId));
   const isPromoted = dataSetSchema === OPENLATTICE;
+  const isAssembled = isAtlas ? false : !!dataSet?.flags?.includes(EntitySetFlagTypes.TRANSPORTED);
 
   useEffect(() => {
     if (isAtlas) {
@@ -126,13 +152,26 @@ const DataSetActionButton = ({ dataSet, isAtlas, organizationId } :Props) => {
             horizontal: 'right',
             vertical: 'top',
           }}>
-        <MenuItem disabled={!isOwner || !isAtlas || isPromoted} onClick={handleOpenPromote}>
-          {
-            isPromoted
-              ? 'Promoted'
-              : 'Promote Data Set'
-          }
-        </MenuItem>
+        {
+          isAtlas && (
+            <MenuItem disabled={!isOrgOwner || isPromoted} onClick={handleOpenPromote}>
+              {
+                isPromoted
+                  ? 'Promoted'
+                  : 'Promote Data Set'
+              }
+            </MenuItem>
+          )
+        }
+        {
+          !isAtlas && (
+            <AssembleMenuItem
+                disabled={!hasMaterialize || isAtlas}
+                entitySetId={dataSetId}
+                isAssembled={isAssembled}
+                organizationId={organizationId} />
+          )
+        }
       </Menu>
       <PromoteTableModal
           dataSet={dataSet}

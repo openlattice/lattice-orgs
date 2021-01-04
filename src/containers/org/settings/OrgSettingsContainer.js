@@ -34,11 +34,10 @@ import {
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import {
+  selectCurrentUserIsOrgOwner,
   selectOrganization,
   selectOrganizationIntegrationDetails,
-  selectCurrentUserIsOrgOwner,
 } from '../../../core/redux/selectors';
-import { Routes } from '../../../core/router';
 import { clipboardWriteText } from '../../../utils';
 import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails } from '../actions';
 import { RenameOrgDatabaseModal } from '../components';
@@ -103,11 +102,13 @@ type FormData = {
   };
 };
 
-type Props = {
+const OrgSettingsContainer = ({
+  organizationId,
+  organizationRoute,
+} :{|
   organizationId :UUID;
-};
-
-const OrgSettingsContainer = ({ organizationId } :Props) => {
+  organizationRoute :string;
+|}) => {
 
   const dispatch = useDispatch();
 
@@ -127,10 +128,6 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
 
   const jdbcURL = useMemo(() => (
     `jdbc:postgresql://atlas.openlattice.com:30001/org_${organizationId.replace(/-/g, '')}`
-  ), [organizationId]);
-
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
   useEffect(() => {
@@ -186,7 +183,7 @@ const OrgSettingsContainer = ({ organizationId } :Props) => {
   return (
     <AppContentWrapper>
       <Crumbs>
-        <CrumbLink to={orgPath}>{organization?.title || 'Organization'}</CrumbLink>
+        <CrumbLink to={organizationRoute}>{organization?.title || 'Organization'}</CrumbLink>
         <CrumbItem>Database</CrumbItem>
       </Crumbs>
       <StackGrid>

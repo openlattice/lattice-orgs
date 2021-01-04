@@ -53,7 +53,7 @@ import {
   selectAtlasDataSets,
   selectOrganizationAtlasDataSetIds,
   selectOrganizationEntitySetIds,
-  selectPermissions,
+  selectPermissionsByPrincipal,
   selectSearchHits,
 } from '../../core/redux/selectors';
 import {
@@ -109,9 +109,10 @@ const DataSetPermissionsContainer = ({
   const searchHits :Map = useSelector(selectSearchHits(SEARCH_DATA_SETS));
   const searchHitsHash :number = searchHits.hashCode();
 
-  const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, principal));
-  const permissionsCount :number = permissions.count();
-  const pagePermissions :Map<List<UUID>, Ace> = permissions
+  const permissions :Map<Principal, Map<List<UUID>, Ace>> = useSelector(selectPermissionsByPrincipal(keys));
+  const principalPermissions :Map<List<UUID>, Ace> = permissions.get(principal) || Map();
+  const permissionsCount :number = principalPermissions.count();
+  const pagePermissions :Map<List<UUID>, Ace> = principalPermissions
     .slice(paginationState.start, paginationState.start + MAX_PER_PAGE);
   const pageDataSetIds :List<UUID> = pagePermissions.keySeq().flatten().toSet();
   const pageDataSetIdsHash :number = pageDataSetIds.hashCode();
