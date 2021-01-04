@@ -1,7 +1,10 @@
-// @flow
-const FILTER = 'filter';
-const PAGE = 'page';
-const RESET = 'reset';
+/*
+ * @flow
+ */
+
+const FILTER :'filter' = 'filter';
+const PAGE :'page' = 'page';
+const RESET :'reset' = 'reset';
 
 type State = {|
   page :number;

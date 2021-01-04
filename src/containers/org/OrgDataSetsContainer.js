@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 
 import { Map, Set } from 'immutable';
 import { AppContentWrapper, PaginationToolbar, Typography } from 'lattice-ui-kit';
@@ -30,7 +30,6 @@ import {
   selectSearchQuery,
   selectSearchTotalHits,
 } from '../../core/redux/selectors';
-import { Routes } from '../../core/router';
 import {
   SEARCH_DATA,
   SEARCH_ORGANIZATION_DATA_SETS,
@@ -43,8 +42,10 @@ const { isNonEmptyString } = LangUtils;
 
 const OrgDataSetsContainer = ({
   organizationId,
+  organizationRoute,
 } :{|
   organizationId :UUID;
+  organizationRoute :string;
 |}) => {
 
   const dispatch = useDispatch();
@@ -65,10 +66,6 @@ const OrgDataSetsContainer = ({
   useEffect(() => () => {
     dispatch(clearSearchState(SEARCH_DATA));
   }, [dispatch]);
-
-  const orgPath = useMemo(() => (
-    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
 
   const dispatchDataSetSearch = (params :{ page ?:number, query ?:string, start ?:number } = {}) => {
     const { page = 1, query = searchQuery, start = 0 } = params;
@@ -105,7 +102,7 @@ const OrgDataSetsContainer = ({
       <>
         <AppContentWrapper>
           <Crumbs>
-            <CrumbLink to={orgPath}>{organization.title || 'Organization'}</CrumbLink>
+            <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
             <CrumbItem>Data Sets</CrumbItem>
           </Crumbs>
           <StackGrid gap={48}>

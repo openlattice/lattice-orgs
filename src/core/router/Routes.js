@@ -2,6 +2,8 @@
  * @flow
  */
 
+/* eslint-disable max-len */
+
 const DATA_SET_ID_PARAM :':dataSetId' = ':dataSetId';
 const ORG_ID_PARAM :':organizationId' = ':organizationId';
 const PRINCIPAL_ID_PARAM :':principalId' = ':principalId';
@@ -29,10 +31,10 @@ const ORG_DATA_SETS :'/orgs/:organizationId/dataSets' = `${ORG}/dataSets`;
 const ORG_DATA_SET :'/orgs/:organizationId/dataSets/:dataSetId' = `${ORG_DATA_SETS}/${DATA_SET_ID_PARAM}`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ORG_DATA_SET_DATA :'/orgs/:organizationId/dataSets/:dataSetId/data' = `${ORG_DATA_SET}/data`;
+const ORG_DATA_SET_OBJECT_PERMISSIONS :'/orgs/:organizationId/dataSets/:dataSetId/permissions' = `${ORG_DATA_SET}/permissions`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ORG_ROLE :'/orgs/:organizationId/roles/:roleId' = `${ORG}/roles/${ROLE_ID_PARAM}`;
+const ORG_DATA_SET_DATA :'/orgs/:organizationId/dataSets/:dataSetId/data' = `${ORG_DATA_SET}/data`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_MEMBERS :'/orgs/:organizationId/members' = `${ORG}/members`;
@@ -41,7 +43,16 @@ const ORG_MEMBERS :'/orgs/:organizationId/members' = `${ORG}/members`;
 const ORG_MEMBER :'/orgs/:organizationId/members/:principalId' = `${ORG_MEMBERS}/${PRINCIPAL_ID_PARAM}`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ORG_OBJ_PERMISSIONS :'/orgs/:organizationId/permissions' = `${ORG}/permissions`;
+const ORG_OBJECT_PERMISSIONS :'/orgs/:organizationId/permissions' = `${ORG}/permissions`;
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_ROLES :'/orgs/:organizationId/roles' = `${ORG}/roles`;
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_ROLE :'/orgs/:organizationId/roles/:roleId' = `${ORG_ROLES}/${ROLE_ID_PARAM}`;
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_ROLE_OBJECT_PERMISSIONS :'/orgs/:organizationId/roles/:roleId/permissions' = `${ORG_ROLE}/permissions`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_SETTINGS :'/orgs/:organizationId/settings' = `${ORGS}/${ORG_ID_PARAM}/settings`;
@@ -53,10 +64,13 @@ export {
   ORG_DATA_SET,
   ORG_DATA_SETS,
   ORG_DATA_SET_DATA,
+  ORG_DATA_SET_OBJECT_PERMISSIONS,
   ORG_MEMBER,
   ORG_MEMBERS,
-  ORG_OBJ_PERMISSIONS,
+  ORG_OBJECT_PERMISSIONS,
   ORG_ROLE,
+  ORG_ROLES,
+  ORG_ROLE_OBJECT_PERMISSIONS,
   ORG_SETTINGS,
   ROOT,
 };
