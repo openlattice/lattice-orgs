@@ -45,6 +45,7 @@ const reducer = (state, action) => {
       };
     case OPEN_DETAILS:
       return {
+        ...state,
         menuOpen: false,
         detailsOpen: true,
       };
