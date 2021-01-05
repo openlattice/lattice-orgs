@@ -58,13 +58,10 @@ const OrgPeopleContainer = ({
         <Divider isVisible={false} margin={8} />
         <Typography component="span" color="textSecondary">{MEMBERS_DESCRIPTION}</Typography>
         <Divider isVisible={false} margin={12} />
-        <PeopleTable />
-        {/* <MembersSection
+        <Typography component="h2" variant="h3">Members</Typography>
+        <PeopleTable
             isOwner={isOwner}
-            members={orgMembers}
-            organization={organization}
-            organizationId={organizationId}
-            selectedRole={selectedRole} /> */}
+            members={orgMembers} />
       </AppContentWrapper>
     );
   }
