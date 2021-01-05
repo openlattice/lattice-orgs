@@ -2,7 +2,14 @@
 import React from 'react';
 
 import { Checkbox } from 'lattice-ui-kit';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import type { Role, UUID } from 'lattice';
+import type { RequestState } from 'redux-reqseq';
+
+import { ORGANIZATIONS } from '../../../core/redux/constants';
+import { REMOVE_ROLE_FROM_ORGANIZATION } from '../actions';
+
+const { isPending } = ReduxUtils;
 
 type Props = {
   filterTerm :string;
@@ -17,6 +24,8 @@ const FilteredRoles = ({
   roles,
   selectedRoleId,
 } :Props) => {
+  const requestState :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_ROLE_FROM_ORGANIZATION]);
+  const isLoading :boolean = isPending(requestState);
 
   let filteredRoles = roles;
   if (filterTerm) {
@@ -31,6 +40,7 @@ const FilteredRoles = ({
           <Checkbox
               checked={role.id === selectedRoleId}
               data-role-id={role.id}
+              disabled={isLoading}
               key={role.id}
               label={role.title}
               mode="button"

@@ -2,12 +2,12 @@
  * @flow
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils } from 'lattice-utils';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
 import DataSetPermissionsContainer from './DataSetPermissionsContainer';
@@ -18,8 +18,10 @@ import {
   CrumbLink,
   Crumbs,
   Divider,
-  SpaceBetweenGrid
+  SpaceBetweenGrid,
 } from '../../components';
+import { Routes } from '../../core/router';
+import { goToRoute } from '../../core/router/actions';
 
 const { isNonEmptyString } = LangUtils;
 const { selectOrganization } = ReduxUtils;
@@ -54,13 +56,19 @@ const OrgRoleContainer = ({
   roleId :UUID;
   rolesRoute :string;
 |}) => {
-
+  const dispatch = useDispatch();
   const [selection, setSelection] = useState();
-
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const role :?Role = useMemo(() => (
     organization?.roles.find((orgRole) => orgRole.id === roleId)
   ), [organization, roleId]);
+
+  useEffect(() => {
+    if (organization && !role) {
+      const membersPath = Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId);
+      dispatch(goToRoute(membersPath));
+    }
+  }, [dispatch, organization, organizationId, role]);
 
   if (organization && role) {
 
