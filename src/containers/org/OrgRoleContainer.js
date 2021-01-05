@@ -2,12 +2,12 @@
  * @flow
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 import { AppContentWrapper, Modal, Typography } from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils } from 'lattice-utils';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
 import { RoleActionButton } from './components';
@@ -20,6 +20,8 @@ import {
   StackGrid,
   StepsController,
 } from '../../components';
+import { Routes } from '../../core/router';
+import { goToRoute } from '../../core/router/actions';
 import {
   AssignPermissionsToDataSet,
   DataSetPermissionsContainer,
@@ -61,6 +63,8 @@ const OrgRoleContainer = ({
   rolesRoute :string;
 |}) => {
 
+  const dispatch = useDispatch();
+
   const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
   const [filterByQuery, setFilterByQuery] = useState('');
   const [isVisibleAddDataSetModal, setIsVisibleAddDataSetModal] = useState(false);
@@ -70,6 +74,13 @@ const OrgRoleContainer = ({
   const role :?Role = useMemo(() => (
     organization?.roles.find((orgRole) => orgRole.id === roleId)
   ), [organization, roleId]);
+
+  useEffect(() => {
+    if (organization && !role) {
+      const membersPath = Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId);
+      dispatch(goToRoute(membersPath));
+    }
+  }, [dispatch, organization, organizationId, role]);
 
   if (organization && role) {
 

@@ -11,6 +11,7 @@ import { useGoToRoute } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
+import RemoveRoleFromOrgModal from './RemoveRoleFromOrgModal';
 import RoleDetailsModal from './RoleDetailsModal';
 
 import { selectCurrentUserIsOrgOwner } from '../../../core/redux/selectors';
@@ -18,13 +19,16 @@ import { Routes } from '../../../core/router';
 
 const CLOSE_DETAILS = 'CLOSE_DETAILS';
 const CLOSE_MENU = 'CLOSE_MENU';
+const CLOSE_REMOVE_ROLE = 'CLOSE_REMOVE_ROLE';
 const OPEN_DETAILS = 'OPEN_DETAILS';
 const OPEN_MENU = 'OPEN_MENU';
+const OPEN_REMOVE_ROLE = 'OPEN_REMOVE_ROLE';
 
 const INITIAL_STATE = {
-  menuOpen: false,
   detailsOpen: false,
   descriptionOpen: false,
+  menuOpen: false,
+  removeRoleOpen: false,
 };
 
 const reducer = (state, action) => {
@@ -39,8 +43,14 @@ const reducer = (state, action) => {
         ...state,
         menuOpen: false,
       };
+    case CLOSE_REMOVE_ROLE:
+      return {
+        ...state,
+        removeRoleOpen: false,
+      };
     case OPEN_DETAILS:
       return {
+        ...state,
         menuOpen: false,
         detailsOpen: true,
       };
@@ -48,6 +58,12 @@ const reducer = (state, action) => {
       return {
         ...state,
         menuOpen: true,
+      };
+    case OPEN_REMOVE_ROLE:
+      return {
+        ...state,
+        menuOpen: false,
+        removeRoleOpen: true,
       };
     default:
       return state;
@@ -91,6 +107,14 @@ const RoleActionButton = ({
     dispatch({ type: CLOSE_DETAILS });
   };
 
+  const handleOpenRemoveRole = () => {
+    dispatch({ type: OPEN_REMOVE_ROLE });
+  };
+
+  const handleCloseRemoveRole = () => {
+    dispatch({ type: CLOSE_REMOVE_ROLE });
+  };
+
   return (
     <>
       <IconButton
@@ -119,12 +143,20 @@ const RoleActionButton = ({
             vertical: 'top',
           }}>
         <MenuItem disabled={!isOwner} onClick={handleOpenDetails}>
-          Edit Role Details
+          Edit Details
+        </MenuItem>
+        <MenuItem disabled={!isOwner} onClick={handleOpenRemoveRole}>
+          Delete Role
         </MenuItem>
         <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
           Manage Permissions
         </MenuItem>
       </Menu>
+      <RemoveRoleFromOrgModal
+          isVisible={state.removeRoleOpen}
+          onClose={handleCloseRemoveRole}
+          organizationId={organizationId}
+          roleId={roleId} />
       <RoleDetailsModal
           isVisible={state.detailsOpen}
           onClose={handleCloseDetails}
