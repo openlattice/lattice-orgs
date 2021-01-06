@@ -87,8 +87,10 @@ function* getOrSelectDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse
         .map((authorization) => authorization.aclKey[0]);
       // END-TODO
 
-      const response :WorkerResponse = yield call(getEntitySetsWorker, getEntitySets(ownedEntitySetIds));
-      if (response.error) throw response.error;
+      if (ownedEntitySetIds.length > 0) {
+        const response :WorkerResponse = yield call(getEntitySetsWorker, getEntitySets(ownedEntitySetIds));
+        if (response.error) throw response.error;
+      }
     }
 
     if (!missingAtlasDataSetIds.isEmpty()) {

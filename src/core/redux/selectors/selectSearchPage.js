@@ -2,22 +2,11 @@
  * @flow
  */
 
-import {
-  Map,
-  getIn,
-  hasIn,
-} from 'immutable';
+import { Map, getIn } from 'immutable';
 
 import { PAGE, SEARCH } from '../constants';
 
 export default function selectSearchPage(action :string) {
 
-  return (state :Map) :number => {
-
-    if (hasIn(state, [SEARCH, action, PAGE])) {
-      return getIn(state, [SEARCH, action, PAGE]);
-    }
-
-    return 1;
-  };
+  return (state :Map) :number => getIn(state, [SEARCH, action, PAGE]) || 1;
 }

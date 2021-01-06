@@ -2,12 +2,7 @@
  * @flow
  */
 
-import {
-  Map,
-  Set,
-  getIn,
-  hasIn,
-} from 'immutable';
+import { Map, Set, getIn } from 'immutable';
 import { ValidationUtils } from 'lattice-utils';
 import type { UUID } from 'lattice';
 
@@ -20,9 +15,7 @@ export default function selectOrganizationAtlasDataSetIds(organizationId :?UUID)
   return (state :Map) :Set<UUID> => {
 
     if (isValidUUID(organizationId)) {
-      if (hasIn(state, [ORGANIZATIONS, ATLAS_DATA_SET_IDS, organizationId])) {
-        return getIn(state, [ORGANIZATIONS, ATLAS_DATA_SET_IDS, organizationId]);
-      }
+      return getIn(state, [ORGANIZATIONS, ATLAS_DATA_SET_IDS, organizationId]) || Set();
     }
 
     return Set();

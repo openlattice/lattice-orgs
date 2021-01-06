@@ -4,7 +4,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { List, Map, getIn } from 'immutable';
+import { List, Map } from 'immutable';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { useDispatch, useSelector } from 'react-redux';
 import type { EntitySet, Organization, UUID } from 'lattice';
@@ -25,7 +25,8 @@ import {
   selectEntitySets,
   selectOrganization,
 } from '../../core/redux/selectors';
-import { ObjectPermissionsActionsGrid, ObjectPermissionsContainer } from '../permissions';
+import { getDataSetField } from '../../utils';
+import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
 
 const OrgDataSetObjectPermissionsContainer = ({
   dataSetId,
@@ -58,8 +59,9 @@ const OrgDataSetObjectPermissionsContainer = ({
 
   const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
   const entitySet :?EntitySet = entitySets.get(dataSetId);
-  const name :string = entitySet?.name || getIn(atlasDataSet, ['table', 'name']);
-  const title :string = entitySet?.title || getIn(atlasDataSet, ['table', 'title']);
+  const dataSet = atlasDataSet || entitySet;
+  const name :string = getDataSetField(dataSet, 'name');
+  const title :string = getDataSetField(dataSet, 'title');
 
   return (
     <AppContentWrapper>
@@ -74,9 +76,11 @@ const OrgDataSetObjectPermissionsContainer = ({
         <Typography>
           Below are the users, roles, and organizations that are granted permissions on this object.
         </Typography>
-        <ObjectPermissionsActionsGrid
+        <PermissionsActionsGrid
+            assignPermissionsText="Add permission"
             onChangeFilterByPermissionTypes={setFilterByPermissionTypes}
-            onChangeFilterByQuery={setFilterByQuery} />
+            onChangeFilterByQuery={setFilterByQuery}
+            onClickAssignPermissions={() => {}} />
         <Divider isVisible={false} margin={0} />
         <ObjectPermissionsContainer
             filterByPermissionTypes={filterByPermissionTypes}

@@ -25,7 +25,6 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { getDataSetPermissions } from '../../../core/permissions/actions';
 import {
   selectOrganizationAtlasDataSetIds,
   selectOrganizationEntitySetIds,
@@ -70,8 +69,8 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     let organization :?Organization = yield select(selectOrganization(organizationId));
     const members :List = yield select(selectOrganizationMembers(organizationId));
-    let atlasDataSetIds :Set<UUID> = yield select(selectOrganizationAtlasDataSetIds(organizationId));
-    let entitySetIds :Set<UUID> = yield select(selectOrganizationEntitySetIds(organizationId));
+    const atlasDataSetIds :Set<UUID> = yield select(selectOrganizationAtlasDataSetIds(organizationId));
+    const entitySetIds :Set<UUID> = yield select(selectOrganizationEntitySetIds(organizationId));
 
     // TODO - figure out how to "expire" stored data
     let getOrganizationCall = call(() => {});
@@ -131,12 +130,10 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     if (getOrganizationEntitySetsResponse) {
       if (getOrganizationEntitySetsResponse.error) throw getOrganizationEntitySetsResponse.error;
-      entitySetIds = Set(Object.keys(getOrganizationEntitySetsResponse.data));
     }
 
     if (getOrganizationDataSetsResponse) {
       if (getOrganizationDataSetsResponse.error) throw getOrganizationDataSetsResponse.error;
-      atlasDataSetIds = Set(getOrganizationDataSetsResponse.data.map((dataSet) => dataSet.table.id));
     }
 
     let isOwner = false;
@@ -145,13 +142,6 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       const authorizations :AuthorizationObject[] = getAuthorizationsResponse.data;
       isOwner = authorizations[0].permissions[PermissionTypes.OWNER] === true;
     }
-
-    // NOTE: we need all permissions for all data sets in order to filter by the user/role principals in
-    // DataSetPermissionsContainer and paginate through the data sets, so we kick off a non-blocking call to
-    // getDataSetPermissions() to get all data set permissions here
-    // NOTE: this is a non-blocking action, so the INITIALIZE_ORGANIZATION lifecycle will always complete before
-    // the GET_DATA_SET_PERMISSIONS lifecycle
-    yield put(getDataSetPermissions({ atlasDataSetIds, entitySetIds, organizationId }));
 
     yield put(initializeOrganization.success(action.id, { isOwner, organization }));
   }

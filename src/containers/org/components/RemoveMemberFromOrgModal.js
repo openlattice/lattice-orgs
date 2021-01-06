@@ -15,7 +15,7 @@ import type { RequestState } from 'redux-reqseq';
 import { ModalBody } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
-import { getUserProfileLabel } from '../../../utils/PersonUtils';
+import { getUserTitle } from '../../../utils';
 
 const { getUserId } = PersonUtils;
 
@@ -37,7 +37,7 @@ const RemoveMemberFromOrgModal = ({
 
   const dispatch = useDispatch();
   const removeMemberRS :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_MEMBER_FROM_ORGANIZATION]);
-  const memberLabel = getUserProfileLabel(member);
+  const memberLabel = getUserTitle(member);
   const memberId = getUserId(member);
 
   const rsComponents = {

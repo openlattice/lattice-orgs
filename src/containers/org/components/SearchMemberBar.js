@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 
 import { USERS, USER_SEARCH_RESULTS } from '../../../core/redux/constants';
-import { getUserProfileLabel } from '../../../utils/PersonUtils';
+import { getUserTitle } from '../../../utils';
 import type { ReactSelectOption } from '../../../types';
 
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
@@ -38,7 +38,7 @@ const SearchMemberBar = ({ onChange } :Props) => {
     const selectOptions = [];
     userSearchResults.forEach((user, userId) => {
       selectOptions.push({
-        label: getUserProfileLabel(user),
+        label: getUserTitle(user),
         value: userId,
       });
     }, [userSearchResults]);

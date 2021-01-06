@@ -6,16 +6,16 @@ import { Map, getIn } from 'immutable';
 import { ValidationUtils } from 'lattice-utils';
 import type { UUID } from 'lattice';
 
-import { IS_OWNER, ORGANIZATIONS } from '../constants';
+import { IS_OWNER, PERMISSIONS } from '../constants';
 
 const { isValidUUID } = ValidationUtils;
 
-export default function selectCurrentUserIsOrgOwner(organizationId :UUID) {
+export default function selectHasOwnerPermission(id :UUID) {
 
   return (state :Map) :boolean => {
 
-    if (isValidUUID(organizationId)) {
-      return getIn(state, [ORGANIZATIONS, IS_OWNER, organizationId]);
+    if (isValidUUID(id)) {
+      return getIn(state, [PERMISSIONS, IS_OWNER, id]);
     }
 
     return false;

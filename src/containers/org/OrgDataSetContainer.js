@@ -4,17 +4,13 @@
 
 import React, { useEffect } from 'react';
 
-import { Map, getIn } from 'immutable';
+import { Map } from 'immutable';
 import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import type {
-  EntitySet,
-  Organization,
-  UUID,
-} from 'lattice';
+import type { EntitySet, Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import DataSetActionButton from './components/dataset/DataSetActionButton';
@@ -36,9 +32,11 @@ import { EDM } from '../../core/redux/constants';
 import {
   selectAtlasDataSets,
   selectEntitySets,
+  selectHasOwnerPermission,
   selectOrganization,
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
+import { getDataSetField } from '../../utils';
 
 const { isPending, isSuccess } = ReduxUtils;
 
@@ -65,13 +63,16 @@ const OrgDataSetContainer = ({
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets([dataSetId]));
   const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets([dataSetId]));
+  const isOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
 
   const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
   const entitySet :?EntitySet = entitySets.get(dataSetId);
-  const description :string = entitySet?.description || getIn(atlasDataSet, ['table', 'description']);
-  const name :string = entitySet?.name || getIn(atlasDataSet, ['table', 'name']);
-  const title :string = entitySet?.title || getIn(atlasDataSet, ['table', 'title']);
-  const contacts :string[] = entitySet?.contacts || [];
+  const dataSet = atlasDataSet || entitySet;
+
+  const description :string = getDataSetField(dataSet, 'description');
+  const name :string = getDataSetField(dataSet, 'name');
+  const title :string = getDataSetField(dataSet, 'title');
+  const contacts :string[] = getDataSetField(dataSet, 'contacts') || [];
 
   useEffect(() => {
     dispatch(getOrSelectDataSet({ dataSetId, organizationId }));
@@ -88,7 +89,7 @@ const OrgDataSetContainer = ({
     );
 
     const renderDataSetMetaContainer = () => (
-      <DataSetMetaContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} />
+      <DataSetMetaContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} isOwner={isOwner} />
     );
 
     return (
@@ -110,10 +111,7 @@ const OrgDataSetContainer = ({
                 <StackGrid>
                   <SpaceBetweenGrid>
                     <Typography variant="h1">{title || name}</Typography>
-                    <DataSetActionButton
-                        dataSet={atlasDataSet || entitySet}
-                        isAtlas={!!atlasDataSet}
-                        organizationId={organizationId} />
+                    <DataSetActionButton dataSet={dataSet} isOwner={isOwner} organizationId={organizationId} />
                   </SpaceBetweenGrid>
                   <Typography>{description || name}</Typography>
                 </StackGrid>

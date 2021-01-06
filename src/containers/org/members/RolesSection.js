@@ -6,21 +6,27 @@ import React, { useCallback, useState } from 'react';
 
 import debounce from 'lodash/debounce';
 import styled from 'styled-components';
-import { Button, Checkbox, SearchInput } from 'lattice-ui-kit';
+import {
+  Button,
+  Checkbox,
+  SearchInput,
+  Typography,
+} from 'lattice-ui-kit';
 import { ValidationUtils } from 'lattice-utils';
-
 import type { Organization, UUID } from 'lattice';
 
 import FilteredRoles from './FilteredRoles';
 
-import { Divider, Header, StackGrid } from '../../../components';
+import { Divider, StackGrid } from '../../../components';
 import { AddRoleToOrgModal } from '../components';
 
 const { isValidUUID } = ValidationUtils;
 
-const RolesSectionHeader = styled(Header)`
+const RolesSectionHeader = styled.div`
+  align-items: center;
+  display: flex;
+  height: 48px;
   justify-content: space-between;
-  line-height: 48px;
 `;
 
 type Props = {
@@ -59,8 +65,8 @@ const RolesSection = ({
 
   return (
     <StackGrid>
-      <RolesSectionHeader as="h4">
-        <span>Roles</span>
+      <RolesSectionHeader>
+        <Typography variant="h4">Roles</Typography>
         {
           isOwner && (
             <Button color="primary" onClick={() => setIsVisibleAddRoleToOrgModal(true)} variant="text">
