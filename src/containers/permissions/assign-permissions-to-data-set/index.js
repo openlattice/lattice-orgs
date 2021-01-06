@@ -2,4 +2,4 @@
  * @flow
  */
 
-export { default as AssignPermissionsToDataSet } from './AssignPermissionsToDataSet';
+export { default as AssignPermissionsToDataSetModalBody } from './AssignPermissionsToDataSetModalBody';

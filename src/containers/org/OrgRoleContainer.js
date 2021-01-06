@@ -18,12 +18,11 @@ import {
   Crumbs,
   SpaceBetweenGrid,
   StackGrid,
-  StepsController,
 } from '../../components';
 import { Routes } from '../../core/router';
 import { goToRoute } from '../../core/router/actions';
 import {
-  AssignPermissionsToDataSet,
+  AssignPermissionsToDataSetModalBody,
   DataSetPermissionsContainer,
   PermissionsActionsGrid,
   PermissionsPanel,
@@ -144,24 +143,15 @@ const OrgRoleContainer = ({
         </AppContentGrid>
         <Modal
             isVisible={isVisibleAddDataSetModal}
-            onClose={() => {}}
+            onClose={() => setIsVisibleAddDataSetModal(false)}
             shouldCloseOnOutsideClick={false}
+            textTitle="Assign Permissions To Data Set"
             viewportScrolling
-            withFooter={false}
-            withHeader={false}>
-          <StepsController>
-            {
-              ({ step, stepBack, stepNext }) => (
-                <AssignPermissionsToDataSet
-                    onClose={() => setIsVisibleAddDataSetModal(false)}
-                    organizationId={organizationId}
-                    principal={role.principal}
-                    step={step}
-                    stepBack={stepBack}
-                    stepNext={stepNext} />
-              )
-            }
-          </StepsController>
+            withFooter={false}>
+          <AssignPermissionsToDataSetModalBody
+              onClose={() => setIsVisibleAddDataSetModal(false)}
+              organizationId={organizationId}
+              principal={role.principal} />
         </Modal>
       </>
     );

@@ -17,12 +17,11 @@ import {
   CrumbLink,
   Crumbs,
   StackGrid,
-  StepsController,
 } from '../../../components';
 import { selectOrganizationMembers } from '../../../core/redux/selectors';
 import { getPrincipal, getSecurablePrincipalId, getUserProfile } from '../../../utils';
 import {
-  AssignPermissionsToDataSet,
+  AssignPermissionsToDataSetModalBody,
   DataSetPermissionsContainer,
   PermissionsActionsGrid,
   PermissionsPanel,
@@ -149,24 +148,15 @@ const OrgMemberContainer = ({
         </AppContentGrid>
         <Modal
             isVisible={isVisibleAddDataSetModal}
-            onClose={() => {}}
+            onClose={() => setIsVisibleAddDataSetModal(false)}
             shouldCloseOnOutsideClick={false}
+            textTitle="Assign Permissions To Data Set"
             viewportScrolling
-            withFooter={false}
-            withHeader={false}>
-          <StepsController>
-            {
-              ({ step, stepBack, stepNext }) => (
-                <AssignPermissionsToDataSet
-                    onClose={() => setIsVisibleAddDataSetModal(false)}
-                    organizationId={organizationId}
-                    principal={memberPrincipal}
-                    step={step}
-                    stepBack={stepBack}
-                    stepNext={stepNext} />
-              )
-            }
-          </StepsController>
+            withFooter={false}>
+          <AssignPermissionsToDataSetModalBody
+              onClose={() => setIsVisibleAddDataSetModal(false)}
+              organizationId={organizationId}
+              principal={memberPrincipal} />
         </Modal>
       </>
     );
