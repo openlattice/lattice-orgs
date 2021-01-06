@@ -66,8 +66,10 @@ function getUserProfileLabel(user :any, thisUserId :?string) :string {
 }
 
 type UserProfile = {
+  email :string;
   familyName :string;
   givenName :string;
+  id :UUID;
   name :string;
 };
 
@@ -91,8 +93,10 @@ function getUserProfile(user :any) :UserProfile {
   }
 
   return {
+    email: get(auth0UserProfile, 'email', ''),
     familyName,
     givenName,
+    id: get(auth0UserProfile, 'user_id', ''),
     name,
   };
 }
