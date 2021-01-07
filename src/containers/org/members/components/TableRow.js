@@ -3,13 +3,19 @@
 import React from 'react';
 
 import styled from 'styled-components';
-import { Map, getIn } from 'immutable';
+import {
+  Map,
+  Set,
+  get
+} from 'immutable';
 import {
   Checkbox,
-  Chip,
   Colors,
   Typography
 } from 'lattice-ui-kit';
+import type { Role, UUID } from 'lattice';
+
+import RoleChipsList from './RoleChipsList';
 
 import { getUserProfile } from '../../../../utils/PersonUtils';
 
@@ -29,13 +35,28 @@ const Cell = styled.td`
 `;
 
 type Props = {
+  isOwner :boolean;
   member :Map;
+  onDelete :(member :Map, role :Role) => void;
+  organizationId :UUID;
+  roles :Role[];
 };
 
 const TableRow = ({
-  member
+  isOwner,
+  member,
+  onDelete,
+  organizationId,
+  roles,
 } :Props) => {
   const { name } = getUserProfile(member);
+  const memberRoles = get(member, 'roles');
+  const memberRolesIds = Set(memberRoles.map((role) => get(role, 'id')));
+  const orgRolesIds = Set(roles.map((role) => role.id));
+
+  const relevantRolesIds = orgRolesIds.intersect(memberRolesIds);
+  const relevantRoles = roles.filter((role) => relevantRolesIds.includes(role.id));
+
   return (
     <Row>
       <Cell>
@@ -48,7 +69,12 @@ const TableRow = ({
         <Typography noWrap>Auth0</Typography>
       </Cell>
       <Cell padding="small">
-        <Chip label="something" />
+        <RoleChipsList
+            deletable={isOwner}
+            member={member}
+            onDelete={onDelete}
+            organizationId={organizationId}
+            roles={relevantRoles} />
       </Cell>
     </Row>
   );
