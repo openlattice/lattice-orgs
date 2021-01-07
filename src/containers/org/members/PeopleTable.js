@@ -24,7 +24,7 @@ import {
   PAGE,
   paginationReducer
 } from '../../../utils/stateReducers/pagination';
-import { RemoveRoleFromMemberModal } from '../components';
+import { RemoveMemberFromOrgModal, RemoveRoleFromMemberModal } from '../components';
 
 const { NEUTRAL } = Colors;
 
@@ -90,6 +90,15 @@ const PeopleTable = ({
     setIsVisibleRemoveRoleFromMemberModal(true);
   };
 
+  const handleUnassignAllRoles = () => {
+
+  };
+
+  const handleRemoveMember = (member :Map) => {
+    setTargetMember(member);
+    setIsVisibleAddMemberToOrgModal(true);
+  };
+
   const handleAddMember = () => {
     setIsVisibleAddMemberToOrgModal(true);
   };
@@ -99,7 +108,7 @@ const PeopleTable = ({
       <TableToolbar>
         <MembersCheckboxWrapper>
           <Checkbox />
-          <Selection>15 members</Selection>
+          <Selection>{`${members.size} members`}</Selection>
         </MembersCheckboxWrapper>
         <Button endIcon={ChevronDown} variant="text">Bulk Actions</Button>
         <SearchInput />
@@ -126,7 +135,8 @@ const PeopleTable = ({
                     isOwner={isOwner}
                     key={id}
                     member={member}
-                    onDelete={handleUnassignRole}
+                    onUnassign={handleUnassignRole}
+                    onUnassignAll={handleUnassignAllRoles}
                     organizationId={organizationId}
                     roles={roles} />
               );
@@ -151,6 +161,15 @@ const PeopleTable = ({
               isVisible={isVisibleAddMemberToOrgModal}
               member={targetMember}
               onClose={() => setIsVisibleAddMemberToOrgModal(false)}
+              organizationId={organizationId} />
+        )
+      }
+      {
+        isOwner && (
+          <RemoveMemberFromOrgModal
+              isVisible={isVisibleRemoveMemberFromOrgModal}
+              member={targetMember}
+              onClose={() => setIsVisibleRemoveMemberFromOrgModal(false)}
               organizationId={organizationId} />
         )
       }

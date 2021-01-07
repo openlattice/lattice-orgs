@@ -37,7 +37,7 @@ const Cell = styled.td`
 type Props = {
   isOwner :boolean;
   member :Map;
-  onDelete :(member :Map, role :Role) => void;
+  onUnassign :(member :Map, role :Role) => void;
   organizationId :UUID;
   roles :Role[];
 };
@@ -45,7 +45,7 @@ type Props = {
 const TableRow = ({
   isOwner,
   member,
-  onDelete,
+  onUnassign,
   organizationId,
   roles,
 } :Props) => {
@@ -72,7 +72,7 @@ const TableRow = ({
         <RoleChipsList
             deletable={isOwner}
             member={member}
-            onDelete={onDelete}
+            onUnassign={onUnassign}
             organizationId={organizationId}
             roles={relevantRoles} />
       </Cell>

@@ -20,7 +20,7 @@ const ChipsList = styled.div`
 type Props = {
   deletable :boolean;
   member :Map;
-  onDelete :(member :Map, role :Role) => void;
+  onUnassign :(member :Map, role :Role) => void;
   organizationId :UUID;
   roles :Role[];
 };
@@ -28,7 +28,7 @@ type Props = {
 const RoleChipsList = ({
   deletable,
   member,
-  onDelete,
+  onUnassign,
   organizationId,
   roles,
 } :Props) => {
@@ -38,7 +38,7 @@ const RoleChipsList = ({
   const { id } = getUserProfile(member);
   const getHandleDelete = (role :Role) => (e :SyntheticEvent<HTMLElement>) => {
     e.preventDefault();
-    onDelete(member, role);
+    onUnassign(member, role);
   };
 
   return (
