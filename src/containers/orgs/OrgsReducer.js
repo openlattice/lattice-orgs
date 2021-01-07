@@ -152,7 +152,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           const storedSeqAction :?SequenceAction = state.getIn([ADD_MEMBER_TO_ORGANIZATION, seqAction.id]);
           if (storedSeqAction) {
 
-            const { memberId, organizationId } = storedSeqAction.value;
+            const { memberId, organizationId, profile } = storedSeqAction.value;
             const memberPrincipal :Principal = (new PrincipalBuilder())
               .setId(memberId)
               .setType(PrincipalTypes.USER)
@@ -160,6 +160,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
             const orgMemberObject = fromJS({
               principal: { principal: memberPrincipal.toImmutable() },
+              profile,
+              roles: List()
             });
 
             const currentOrg :Organization = state.getIn([ORGS, organizationId]);

@@ -4,6 +4,7 @@
 
 import React, { useState } from 'react';
 
+import { Map, get } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { ActionModal } from 'lattice-ui-kit';
 import { LangUtils, useRequestState } from 'lattice-utils';
@@ -36,11 +37,11 @@ const AddMemberToOrgModal = ({
 } :Props) => {
 
   const dispatch = useDispatch();
-  const [selectedMemberId, setMemberId] = useState();
+  const [selectedMember, setMember] = useState(Map());
   const requestState :?RequestState = useRequestState([ORGANIZATIONS, ADD_MEMBER_TO_ORGANIZATION]);
 
-  const onChange = (option :?ReactSelectOption<string>) => {
-    setMemberId(option?.value);
+  const onChange = (option :?ReactSelectOption<Map>) => {
+    setMember(option?.value || Map());
   };
 
   const rsComponents = {
@@ -58,11 +59,13 @@ const AddMemberToOrgModal = ({
   };
 
   const handleOnClickPrimary = () => {
-    if (isNonEmptyString(selectedMemberId)) {
+    const userId = get(selectedMember, 'user_id');
+    if (isNonEmptyString(userId)) {
       dispatch(
         addMemberToOrganization({
-          memberId: selectedMemberId,
+          memberId: userId,
           organizationId,
+          profile: selectedMember
         })
       );
     }

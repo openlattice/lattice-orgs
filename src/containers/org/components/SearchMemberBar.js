@@ -12,6 +12,7 @@ import React, {
 import debounce from 'lodash/debounce';
 import { faSearch } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Map } from 'immutable';
 import { PrincipalsApiActions } from 'lattice-sagas';
 import { Select } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
@@ -25,7 +26,7 @@ import type { ReactSelectOption } from '../../../types';
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 type Props = {
-  onChange :(option :?ReactSelectOption<string>) => void;
+  onChange :(option :?ReactSelectOption<Map>) => void;
 };
 
 const SearchMemberBar = ({ onChange } :Props) => {
@@ -36,10 +37,10 @@ const SearchMemberBar = ({ onChange } :Props) => {
 
   const options = useMemo(() => {
     const selectOptions = [];
-    userSearchResults.forEach((user, userId) => {
+    userSearchResults.forEach((user) => {
       selectOptions.push({
         label: getUserProfileLabel(user),
-        value: userId,
+        value: user,
       });
     }, [userSearchResults]);
 

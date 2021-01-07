@@ -4,6 +4,7 @@
 
 import React from 'react';
 
+import { Map } from 'immutable';
 import { Typography } from 'lattice-ui-kit';
 
 import SearchMemberBar from './SearchMemberBar';
@@ -12,7 +13,7 @@ import { ModalBody } from '../../../components';
 import type { ReactSelectOption } from '../../../types';
 
 type Props = {
-  onChange :(option :?ReactSelectOption<string>) => void;
+  onChange :(option :?ReactSelectOption<Map>) => void;
 };
 
 const AddMemberModalBody = ({ onChange } :Props) => (
