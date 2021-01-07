@@ -1,10 +1,10 @@
 // @flow
-import React from 'react';
+import React, { useReducer, useState } from 'react';
 
 import styled from 'styled-components';
 import { faAngleDown, faPlus } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List } from 'immutable';
+import { List, Map } from 'immutable';
 import {
   Button,
   Checkbox,
@@ -12,8 +12,18 @@ import {
   PaginationToolbar,
   SearchInput,
 } from 'lattice-ui-kit';
+import type { Role, UUID } from 'lattice';
 
 import TableRow from './components/TableRow';
+
+import { getUserProfile } from '../../../utils/PersonUtils';
+import {
+  FILTER,
+  INITIAL_PAGINATION_STATE,
+  PAGE,
+  paginationReducer
+} from '../../../utils/stateReducers/pagination';
+import { RemoveRoleFromMemberModal } from '../components';
 
 const { NEUTRAL } = Colors;
 
@@ -44,15 +54,41 @@ const PlusIcon = <FontAwesomeIcon icon={faPlus} size="lg" />;
 
 const ChevronDown = <FontAwesomeIcon icon={faAngleDown} />;
 
+const MAX_PER_PAGE = 20;
+
 type Props = {
   isOwner :boolean;
   members :List;
+  organizationId :UUID;
+  roles :Role[];
 };
 
 const PeopleTable = ({
+  isOwner,
   members,
+  roles,
+  organizationId,
 } :Props) => {
-  console.log('something');
+
+  // consider using reducers for handling member/role/action selection
+  const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
+  const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
+  const [isVisibleAddMemberToOrgModal, setIsVisibleAddMemberToOrgModal] = useState(false);
+  const [isVisibleAssignRoleModal, setIsVisibleAssignRoleModal] = useState(false);
+  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
+  const [targetMember, setTargetMember] = useState();
+  const [targetRole, setTargetRole] = useState();
+
+  const handleOnPageChange = ({ page, start }) => {
+    paginationDispatch({ type: PAGE, page, start });
+  };
+
+  const handleUnassignRole = (member :Map, role :Role) => {
+    setTargetMember(member);
+    setTargetRole(role);
+    setIsVisibleRemoveRoleFromMemberModal(true);
+  };
+
   return (
     <div>
       <TableToolbar>
@@ -74,13 +110,31 @@ const PeopleTable = ({
         <tbody>
           {
             members.map((member) => {
-              const id = member.get('id');
-              return <TableRow key={id} member={member} />;
+              const { id } = getUserProfile(member);
+              return (
+                <TableRow
+                    isOwner={isOwner}
+                    key={id}
+                    member={member}
+                    onDelete={handleUnassignRole}
+                    organizationId={organizationId}
+                    roles={roles} />
+              );
             })
           }
         </tbody>
       </Table>
-      <PaginationToolbar />
+      <PaginationToolbar onChange={handleOnPageChange} />
+      {
+        isOwner && targetRole && (
+          <RemoveRoleFromMemberModal
+              isVisible={isVisibleRemoveRoleFromMemberModal}
+              member={targetMember}
+              onClose={() => setIsVisibleRemoveRoleFromMemberModal(false)}
+              organizationId={organizationId}
+              role={targetRole} />
+        )
+      }
     </div>
 
   );

@@ -61,7 +61,9 @@ const OrgPeopleContainer = ({
         <Typography component="h2" variant="h3">Members</Typography>
         <PeopleTable
             isOwner={isOwner}
-            members={orgMembers} />
+            members={orgMembers}
+            organizationId={organizationId}
+            roles={organization.roles} />
       </AppContentWrapper>
     );
   }
