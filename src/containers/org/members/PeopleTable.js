@@ -16,6 +16,7 @@ import type { Role, UUID } from 'lattice';
 
 import TableRow from './components/TableRow';
 
+import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
 import { getUserProfile } from '../../../utils/PersonUtils';
 import {
   FILTER,
@@ -89,6 +90,10 @@ const PeopleTable = ({
     setIsVisibleRemoveRoleFromMemberModal(true);
   };
 
+  const handleAddMember = () => {
+    setIsVisibleAddMemberToOrgModal(true);
+  };
+
   return (
     <div>
       <TableToolbar>
@@ -99,7 +104,12 @@ const PeopleTable = ({
         <Button endIcon={ChevronDown} variant="text">Bulk Actions</Button>
         <SearchInput />
         <Button endIcon={ChevronDown} variant="text">Filter</Button>
-        <Button color="primary" startIcon={PlusIcon}>Add Member</Button>
+        <Button
+            color="primary"
+            onClick={handleAddMember}
+            startIcon={PlusIcon}>
+          Add Member
+        </Button>
       </TableToolbar>
       <Table cellPadding="0" cellSpacing="0">
         <colgroup>
@@ -133,6 +143,15 @@ const PeopleTable = ({
               onClose={() => setIsVisibleRemoveRoleFromMemberModal(false)}
               organizationId={organizationId}
               role={targetRole} />
+        )
+      }
+      {
+        isOwner && (
+          <AddMemberToOrgModal
+              isVisible={isVisibleAddMemberToOrgModal}
+              member={targetMember}
+              onClose={() => setIsVisibleAddMemberToOrgModal(false)}
+              organizationId={organizationId} />
         )
       }
     </div>
