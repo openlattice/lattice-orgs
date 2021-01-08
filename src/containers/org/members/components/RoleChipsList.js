@@ -12,6 +12,7 @@ import { getUserProfile } from '../../../../utils/PersonUtils';
 const NO_ROLES_APPLIED = 'No Roles Applied';
 
 const ChipsList = styled.div`
+  overflow: scroll;
   > :not(:first-child) {
     margin-left: 4px;
   }
