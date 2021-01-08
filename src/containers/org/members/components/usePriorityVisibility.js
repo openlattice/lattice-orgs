@@ -45,7 +45,7 @@ const usePriorityVisibility = (
           }
         }
         setState({
-          priority: items.slice<Object>(0, maxIndex),
+          priority: items.slice(0, maxIndex),
           remainder: items.slice(maxIndex, itemWidths.length)
         });
       }
