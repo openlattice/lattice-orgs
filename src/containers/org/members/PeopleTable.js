@@ -14,6 +14,7 @@ import {
 } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
 
+import FilterButton from './components/FilterButton';
 import TableRow from './components/TableRow';
 
 import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
@@ -124,7 +125,10 @@ const PeopleTable = ({
         </MembersCheckboxWrapper>
         <Button endIcon={ChevronDown} variant="text">Bulk Actions</Button>
         <SearchInput onChange={handleOnChangeMemberFilterQuery} />
-        <Button endIcon={ChevronDown} variant="text">Filter</Button>
+        {/* <Button endIcon={ChevronDown} variant="text">Filter</Button> */}
+        <FilterButton
+            organizationId={organizationId}
+            roles={roles} />
         <Button
             color="primary"
             onClick={handleAddMember}

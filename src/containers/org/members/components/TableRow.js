@@ -72,7 +72,7 @@ const TableRow = ({
   const currentRolesIds = orgRolesIds.intersect(memberRolesIds);
   const currentRoles = roles.filter((role) => currentRolesIds.includes(role.id));
 
-  const handleMenuOnClick = (event :SyntheticEvent<HTMLButtonElement>) => {
+  const handleButtonOnClick = (event :SyntheticEvent<HTMLButtonElement>) => {
     setMenuAnchorEl(event.currentTarget);
   };
 
@@ -109,7 +109,7 @@ const TableRow = ({
               aria-expanded={menuAnchorEl ? 'true' : false}
               aria-haspopup="menu"
               aria-label="member overflow button"
-              onClick={handleMenuOnClick}
+              onClick={handleButtonOnClick}
               variant="text">
             <FontAwesomeIcon fixedWidth icon={faEllipsisV} />
           </IconButton>

@@ -46,8 +46,8 @@ const RoleChipsList = ({
     <ChipsList>
       {
         roles.map((role, index) => {
-          const key = `${id}-${role.id || index}`;
           const roleId :UUID = role.id || '';
+          const key = `${id}-${roleId || index}`;
           const rolePath = `#${Routes.ORG_ROLE}`
             .replace(Routes.ORG_ID_PARAM, organizationId)
             .replace(Routes.ROLE_ID_PARAM, roleId);
