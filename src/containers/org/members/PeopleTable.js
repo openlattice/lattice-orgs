@@ -25,6 +25,7 @@ import {
   paginationReducer
 } from '../../../utils/stateReducers/pagination';
 import { RemoveMemberFromOrgModal, RemoveRoleFromMemberModal } from '../components';
+import { filterOrganizationMember } from '../utils';
 
 const { NEUTRAL } = Colors;
 
@@ -80,8 +81,19 @@ const PeopleTable = ({
   const [targetMember, setTargetMember] = useState();
   const [targetRole, setTargetRole] = useState();
 
+  let filteredMembers = members;
+  if (paginationState.query) {
+    filteredMembers = filteredMembers.filter((member) => filterOrganizationMember(member, paginationState.query));
+  }
+  const filteredMembersCount = filteredMembers.count();
+  const pageMembers = filteredMembers.slice(paginationState.start, paginationState.start + MAX_PER_PAGE);
+
   const handleOnPageChange = ({ page, start }) => {
     paginationDispatch({ type: PAGE, page, start });
+  };
+
+  const handleOnChangeMemberFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
+    paginationDispatch({ type: FILTER, query: event.target.value || '' });
   };
 
   const handleUnassignRole = (member :Map, role :Role) => {
@@ -96,7 +108,7 @@ const PeopleTable = ({
 
   const handleRemoveMember = (member :Map) => {
     setTargetMember(member);
-    setIsVisibleAddMemberToOrgModal(true);
+    setIsVisibleRemoveMemberFromOrgModal(true);
   };
 
   const handleAddMember = () => {
@@ -111,7 +123,7 @@ const PeopleTable = ({
           <Selection>{`${members.size} members`}</Selection>
         </MembersCheckboxWrapper>
         <Button endIcon={ChevronDown} variant="text">Bulk Actions</Button>
-        <SearchInput />
+        <SearchInput onChange={handleOnChangeMemberFilterQuery} />
         <Button endIcon={ChevronDown} variant="text">Filter</Button>
         <Button
             color="primary"
@@ -128,7 +140,7 @@ const PeopleTable = ({
         </colgroup>
         <tbody>
           {
-            members.map((member) => {
+            pageMembers.map((member) => {
               const { id } = getUserProfile(member);
               return (
                 <TableRow
@@ -137,6 +149,7 @@ const PeopleTable = ({
                     member={member}
                     onUnassign={handleUnassignRole}
                     onUnassignAll={handleUnassignAllRoles}
+                    onRemoveMember={handleRemoveMember}
                     organizationId={organizationId}
                     roles={roles} />
               );
@@ -144,7 +157,11 @@ const PeopleTable = ({
           }
         </tbody>
       </Table>
-      <PaginationToolbar onChange={handleOnPageChange} />
+      <PaginationToolbar
+          count={filteredMembersCount}
+          onPageChange={handleOnPageChange}
+          page={paginationState.page}
+          rowsPerPage={MAX_PER_PAGE} />
       {
         isOwner && targetRole && (
           <RemoveRoleFromMemberModal
