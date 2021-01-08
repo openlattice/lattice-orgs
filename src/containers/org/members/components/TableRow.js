@@ -26,6 +26,7 @@ import { getUserProfile } from '../../../../utils/PersonUtils';
 
 const { NEUTRAL } = Colors;
 
+const NO_ROLES_APPLIED = 'No Roles Applied';
 const Row = styled.tr`
   height: 56px;
 `;
@@ -98,12 +99,18 @@ const TableRow = ({
       </Cell>
       <Cell padding="small">
         <RolesWrapper>
-          <RoleChipsList
-              deletable={isOwner}
-              member={member}
-              onUnassign={onUnassign}
-              organizationId={organizationId}
-              roles={currentRoles} />
+          {
+            currentRoles.length
+              ? (
+                <RoleChipsList
+                    deletable={isOwner}
+                    member={member}
+                    onUnassign={onUnassign}
+                    organizationId={organizationId}
+                    roles={currentRoles} />
+              )
+              : <Typography color="textSecondary" noWrap>{NO_ROLES_APPLIED}</Typography>
+          }
           <IconButton
               aria-controls="member-overflow-menu"
               aria-expanded={menuAnchorEl ? 'true' : false}
