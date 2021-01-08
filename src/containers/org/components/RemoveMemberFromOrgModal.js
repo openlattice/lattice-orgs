@@ -12,14 +12,17 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import ResetOnUnmount from './ResetOnUnmount';
+
 import { ModalBody } from '../../../components';
-import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserProfileLabel } from '../../../utils/PersonUtils';
 
 const { getUserId } = PersonUtils;
 
 const { REMOVE_MEMBER_FROM_ORGANIZATION, removeMemberFromOrganization } = OrganizationsApiActions;
+
+const resetStatePath = [REMOVE_MEMBER_FROM_ORGANIZATION];
 
 type Props = {
   isVisible :boolean;
@@ -43,20 +46,14 @@ const RemoveMemberFromOrgModal = ({
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <ModalBody>
-        <span>Are you sure you want to remove the following member from this organization?</span>
-        <br />
-        <span>{memberLabel}</span>
+        <span>{`Are you sure you want to remove ${memberLabel} from this organization?`}</span>
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
-      <ModalBody>
-        <span>Success!</span>
-      </ModalBody>
+      <ResetOnUnmount path={resetStatePath} message="Success!" />
     ),
     [RequestStates.FAILURE]: (
-      <ModalBody>
-        <span>Failed to remove member. Please try again.</span>
-      </ModalBody>
+      <ResetOnUnmount path={resetStatePath} message="Failed to remove member. Please try again." />
     ),
   };
 
@@ -69,22 +66,14 @@ const RemoveMemberFromOrgModal = ({
     );
   };
 
-  const handleOnClose = () => {
-    onClose();
-    // the timeout avoids rendering the modal with new state before the transition animation finishes
-    setTimeout(() => {
-      dispatch(resetRequestState([REMOVE_MEMBER_FROM_ORGANIZATION]));
-    }, 1000);
-  };
-
   return (
     <ActionModal
         isVisible={isVisible}
         onClickPrimary={handleOnClickPrimary}
-        onClose={handleOnClose}
+        onClose={onClose}
         requestState={removeMemberRS}
         requestStateComponents={rsComponents}
-        textTitle="Confirm Removal" />
+        textTitle="Delete Person" />
   );
 };
 
