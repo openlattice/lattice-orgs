@@ -116,6 +116,10 @@ const PeopleTable = ({
     setIsVisibleAddMemberToOrgModal(true);
   };
 
+  const handleOnFilterChange = (category :string, value :string) => {
+    // update state to toggle inclusion of set
+  };
+
   return (
     <div>
       <TableToolbar>
@@ -127,6 +131,7 @@ const PeopleTable = ({
         <SearchInput onChange={handleOnChangeMemberFilterQuery} />
         {/* <Button endIcon={ChevronDown} variant="text">Filter</Button> */}
         <FilterButton
+            onFilterChange={handleOnFilterChange}
             organizationId={organizationId}
             roles={roles} />
         <Button

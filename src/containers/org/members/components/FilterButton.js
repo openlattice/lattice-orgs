@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { faAngleDown } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Map, getIn } from 'immutable';
 import {
   Button,
   Checkbox,
@@ -24,6 +25,7 @@ const LinkIcon = styled(ExternalLinkIcon)`
 const SlimMenuItem = styled(MenuItem)`
   padding: 0 16px;
 `;
+
 const FilterItem = styled.div`
   display: flex;
   flex: 0 1 100%;
@@ -35,12 +37,14 @@ const FilterItem = styled.div`
 `;
 
 type Props = {
-  onFilterChange :() => void;
+  filter :Map;
+  onFilterChange :(category :string, value :string) => void;
   organizationId :UUID;
   roles :Role[];
 };
 
 const FilterButton = ({
+  filter,
   onFilterChange,
   organizationId,
   roles,
@@ -55,6 +59,11 @@ const FilterButton = ({
 
   const handleMenuOnClose = () => {
     setMenuAnchorEl(null);
+  };
+
+  const handleOnFilterChange = (event :SyntheticEvent<HTMLLIElement>) => {
+    const { category, value } = event.currentTarget.dataset;
+    onFilterChange(category, value);
   };
 
   return (
@@ -89,11 +98,19 @@ const FilterButton = ({
               const roleId :UUID = role.id || '';
               const key = `filter-${roleId || index}`;
               const lastItem = index === roles.length - 1;
+              const checked = getIn(filter, ['role', roleId], false);
               return (
-                <SlimMenuItem divider={lastItem} key={key}>
+                <SlimMenuItem
+                    data-category="role"
+                    data-value={roleId}
+                    divider={lastItem}
+                    key={key}
+                    onClick={handleOnFilterChange}>
                   <FilterItem>
                     <span>{role.title}</span>
-                    <Checkbox />
+                    <Checkbox
+                        checked={checked}
+                        readOnly />
                   </FilterItem>
                 </SlimMenuItem>
               );
@@ -108,12 +125,36 @@ const FilterButton = ({
             elevation={4}
             label="Authorization"
             parentMenuOpen={!!menuAnchorEl}>
-          <MenuItem>Social</MenuItem>
-          <MenuItem>SAML</MenuItem>
+          <SlimMenuItem
+              data-category="authorization"
+              data-value="saml"
+              onClick={handleOnFilterChange}>
+            <FilterItem>
+              <span>SAML</span>
+              <Checkbox
+                  checked={getIn(filter, ['authorization', 'saml'], false)}
+                  readOnly />
+            </FilterItem>
+          </SlimMenuItem>
+          <SlimMenuItem
+              data-category="authorization"
+              data-value="social"
+              onClick={handleOnFilterChange}>
+            <FilterItem>
+              <span>Social</span>
+              <Checkbox
+                  checked={getIn(filter, ['authorization', 'social'], false)}
+                  readOnly />
+            </FilterItem>
+          </SlimMenuItem>
         </NestedMenuItem>
       </Menu>
     </>
   );
+};
+
+FilterButton.defaultProps = {
+  filter: Map()
 };
 
 export default FilterButton;
