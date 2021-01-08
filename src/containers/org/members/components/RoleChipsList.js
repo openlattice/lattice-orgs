@@ -1,18 +1,20 @@
 // @flow
-import React from 'react';
+import React, { useRef } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
-import { Chip, Typography } from 'lattice-ui-kit';
+import { Chip } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
+
+import useVisibileGreed from './usePriorityVisibility';
 
 import { Routes } from '../../../../core/router';
 import { getUserProfile } from '../../../../utils/PersonUtils';
 
-const NO_ROLES_APPLIED = 'No Roles Applied';
-
 const ChipsList = styled.div`
-  overflow: scroll;
+  display: flex;
+  flex: 1;
+  overflow: hidden;
   > :not(:first-child) {
     margin-left: 4px;
   }
@@ -33,8 +35,9 @@ const RoleChipsList = ({
   organizationId,
   roles,
 } :Props) => {
+  const chipListRef = useRef(null);
 
-  if (!roles.length) return <Typography color="textSecondary">{NO_ROLES_APPLIED}</Typography>;
+  const [priority, remainder] = useVisibileGreed(chipListRef, roles, 4, 52);
 
   const { id } = getUserProfile(member);
   const getHandleDelete = (role :Role) => (e :SyntheticEvent<HTMLElement>) => {
@@ -43,27 +46,32 @@ const RoleChipsList = ({
   };
 
   return (
-    <ChipsList>
-      {
-        roles.map((role, index) => {
-          const roleId :UUID = role.id || '';
-          const key = `${id}-${roleId || index}`;
-          const rolePath = `#${Routes.ORG_ROLE}`
-            .replace(Routes.ORG_ID_PARAM, organizationId)
-            .replace(Routes.ROLE_ID_PARAM, roleId);
+    <>
+      <ChipsList ref={chipListRef}>
+        {
+          priority.map((role, index) => {
+            const roleId :UUID = role.id || '';
+            const key = `${id}-${roleId || index}`;
+            const rolePath = `#${Routes.ORG_ROLE}`
+              .replace(Routes.ORG_ID_PARAM, organizationId)
+              .replace(Routes.ROLE_ID_PARAM, roleId);
 
-          return (
-            <Chip
-                clickable
-                component="a"
-                href={rolePath}
-                key={key}
-                label={role.title}
-                onDelete={deletable && getHandleDelete(role)} />
-          );
-        })
-      }
-    </ChipsList>
+            return (
+              <Chip
+                  clickable
+                  component="a"
+                  href={rolePath}
+                  key={key}
+                  label={role.title}
+                  onDelete={deletable && getHandleDelete(role)} />
+            );
+          })
+        }
+        {
+          !!remainder.length && <Chip clickable variant="outline" label={`+${remainder.length}`} />
+        }
+      </ChipsList>
+    </>
   );
 };
 
