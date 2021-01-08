@@ -1,8 +1,10 @@
 // @flow
 
-import React from 'react';
+import React, { useState } from 'react';
 
 import styled from 'styled-components';
+import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Map,
   Set,
@@ -11,7 +13,10 @@ import {
 import {
   Checkbox,
   Colors,
-  Typography
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
 } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
 
@@ -34,10 +39,17 @@ const Cell = styled.td`
   white-space: nowrap;
 `;
 
+const RolesWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 type Props = {
   isOwner :boolean;
   member :Map;
   onUnassign :(member :Map, role :Role) => void;
+  onRemoveMember :(member :Map) => void;
   organizationId :UUID;
   roles :Role[];
 };
@@ -45,17 +57,33 @@ type Props = {
 const TableRow = ({
   isOwner,
   member,
+  onRemoveMember,
   onUnassign,
   organizationId,
   roles,
 } :Props) => {
-  const { name } = getUserProfile(member);
+
+  const [menuAnchorEl, setMenuAnchorEl] = useState(null);
+  const { name, email } = getUserProfile(member);
   const memberRoles = get(member, 'roles');
   const memberRolesIds = Set(memberRoles.map((role) => get(role, 'id')));
   const orgRolesIds = Set(roles.map((role) => role.id));
 
-  const relevantRolesIds = orgRolesIds.intersect(memberRolesIds);
-  const relevantRoles = roles.filter((role) => relevantRolesIds.includes(role.id));
+  const currentRolesIds = orgRolesIds.intersect(memberRolesIds);
+  const currentRoles = roles.filter((role) => currentRolesIds.includes(role.id));
+
+  const handleMenuOnClick = (event :SyntheticEvent<HTMLButtonElement>) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuOnClose = () => {
+    setMenuAnchorEl(null);
+  };
+
+  const handleRemoveMember = () => {
+    handleMenuOnClose();
+    onRemoveMember(member);
+  };
 
   return (
     <Row>
@@ -63,18 +91,54 @@ const TableRow = ({
         <Checkbox />
       </Cell>
       <Cell as="th">
-        <Typography align="left" noWrap>{name}</Typography>
+        <Typography align="left" noWrap>{name || email}</Typography>
       </Cell>
       <Cell>
         <Typography noWrap>Auth0</Typography>
       </Cell>
       <Cell padding="small">
-        <RoleChipsList
-            deletable={isOwner}
-            member={member}
-            onUnassign={onUnassign}
-            organizationId={organizationId}
-            roles={relevantRoles} />
+        <RolesWrapper>
+          <RoleChipsList
+              deletable={isOwner}
+              member={member}
+              onUnassign={onUnassign}
+              organizationId={organizationId}
+              roles={currentRoles} />
+          <IconButton
+              aria-controls="member-overflow-menu"
+              aria-expanded={menuAnchorEl ? 'true' : false}
+              aria-haspopup="menu"
+              aria-label="member overflow button"
+              onClick={handleMenuOnClick}
+              variant="text">
+            <FontAwesomeIcon fixedWidth icon={faEllipsisV} />
+          </IconButton>
+          <Menu
+              anchorEl={menuAnchorEl}
+              anchorOrigin={{
+                horizontal: 'right',
+                vertical: 'bottom',
+              }}
+              elevation={4}
+              getContentAnchorEl={null}
+              id="member-overflow-menu"
+              onClose={handleMenuOnClose}
+              open={!!menuAnchorEl}
+              transformOrigin={{
+                horizontal: 'right',
+                vertical: 'top',
+              }}>
+            <MenuItem>
+              Add role
+            </MenuItem>
+            <MenuItem>
+              Remove all roles
+            </MenuItem>
+            <MenuItem onClick={handleRemoveMember}>
+              Delete person
+            </MenuItem>
+          </Menu>
+        </RolesWrapper>
       </Cell>
     </Row>
   );
