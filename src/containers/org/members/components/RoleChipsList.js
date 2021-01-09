@@ -9,7 +9,7 @@ import type { Role, UUID } from 'lattice';
 import usePriorityVisibility from './usePriorityVisibility';
 
 import { Routes } from '../../../../core/router';
-import { getUserProfile } from '../../../../utils/PersonUtils';
+import { getUserProfile } from '../../../../utils';
 
 const ChipsList = styled.div`
   display: flex;
