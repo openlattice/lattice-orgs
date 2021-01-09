@@ -10,8 +10,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Colors, IconButton, Typography } from 'lattice-ui-kit';
 import type { PermissionType } from 'lattice';
 
-import { SpaceBetweenGrid, StackGrid } from '../../../../components';
-import type { ReactSelectOption } from '../../../../types';
+import { SpaceBetweenGrid, StackGrid } from '../../../components';
+import type { ReactSelectOption } from '../../../types';
 
 const { NEUTRAL, PURPLE } = Colors;
 

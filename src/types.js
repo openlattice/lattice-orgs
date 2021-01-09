@@ -18,7 +18,7 @@ type AuthorizationObject = {|
   };
 |};
 
-type PermissionSelection = {|
+type DataSetPermissionTypeSelection = {|
   dataSetId :UUID;
   permissionType :PermissionType;
 |};
@@ -39,10 +39,17 @@ type SearchEntitySetsHit = {
   propertyTypes :PropertyTypeObject[];
 };
 
+type UserProfile = {
+  familyName :string;
+  givenName :string;
+  name :string;
+};
+
 export type {
   AuthorizationObject,
-  PermissionSelection,
+  DataSetPermissionTypeSelection,
   ReactSelectOption,
   SagaError,
   SearchEntitySetsHit,
+  UserProfile,
 };

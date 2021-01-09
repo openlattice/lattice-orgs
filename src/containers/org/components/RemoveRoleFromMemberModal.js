@@ -16,7 +16,7 @@ import ResetOnUnmount from './ResetOnUnmount';
 
 import { ModalBody } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
-import { getUserProfileLabel } from '../../../utils/PersonUtils';
+import { getUserTitle } from '../../../utils';
 
 const { getUserId } = PersonUtils;
 
@@ -42,7 +42,7 @@ const RemoveRoleFromMemberModal = ({
 
   const dispatch = useDispatch();
   const removeRoleRS :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_ROLE_FROM_MEMBER]);
-  const memberLabel = getUserProfileLabel(member);
+  const memberLabel = getUserTitle(member);
   const memberId = getUserId(member);
   const roleId :UUID = role?.id || '';
   const roleTitle :string = role?.title || '';

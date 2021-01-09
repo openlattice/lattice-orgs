@@ -6,12 +6,11 @@ import React, { useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
-import { AppContentWrapper, Typography } from 'lattice-ui-kit';
+import { AppContentWrapper, Modal, Typography } from 'lattice-ui-kit';
 import { ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Organization, Principal, UUID } from 'lattice';
 
-import DataSetPermissionsContainer from '../DataSetPermissionsContainer';
 import MemberRolesContainer from '../MemberRolesContainer';
 import {
   CrumbItem,
@@ -20,10 +19,14 @@ import {
   StackGrid,
 } from '../../../components';
 import { selectOrganizationMembers } from '../../../core/redux/selectors';
-import { getPrincipal } from '../../../utils';
-import { getSecurablePrincipalId, getUserProfile } from '../../../utils/PersonUtils';
-import { PermissionsPanel } from '../components';
-import type { UserProfile } from '../../../utils/PersonUtils';
+import { getPrincipal, getSecurablePrincipalId, getUserProfile } from '../../../utils';
+import {
+  AssignPermissionsToDataSetModalBody,
+  DataSetPermissionsContainer,
+  PermissionsActionsGrid,
+  PermissionsPanel,
+} from '../../permissions';
+import type { UserProfile } from '../../../types';
 
 const { selectOrganization } = ReduxUtils;
 
@@ -58,6 +61,9 @@ const OrgMemberContainer = ({
   organizationRoute :string;
 |}) => {
 
+  const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
+  const [filterByQuery, setFilterByQuery] = useState('');
+  const [isVisibleAddDataSetModal, setIsVisibleAddDataSetModal] = useState(false);
   const [selection, setSelection] = useState();
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
@@ -85,53 +91,74 @@ const OrgMemberContainer = ({
     };
 
     return (
-      <AppContentGrid isVisiblePanelColumn={!!selection}>
-        <ContentColumn>
-          <AppContentWrapper>
-            <Crumbs>
-              <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
-              <CrumbLink to={membersRoute}>Members</CrumbLink>
-              <CrumbItem>{memberName}</CrumbItem>
-            </Crumbs>
-            <StackGrid gap={48}>
-              <StackGrid>
-                <Typography variant="h1">{memberName}</Typography>
-                <Typography>
-                  Below are all of the roles assigned to this member and data sets this member has permissions on.
-                </Typography>
-              </StackGrid>
-              <StackGrid>
-                <Typography variant="h2">Roles</Typography>
-                <MemberRolesContainer
-                    member={member}
-                    organizationId={organizationId}
-                    roles={organization?.roles} />
-              </StackGrid>
-              <StackGrid>
-                <Typography variant="h2">Data Sets</Typography>
-                <Typography>Click on a data set to manage this member&apos;s permissions.</Typography>
+      <>
+        <AppContentGrid isVisiblePanelColumn={!!selection}>
+          <ContentColumn>
+            <AppContentWrapper>
+              <Crumbs>
+                <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+                <CrumbLink to={membersRoute}>Members</CrumbLink>
+                <CrumbItem>{memberName}</CrumbItem>
+              </Crumbs>
+              <StackGrid gap={24}>
+                <StackGrid>
+                  <Typography variant="h1">{memberName}</Typography>
+                  <Typography>
+                    Below are all of the roles assigned to this member and data sets this member has permissions on.
+                  </Typography>
+                </StackGrid>
+                <StackGrid>
+                  <Typography variant="h2">Roles</Typography>
+                  <MemberRolesContainer
+                      member={member}
+                      organizationId={organizationId}
+                      roles={organization?.roles} />
+                </StackGrid>
+                <StackGrid>
+                  <Typography variant="h2">Data Sets</Typography>
+                  <Typography>Click on a dataset to manage permissions.</Typography>
+                </StackGrid>
+                <PermissionsActionsGrid
+                    assignPermissionsText="Add dataset"
+                    onChangeFilterByPermissionTypes={setFilterByPermissionTypes}
+                    onChangeFilterByQuery={setFilterByQuery}
+                    onClickAssignPermissions={() => setIsVisibleAddDataSetModal(true)} />
                 <DataSetPermissionsContainer
+                    filterByPermissionTypes={filterByPermissionTypes}
+                    filterByQuery={filterByQuery}
                     organizationId={organizationId}
                     onSelect={setSelection}
                     principal={memberPrincipal}
                     selection={selection} />
               </StackGrid>
-            </StackGrid>
-          </AppContentWrapper>
-        </ContentColumn>
-        {
-          selection && (
-            <PanelColumn>
-              <PermissionsPanel
-                  dataSetId={selection.dataSetId}
-                  key={`${selection.dataSetId}-${selection.permissionType}`}
-                  onClose={handleOnClosePermissionsPanel}
-                  principal={memberPrincipal}
-                  permissionType={selection.permissionType} />
-            </PanelColumn>
-          )
-        }
-      </AppContentGrid>
+            </AppContentWrapper>
+          </ContentColumn>
+          {
+            selection && (
+              <PanelColumn>
+                <PermissionsPanel
+                    dataSetId={selection.dataSetId}
+                    key={`${selection.dataSetId}-${selection.permissionType}`}
+                    onClose={handleOnClosePermissionsPanel}
+                    principal={memberPrincipal}
+                    permissionType={selection.permissionType} />
+              </PanelColumn>
+            )
+          }
+        </AppContentGrid>
+        <Modal
+            isVisible={isVisibleAddDataSetModal}
+            onClose={() => setIsVisibleAddDataSetModal(false)}
+            shouldCloseOnOutsideClick={false}
+            textTitle="Assign Permissions To Data Set"
+            viewportScrolling
+            withFooter={false}>
+          <AssignPermissionsToDataSetModalBody
+              onClose={() => setIsVisibleAddDataSetModal(false)}
+              organizationId={organizationId}
+              principal={memberPrincipal} />
+        </Modal>
+      </>
     );
   }
 

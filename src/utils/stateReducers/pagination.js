@@ -54,3 +54,5 @@ export {
   RESET,
   paginationReducer,
 };
+
+export type { State };

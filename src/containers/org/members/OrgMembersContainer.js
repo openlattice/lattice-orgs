@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 
 import styled from 'styled-components';
 import { List } from 'immutable';
-import { AppContentWrapper } from 'lattice-ui-kit';
+import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { ReduxUtils } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
@@ -19,7 +19,7 @@ import {
   CrumbLink,
   Crumbs,
   Divider,
-  Header,
+  StackGrid,
 } from '../../../components';
 import { IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
 import { selectOrganizationMembers } from '../../../core/redux/selectors';
@@ -70,8 +70,10 @@ const OrgMembersContainer = ({
           <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
           <CrumbItem>Members</CrumbItem>
         </Crumbs>
-        <Header as="h2">Members</Header>
-        <span>{MEMBERS_DESCRIPTION}</span>
+        <StackGrid>
+          <Typography variant="h1">Members</Typography>
+          <Typography>{MEMBERS_DESCRIPTION}</Typography>
+        </StackGrid>
         <Divider margin={48} />
         <ContainerGrid>
           <RolesSection

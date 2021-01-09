@@ -32,7 +32,7 @@ import { GET_SHIPROOM_METADATA } from './actions';
 
 import { FQNS } from '../../core/edm/constants';
 import { getCurrentDataSetAuthorizations, getOwnerStatus } from '../../core/permissions/actions';
-import { IS_OWNER, PERMISSIONS, SHIPROOM } from '../../core/redux/constants';
+import { SHIPROOM } from '../../core/redux/constants';
 import { selectEntitySetPropertyTypes } from '../../core/redux/selectors';
 
 const { PermissionTypes } = Types;
@@ -77,16 +77,17 @@ const DataSetMetaContainer = ({
   atlasDataSet,
   dataSetId,
   entitySet,
+  isOwner,
 } :{|
   atlasDataSet :?Map;
   dataSetId :UUID;
   entitySet :?EntitySet;
+  isOwner :boolean;
 |}) => {
 
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
-  const isOwner :boolean = useSelector((store) => store.getIn([PERMISSIONS, IS_OWNER, dataSetId]));
 
   const metadata :Map = useSelector((store) => store.getIn([SHIPROOM, 'metadata']));
   const metadataRS :?RequestState = useRequestState([SHIPROOM, GET_SHIPROOM_METADATA]);

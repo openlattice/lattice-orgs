@@ -15,6 +15,7 @@ import {
   IconButton,
   PaginationToolbar,
   SearchInput,
+  Typography,
 } from 'lattice-ui-kit';
 import { PersonUtils } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
@@ -23,10 +24,9 @@ import type { Role, UUID } from 'lattice';
 
 import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
 import AssignRoleToMemberModal from '../components/AssignRoleToMemberModal';
-import { Header } from '../../../components';
 import { Routes } from '../../../core/router';
 import { goToRoute } from '../../../core/router/actions';
-import { getSecurablePrincipalId, getUserProfileLabel } from '../../../utils/PersonUtils';
+import { getSecurablePrincipalId, getUserTitle } from '../../../utils';
 import {
   FILTER,
   INITIAL_PAGINATION_STATE,
@@ -54,9 +54,11 @@ const ControlsGrid = styled.div`
   grid-template-columns: 1fr auto auto;
 `;
 
-const MembersSectionHeader = styled(Header)`
+const MembersSectionHeader = styled.div`
+  align-items: center;
+  display: flex;
+  height: 48px;
   justify-content: space-between;
-  line-height: 48px;
 `;
 
 const MemberWrapper = styled.div`
@@ -159,8 +161,8 @@ const MembersSection = ({
 
   return (
     <MembersSectionGrid>
-      <MembersSectionHeader as="h4">
-        <span>{memberSectionHeader}</span>
+      <MembersSectionHeader>
+        <Typography variant="h4">{memberSectionHeader}</Typography>
       </MembersSectionHeader>
       <ControlsGrid>
         <SearchInput onChange={handleOnChangeMemberFilterQuery} placeholder="Filter members" />
@@ -199,7 +201,7 @@ const MembersSection = ({
           return (
             <MemberWrapper key={userId}>
               <MemberLink to={memberPath}>
-                {getUserProfileLabel(member, thisUserId)}
+                {getUserTitle(member, thisUserId)}
               </MemberLink>
               <IconButton onClick={() => handleOnClickRemoveMember(member)}>
                 <FontAwesomeIcon fixedWidth icon={faTimes} />

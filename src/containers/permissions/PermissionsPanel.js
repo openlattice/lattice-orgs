@@ -39,10 +39,10 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { Divider, SpaceBetweenGrid } from '../../../components';
-import { SET_PERMISSIONS, setPermissions } from '../../../core/permissions/actions';
-import { PERMISSIONS } from '../../../core/redux/constants';
-import { selectDataSetProperties, selectPermissions } from '../../../core/redux/selectors';
+import { Divider, SpaceBetweenGrid } from '../../components';
+import { SET_PERMISSIONS, setPermissions } from '../../core/permissions/actions';
+import { PERMISSIONS } from '../../core/redux/constants';
+import { selectDataSetProperties, selectPermissionsByPrincipal } from '../../core/redux/selectors';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { APP_CONTENT_PADDING } = Sizes;
@@ -106,12 +106,13 @@ const PermissionsPanel = ({
     })
   ), [dataSetId, propertiesHash]);
 
-  const permissions :Map<List<UUID>, Ace> = useSelector(selectPermissions(keys, principal));
-  const permissionsHash = permissions.hashCode();
+  const permissions :Map<Principal, Map<List<UUID>, Ace>> = useSelector(selectPermissionsByPrincipal(keys));
+  const principalPermissions :Map<List<UUID>, Ace> = permissions.get(principal) || Map();
+  const principalPermissionsHash = principalPermissions.hashCode();
 
   useEffect(() => {
-    setLocalPermissions(permissions);
-  }, [permissionsHash]);
+    setLocalPermissions(principalPermissions);
+  }, [principalPermissionsHash]);
 
   useEffect(() => {
 

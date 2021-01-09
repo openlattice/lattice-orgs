@@ -2,12 +2,7 @@
  * @flow
  */
 
-import {
-  List,
-  Map,
-  getIn,
-  hasIn,
-} from 'immutable';
+import { List, Map, getIn } from 'immutable';
 import { ValidationUtils } from 'lattice-utils';
 import type { UUID } from 'lattice';
 
@@ -20,9 +15,7 @@ export default function selectOrganizationMembers(organizationId :?UUID) {
   return (state :Map) :List => {
 
     if (isValidUUID(organizationId)) {
-      if (hasIn(state, [ORGANIZATIONS, MEMBERS, organizationId])) {
-        return getIn(state, [ORGANIZATIONS, MEMBERS, organizationId]);
-      }
+      return getIn(state, [ORGANIZATIONS, MEMBERS, organizationId]) || List();
     }
 
     return List();

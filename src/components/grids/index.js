@@ -3,5 +3,8 @@
  */
 
 export { default as ActionsGrid } from './ActionsGrid';
+export { default as GapGrid } from './GapGrid';
 export { default as SpaceBetweenGrid } from './SpaceBetweenGrid';
 export { default as StackGrid } from './StackGrid';
+
+export type { ActionsGridProps } from './ActionsGrid';

@@ -1,13 +1,12 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React, { useEffect, useReducer, useRef } from 'react';
 
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  List,
-  Map,
-  getIn
-} from 'immutable';
+import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import { DataSetsApiActions } from 'lattice-sagas';
 import {
@@ -15,8 +14,9 @@ import {
   Menu,
   MenuItem,
 } from 'lattice-ui-kit';
+import { useGoToRoute } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { UUID } from 'lattice';
+import type { EntitySet, UUID } from 'lattice';
 
 import AssembleMenuItem from './AssembleMenuItem';
 import PromoteTableModal from './PromoteTableModal';
@@ -26,6 +26,8 @@ import {
   selectCurrentUserIsOrgOwner,
   selectDataSetSchema
 } from '../../../../core/redux/selectors';
+import { Routes } from '../../../../core/router';
+import { getDataSetField, isAtlasDataSet } from '../../../../utils';
 import { OPENLATTICE } from '../../../../utils/constants';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
@@ -71,24 +73,24 @@ const reducer = (state, action) => {
   }
 };
 
-type Props = {
-  dataSet :Map;
-  isAtlas :boolean;
-  organizationId :UUID;
-};
-
 const DataSetActionButton = ({
   dataSet,
-  isAtlas,
-  organizationId
-} :Props) => {
+  isOwner,
+  organizationId,
+} :{|
+  dataSet :EntitySet | Map;
+  isOwner :boolean;
+  organizationId :UUID;
+|}) => {
+
+  const dataSetId :UUID = getDataSetField(dataSet, 'id');
+  const dataSetKey :List<UUID> = List([dataSetId]);
+  const isAtlas :boolean = isAtlasDataSet(dataSet);
+
   const dispatch = useDispatch();
   const [state, stateDispatch] = useReducer(reducer, INITIAL_STATE);
-  const dataSetId = isAtlas ? getIn(dataSet, ['table', 'id']) : dataSet.id;
   const isOrgOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
-  const hasMaterialize :boolean = useSelector(
-    selectCurrentAuthorization(List([dataSetId]), PermissionTypes.MATERIALIZE)
-  );
+  const hasMaterialize :boolean = useSelector(selectCurrentAuthorization(dataSetKey, PermissionTypes.MATERIALIZE));
   const dataSetSchema = useSelector(selectDataSetSchema(dataSetId));
   const isPromoted = dataSetSchema === OPENLATTICE;
   const isAssembled = isAtlas ? false : !!dataSet?.flags?.includes(EntitySetFlagTypes.TRANSPORTED);
@@ -106,6 +108,12 @@ const DataSetActionButton = ({
     isAtlas,
     organizationId,
   ]);
+
+  const goToManagePermissions = useGoToRoute(
+    Routes.ORG_DATA_SET_OBJECT_PERMISSIONS
+      .replace(Routes.ORG_ID_PARAM, organizationId)
+      .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
+  );
 
   const anchorRef = useRef(null);
 
@@ -172,6 +180,9 @@ const DataSetActionButton = ({
                 organizationId={organizationId} />
           )
         }
+        <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
+          Manage Permissions
+        </MenuItem>
       </Menu>
       <PromoteTableModal
           dataSet={dataSet}
@@ -184,7 +195,6 @@ const DataSetActionButton = ({
 
 DataSetActionButton.defaultProps = {
   dataSet: Map(),
-  isAtlas: false,
 };
 
 export default DataSetActionButton;

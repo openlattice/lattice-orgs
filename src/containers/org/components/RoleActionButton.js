@@ -1,25 +1,34 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React, { useReducer, useRef } from 'react';
 
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
+import { useGoToRoute } from 'lattice-utils';
 import { useSelector } from 'react-redux';
-import type { Organization, Role } from 'lattice';
+import type { Organization, Role, UUID } from 'lattice';
 
+import RemoveRoleFromOrgModal from './RemoveRoleFromOrgModal';
 import RoleDetailsModal from './RoleDetailsModal';
 
-import { IS_OWNER, ORGANIZATIONS } from '../../../core/redux/constants';
+import { selectCurrentUserIsOrgOwner } from '../../../core/redux/selectors';
+import { Routes } from '../../../core/router';
 
 const CLOSE_DETAILS = 'CLOSE_DETAILS';
 const CLOSE_MENU = 'CLOSE_MENU';
+const CLOSE_REMOVE_ROLE = 'CLOSE_REMOVE_ROLE';
 const OPEN_DETAILS = 'OPEN_DETAILS';
 const OPEN_MENU = 'OPEN_MENU';
+const OPEN_REMOVE_ROLE = 'OPEN_REMOVE_ROLE';
 
 const INITIAL_STATE = {
-  menuOpen: false,
   detailsOpen: false,
   descriptionOpen: false,
+  menuOpen: false,
+  removeRoleOpen: false,
 };
 
 const reducer = (state, action) => {
@@ -34,8 +43,14 @@ const reducer = (state, action) => {
         ...state,
         menuOpen: false,
       };
+    case CLOSE_REMOVE_ROLE:
+      return {
+        ...state,
+        removeRoleOpen: false,
+      };
     case OPEN_DETAILS:
       return {
+        ...state,
         menuOpen: false,
         detailsOpen: true,
       };
@@ -44,20 +59,37 @@ const reducer = (state, action) => {
         ...state,
         menuOpen: true,
       };
+    case OPEN_REMOVE_ROLE:
+      return {
+        ...state,
+        menuOpen: false,
+        removeRoleOpen: true,
+      };
     default:
       return state;
   }
 };
 
-type Props = {
+const RoleActionButton = ({
+  organization,
+  role,
+} :{|
   organization :Organization;
   role :Role;
-};
+|}) => {
 
-const RoleActionButton = ({ organization, role } :Props) => {
+  const organizationId :UUID = (organization.id :any);
+  const roleId :UUID = (role.id :any);
+
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
-  const isOwner :boolean = useSelector((s) => s.getIn([ORGANIZATIONS, IS_OWNER, organization.id]));
+  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
   const anchorRef = useRef(null);
+
+  const goToManagePermissions = useGoToRoute(
+    Routes.ORG_ROLE_OBJECT_PERMISSIONS
+      .replace(Routes.ORG_ID_PARAM, organizationId)
+      .replace(Routes.ROLE_ID_PARAM, roleId)
+  );
 
   const handleOpenMenu = () => {
     dispatch({ type: OPEN_MENU });
@@ -73,6 +105,14 @@ const RoleActionButton = ({ organization, role } :Props) => {
 
   const handleCloseDetails = () => {
     dispatch({ type: CLOSE_DETAILS });
+  };
+
+  const handleOpenRemoveRole = () => {
+    dispatch({ type: OPEN_REMOVE_ROLE });
+  };
+
+  const handleCloseRemoveRole = () => {
+    dispatch({ type: CLOSE_REMOVE_ROLE });
   };
 
   return (
@@ -103,9 +143,20 @@ const RoleActionButton = ({ organization, role } :Props) => {
             vertical: 'top',
           }}>
         <MenuItem disabled={!isOwner} onClick={handleOpenDetails}>
-          Edit Role Details
+          Edit Details
+        </MenuItem>
+        <MenuItem disabled={!isOwner} onClick={handleOpenRemoveRole}>
+          Delete Role
+        </MenuItem>
+        <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
+          Manage Permissions
         </MenuItem>
       </Menu>
+      <RemoveRoleFromOrgModal
+          isVisible={state.removeRoleOpen}
+          onClose={handleCloseRemoveRole}
+          organizationId={organizationId}
+          roleId={roleId} />
       <RoleDetailsModal
           isVisible={state.detailsOpen}
           onClose={handleCloseDetails}

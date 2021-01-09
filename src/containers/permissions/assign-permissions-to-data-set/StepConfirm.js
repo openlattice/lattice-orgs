@@ -10,8 +10,8 @@ import { RequestStates } from 'redux-reqseq';
 import type { PermissionType } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { BasicErrorComponent, StackGrid } from '../../../../components';
-import type { ReactSelectOption } from '../../../../types';
+import { BasicErrorComponent, StackGrid } from '../../../components';
+import type { ReactSelectOption } from '../../../types';
 
 const StepConfirm = ({
   assignPermissionsToAllProperties,
