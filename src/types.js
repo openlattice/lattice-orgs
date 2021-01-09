@@ -40,8 +40,10 @@ type SearchEntitySetsHit = {
 };
 
 type UserProfile = {
+  email :string;
   familyName :string;
   givenName :string;
+  id :UUID;
   name :string;
 };
 
