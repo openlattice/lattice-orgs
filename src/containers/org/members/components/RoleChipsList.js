@@ -6,7 +6,7 @@ import { Map } from 'immutable';
 import { Chip } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
 
-import useVisibileGreed from './usePriorityVisibility';
+import usePriorityVisibility from './usePriorityVisibility';
 
 import { Routes } from '../../../../core/router';
 import { getUserProfile } from '../../../../utils/PersonUtils';
@@ -37,7 +37,7 @@ const RoleChipsList = ({
 } :Props) => {
   const chipListRef = useRef(null);
 
-  const [priority, remainder] = useVisibileGreed(chipListRef, roles, 4, 52);
+  const [priority, remainder] = usePriorityVisibility(chipListRef, roles, 4, 52);
 
   const { id } = getUserProfile(member);
   const getHandleDelete = (role :Role) => (e :SyntheticEvent<HTMLElement>) => {

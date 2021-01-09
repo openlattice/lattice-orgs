@@ -4,14 +4,14 @@ import type { ElementRef } from 'react';
 
 import debounce from 'lodash/debounce';
 
-const usePriorityVisibility = (
+function usePriorityVisibility<T>(
   containerRef :{ current :null | ElementRef<any> },
-  items :any[] = [],
+  items :T[] = [],
   spacing :number = 0,
   buffer :number = 0
-) => {
+) :[T[], T[]] {
   const [itemWidths, setItemWidths] = useState([]);
-  const [state, setState] = useState({
+  const [{ priority, remainder }, setState] = useState({
     priority: items,
     remainder: []
   });
@@ -66,7 +66,7 @@ const usePriorityVisibility = (
     spacing,
   ]);
 
-  return [state.priority, state.remainder];
-};
+  return [priority, remainder];
+}
 
 export default usePriorityVisibility;
