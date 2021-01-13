@@ -24,7 +24,7 @@ import { resetRequestState } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectOrganization } from '../../core/redux/selectors';
 import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
-import { AssignPermissionsToRoleObjectModalBody } from '../permissions/assign-permissions-to-role-object';
+import { AssignPermissionsToObjectModalBody } from '../permissions/assign-permissions-to-object';
 
 const OrgRoleObjectPermissionsContainer = ({
   organizationId,
@@ -99,7 +99,7 @@ const OrgRoleObjectPermissionsContainer = ({
             textTitle="Assign Permissions To Role Object"
             viewportScrolling
             withFooter={false}>
-          <AssignPermissionsToRoleObjectModalBody
+          <AssignPermissionsToObjectModalBody
               onClose={() => setIsVisibleAssignPermissionsModal(false)}
               objectKey={objectKey}
               organizationId={organizationId}
