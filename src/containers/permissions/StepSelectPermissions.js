@@ -9,8 +9,8 @@ import { Types } from 'lattice';
 import { Select, Typography } from 'lattice-ui-kit';
 import type { PermissionType } from 'lattice';
 
-import { StackGrid } from '../../../components';
-import type { ReactSelectOption } from '../../../types';
+import { StackGrid } from '../../components';
+import type { ReactSelectOption } from '../../types';
 
 const { PermissionTypes } = Types;
 
@@ -24,11 +24,11 @@ const PERMISSIONS_OPTIONS = [
 
 const StepSelectPermissions = ({
   setTargetPermissionOptions,
-  targetDataSetTitle,
+  targetTitle,
   targetPermissionOptions,
 } :{
   setTargetPermissionOptions :(permissionTypes :ReactSelectOption<PermissionType>[]) => void;
-  targetDataSetTitle :string;
+  targetTitle :string;
   targetPermissionOptions :ReactSelectOption<PermissionType>[];
 }) => {
 
@@ -44,7 +44,7 @@ const StepSelectPermissions = ({
   return (
     <StackGrid>
       <Typography>
-        {`Select permissions to assign to "${targetDataSetTitle}".`}
+        {`Select permissions to assign to "${targetTitle}".`}
       </Typography>
       <Select
           isMulti
