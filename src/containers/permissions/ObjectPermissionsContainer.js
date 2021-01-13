@@ -61,7 +61,6 @@ const ObjectPermissionsContainer = ({
   const initializeRS :?RequestState = useRequestState([PERMISSIONS, INITIALIZE_OBJECT_PERMISSIONS]);
 
   const users :Map<string, Map> = useSelector(selectUsers());
-  const usersHash :number = users.hashCode();
   const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
   const thisUserId = thisUserInfo.id;
 
@@ -76,7 +75,6 @@ const ObjectPermissionsContainer = ({
   }, [isDataSet, objectKey, properties]);
 
   const permissions :Map<Principal, Map<List<UUID>, Ace>> = useSelector(selectPermissionsByPrincipal(keys));
-  const permissionsHash :number = permissions.hashCode();
 
   const filteredPermissions :Map<Principal, Map<List<UUID>, Ace>> = useMemo(() => (
     permissions.filter((principalPermissions :Map<List<UUID>, Ace>, principal :Principal) => {
@@ -92,9 +90,9 @@ const ObjectPermissionsContainer = ({
     filterByPermissionTypes,
     filterByQuery,
     objectKey,
-    permissionsHash,
+    permissions,
     thisUserId,
-    usersHash,
+    users
   ]);
 
   const filteredPermissionsCount :number = filteredPermissions.count();
