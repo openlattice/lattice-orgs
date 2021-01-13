@@ -68,7 +68,7 @@ const StepSelectRoleOrUser = ({
     const options = [];
     const permissionsExistOnRole = (optionPrincipal :?Principal) => existingPermissions
       .some(({ principal } :Ace) => optionPrincipal && principalMatches(principal, optionPrincipal));
-    // add org members that don't already have permissions on role object to options
+    // add org members that don't already have permissions on object to options
     orgMembers.toJS().forEach((member :Object) => {
       const label = getUserTitle(member, thisUserId);
       const memberId :string = getIn(member, ['profile', 'user_id']);
@@ -80,7 +80,7 @@ const StepSelectRoleOrUser = ({
         });
       }
     });
-    // add org roles that don't already have permissions on role object to options
+    // add org roles that don't already have permissions on object to options
     organization?.roles.forEach((role :Object) => {
       const label = role.title;
       const roleId :string = role.id || '';
