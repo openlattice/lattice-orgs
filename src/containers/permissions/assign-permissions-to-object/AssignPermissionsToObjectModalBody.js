@@ -37,7 +37,7 @@ const ModalFooter = styled(LUKModalFooter)`
   padding: 30px 0;
 `;
 
-const AssignPermissionsToRoleObjectModalBody = ({
+const AssignPermissionsToObjectModalBody = ({
   onClose,
   objectKey,
   organizationId
@@ -165,4 +165,4 @@ const AssignPermissionsToRoleObjectModalBody = ({
   );
 };
 
-export default AssignPermissionsToRoleObjectModalBody;
+export default AssignPermissionsToObjectModalBody;
