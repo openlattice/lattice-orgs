@@ -38,9 +38,9 @@ const StepSelectPermissions = ({
   targetTitle,
   targetPermissionOptions,
 } :{
-  assignPermissionsToAllProperties :?boolean;
+  assignPermissionsToAllProperties :boolean;
   isDataSet :?boolean;
-  setAssignPermissionsToAllProperties :(assignPermissionsToAllProperties :boolean) => void;
+  setAssignPermissionsToAllProperties :(permissionsOnAllProperties :boolean) => void;
   setTargetPermissionOptions :(permissionTypes :ReactSelectOption<PermissionType>[]) => void;
   targetTitle :string;
   targetPermissionOptions :ReactSelectOption<PermissionType>[];
