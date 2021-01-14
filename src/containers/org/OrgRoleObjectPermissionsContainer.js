@@ -5,7 +5,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import { List } from 'immutable';
-import { AppContentWrapper, Modal, Typography } from 'lattice-ui-kit';
+import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -24,7 +24,6 @@ import { resetRequestState } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectOrganization } from '../../core/redux/selectors';
 import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
-import { AssignPermissionsToObjectModalBody } from '../permissions/assign-permissions-to-object';
 
 const OrgRoleObjectPermissionsContainer = ({
   organizationId,
@@ -65,6 +64,9 @@ const OrgRoleObjectPermissionsContainer = ({
     dispatch(resetRequestState([GET_ORG_ROLE_OBJECT_PERMISSIONS]));
   }, [dispatch]);
 
+  const onOpenPermissionsModal = () => setIsVisibleAssignPermissionsModal(true);
+  const onClosePermissionsModal = () => setIsVisibleAssignPermissionsModal(false);
+
   if (organization && role) {
 
     return (
@@ -84,27 +86,16 @@ const OrgRoleObjectPermissionsContainer = ({
               assignPermissionsText="Add permission"
               onChangeFilterByPermissionTypes={setFilterByPermissionTypes}
               onChangeFilterByQuery={setFilterByQuery}
-              onClickAssignPermissions={() => setIsVisibleAssignPermissionsModal(true)} />
+              onClickAssignPermissions={onOpenPermissionsModal} />
           <Divider isVisible={false} margin={0} />
           <ObjectPermissionsContainer
               filterByPermissionTypes={filterByPermissionTypes}
               filterByQuery={filterByQuery}
+              isVisibleAssignPermissionsModal={isVisibleAssignPermissionsModal}
               objectKey={objectKey}
+              onClosePermissionsModal={onClosePermissionsModal}
               organizationId={organizationId} />
         </StackGrid>
-        <Modal
-            isVisible={isVisibleAssignPermissionsModal}
-            onClose={() => setIsVisibleAssignPermissionsModal(false)}
-            shouldCloseOnOutsideClick={false}
-            textTitle="Assign Permissions To Role Object"
-            viewportScrolling
-            withFooter={false}>
-          <AssignPermissionsToObjectModalBody
-              onClose={() => setIsVisibleAssignPermissionsModal(false)}
-              objectKey={objectKey}
-              organizationId={organizationId}
-              principal={role.principal} />
-        </Modal>
       </AppContentWrapper>
     );
   }
