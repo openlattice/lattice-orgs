@@ -14,7 +14,6 @@ import type { Principal, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import StepSelectDataSet from './StepSelectDataSet';
-import StepSelectProperties from './StepSelectProperties';
 
 import StepConfirm from '../StepConfirm';
 import StepSelectPermissions from '../StepSelectPermissions';
@@ -103,6 +102,9 @@ const AssignPermissionsToDataSetModalBody = ({
                 <>
                   <ModalBody>
                     <StepSelectPermissions
+                        assignPermissionsToAllProperties={assignPermissionsToAllProperties}
+                        isDataSet={!!targetDataSetId}
+                        setAssignPermissionsToAllProperties={setAssignPermissionsToAllProperties}
                         setTargetPermissionOptions={setTargetPermissionOptions}
                         targetTitle={targetDataSetTitle}
                         targetPermissionOptions={targetPermissionOptions} />
@@ -118,25 +120,6 @@ const AssignPermissionsToDataSetModalBody = ({
             }
             {
               step === 2 && (
-                <>
-                  <ModalBody>
-                    <StepSelectProperties
-                        assignPermissionsToAllProperties={assignPermissionsToAllProperties}
-                        setAssignPermissionsToAllProperties={setAssignPermissionsToAllProperties}
-                        targetDataSetTitle={targetDataSetTitle}
-                        targetPermissionOptions={targetPermissionOptions} />
-                  </ModalBody>
-                  <ModalFooter
-                      onClickPrimary={stepNext}
-                      onClickSecondary={stepBack}
-                      shouldStretchButtons
-                      textPrimary="Continue"
-                      textSecondary="Back" />
-                </>
-              )
-            }
-            {
-              step === 3 && (
                 <>
                   <ModalBody>
                     <StepConfirm
