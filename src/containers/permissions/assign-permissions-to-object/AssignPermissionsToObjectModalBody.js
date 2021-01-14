@@ -9,9 +9,8 @@ import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { ModalFooter as LUKModalFooter } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
+import { ReduxUtils, ValidationUtils, useRequestState } from 'lattice-utils';
+import { useDispatch } from 'react-redux';
 import type {
   Ace,
   Principal,
@@ -24,24 +23,35 @@ import StepSelectRoleOrUser from './StepSelectRoleOrUser';
 import StepConfirm from '../StepConfirm';
 import StepSelectPermissions from '../StepSelectPermissions';
 import { ModalBody, StepsController } from '../../../components';
-import { UPDATE_PERMISSIONS, updatePermissions } from '../../../core/permissions/actions';
+import {
+  ASSIGN_PERMISSIONS_TO_DATA_SET,
+  UPDATE_PERMISSIONS,
+  assignPermissionsToDataSet,
+  updatePermissions
+} from '../../../core/permissions/actions';
 import { resetRequestState } from '../../../core/redux/actions';
 import { PERMISSIONS } from '../../../core/redux/constants';
-import { selectPermissionsByPrincipal } from '../../../core/redux/selectors';
 import { getPrincipal } from '../../../utils';
 
 const { AceBuilder } = Models;
 const { ActionTypes } = Types;
+
+const { isPending, isSuccess } = ReduxUtils;
+const { isValidUUID } = ValidationUtils;
 
 const ModalFooter = styled(LUKModalFooter)`
   padding: 30px 0;
 `;
 
 const AssignPermissionsToObjectModalBody = ({
+  existingPermissions,
+  dataSetId,
   onClose,
   objectKey,
   organizationId
 } :{
+  existingPermissions :Map<Principal, Map<List<UUID>, Ace>>;
+  dataSetId :?UUID;
   onClose :() => void;
   objectKey :List<UUID>;
   organizationId :UUID;
@@ -49,11 +59,15 @@ const AssignPermissionsToObjectModalBody = ({
 
   const dispatch = useDispatch();
 
+  const [assignPermissionsToAllProperties, setAssignPermissionsToAllProperties] = useState(true);
   const [targetRoleOrUserPrincipleId, setRoleOrUserPrincipleId] = useState('');
   const [targetRoleOrUserPrincipleType, setTargetRoleOrUserPrincipleType] = useState('');
   const [targetRoleOrUserTitle, setTargetRoleOrUserTitle] = useState('');
   const [targetPermissionOptions, setTargetPermissionOptions] = useState([]);
 
+  const isDataSet :boolean = isValidUUID(dataSetId);
+
+  const assignPermissionsToDataSetRS :?RequestState = useRequestState([PERMISSIONS, ASSIGN_PERMISSIONS_TO_DATA_SET]);
   const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
   const permissionTypes = targetPermissionOptions.map((option) => option.value);
 
@@ -62,16 +76,25 @@ const AssignPermissionsToObjectModalBody = ({
     type: targetRoleOrUserPrincipleType
   });
 
-  const existingPermissions :Map<Principal, Map<List<UUID>, Ace>> = useSelector(
-    selectPermissionsByPrincipal(List([objectKey]))
-  ).valueSeq().flatten();
+  const flattenedPermissions :List<Principal> = existingPermissions.valueSeq().flatten();
 
   useEffect(() => () => {
+    dispatch(resetRequestState([ASSIGN_PERMISSIONS_TO_DATA_SET]));
     dispatch(resetRequestState([UPDATE_PERMISSIONS]));
   }, [dispatch]);
 
   const onConfirm = () => {
-    if (targetRoleOrUserPrincipal) {
+    if (dataSetId) {
+      dispatch(
+        assignPermissionsToDataSet({
+          principal: targetRoleOrUserPrincipal,
+          dataSetId,
+          permissionTypes: targetPermissionOptions.map((option) => option.value),
+          withProperties: assignPermissionsToAllProperties,
+        })
+      );
+    }
+    else if (targetRoleOrUserPrincipal) {
       const ace = (new AceBuilder())
         .setPermissions(permissionTypes)
         .setPrincipal(targetRoleOrUserPrincipal)
@@ -85,8 +108,9 @@ const AssignPermissionsToObjectModalBody = ({
       );
     }
   };
-
-  const isSuccess = updatePermissionsRS === RequestStates.SUCCESS;
+  const assignPermissionsRS :?RequestState = isDataSet ? assignPermissionsToDataSetRS : updatePermissionsRS;
+  const updateIsPending = isPending(assignPermissionsRS);
+  const updateIsSuccess = isSuccess(assignPermissionsRS);
 
   const permissionsString = targetPermissionOptions
     .map((option) => option.value)
@@ -105,7 +129,7 @@ const AssignPermissionsToObjectModalBody = ({
                 <>
                   <ModalBody>
                     <StepSelectRoleOrUser
-                        existingPermissions={existingPermissions}
+                        existingPermissions={flattenedPermissions}
                         organizationId={organizationId}
                         setRoleOrUserPrincipleId={setRoleOrUserPrincipleId}
                         setTargetRoleOrUserPrincipleType={setTargetRoleOrUserPrincipleType}
@@ -127,6 +151,9 @@ const AssignPermissionsToObjectModalBody = ({
                 <>
                   <ModalBody>
                     <StepSelectPermissions
+                        assignPermissionsToAllProperties={assignPermissionsToAllProperties}
+                        isDataSet={isDataSet}
+                        setAssignPermissionsToAllProperties={setAssignPermissionsToAllProperties}
                         setTargetPermissionOptions={setTargetPermissionOptions}
                         targetTitle={targetRoleOrUserTitle}
                         targetPermissionOptions={targetPermissionOptions} />
@@ -145,16 +172,16 @@ const AssignPermissionsToObjectModalBody = ({
                 <>
                   <ModalBody>
                     <StepConfirm
-                        assignPermissionsRS={updatePermissionsRS}
+                        assignPermissionsRS={assignPermissionsRS}
                         confirmText={confirmText} />
                   </ModalBody>
                   <ModalFooter
-                      isPendingPrimary={updatePermissionsRS === RequestStates.PENDING}
-                      onClickPrimary={isSuccess ? onClose : onConfirm}
+                      isPendingPrimary={updateIsPending}
+                      onClickPrimary={updateIsSuccess ? onClose : onConfirm}
                       onClickSecondary={stepBack}
                       shouldStretchButtons
-                      textPrimary={isSuccess ? 'Close' : 'Confirm'}
-                      textSecondary={isSuccess ? '' : 'Back'} />
+                      textPrimary={updateIsSuccess ? 'Close' : 'Confirm'}
+                      textSecondary={updateIsSuccess ? '' : 'Back'} />
                 </>
               )
             }
