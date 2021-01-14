@@ -18,6 +18,7 @@ import {
 import { RESET_REQUEST_STATE } from '../../core/redux/actions';
 import {
   ATLAS_DATA_SET_IDS,
+  DATA_SOURCES,
   ENTITY_SET_IDS,
   ERROR,
   INTEGRATION_DETAILS,
@@ -46,6 +47,7 @@ import {
 import {
   editRoleDetailsReducer,
   getOrganizationDataSetsReducer,
+  getOrganizationDataSourcesReducer,
   getOrganizationIntegrationDetailsReducer,
   renameOrganizationDatabaseReducer,
 } from '../org/reducers';
@@ -68,6 +70,7 @@ const {
 const {
   ADD_MEMBER_TO_ORGANIZATION,
   ADD_ROLE_TO_MEMBER,
+  GET_ORGANIZATION_DATA_SOURCES,
   GET_ORGANIZATION_ENTITY_SETS,
   GET_ORGANIZATION_MEMBERS,
   REMOVE_MEMBER_FROM_ORGANIZATION,
@@ -75,6 +78,7 @@ const {
   RENAME_ORGANIZATION_DATABASE,
   addMemberToOrganization,
   addRoleToMember,
+  getOrganizationDataSources,
   getOrganizationEntitySets,
   getOrganizationMembers,
   removeMemberFromOrganization,
@@ -94,6 +98,7 @@ const INITIAL_STATE :Map = fromJS({
   [EDIT_ROLE_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
+  [GET_ORGANIZATION_DATA_SOURCES]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_INTEGRATION_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
@@ -104,6 +109,7 @@ const INITIAL_STATE :Map = fromJS({
   [RENAME_ORGANIZATION_DATABASE]: RS_INITIAL_STATE,
   // data
   [ATLAS_DATA_SET_IDS]: Map(),
+  [DATA_SOURCES]: Map(),
   [ENTITY_SET_IDS]: Map(),
   [INTEGRATION_DETAILS]: Map(),
   [IS_OWNER]: Map(),
@@ -119,6 +125,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   if (action.type === getOrganizationDataSets.case(action.type)) {
     return getOrganizationDataSetsReducer(state, action);
+  }
+
+  if (action.type === getOrganizationDataSources.case(action.type)) {
+    return getOrganizationDataSourcesReducer(state, action);
   }
 
   if (action.type === getOrganizationIntegrationDetails.case(action.type)) {

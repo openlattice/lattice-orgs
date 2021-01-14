@@ -43,6 +43,7 @@ export default function* sagas() :Saga<*> {
     fork(OrganizationsApiSagas.destroyTransportedOrganizationEntitySetWatcher),
     fork(OrganizationsApiSagas.getAllOrganizationsWatcher),
     fork(OrganizationsApiSagas.getOrganizationDatabaseNameWatcher),
+    fork(OrganizationsApiSagas.getOrganizationDataSourcesWatcher),
     fork(OrganizationsApiSagas.getOrganizationEntitySetsWatcher),
     fork(OrganizationsApiSagas.getOrganizationIntegrationAccountWatcher),
     fork(OrganizationsApiSagas.getOrganizationMembersWatcher),
