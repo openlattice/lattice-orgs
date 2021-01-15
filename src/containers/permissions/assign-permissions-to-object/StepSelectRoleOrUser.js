@@ -23,6 +23,7 @@ import type {
   Principal,
   UUID
 } from 'lattice';
+import debounce from 'lodash/debounce';
 
 import {
   SpaceBetweenGrid,
@@ -56,10 +57,9 @@ const StepSelectRoleOrUser = ({
   const thisUserId = thisUserInfo.id;
   const [searchQuery, setSearchQuery] = useState('');
 
-  const setQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    const { value } = event.target;
+  const debounceSetQuery = debounce((value) => {
     setSearchQuery(value);
-  };
+  }, 250);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const orgMembers :List<Map> = useSelector(selectOrganizationMembers(organizationId));
@@ -108,7 +108,8 @@ const StepSelectRoleOrUser = ({
         <Typography>
           Search for an existing user or role to create a permission for.
         </Typography>
-        <SearchInput onChange={setQuery} searchQuery={searchQuery} />
+        <SearchInput
+            onChange={(event :SyntheticEvent<HTMLInputElement>) => debounceSetQuery(event.currentTarget.value)} />
       </StackGrid>
       <StackGrid>
         {
@@ -116,7 +117,7 @@ const StepSelectRoleOrUser = ({
             <div>
               {
                 Object.values(userRoleOptions).map((role :Object) => (
-                  <CardSegment key={role.id} padding="8px 0">
+                  <CardSegment key={role.principal.id} padding="8px 0">
                     <SpaceBetweenGrid>
                       <div>
                         <Typography variant="span">{role.label}</Typography>
