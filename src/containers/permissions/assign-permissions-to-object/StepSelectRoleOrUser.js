@@ -4,8 +4,8 @@
 
 import React, { useMemo, useState } from 'react';
 
+import debounce from 'lodash/debounce';
 import {
-  getIn,
   List,
   Map
 } from 'immutable';
@@ -16,6 +16,7 @@ import {
   SearchInput,
   Typography,
 } from 'lattice-ui-kit';
+import { PersonUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type {
   Ace,
@@ -23,7 +24,6 @@ import type {
   Principal,
   UUID
 } from 'lattice';
-import debounce from 'lodash/debounce';
 
 import {
   SpaceBetweenGrid,
@@ -31,6 +31,8 @@ import {
 } from '../../../components';
 import { selectOrganization, selectOrganizationMembers } from '../../../core/redux/selectors';
 import { getPrincipal, getUserTitle } from '../../../utils';
+
+const { getUserId } = PersonUtils;
 
 const principalMatches = (principal1 :?Principal, principal2 :?Principal) :boolean => principal1?.id === principal2?.id
   && principal1?.type === principal2?.type;
@@ -71,7 +73,7 @@ const StepSelectRoleOrUser = ({
     // add org members that don't already have permissions on object to options
     orgMembers.toJS().forEach((member :Object) => {
       const label = getUserTitle(member, thisUserId);
-      const memberId :string = getIn(member, ['profile', 'user_id']);
+      const memberId :string = getUserId(member) || '';
       const principalValue :?Principal = getPrincipal(member);
       if (!permissionsExistOnRole(principalValue) && stringsMatchQuery(searchQuery, [memberId, label])) {
         options.push({
