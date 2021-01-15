@@ -49,7 +49,9 @@ import {
   getOrganizationDataSetsReducer,
   getOrganizationDataSourcesReducer,
   getOrganizationIntegrationDetailsReducer,
+  registerOrganizationDataSourceReducer,
   renameOrganizationDatabaseReducer,
+  updateOrganizationDataSourceReducer,
 } from '../org/reducers';
 import { sortOrganizationMembers } from '../org/utils';
 import type { AuthorizationObject } from '../../types';
@@ -73,17 +75,21 @@ const {
   GET_ORGANIZATION_DATA_SOURCES,
   GET_ORGANIZATION_ENTITY_SETS,
   GET_ORGANIZATION_MEMBERS,
+  REGISTER_ORGANIZATION_DATA_SOURCE,
   REMOVE_MEMBER_FROM_ORGANIZATION,
   REMOVE_ROLE_FROM_MEMBER,
   RENAME_ORGANIZATION_DATABASE,
+  UPDATE_ORGANIZATION_DATA_SOURCE,
   addMemberToOrganization,
   addRoleToMember,
   getOrganizationDataSources,
   getOrganizationEntitySets,
   getOrganizationMembers,
+  registerOrganizationDataSource,
   removeMemberFromOrganization,
   removeRoleFromMember,
   renameOrganizationDatabase,
+  updateOrganizationDataSource,
 } = OrganizationsApiActions;
 
 const { getUserId } = PersonUtils;
@@ -103,10 +109,12 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORGANIZATION_INTEGRATION_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION]: RS_INITIAL_STATE,
+  [REGISTER_ORGANIZATION_DATA_SOURCE]: RS_INITIAL_STATE,
   [REMOVE_MEMBER_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [RENAME_ORGANIZATION_DATABASE]: RS_INITIAL_STATE,
+  [UPDATE_ORGANIZATION_DATA_SOURCE]: RS_INITIAL_STATE,
   // data
   [ATLAS_DATA_SET_IDS]: Map(),
   [DATA_SOURCES]: Map(),
@@ -135,8 +143,16 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
     return getOrganizationIntegrationDetailsReducer(state, action);
   }
 
+  if (action.type === registerOrganizationDataSource.case(action.type)) {
+    return registerOrganizationDataSourceReducer(state, action);
+  }
+
   if (action.type === renameOrganizationDatabase.case(action.type)) {
     return renameOrganizationDatabaseReducer(state, action);
+  }
+
+  if (action.type === updateOrganizationDataSource.case(action.type)) {
+    return updateOrganizationDataSourceReducer(state, action);
   }
 
   // TODO: refactor this reducer

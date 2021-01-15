@@ -19,6 +19,8 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import { OrgDataSourceModal } from './components';
+
 import {
   ActionsGrid,
   CrumbItem,
@@ -54,7 +56,7 @@ const OrgDataSourcesContainer = ({
   const dispatch = useDispatch();
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
   const [isVisibleOrgDataSourceModal, setIsVisibleOrgDataSourceModal] = useState(false);
-  const [targetDataSource, setTargetDataSource] = useState(false);
+  const [targetDataSource, setTargetDataSource] = useState(Map());
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSources :List<Map> = useSelector(selectOrganizationDataSources(organizationId));
@@ -83,6 +85,11 @@ const OrgDataSourcesContainer = ({
       paginationDispatch({ type: PAGE, page, start });
     };
 
+    const openOrgDataSourceModal = (dataSource :Map) => {
+      setTargetDataSource(dataSource);
+      setIsVisibleOrgDataSourceModal(true);
+    };
+
     return (
       <AppContentWrapper>
         <Crumbs>
@@ -100,7 +107,10 @@ const OrgDataSourcesContainer = ({
             <SearchInput onChange={handleOnChangeFilterQuery} placeholder="Filter data sources" />
             {
               isOwner && (
-                <PlusButton aria-label="add data source" isDisabled onClick={() => {}}>
+                <PlusButton
+                    aria-label="add data source"
+                    isDisabled={!isOwner}
+                    onClick={() => openOrgDataSourceModal(Map())}>
                   <Typography component="span">Add Data Source</Typography>
                 </PlusButton>
               )
@@ -120,7 +130,7 @@ const OrgDataSourcesContainer = ({
               pageDataSources.map((dataSource :Map) => {
                 const name = get(dataSource, 'name', '');
                 return (
-                  <CardSegment key={name} onClick={() => {}} padding="24px 0">
+                  <CardSegment key={name} onClick={() => openOrgDataSourceModal(dataSource)} padding="24px 0">
                     <Typography component="span">{name}</Typography>
                   </CardSegment>
                 );
@@ -128,6 +138,16 @@ const OrgDataSourcesContainer = ({
             }
           </div>
         </StackGrid>
+        {
+          isOwner && (
+            <OrgDataSourceModal
+                dataSource={targetDataSource}
+                dataSourceId={null}
+                isVisible={isVisibleOrgDataSourceModal}
+                onClose={() => setIsVisibleOrgDataSourceModal(false)}
+                organizationId={organizationId} />
+          )
+        }
       </AppContentWrapper>
     );
   }
