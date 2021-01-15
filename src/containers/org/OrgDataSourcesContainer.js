@@ -127,7 +127,7 @@ const OrgDataSourcesContainer = ({
               )
             }
             {
-              pageDataSources.map((dataSource :Map) => {
+              pageDataSources.valueSeq().map((dataSource :Map) => {
                 const name = get(dataSource, 'name', '');
                 return (
                   <CardSegment key={name} onClick={() => openOrgDataSourceModal(dataSource)} padding="24px 0">
