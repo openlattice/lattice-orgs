@@ -8,12 +8,14 @@ import { useDispatch } from 'react-redux';
 
 import { resetRequestState } from '../../core/redux/actions';
 
-type Props = {
+// TODO: remove src/containers/org/components/ResetOnUnmount in favor of this component
+const ResetOnUnmount = ({
+  children,
+  paths,
+} :{
   children :any;
   paths :string[][];
-};
-
-const ResetOnUnmount = ({ children, paths } :Props) => {
+}) => {
 
   const dispatch = useDispatch();
 
