@@ -76,7 +76,7 @@ const AssignPermissionsToObjectModalBody = ({
     type: targetRoleOrUserPrincipleType
   });
 
-  const flattenedPermissions :List<Principal> = existingPermissions.valueSeq().flatten();
+  const flattenedPermissions :List<Ace> = existingPermissions.valueSeq().flatten();
 
   useEffect(() => () => {
     dispatch(resetRequestState([ASSIGN_PERMISSIONS_TO_DATA_SET]));
