@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { Map, fromJS } from 'immutable';
+import { Map, fromJS, get } from 'immutable';
 import { Form } from 'lattice-fabricate';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { Modal, ModalFooter, Typography } from 'lattice-ui-kit';
@@ -110,13 +110,11 @@ const RESET_PATHS = [
 
 const OrgDataSourceModal = ({
   dataSource,
-  dataSourceId,
   isVisible,
   onClose,
   organizationId,
 } :{|
   dataSource :Map;
-  dataSourceId :?UUID;
   isVisible :boolean;
   onClose :() => void;
   organizationId :UUID;
@@ -160,7 +158,7 @@ const OrgDataSourceModal = ({
       dispatch(
         updateOrganizationDataSource({
           dataSource: dataSourceFormData.fields,
-          dataSourceId,
+          dataSourceId: get(dataSource, 'id', ''),
           organizationId,
         })
       );

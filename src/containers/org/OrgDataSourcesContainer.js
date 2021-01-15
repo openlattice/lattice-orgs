@@ -4,7 +4,7 @@
 
 import React, { useEffect, useReducer, useState } from 'react';
 
-import { List, Map, get } from 'immutable';
+import { Map, get } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
@@ -13,11 +13,8 @@ import {
   SearchInput,
   Typography,
 } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
-import type { RequestState } from 'redux-reqseq';
 
 import { OrgDataSourceModal } from './components';
 
@@ -59,7 +56,7 @@ const OrgDataSourcesContainer = ({
   const [targetDataSource, setTargetDataSource] = useState(Map());
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const dataSources :List<Map> = useSelector(selectOrganizationDataSources(organizationId));
+  const dataSources :Map<UUID, Map> = useSelector(selectOrganizationDataSources(organizationId));
   const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
 
   useEffect(() => {
@@ -68,7 +65,7 @@ const OrgDataSourcesContainer = ({
 
   if (organization) {
 
-    let filteredDataSources :List<Map> = dataSources;
+    let filteredDataSources :Map<UUID, Map> = dataSources;
     if (paginationState.query) {
       filteredDataSources = filteredDataSources.filter((dataSource :Map) => (
         get(dataSource, 'name', '').toLowerCase().includes(paginationState.query.toLowerCase())
@@ -142,7 +139,6 @@ const OrgDataSourcesContainer = ({
           isOwner && (
             <OrgDataSourceModal
                 dataSource={targetDataSource}
-                dataSourceId={null}
                 isVisible={isVisibleOrgDataSourceModal}
                 onClose={() => setIsVisibleOrgDataSourceModal(false)}
                 organizationId={organizationId} />
