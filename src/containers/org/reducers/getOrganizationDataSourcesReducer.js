@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { Map, fromJS, get } from 'immutable';
+import { Map, fromJS, set } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
@@ -22,7 +22,7 @@ export default function reducer(state :Map, action :SequenceAction) {
       const storedAction = state.getIn([GET_ORGANIZATION_DATA_SOURCES, action.id]);
       if (storedAction) {
         const organizationId :UUID = storedAction.value;
-        const dataSources = fromJS(action.value).toMap().mapKeys((key, dataSource) => get(dataSource, 'id'));
+        const dataSources = fromJS(action.value).map((dataSource, id) => set(dataSource, 'id', id));
         return state
           .setIn([DATA_SOURCES, organizationId], dataSources)
           .setIn([GET_ORGANIZATION_DATA_SOURCES, REQUEST_STATE], RequestStates.SUCCESS);
