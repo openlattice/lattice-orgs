@@ -7,7 +7,6 @@ import React from 'react';
 import _capitalize from 'lodash/capitalize';
 import { faToggleOn } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Types } from 'lattice';
 import {
   Colors,
   IconButton,
@@ -16,19 +15,11 @@ import {
 } from 'lattice-ui-kit';
 import type { PermissionType } from 'lattice';
 
+import { PERMISSION_TYPE_RS_OPTIONS } from './constants';
 import { SpaceBetweenGrid, StackGrid } from '../../components';
 import type { ReactSelectOption } from '../../types';
 
-const { PermissionTypes } = Types;
 const { NEUTRAL, PURPLE } = Colors;
-
-const PERMISSIONS_OPTIONS = [
-  { label: _capitalize(PermissionTypes.OWNER), value: PermissionTypes.OWNER },
-  { label: _capitalize(PermissionTypes.READ), value: PermissionTypes.READ },
-  { label: _capitalize(PermissionTypes.WRITE), value: PermissionTypes.WRITE },
-  { label: _capitalize(PermissionTypes.LINK), value: PermissionTypes.LINK },
-  { label: _capitalize(PermissionTypes.MATERIALIZE), value: PermissionTypes.MATERIALIZE },
-];
 
 const StepSelectPermissions = ({
   assignPermissionsToAllProperties,
@@ -68,7 +59,7 @@ const StepSelectPermissions = ({
       <Select
           isMulti
           onChange={handleOnChange}
-          options={PERMISSIONS_OPTIONS}
+          options={PERMISSION_TYPE_RS_OPTIONS}
           value={targetPermissionOptions} />
       {
         isDataSet && (
