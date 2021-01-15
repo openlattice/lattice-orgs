@@ -51,7 +51,7 @@ const ObjectPermissionsContainer = ({
 } :{|
   filterByPermissionTypes :Array<PermissionType>;
   filterByQuery :string;
-  dataSetId :?UUID;
+  dataSetId ?:UUID;
   isVisibleAssignPermissionsModal :boolean;
   objectKey :List<UUID>;
   onClosePermissionsModal :() => void;
