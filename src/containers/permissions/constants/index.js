@@ -2,6 +2,7 @@
  * @flow
  */
 
+import _capitalize from 'lodash/capitalize';
 import { Types } from 'lattice';
 import type { PermissionType } from 'lattice';
 
@@ -18,11 +19,11 @@ const ORDERED_PERMISSIONS = [
 ];
 
 const PERMISSION_TYPE_RS_OPTIONS :ReactSelectOption<PermissionType>[] = [
-  { label: PermissionTypes.OWNER.toLowerCase(), value: PermissionTypes.OWNER },
-  { label: PermissionTypes.READ.toLowerCase(), value: PermissionTypes.READ },
-  { label: PermissionTypes.WRITE.toLowerCase(), value: PermissionTypes.WRITE },
-  { label: PermissionTypes.LINK.toLowerCase(), value: PermissionTypes.LINK },
-  { label: PermissionTypes.MATERIALIZE.toLowerCase(), value: PermissionTypes.MATERIALIZE },
+  { label: _capitalize(PermissionTypes.OWNER), value: PermissionTypes.OWNER },
+  { label: _capitalize(PermissionTypes.READ), value: PermissionTypes.READ },
+  { label: _capitalize(PermissionTypes.WRITE), value: PermissionTypes.WRITE },
+  { label: _capitalize(PermissionTypes.LINK), value: PermissionTypes.LINK },
+  { label: _capitalize(PermissionTypes.MATERIALIZE), value: PermissionTypes.MATERIALIZE },
 ];
 
 export {
