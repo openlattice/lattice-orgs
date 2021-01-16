@@ -14,7 +14,9 @@ import {
   Checkbox,
   Colors,
   IconButton,
+  // $FlowFixMe[missing-export]
   Menu,
+  // $FlowFixMe[missing-export]
   MenuItem,
   Typography,
 } from 'lattice-ui-kit';

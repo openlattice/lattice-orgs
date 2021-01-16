@@ -8,7 +8,9 @@ import { Map, getIn } from 'immutable';
 import {
   Button,
   Checkbox,
+  // $FlowFixMe[missing-export]
   Menu,
+  // $FlowFixMe[missing-export]
   MenuItem,
   NestedMenuItem,
 } from 'lattice-ui-kit';

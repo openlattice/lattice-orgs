@@ -9,11 +9,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import { DataSetsApiActions } from 'lattice-sagas';
-import {
-  IconButton,
-  Menu,
-  MenuItem,
-} from 'lattice-ui-kit';
+// $FlowFixMe[missing-export
+import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { useGoToRoute } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { EntitySet, UUID } from 'lattice';
