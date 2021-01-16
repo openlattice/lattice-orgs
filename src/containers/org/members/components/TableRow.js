@@ -35,7 +35,7 @@ const Row = styled.tr`
 
 const Cell = styled.td`
   border: 1px solid ${NEUTRAL.N100};
-  max-width: 0px;
+  max-width: 0;
   overflow: hidden;
   padding: ${(props) => (props.padding === 'small' ? '0 8px' : '0 16px')};
   text-overflow: ellipsis;
