@@ -115,6 +115,12 @@ const DataSetActionButton = ({
       .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
   );
 
+  const goToDataSetAccessRequest = useGoToRoute(
+    Routes.ORG_DATA_SET_ACCESS_REQUEST
+      .replace(Routes.ORG_ID_PARAM, organizationId)
+      .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
+  );
+
   const anchorRef = useRef(null);
 
   const handleOpenMenu = () => {
@@ -182,6 +188,9 @@ const DataSetActionButton = ({
         }
         <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
           Manage Permissions
+        </MenuItem>
+        <MenuItem onClick={goToDataSetAccessRequest}>
+          Request Access
         </MenuItem>
       </Menu>
       <PromoteTableModal

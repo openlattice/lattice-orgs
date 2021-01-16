@@ -43,6 +43,7 @@ import {
   clearSearchState,
 } from '../../core/search/actions';
 import { ERR_INVALID_UUID } from '../../utils/constants/errors';
+import { DataSetAccessRequestContainer } from '../requests';
 
 const { isValidUUID } = ValidationUtils;
 const { getParamFromMatch } = RoutingUtils;
@@ -62,6 +63,7 @@ const OrgRouter = () => {
 
   const matchOrganization = useRouteMatch(Routes.ORG);
   const matchOrganizationDataSet = useRouteMatch(Routes.ORG_DATA_SET);
+  const matchOrganizationDataSetAccessRequest = useRouteMatch(Routes.ORG_DATA_SET_ACCESS_REQUEST);
   const matchOrganizationDataSets = useRouteMatch(Routes.ORG_DATA_SETS);
   const matchOrganizationDataSources = useRouteMatch(Routes.ORG_DATA_SOURCES);
   const matchOrganizationMember = useRouteMatch(Routes.ORG_MEMBER);
@@ -74,6 +76,10 @@ const OrgRouter = () => {
   if (matchOrgDataSetObjectPermissions) {
     organizationId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.ORG_ID_PARAM);
     dataSetId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.DATA_SET_ID_PARAM);
+  }
+  else if (matchOrganizationDataSetAccessRequest) {
+    organizationId = getParamFromMatch(matchOrganizationDataSetAccessRequest, Routes.ORG_ID_PARAM);
+    dataSetId = getParamFromMatch(matchOrganizationDataSetAccessRequest, Routes.DATA_SET_ID_PARAM);
   }
   else if (matchOrganizationDataSet) {
     organizationId = getParamFromMatch(matchOrganizationDataSet, Routes.ORG_ID_PARAM);
@@ -215,6 +221,19 @@ const OrgRouter = () => {
         : null
     );
 
+    const renderOrgDataSetAccessRequestContainer = () => (
+      (organizationId && dataSetId)
+        ? (
+          <DataSetAccessRequestContainer
+              dataSetId={dataSetId}
+              dataSetRoute={dataSetRoute}
+              dataSetsRoute={dataSetsRoute}
+              organizationId={organizationId}
+              organizationRoute={organizationRoute} />
+        )
+        : null
+    );
+
     const renderOrgDataSetsContainer = () => (
       (organizationId)
         ? <OrgDataSetsContainer organizationId={organizationId} organizationRoute={organizationRoute} />
@@ -303,6 +322,7 @@ const OrgRouter = () => {
 
     return (
       <Switch>
+        <Route path={Routes.ORG_DATA_SET_ACCESS_REQUEST} render={renderOrgDataSetAccessRequestContainer} />
         <Route path={Routes.ORG_DATA_SET_OBJECT_PERMISSIONS} render={renderOrgDataSetObjectPermissionsContainer} />
         <Route path={Routes.ORG_DATA_SET} render={renderOrgDataSetContainer} />
         <Route path={Routes.ORG_DATA_SETS} render={renderOrgDataSetsContainer} />
