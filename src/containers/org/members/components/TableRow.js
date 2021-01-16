@@ -22,7 +22,7 @@ import type { Role, UUID } from 'lattice';
 
 import RoleChipsList from './RoleChipsList';
 
-import { getUserProfile } from '../../../../utils/PersonUtils';
+import { getUserProfile } from '../../../../utils';
 
 const { NEUTRAL } = Colors;
 

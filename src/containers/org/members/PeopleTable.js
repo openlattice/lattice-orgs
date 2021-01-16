@@ -18,7 +18,7 @@ import FilterButton from './components/FilterButton';
 import TableRow from './components/TableRow';
 
 import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
-import { getUserProfile } from '../../../utils/PersonUtils';
+import { getUserProfile } from '../../../utils';
 import {
   FILTER,
   INITIAL_PAGINATION_STATE,
