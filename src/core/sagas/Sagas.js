@@ -16,6 +16,7 @@ import * as RoutingSagas from '../router/RoutingSagas';
 import { AppSagas } from '../../containers/app';
 import { OrgSagas } from '../../containers/org';
 import { OrgsSagas } from '../../containers/orgs';
+import { RequestsSagas } from '../../containers/requests';
 import { EDMSagas } from '../edm';
 import { PermissionsSagas } from '../permissions';
 import { SearchSagas } from '../search';
@@ -100,6 +101,9 @@ export default function* sagas() :Saga<*> {
     fork(PermissionsSagas.initializeObjectPermissionsWatcher),
     fork(PermissionsSagas.setPermissionsWatcher),
     fork(PermissionsSagas.updatePermissionsWatcher),
+
+    // RequestsSagas
+    fork(RequestsSagas.initializeDataSetAccessRequestWatcher),
 
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),
