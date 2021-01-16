@@ -12,14 +12,17 @@ import { Routes } from '../../../../core/router';
 
 const Wrapper = styled.div`
   padding: 8px;
+
   ul {
     list-style: none;
     margin-block: 0;
     padding-inline-start: 0;
   }
+
   li: {
     display: block;
   }
+
   a {
     margin: 2px 0;
   }

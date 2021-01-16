@@ -17,6 +17,7 @@ const ChipsList = styled.div`
   display: flex;
   flex: 1;
   overflow: hidden;
+
   > :not(:first-child) {
     margin-left: 4px;
   }

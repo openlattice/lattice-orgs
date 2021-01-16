@@ -77,7 +77,7 @@ const PeopleTable = ({
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
   const [isVisibleAddMemberToOrgModal, setIsVisibleAddMemberToOrgModal] = useState(false);
-  const [isVisibleAssignRoleModal, setIsVisibleAssignRoleModal] = useState(false);
+  // const [isVisibleAssignRoleModal, setIsVisibleAssignRoleModal] = useState(false);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
   const [targetMember, setTargetMember] = useState();
   const [targetRole, setTargetRole] = useState();
@@ -116,7 +116,7 @@ const PeopleTable = ({
     setIsVisibleAddMemberToOrgModal(true);
   };
 
-  const handleOnFilterChange = (category :string, value :string) => {
+  const handleOnFilterChange = (/* category :string, value :string */) => {
     // update state to toggle inclusion of set
   };
 
