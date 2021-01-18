@@ -17,7 +17,7 @@ import type { SequenceAction } from 'redux-reqseq';
 import { getOrSelectDataSet } from '../../../core/edm/actions';
 import { getOrSelectDataSetWorker } from '../../../core/edm/sagas';
 import { selectDataSetProperties } from '../../../core/redux/selectors';
-import { AxiosUtils } from '../../../utils';
+import { toSagaError } from '../../../utils';
 import { INITIALIZE_DATA_SET_ACCESS_REQUEST, initializeDataSetAccessRequest } from '../actions';
 import { DataSetAccessRequestSchema } from '../schemas';
 
@@ -68,7 +68,7 @@ function* initializeDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> 
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(initializeDataSetAccessRequest.failure(action.id, AxiosUtils.toSagaError(error)));
+    yield put(initializeDataSetAccessRequest.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(initializeDataSetAccessRequest.finally(action.id));

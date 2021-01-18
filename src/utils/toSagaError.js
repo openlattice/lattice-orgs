@@ -7,7 +7,7 @@ import type { $AxiosError } from 'axios';
 
 import type { SagaError } from '../types';
 
-function toSagaError(error :any) :SagaError {
+export default function toSagaError(error :any) :SagaError {
 
   const axiosError :$AxiosError<*> = error;
   if (axiosError.isAxiosError && axiosError.response) {
@@ -21,7 +21,3 @@ function toSagaError(error :any) :SagaError {
 
   return {};
 }
-
-export {
-  toSagaError,
-};
