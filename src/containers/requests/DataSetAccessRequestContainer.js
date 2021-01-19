@@ -12,7 +12,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { EntitySet, Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { INITIALIZE_DATA_SET_ACCESS_REQUEST, initializeDataSetAccessRequest } from './actions';
+import {
+  INITIALIZE_DATA_SET_ACCESS_REQUEST,
+  SUBMIT_DATA_SET_ACCESS_REQUEST,
+  initializeDataSetAccessRequest,
+  submitDataSetAccessRequest,
+} from './actions';
 
 import {
   CrumbItem,
@@ -51,6 +56,7 @@ const DataSetAccessRequestContainer = ({
   const [data, setData] = useState({});
 
   const initRS :?RequestState = useRequestState([REQUESTS, INITIALIZE_DATA_SET_ACCESS_REQUEST]);
+  const submitRS :?RequestState = useRequestState([REQUESTS, SUBMIT_DATA_SET_ACCESS_REQUEST]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :?EntitySet | Map = useSelector(selectDataSet(dataSetId));
@@ -62,6 +68,7 @@ const DataSetAccessRequestContainer = ({
 
   useEffect(() => () => {
     dispatch(resetRequestState([INITIALIZE_DATA_SET_ACCESS_REQUEST]));
+    dispatch(resetRequestState([SUBMIT_DATA_SET_ACCESS_REQUEST]));
   }, [dispatch]);
 
   useEffect(() => {
@@ -73,6 +80,18 @@ const DataSetAccessRequestContainer = ({
     const onChange = ({ formData }) => {
       // console.log(formData);
       setData(formData);
+    };
+
+    const onSubmit = () => {
+      // console.log(data);
+      dispatch(
+        submitDataSetAccessRequest({
+          data,
+          dataSetId,
+          organizationId,
+          schema: { dataSchema, uiSchema },
+        })
+      );
     };
 
     return (
@@ -91,10 +110,11 @@ const DataSetAccessRequestContainer = ({
         {
           isSuccess(initRS) && (
             <Form
+                disabled={isPending(submitRS) || isSuccess(submitRS)}
                 formData={data}
-                hideSubmit
-                noPadding
+                isSubmitting={isPending(submitRS)}
                 onChange={onChange}
+                onSubmit={onSubmit}
                 schema={dataSchema}
                 uiSchema={uiSchema} />
           )

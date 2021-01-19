@@ -17,6 +17,7 @@ import { AppSagas } from '../../containers/app';
 import { OrgSagas } from '../../containers/org';
 import { OrgsSagas } from '../../containers/orgs';
 import { RequestsSagas } from '../../containers/requests';
+import { DataSagas } from '../data';
 import { EDMSagas } from '../edm';
 import { PermissionsSagas } from '../permissions';
 import { SearchSagas } from '../search';
@@ -70,6 +71,9 @@ export default function* sagas() :Saga<*> {
     // AppSagas
     fork(AppSagas.initializeApplicationWatcher),
 
+    // DataSagas
+    fork(DataSagas.submitDataGraphWatcher),
+
     // EDMSagas
     fork(EDMSagas.getEntityDataModelTypesWatcher),
     fork(EDMSagas.getOrSelectDataSetWatcher),
@@ -104,6 +108,7 @@ export default function* sagas() :Saga<*> {
 
     // RequestsSagas
     fork(RequestsSagas.initializeDataSetAccessRequestWatcher),
+    fork(RequestsSagas.submitDataSetAccessRequestWatcher),
 
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),

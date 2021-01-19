@@ -25,7 +25,8 @@ const LOG = new Logger('RequestsSagas');
 
 const {
   ACCESS_REQUEST_PSK,
-  ACL_KEYS_EAK,
+  ACCESS_REQUEST_EAK,
+  DATA_SET_PROPERTIES,
 } = DataSetAccessRequestSchema;
 
 function* initializeDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
@@ -49,13 +50,15 @@ function* initializeDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> 
     const dataSchema = JSON.parse(JSON.stringify(DataSetAccessRequestSchema.dataSchema));
     dataSchema
       .properties[ACCESS_REQUEST_PSK]
-      .properties[ACL_KEYS_EAK]
+      .properties[ACCESS_REQUEST_EAK]
+      .properties[DATA_SET_PROPERTIES]
       .items
       .enum = properties.keySeq().toJS();
 
     dataSchema
       .properties[ACCESS_REQUEST_PSK]
-      .properties[ACL_KEYS_EAK]
+      .properties[ACCESS_REQUEST_EAK]
+      .properties[DATA_SET_PROPERTIES]
       .items
       .enumNames = properties.map((property :PropertyType | Map, propertyTypeId :UUID) => (
         property.title || get(property, 'title') || propertyTypeId
