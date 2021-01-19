@@ -30,10 +30,14 @@ const dataSchema = {
               type: 'string',
             },
             [PERMISSION_TYPES]: {
-              enum: PERMISSION_TYPE_RS_OPTIONS.map((pt) => pt.value),
-              enumNames: PERMISSION_TYPE_RS_OPTIONS.map((pt) => pt.label),
-              type: 'string',
+              items: {
+                enum: PERMISSION_TYPE_RS_OPTIONS.map((pt) => pt.value),
+                enumNames: PERMISSION_TYPE_RS_OPTIONS.map((pt) => pt.label),
+                type: 'string',
+              },
+              type: 'array',
               title: 'Permissions',
+              uniqueItems: true,
             },
             [DATA_SET_PROPERTIES]: {
               items: {
@@ -41,9 +45,9 @@ const dataSchema = {
                 enumNames: [],
                 type: 'string',
               },
-              uniqueItems: true,
               title: 'Select properties for which to request access',
               type: 'array',
+              uniqueItems: true,
             },
           },
           title: '',
