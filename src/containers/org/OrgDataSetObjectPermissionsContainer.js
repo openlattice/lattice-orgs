@@ -46,6 +46,7 @@ const OrgDataSetObjectPermissionsContainer = ({
 
   const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
   const [filterByQuery, setFilterByQuery] = useState('');
+  const [isVisibleAssignPermissionsModal, setIsVisibleAssignPermissionsModal] = useState(false);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets([dataSetId]));
@@ -62,6 +63,9 @@ const OrgDataSetObjectPermissionsContainer = ({
   const dataSet = atlasDataSet || entitySet;
   const name :string = getDataSetField(dataSet, 'name');
   const title :string = getDataSetField(dataSet, 'title');
+
+  const onOpenPermissionsModal = () => setIsVisibleAssignPermissionsModal(true);
+  const onClosePermissionsModal = () => setIsVisibleAssignPermissionsModal(false);
 
   return (
     <AppContentWrapper>
@@ -80,13 +84,15 @@ const OrgDataSetObjectPermissionsContainer = ({
             assignPermissionsText="Add permission"
             onChangeFilterByPermissionTypes={setFilterByPermissionTypes}
             onChangeFilterByQuery={setFilterByQuery}
-            onClickAssignPermissions={() => {}} />
+            onClickAssignPermissions={onOpenPermissionsModal} />
         <Divider isVisible={false} margin={0} />
         <ObjectPermissionsContainer
             filterByPermissionTypes={filterByPermissionTypes}
             filterByQuery={filterByQuery}
-            isDataSet
+            isVisibleAssignPermissionsModal={isVisibleAssignPermissionsModal}
+            dataSetId={dataSetId}
             objectKey={objectKey}
+            onClosePermissionsModal={onClosePermissionsModal}
             organizationId={organizationId} />
       </StackGrid>
     </AppContentWrapper>
