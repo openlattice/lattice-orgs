@@ -43,6 +43,7 @@ const OrgRoleObjectPermissionsContainer = ({
 
   const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
   const [filterByQuery, setFilterByQuery] = useState('');
+  const [isVisibleAssignPermissionsModal, setIsVisibleAssignPermissionsModal] = useState(false);
 
   const getOrgRoleObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORG_ROLE_OBJECT_PERMISSIONS]);
 
@@ -63,6 +64,9 @@ const OrgRoleObjectPermissionsContainer = ({
     dispatch(resetRequestState([GET_ORG_ROLE_OBJECT_PERMISSIONS]));
   }, [dispatch]);
 
+  const onOpenPermissionsModal = () => setIsVisibleAssignPermissionsModal(true);
+  const onClosePermissionsModal = () => setIsVisibleAssignPermissionsModal(false);
+
   if (organization && role) {
 
     return (
@@ -82,12 +86,14 @@ const OrgRoleObjectPermissionsContainer = ({
               assignPermissionsText="Add permission"
               onChangeFilterByPermissionTypes={setFilterByPermissionTypes}
               onChangeFilterByQuery={setFilterByQuery}
-              onClickAssignPermissions={() => {}} />
+              onClickAssignPermissions={onOpenPermissionsModal} />
           <Divider isVisible={false} margin={0} />
           <ObjectPermissionsContainer
               filterByPermissionTypes={filterByPermissionTypes}
               filterByQuery={filterByQuery}
+              isVisibleAssignPermissionsModal={isVisibleAssignPermissionsModal}
               objectKey={objectKey}
+              onClosePermissionsModal={onClosePermissionsModal}
               organizationId={organizationId} />
         </StackGrid>
       </AppContentWrapper>
