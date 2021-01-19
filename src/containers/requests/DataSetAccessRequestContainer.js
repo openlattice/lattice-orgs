@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 
 import { Map } from 'immutable';
 import { Form } from 'lattice-fabricate';
-import { AppContentWrapper } from 'lattice-ui-kit';
+import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { EntitySet, Organization, UUID } from 'lattice';
@@ -29,9 +29,9 @@ import { resetRequestState } from '../../core/redux/actions';
 import { REQUESTS } from '../../core/redux/constants';
 import {
   selectDataSet,
-  selectOrganization,
   selectDataSetAccessRequestDataSchema,
   selectDataSetAccessRequestUISchema,
+  selectOrganization,
 } from '../../core/redux/selectors';
 import { getDataSetField } from '../../utils';
 
@@ -108,7 +108,7 @@ const DataSetAccessRequestContainer = ({
           )
         }
         {
-          isSuccess(initRS) && (
+          isSuccess(initRS) && !isSuccess(submitRS) && (
             <Form
                 disabled={isPending(submitRS) || isSuccess(submitRS)}
                 formData={data}
@@ -117,6 +117,11 @@ const DataSetAccessRequestContainer = ({
                 onSubmit={onSubmit}
                 schema={dataSchema}
                 uiSchema={uiSchema} />
+          )
+        }
+        {
+          isSuccess(initRS) && isSuccess(submitRS) && (
+            <Typography align="center">You have successfully submitted the request for access!</Typography>
           )
         }
       </AppContentWrapper>
