@@ -4,12 +4,18 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { Map } from 'immutable';
+import { Map, setIn } from 'immutable';
+import { Types } from 'lattice';
 import { Form } from 'lattice-fabricate';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { EntitySet, Organization, UUID } from 'lattice';
+import type {
+  EntitySet,
+  Organization,
+  PropertyType,
+  UUID,
+} from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import {
@@ -18,6 +24,7 @@ import {
   initializeDataSetAccessRequest,
   submitDataSetAccessRequest,
 } from './actions';
+import { DataSetAccessRequestSchema } from './schemas';
 
 import {
   CrumbItem,
@@ -31,11 +38,20 @@ import {
   selectDataSet,
   selectDataSetAccessRequestDataSchema,
   selectDataSetAccessRequestUISchema,
+  selectDataSetProperties,
   selectOrganization,
 } from '../../core/redux/selectors';
 import { getDataSetField } from '../../utils';
 
+const { PermissionTypes } = Types;
 const { isPending, isSuccess } = ReduxUtils;
+
+const {
+  ACCESS_REQUEST_EAK,
+  ACCESS_REQUEST_PSK,
+  DATA_SET_PROPERTIES,
+  PERMISSION_TYPES,
+} = DataSetAccessRequestSchema;
 
 const DataSetAccessRequestContainer = ({
   dataSetId,
@@ -60,6 +76,8 @@ const DataSetAccessRequestContainer = ({
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :?EntitySet | Map = useSelector(selectDataSet(dataSetId));
+  const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(dataSetId));
+  const propertiesHash :number = properties.hashCode();
   const dataSchema = useSelector(selectDataSetAccessRequestDataSchema());
   const uiSchema = useSelector(selectDataSetAccessRequestUISchema());
 
@@ -75,15 +93,34 @@ const DataSetAccessRequestContainer = ({
     dispatch(initializeDataSetAccessRequest({ dataSetId, organizationId }));
   }, [dispatch, dataSetId, organizationId]);
 
+  useEffect(() => {
+    if (isSuccess(initRS)) {
+      setData((prevData) => {
+        let newData = prevData;
+        // NOTE: initialize data with all properties selected by default
+        newData = setIn(
+          newData,
+          [ACCESS_REQUEST_PSK, ACCESS_REQUEST_EAK, DATA_SET_PROPERTIES],
+          properties.keySeq().toJS(),
+        );
+        // NOTE: initialize data with OWNER, READ, WRITE selected by default
+        newData = setIn(
+          newData,
+          [ACCESS_REQUEST_PSK, ACCESS_REQUEST_EAK, PERMISSION_TYPES],
+          [PermissionTypes.OWNER, PermissionTypes.READ, PermissionTypes.WRITE],
+        );
+        return newData;
+      });
+    }
+  }, [initRS, propertiesHash]);
+
   if (organization) {
 
     const onChange = ({ formData }) => {
-      // console.log(formData);
       setData(formData);
     };
 
     const onSubmit = () => {
-      // console.log(data);
       dispatch(
         submitDataSetAccessRequest({
           data,

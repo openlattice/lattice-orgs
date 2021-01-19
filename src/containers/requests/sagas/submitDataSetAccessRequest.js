@@ -107,7 +107,6 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
     const entityData = {
       [ACCESS_REQUESTS_ESID]: [accessRequestEntityData],
     };
-    // console.log(entityData);
 
     const response = yield call(
       submitDataGraphWorker,
