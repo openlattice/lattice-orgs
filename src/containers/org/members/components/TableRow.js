@@ -14,7 +14,9 @@ import {
   Checkbox,
   Colors,
   IconButton,
+  // $FlowFixMe[missing-export]
   Menu,
+  // $FlowFixMe[missing-export]
   MenuItem,
   Typography,
 } from 'lattice-ui-kit';
@@ -22,7 +24,7 @@ import type { Role, UUID } from 'lattice';
 
 import RoleChipsList from './RoleChipsList';
 
-import { getUserProfile } from '../../../../utils/PersonUtils';
+import { getUserProfile } from '../../../../utils';
 
 const { NEUTRAL } = Colors;
 
@@ -33,7 +35,7 @@ const Row = styled.tr`
 
 const Cell = styled.td`
   border: 1px solid ${NEUTRAL.N100};
-  max-width: 0px;
+  max-width: 0;
   overflow: hidden;
   padding: ${(props) => (props.padding === 'small' ? '0 8px' : '0 16px')};
   text-overflow: ellipsis;

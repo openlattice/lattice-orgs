@@ -8,7 +8,9 @@ import { Map, getIn } from 'immutable';
 import {
   Button,
   Checkbox,
+  // $FlowFixMe[missing-export]
   Menu,
+  // $FlowFixMe[missing-export]
   MenuItem,
   NestedMenuItem,
 } from 'lattice-ui-kit';
@@ -31,6 +33,7 @@ const FilterItem = styled.div`
   flex: 0 1 100%;
   justify-content: space-between;
   align-items: center;
+
   > :first-child {
     margin-right: 16px;
   }
