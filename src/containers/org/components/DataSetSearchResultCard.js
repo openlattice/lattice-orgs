@@ -53,7 +53,7 @@ const DataSetSearchResultCard = ({
     const dataSetName :string = getPropertyValue(searchHit, [FQNS.OL_DATA_SET_NAME, 0]);
     if (isNonEmptyString(dataSetName)) {
       // NOTE: show "ol.dataset_name" when there's nothing else to show
-      dataSet = Map({ name: dataSetName });
+      dataSet = { name: dataSetName };
     }
     else {
       // NOTE: this is most likely a bad entity
