@@ -47,6 +47,7 @@ const OrgPeopleContainer = ({
   }, [dispatch]);
 
   if (organization) {
+    const roles = organization.roles.sort((roleA, roleB) => roleA.title.localeCompare(roleB.title));
 
     return (
       <AppContentWrapper>
@@ -63,7 +64,7 @@ const OrgPeopleContainer = ({
             isOwner={isOwner}
             members={orgMembers}
             organizationId={organizationId}
-            roles={organization.roles} />
+            roles={roles} />
       </AppContentWrapper>
     );
   }
