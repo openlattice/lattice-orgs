@@ -28,11 +28,10 @@ export default function reducer(state :Map, action :SequenceAction) {
     SUCCESS: () => {
       const storedAction :SequenceAction = state.getIn([SEARCH_DATA, action.id]);
       if (storedAction) {
-        const { page, query } = storedAction.value;
         return state
           .setIn([SEARCH_DATA, HITS], fromJS(action.value[HITS]))
-          .setIn([SEARCH_DATA, PAGE], page)
-          .setIn([SEARCH_DATA, QUERY], query)
+          .setIn([SEARCH_DATA, PAGE], storedAction.value[PAGE])
+          .setIn([SEARCH_DATA, QUERY], storedAction.value[QUERY])
           .setIn([SEARCH_DATA, TOTAL_HITS], action.value[TOTAL_HITS])
           .setIn([SEARCH_DATA, REQUEST_STATE], RequestStates.SUCCESS);
       }

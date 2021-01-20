@@ -4,9 +4,9 @@
 
 import React, { useEffect } from 'react';
 
-import { Map, Set } from 'immutable';
+import { List, Map } from 'immutable';
 import { AppContentWrapper, PaginationToolbar, Typography } from 'lattice-ui-kit';
-import { LangUtils, useRequestState } from 'lattice-utils';
+import { DataUtils, LangUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
@@ -22,7 +22,7 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { ATLAS_DATA_SET_IDS, ENTITY_SET_IDS, SEARCH } from '../../core/redux/constants';
+import { SEARCH } from '../../core/redux/constants';
 import {
   selectOrganization,
   selectSearchHits,
@@ -38,6 +38,7 @@ import {
 } from '../../core/search/actions';
 import { MAX_HITS_10 } from '../../core/search/constants';
 
+const { getEntityKeyId } = DataUtils;
 const { isNonEmptyString } = LangUtils;
 
 const OrgDataSetsContainer = ({
@@ -53,19 +54,10 @@ const OrgDataSetsContainer = ({
   const searchOrgDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_ORGANIZATION_DATA_SETS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const searchPage :number = useSelector(selectSearchPage(SEARCH_ORGANIZATION_DATA_SETS));
-  const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS));
-  const searchHits :Map = useSelector(selectSearchHits(SEARCH_ORGANIZATION_DATA_SETS));
-  const searchTotalHits :Map = useSelector(selectSearchTotalHits(SEARCH_ORGANIZATION_DATA_SETS));
-  const totalHits :number = searchTotalHits.get(ATLAS_DATA_SET_IDS) + searchTotalHits.get(ENTITY_SET_IDS);
-
-  const atlasDataSetIds :Set<UUID> = searchHits.get(ATLAS_DATA_SET_IDS, Set());
-  const entitySetIds :Set<UUID> = searchHits.get(ENTITY_SET_IDS, Set());
-  const pageDataSetIds :Set<UUID> = Set().union(atlasDataSetIds).union(entitySetIds);
-
-  useEffect(() => () => {
-    dispatch(clearSearchState(SEARCH_DATA));
-  }, [dispatch]);
+  const searchPage :number = useSelector(selectSearchPage(SEARCH_DATA));
+  const searchQuery :string = useSelector(selectSearchQuery(SEARCH_DATA));
+  const searchHits :List = useSelector(selectSearchHits(SEARCH_DATA));
+  const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_DATA));
 
   const dispatchDataSetSearch = (params :{ page ?:number, query ?:string, start ?:number } = {}) => {
     const { page = 1, query = searchQuery, start = 0 } = params;
@@ -119,7 +111,7 @@ const OrgDataSetsContainer = ({
               {
                 searchOrgDataSetsRS !== RequestStates.STANDBY && (
                   <PaginationToolbar
-                      count={totalHits}
+                      count={searchTotalHits}
                       onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
                       page={searchPage}
                       rowsPerPage={MAX_HITS_10} />
@@ -132,8 +124,11 @@ const OrgDataSetsContainer = ({
               }
               {
                 searchOrgDataSetsRS === RequestStates.SUCCESS && (
-                  pageDataSetIds.valueSeq().map((id :UUID) => (
-                    <DataSetSearchResultCard key={id} dataSetId={id} organizationId={organizationId} />
+                  searchHits.valueSeq().map((searchHit :Map) => (
+                    <DataSetSearchResultCard
+                        key={getEntityKeyId(searchHit)}
+                        searchHit={searchHit}
+                        organizationId={organizationId} />
                   ))
                 )
               }

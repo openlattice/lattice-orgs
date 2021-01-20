@@ -63,9 +63,9 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
     }
 
     const propertyTypes :Map<UUID, PropertyType> = yield select(selectPropertyTypes([
-      FQNS.OL_ACL_KEYS,
+      FQNS.OL_ACL_KEY,
       FQNS.OL_ID,
-      FQNS.OL_PERMISSION_TYPES,
+      FQNS.OL_PERMISSIONS,
       FQNS.OL_REQUEST_DATE_TIME,
       FQNS.OL_REQUEST_PRINCIPAL_ID,
       FQNS.OL_SCHEMA,
@@ -88,16 +88,16 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
      *   ol.id
      *   ol.text = the RJSF "form data" object as a JSON string
      *   ol.schema = the RJSF data schema and ui schema as a JSON string
-     *   ol.aclkeys = acl keys being requested
-     *   ol.permissiontypes = permission types being requested
+     *   ol.aclkey = acl keys being requested
+     *   ol.permissions = permission types being requested
      *   ol.requestdatetime = datetime the request was submitted
      *   ol.requestprincipalid = principal of user requesting access
      */
     const ACCESS_REQUESTS_ESID = '279ef887-9a9e-4954-9ab8-b529bc0d732a';
     const accessRequestEntityData = {
-      [get(propertyTypeIds, FQNS.OL_ACL_KEYS)]: [JSON.stringify(keys)],
+      [get(propertyTypeIds, FQNS.OL_ACL_KEY)]: [JSON.stringify(keys)],
       [get(propertyTypeIds, FQNS.OL_ID)]: [uuid()],
-      [get(propertyTypeIds, FQNS.OL_PERMISSION_TYPES)]: permissionTypes,
+      [get(propertyTypeIds, FQNS.OL_PERMISSIONS)]: permissionTypes,
       [get(propertyTypeIds, FQNS.OL_REQUEST_DATE_TIME)]: [DateTime.local().toISO()],
       [get(propertyTypeIds, FQNS.OL_REQUEST_PRINCIPAL_ID)]: [userId],
       [get(propertyTypeIds, FQNS.OL_SCHEMA)]: [JSON.stringify(schema)],

@@ -28,8 +28,8 @@ function* searchDataWorker(action :SequenceAction) :Saga<WorkerResponse> {
 
     const {
       entitySetId,
-      query,
       maxHits = MAX_HITS_10,
+      query,
       start = 0,
     } :{|
       entitySetId :UUID;

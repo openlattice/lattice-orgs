@@ -13,11 +13,12 @@ const ESNS = {
 
 const FQNS = {
   EKID: FQN.of(OPENLATTICE_ID_FQN),
-  OL_ACL_KEYS: FQN.of('ol.aclkeys'),
+  OL_ACL_KEY: FQN.of('ol.aclkey'),
   OL_COLUMN_INFO: FQN.of('ol.columninfo'),
+  OL_DATA_SET_NAME: FQN.of('ol.dataset_name'),
   OL_DATE_TIME: FQN.of('ol.datetime'),
   OL_ID: FQN.of('ol.id'),
-  OL_PERMISSION_TYPES: FQN.of('ol.permissiontypes'),
+  OL_PERMISSIONS: FQN.of('ol.permissions'),
   OL_REQUEST_DATE_TIME: FQN.of('ol.requestdatetime'),
   OL_REQUEST_PRINCIPAL_ID: FQN.of('ol.requestprincipalid'),
   OL_RESPONSE_DATE_TIME: FQN.of('ol.responsedatetime'),

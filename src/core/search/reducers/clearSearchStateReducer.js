@@ -9,7 +9,6 @@ import {
   SEARCH_DATA_SETS,
   SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS,
   SEARCH_DATA_SETS_TO_FILTER,
-  SEARCH_ORGANIZATION_DATA_SETS,
 } from '../actions';
 import {
   INITIAL_STATE_SEARCH,
@@ -23,7 +22,6 @@ export default function reducer(state :Map, action :SequenceAction) {
       action.value === SEARCH_DATA_SETS
       || action.value === SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS
       || action.value === SEARCH_DATA_SETS_TO_FILTER
-      || action.value === SEARCH_ORGANIZATION_DATA_SETS
     ) {
       return state.set(action.value, INITIAL_STATE_SEARCH_DATA_SETS);
     }

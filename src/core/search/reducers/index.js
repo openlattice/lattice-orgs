@@ -11,6 +11,9 @@ import searchDataSetsToAssignPermissionsReducer from './searchDataSetsToAssignPe
 import searchDataSetsToFilterReducer from './searchDataSetsToFilterReducer';
 import searchOrganizationDataSetsReducer from './searchOrganizationDataSetsReducer';
 
+import { RESET_REQUEST_STATE } from '../../redux/actions';
+import { RS_INITIAL_STATE } from '../../redux/constants';
+import { resetRequestStateReducer } from '../../redux/reducers';
 import {
   CLEAR_SEARCH_STATE,
   SEARCH_DATA,
@@ -34,7 +37,7 @@ const INITIAL_STATE :Map = fromJS({
   [SEARCH_DATA_SETS]: INITIAL_STATE_SEARCH_DATA_SETS,
   [SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS]: INITIAL_STATE_SEARCH_DATA_SETS,
   [SEARCH_DATA_SETS_TO_FILTER]: INITIAL_STATE_SEARCH_DATA_SETS,
-  [SEARCH_ORGANIZATION_DATA_SETS]: INITIAL_STATE_SEARCH_DATA_SETS,
+  [SEARCH_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
@@ -43,6 +46,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case CLEAR_SEARCH_STATE: {
       return clearSearchStateReducer(state, action);
+    }
+
+    case RESET_REQUEST_STATE: {
+      return resetRequestStateReducer(state, action);
     }
 
     case searchData.case(action.type): {
