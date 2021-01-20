@@ -101,6 +101,10 @@ const DataSetDataContainer = ({
     }
   }, [atlasDataSet, entitySet, propertyTypesHash, searchHits]);
 
+  useEffect(() => () => {
+    dispatch(clearSearchState(SEARCH_DATA));
+  }, [dispatch]);
+
   const dispatchSearch = (params :{ page ?:number, query ?:string, start ?:number } = {}) => {
     const { page = 1, query = searchQuery, start = 0 } = params;
     if (isNonEmptyString(query)) {

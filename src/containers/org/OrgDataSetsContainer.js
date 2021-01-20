@@ -59,6 +59,10 @@ const OrgDataSetsContainer = ({
   const searchHits :List = useSelector(selectSearchHits(SEARCH_DATA));
   const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_DATA));
 
+  useEffect(() => () => {
+    dispatch(clearSearchState(SEARCH_DATA));
+  }, [dispatch]);
+
   const dispatchDataSetSearch = (params :{ page ?:number, query ?:string, start ?:number } = {}) => {
     const { page = 1, query = searchQuery, start = 0 } = params;
     if (isNonEmptyString(query)) {
