@@ -70,6 +70,10 @@ const OrgActionButton = ({
     Routes.ORG_OBJECT_PERMISSIONS.replace(Routes.ORG_ID_PARAM, organizationId)
   );
 
+  const goToManageDataSources = useGoToRoute(
+    Routes.ORG_DATA_SOURCES.replace(Routes.ORG_ID_PARAM, organizationId)
+  );
+
   const handleOpenMenu = () => {
     dispatch({ type: OPEN_MENU });
   };
@@ -118,6 +122,9 @@ const OrgActionButton = ({
         </MenuItem>
         <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
           Manage Permissions
+        </MenuItem>
+        <MenuItem onClick={goToManageDataSources}>
+          Manage Data Sources
         </MenuItem>
       </Menu>
       <OrgDescriptionModal
