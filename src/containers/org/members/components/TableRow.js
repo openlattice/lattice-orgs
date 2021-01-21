@@ -20,12 +20,14 @@ import {
   MenuItem,
   Typography,
 } from 'lattice-ui-kit';
+import { Link } from 'react-router-dom';
 import type { Role, UUID } from 'lattice';
 
 import RoleChipsList from './RoleChipsList';
 
 import AssignRolesToMembersModal from '../../components/AssignRolesToMembersModal';
-import { getUserProfile } from '../../../../utils';
+import { Routes } from '../../../../core/router';
+import { getSecurablePrincipalId, getUserProfile } from '../../../../utils';
 
 const { NEUTRAL } = Colors;
 
@@ -47,6 +49,15 @@ const RolesWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+`;
+
+const MemberLink = styled(Link)`
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
 `;
 
 type Props = {
@@ -106,13 +117,25 @@ const TableRow = ({
     setIsVisible(true);
   };
 
+  const memberPrincipalId :?UUID = getSecurablePrincipalId(member);
+  let memberPath = '#';
+  if (memberPrincipalId) {
+    memberPath = Routes.ORG_MEMBER
+      .replace(Routes.ORG_ID_PARAM, organizationId)
+      .replace(Routes.PRINCIPAL_ID_PARAM, memberPrincipalId);
+  }
+
   return (
     <Row>
       <Cell>
         <Checkbox checked={selected} onChange={handleSelectMember} />
       </Cell>
       <Cell as="th">
-        <Typography align="left" noWrap>{name || email}</Typography>
+        <Typography align="left" noWrap>
+          <MemberLink to={memberPath}>
+            { name || email}
+          </MemberLink>
+        </Typography>
       </Cell>
       <Cell>
         <Typography noWrap>{identityProvider}</Typography>
