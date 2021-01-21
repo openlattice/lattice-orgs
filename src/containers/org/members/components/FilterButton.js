@@ -92,7 +92,7 @@ const FilterButton = ({
           }}
           elevation={4}
           getContentAnchorEl={null}
-          id="member-overflow-menu"
+          id="filter-menu"
           onClose={handleMenuOnClose}
           open={!!menuAnchorEl}
           transformOrigin={{
