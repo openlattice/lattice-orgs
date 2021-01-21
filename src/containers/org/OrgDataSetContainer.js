@@ -15,8 +15,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import DataSetActionButton from './components/dataset/DataSetActionButton';
 import DataSetDataContainer from './DataSetDataContainer';
-import DataSetMetaContainer from './DataSetMetaContainer';
-import { getShiproomMetadata } from './actions';
+import DataSetMetaDataContainer from './DataSetMetaDataContainer';
 
 import {
   CrumbItem,
@@ -28,6 +27,7 @@ import {
   StackGrid,
 } from '../../components';
 import { GET_OR_SELECT_DATA_SET, getOrSelectDataSet } from '../../core/edm/actions';
+import { getOwnerStatus } from '../../core/permissions/actions';
 import { EDM } from '../../core/redux/constants';
 import {
   selectAtlasDataSets,
@@ -69,6 +69,7 @@ const OrgDataSetContainer = ({
   const entitySet :?EntitySet = entitySets.get(dataSetId);
   const dataSet = atlasDataSet || entitySet;
 
+  // TODO: replace with metadata from ol.dataset
   const description :string = getDataSetField(dataSet, 'description');
   const name :string = getDataSetField(dataSet, 'name');
   const title :string = getDataSetField(dataSet, 'title');
@@ -76,10 +77,7 @@ const OrgDataSetContainer = ({
 
   useEffect(() => {
     dispatch(getOrSelectDataSet({ dataSetId, organizationId }));
-  }, [dispatch, dataSetId, organizationId]);
-
-  useEffect(() => {
-    dispatch(getShiproomMetadata({ dataSetId, organizationId }));
+    dispatch(getOwnerStatus(dataSetId));
   }, [dispatch, dataSetId, organizationId]);
 
   if (organization) {
@@ -89,7 +87,7 @@ const OrgDataSetContainer = ({
     );
 
     const renderDataSetMetaContainer = () => (
-      <DataSetMetaContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} isOwner={isOwner} />
+      <DataSetMetaDataContainer dataSetId={dataSetId} isOwner={isOwner} organizationId={organizationId} />
     );
 
     return (
