@@ -14,9 +14,9 @@ import {
   Checkbox,
   Colors,
   IconButton,
-  // $FlowFixMe[missing-export]
+  // $FlowFixMe
   Menu,
-  // $FlowFixMe[missing-export]
+  // $FlowFixMe
   MenuItem,
   Typography,
 } from 'lattice-ui-kit';
@@ -24,6 +24,7 @@ import type { Role, UUID } from 'lattice';
 
 import RoleChipsList from './RoleChipsList';
 
+import AssignRolesToMembersModal from '../../components/AssignRolesToMembersModal';
 import { getUserProfile } from '../../../../utils';
 
 const { NEUTRAL } = Colors;
@@ -71,7 +72,9 @@ const TableRow = ({
 } :Props) => {
 
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
-  const { name, email } = getUserProfile(member);
+  const [isVisible, setIsVisible] = useState(false);
+
+  const { name, email, id } = getUserProfile(member);
   const memberRoles = get(member, 'roles');
   const memberRolesIds = Set(memberRoles.map((role) => get(role, 'id')));
   const orgRolesIds = Set(roles.map((role) => role.id));
@@ -96,6 +99,11 @@ const TableRow = ({
 
   const handleSelectMember = () => {
     onSelectMember(member);
+  };
+
+  const handleAssignRoles = () => {
+    handleMenuOnClose();
+    setIsVisible(true);
   };
 
   return (
@@ -147,7 +155,7 @@ const TableRow = ({
                 horizontal: 'right',
                 vertical: 'top',
               }}>
-            <MenuItem>
+            <MenuItem onClick={handleAssignRoles}>
               Add role
             </MenuItem>
             {/* <MenuItem>
@@ -157,6 +165,19 @@ const TableRow = ({
               Delete person
             </MenuItem>
           </Menu>
+          {
+            isOwner && (
+              <AssignRolesToMembersModal
+                  isVisible={isVisible}
+                  members={Map({ [id]: member })}
+                  onClose={() => setIsVisible(false)}
+                  organizationId={organizationId}
+                  roles={roles}
+                  shouldCloseOnOutsideClick={false}
+                  textTitle="Add Roles"
+                  withFooter={false} />
+            )
+          }
         </RolesWrapper>
       </Cell>
     </Row>
