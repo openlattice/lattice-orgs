@@ -72,6 +72,8 @@ const TableRow = ({
   const memberRolesIds = Set(memberRoles.map((role) => get(role, 'id')));
   const orgRolesIds = Set(roles.map((role) => role.id));
 
+  const identityProvider = member.getIn(['profile', 'identities', 0, 'provider'], '');
+
   const currentRolesIds = orgRolesIds.intersect(memberRolesIds);
   const currentRoles = roles.filter((role) => currentRolesIds.includes(role.id));
 
@@ -97,7 +99,7 @@ const TableRow = ({
         <Typography align="left" noWrap>{name || email}</Typography>
       </Cell>
       <Cell>
-        <Typography noWrap>Auth0</Typography>
+        <Typography noWrap>{identityProvider}</Typography>
       </Cell>
       <Cell padding="small">
         <RolesWrapper>

@@ -239,7 +239,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
             const role :Role = seqAction.value;
             const org :Organization = state.getIn([ORGS, role.organizationId]);
-            const updatedRoles = [...org.roles, role].sort((role1, role2) => (role1.title < role2.title ? -1 : 0));
+            const updatedRoles = [...org.roles, role].sort((roleA, roleB) => (roleA.title.localeCompare(roleB.title)));
             const updatedOrg = (new OrganizationBuilder(org))
               .setRoles(updatedRoles)
               .build();
