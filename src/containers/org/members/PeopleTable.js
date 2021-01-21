@@ -152,12 +152,16 @@ const PeopleTable = ({
     setSelectedMembers(newSelection);
   };
 
+  const selectionText = selectedMembers.size
+    ? `${selectedMembers.size} selected`
+    : `${filteredMembers.size} members`;
+
   return (
     <div>
       <TableToolbar>
         <MembersCheckboxWrapper>
           <Checkbox />
-          <Selection>{`${members.size} members`}</Selection>
+          <Selection>{selectionText}</Selection>
         </MembersCheckboxWrapper>
         <BulkActionButton onAddRolesClick={() => setIsVisibleAssignRolesModal(true)} />
         <SearchInput onChange={handleOnChangeMemberFilterQuery} />
