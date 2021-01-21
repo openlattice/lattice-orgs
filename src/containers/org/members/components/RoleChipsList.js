@@ -1,11 +1,13 @@
 // @flow
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
+// $FlowFixMe[missing-export
 import { Chip } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
 
+import RoleOverflowPopover from './RoleOverflowPopover';
 import usePriorityVisibility from './usePriorityVisibility';
 
 import { Routes } from '../../../../core/router';
@@ -15,6 +17,7 @@ const ChipsList = styled.div`
   display: flex;
   flex: 1;
   overflow: hidden;
+
   > :not(:first-child) {
     margin-left: 4px;
   }
@@ -36,12 +39,22 @@ const RoleChipsList = ({
   roles,
 } :Props) => {
   const chipListRef = useRef(null);
+  const [overflowAnchorEl, setOverflowAnchorEl] = useState(null);
 
   const [priority, remainder] = usePriorityVisibility(chipListRef, roles, 4, 52);
+
+  const handleOverflowClick = (event) => {
+    setOverflowAnchorEl(event?.currentTarget);
+  };
+
+  const handleClose = () => {
+    setOverflowAnchorEl(null);
+  };
 
   const { id } = getUserProfile(member);
   const getHandleDelete = (role :Role) => (e :SyntheticEvent<HTMLElement>) => {
     e.preventDefault();
+    handleClose();
     onUnassign(member, role);
   };
 
@@ -68,7 +81,23 @@ const RoleChipsList = ({
           })
         }
         {
-          !!remainder.length && <Chip clickable variant="outline" label={`+${remainder.length}`} />
+          !!remainder.length && (
+            <>
+              <Chip
+                  clickable
+                  label={`+${remainder.length}`}
+                  onClick={handleOverflowClick}
+                  variant="outline" />
+              <RoleOverflowPopover
+                  anchorEl={overflowAnchorEl}
+                  deletable={deletable}
+                  handleDelete={getHandleDelete}
+                  onClose={handleClose}
+                  open={!!overflowAnchorEl}
+                  organizationId={organizationId}
+                  roles={remainder} />
+            </>
+          )
         }
       </ChipsList>
     </>

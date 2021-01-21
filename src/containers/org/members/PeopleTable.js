@@ -4,7 +4,7 @@ import React, { useReducer, useState } from 'react';
 import styled from 'styled-components';
 import { faAngleDown, faPlus } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List, Map } from 'immutable';
+import { List, Map, Set } from 'immutable';
 import {
   Button,
   Checkbox,
@@ -16,6 +16,8 @@ import type { Role, UUID } from 'lattice';
 
 import FilterButton from './components/FilterButton';
 import TableRow from './components/TableRow';
+import memberHasSelectedIdentityTypes from './utils/memberHasSelectedIdentityTypes';
+import memberHasSelectedRoles from './utils/memberHasSelectedRoles';
 
 import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
 import { getUserProfile } from '../../../utils';
@@ -77,15 +79,27 @@ const PeopleTable = ({
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
   const [isVisibleAddMemberToOrgModal, setIsVisibleAddMemberToOrgModal] = useState(false);
-  const [isVisibleAssignRoleModal, setIsVisibleAssignRoleModal] = useState(false);
+  // const [isVisibleAssignRoleModal, setIsVisibleAssignRoleModal] = useState(false);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
   const [targetMember, setTargetMember] = useState();
   const [targetRole, setTargetRole] = useState();
+  const [selectedFilters, setSelectedFilters] = useState(Map({
+    role: Set(),
+    authorization: Set(),
+  }));
 
   let filteredMembers = members;
+  // filter by query
   if (paginationState.query) {
     filteredMembers = filteredMembers.filter((member) => filterOrganizationMember(member, paginationState.query));
   }
+  // filter by selected roles
+  filteredMembers = filteredMembers
+    .filter((member) => memberHasSelectedRoles(member, selectedFilters.get('role', Set())));
+  // filter by selected authorization
+  filteredMembers = filteredMembers
+    .filter((member) => memberHasSelectedIdentityTypes(member, selectedFilters.get('authorization', Set())));
+
   const filteredMembersCount = filteredMembers.count();
   const pageMembers = filteredMembers.slice(paginationState.start, paginationState.start + MAX_PER_PAGE);
 
@@ -116,8 +130,13 @@ const PeopleTable = ({
     setIsVisibleAddMemberToOrgModal(true);
   };
 
-  const handleOnFilterChange = (category :string, value :string) => {
-    // update state to toggle inclusion of set
+  const handleOnFilterChange = (category :string, id :string) => {
+    const categoryFilters = selectedFilters.get(category, Set());
+    const newFilters = categoryFilters.includes(id)
+      ? categoryFilters.delete(id)
+      : categoryFilters.add(id);
+
+    setSelectedFilters(selectedFilters.set(category, newFilters));
   };
 
   return (
@@ -129,8 +148,8 @@ const PeopleTable = ({
         </MembersCheckboxWrapper>
         <Button endIcon={ChevronDown} variant="text">Bulk Actions</Button>
         <SearchInput onChange={handleOnChangeMemberFilterQuery} />
-        {/* <Button endIcon={ChevronDown} variant="text">Filter</Button> */}
         <FilterButton
+            filter={selectedFilters}
             onFilterChange={handleOnFilterChange}
             organizationId={organizationId}
             roles={roles} />

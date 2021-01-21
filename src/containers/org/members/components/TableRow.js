@@ -14,7 +14,9 @@ import {
   Checkbox,
   Colors,
   IconButton,
+  // $FlowFixMe[missing-export]
   Menu,
+  // $FlowFixMe[missing-export]
   MenuItem,
   Typography,
 } from 'lattice-ui-kit';
@@ -33,7 +35,7 @@ const Row = styled.tr`
 
 const Cell = styled.td`
   border: 1px solid ${NEUTRAL.N100};
-  max-width: 0px;
+  max-width: 0;
   overflow: hidden;
   padding: ${(props) => (props.padding === 'small' ? '0 8px' : '0 16px')};
   text-overflow: ellipsis;
@@ -70,6 +72,8 @@ const TableRow = ({
   const memberRolesIds = Set(memberRoles.map((role) => get(role, 'id')));
   const orgRolesIds = Set(roles.map((role) => role.id));
 
+  const identityProvider = member.getIn(['profile', 'identities', 0, 'provider'], '');
+
   const currentRolesIds = orgRolesIds.intersect(memberRolesIds);
   const currentRoles = roles.filter((role) => currentRolesIds.includes(role.id));
 
@@ -95,7 +99,7 @@ const TableRow = ({
         <Typography align="left" noWrap>{name || email}</Typography>
       </Cell>
       <Cell>
-        <Typography noWrap>Auth0</Typography>
+        <Typography noWrap>{identityProvider}</Typography>
       </Cell>
       <Cell padding="small">
         <RolesWrapper>
