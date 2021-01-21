@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import debounce from 'lodash/debounce';
 import { Map } from 'immutable';
 import {
+  // $FlowFixMe
   List,
   SearchInput,
   Typography,
@@ -45,7 +46,7 @@ const SelectRoles = ({
   const { name, email } = getUserProfile(members.first());
   const selectedText = members.size === 1
     ? (name || email)
-    : `${members.size} selected user(s)`;
+    : `${members.size} users`;
 
   return (
     <div>
