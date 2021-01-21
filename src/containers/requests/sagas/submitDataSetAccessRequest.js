@@ -27,7 +27,7 @@ import { submitDataGraphWorker } from '../../../core/data/sagas';
 import { FQNS } from '../../../core/edm/constants';
 import { selectOrganization, selectPropertyTypes } from '../../../core/redux/selectors';
 import { toSagaError } from '../../../utils';
-import { ERR_INVALID_ORGANIZATION, ERR_INVALID_PRINCIPAL_ID } from '../../../utils/constants/errors';
+import { ERR_INVALID_PRINCIPAL_ID, ERR_MISSING_ORG } from '../../../utils/constants/errors';
 import { SUBMIT_DATA_SET_ACCESS_REQUEST, submitDataSetAccessRequest } from '../actions';
 import { DataSetAccessRequestSchema } from '../schemas';
 
@@ -64,7 +64,7 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
 
     const organization :?Organization = yield select(selectOrganization(organizationId));
     if (!organization) {
-      throw new Error(ERR_INVALID_ORGANIZATION);
+      throw new Error(ERR_MISSING_ORG);
     }
 
     const userId :string = get(AuthUtils.getUserInfo(), 'id', '');

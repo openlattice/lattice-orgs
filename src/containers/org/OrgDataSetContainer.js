@@ -2,11 +2,16 @@
  * @flow
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
-import { Map } from 'immutable';
+import { Map, get } from 'immutable';
 import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
-import { ReduxUtils, useRequestState } from 'lattice-utils';
+import {
+  DataUtils,
+  LangUtils,
+  ReduxUtils,
+  useRequestState,
+} from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
@@ -26,18 +31,26 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { GET_OR_SELECT_DATA_SET, getOrSelectDataSet } from '../../core/edm/actions';
+import {
+  GET_DATA_SET_METADATA,
+  GET_OR_SELECT_DATA_SET,
+  getDataSetMetaData,
+  getOrSelectDataSet,
+} from '../../core/edm/actions';
+import { FQNS } from '../../core/edm/constants';
 import { getOwnerStatus } from '../../core/permissions/actions';
-import { EDM } from '../../core/redux/constants';
+import { DATA_SET, EDM } from '../../core/redux/constants';
 import {
   selectAtlasDataSets,
+  selectDataSetMetaData,
   selectEntitySets,
   selectHasOwnerPermission,
   selectOrganization,
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-import { getDataSetField } from '../../utils';
 
+const { getPropertyValue } = DataUtils;
+const { isNonEmptyString } = LangUtils;
 const { isPending, isSuccess } = ReduxUtils;
 
 const OrgDataSetContainer = ({
@@ -58,24 +71,43 @@ const OrgDataSetContainer = ({
 
   const dispatch = useDispatch();
 
+  const getDataSetMetaDataRS :?RequestState = useRequestState([EDM, GET_DATA_SET_METADATA]);
   const getOrSelectDataSetRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_DATA_SET]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
+  const isOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
+  const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
+
+  // TODO: remove once "ol.dataSet" has properties for all EntitySet fields
   const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets([dataSetId]));
   const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets([dataSetId]));
-  const isOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
-
   const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
   const entitySet :?EntitySet = entitySets.get(dataSetId);
   const dataSet = atlasDataSet || entitySet;
 
-  // TODO: replace with metadata from ol.dataset
-  const description :string = getDataSetField(dataSet, 'description');
-  const name :string = getDataSetField(dataSet, 'name');
-  const title :string = getDataSetField(dataSet, 'title');
-  const contacts :string[] = getDataSetField(dataSet, 'contacts') || [];
+  const dataSetMetaData = get(metadata, DATA_SET, Map());
+  const description :string = getPropertyValue(dataSetMetaData, [FQNS.OL_DESCRIPTION, 0]);
+  const name :string = getPropertyValue(dataSetMetaData, [FQNS.OL_DATA_SET_NAME, 0]);
+  const title :string = getPropertyValue(dataSetMetaData, [FQNS.OL_TITLE, 0]);
+
+  const contact :string = useMemo(() => {
+    const contactEmail :string = getPropertyValue(dataSetMetaData, [FQNS.CONTACT_EMAIL, 0]);
+    const contactPhone :string = getPropertyValue(dataSetMetaData, [FQNS.CONTACT_PHONE_NUMBER, 0]);
+    let contactString = '';
+    if (isNonEmptyString(contactEmail) && isNonEmptyString(contactPhone)) {
+      contactString = `${contactEmail} - ${contactPhone}`;
+    }
+    else if (isNonEmptyString(contactEmail)) {
+      contactString = contactEmail;
+    }
+    else if (isNonEmptyString(contactPhone)) {
+      contactString = contactPhone;
+    }
+    return contactString;
+  }, [dataSetMetaData]);
 
   useEffect(() => {
+    dispatch(getDataSetMetaData({ dataSetId, organizationId }));
     dispatch(getOrSelectDataSet({ dataSetId, organizationId }));
     dispatch(getOwnerStatus(dataSetId));
   }, [dispatch, dataSetId, organizationId]);
@@ -83,11 +115,11 @@ const OrgDataSetContainer = ({
   if (organization) {
 
     const renderDataSetDataContainer = () => (
-      <DataSetDataContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} />
+      <DataSetDataContainer dataSetId={dataSetId} />
     );
 
     const renderDataSetMetaContainer = () => (
-      <DataSetMetaDataContainer dataSetId={dataSetId} isOwner={isOwner} organizationId={organizationId} />
+      <DataSetMetaDataContainer dataSetId={dataSetId} isOwner={isOwner} />
     );
 
     return (
@@ -99,12 +131,12 @@ const OrgDataSetContainer = ({
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
           {
-            isPending(getOrSelectDataSetRS) && (
+            (isPending(getOrSelectDataSetRS) || isPending(getDataSetMetaDataRS)) && (
               <Spinner />
             )
           }
           {
-            isSuccess(getOrSelectDataSetRS) && (
+            isSuccess(getDataSetMetaDataRS) && (
               <StackGrid gap={48}>
                 <StackGrid>
                   <SpaceBetweenGrid>
@@ -116,16 +148,13 @@ const OrgDataSetContainer = ({
                 <StackGrid>
                   <Typography variant="h4">Contact</Typography>
                   {
-                    contacts.length === 0 && (
-                      <Typography>No contact information is available.</Typography>
-                    )
-                  }
-                  {
-                    contacts.length > 0 && (
-                      contacts.map((contact :string) => (
-                        <Typography key={contact}>{contact}</Typography>
-                      ))
-                    )
+                    isNonEmptyString(contact)
+                      ? (
+                        <Typography>{contact}</Typography>
+                      )
+                      : (
+                        <Typography>No contact information is available.</Typography>
+                      )
                   }
                 </StackGrid>
               </StackGrid>
@@ -133,7 +162,7 @@ const OrgDataSetContainer = ({
           }
         </AppContentWrapper>
         {
-          isSuccess(getOrSelectDataSetRS) && (
+          (isSuccess(getOrSelectDataSetRS) || isSuccess(getDataSetMetaDataRS)) && (
             <>
               <NavContentWrapper bgColor="white">
                 <AppNavigationWrapper borderless>

@@ -12,6 +12,8 @@ const ESNS = {
 };
 
 const FQNS = {
+  CONTACT_EMAIL: FQN.of('contact.Email'),
+  CONTACT_PHONE_NUMBER: FQN.of('contact.phonenumber'),
   EKID: FQN.of(OPENLATTICE_ID_FQN),
   OL_ACL_KEY: FQN.of('ol.aclkey'),
   OL_COLUMN_INFO: FQN.of('ol.columninfo'),

@@ -186,9 +186,13 @@ const DataSetActionButton = ({
                 organizationId={organizationId} />
           )
         }
-        <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
-          Manage Permissions
-        </MenuItem>
+        {
+          isOwner && (
+            <MenuItem onClick={goToManagePermissions}>
+              Manage Permissions
+            </MenuItem>
+          )
+        }
         <MenuItem onClick={goToDataSetAccessRequest}>
           Request Access
         </MenuItem>

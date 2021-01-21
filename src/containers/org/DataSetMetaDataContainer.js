@@ -11,22 +11,18 @@ import React, {
 
 import { List, Map, get } from 'immutable';
 import { AppContentWrapper, Table } from 'lattice-ui-kit';
-import { DataUtils, ReduxUtils, useRequestState } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
+import { DataUtils } from 'lattice-utils';
+import { useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
-import type { RequestState } from 'redux-reqseq';
 
 import EditMetadataModal from './components/EditMetadataModal';
 import EditableMetadataRow from './components/EditableMetadataRow';
 
-import { Spinner } from '../../components';
-import { GET_DATA_SET_METADATA, getDataSetMetaData } from '../../core/edm/actions';
 import { FQNS } from '../../core/edm/constants';
-import { DATA_SET_COLUMNS, EDM } from '../../core/redux/constants';
+import { DATA_SET_COLUMNS } from '../../core/redux/constants';
 import { selectDataSetMetaData } from '../../core/redux/selectors';
 
 const { getPropertyValue } = DataUtils;
-const { isPending, isSuccess } = ReduxUtils;
 
 const TABLE_HEADERS = [
   { key: 'title', label: 'TITLE' },
@@ -66,29 +62,19 @@ const reducer = (state, action) => {
 const DataSetMetaDataContainer = ({
   dataSetId,
   isOwner,
-  organizationId,
 } :{|
   dataSetId :UUID;
   isOwner :boolean;
-  organizationId :UUID;
 |}) => {
-
-  const dispatch = useDispatch();
 
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_MODAL_STATE);
   const [tableData, setTableData] = useState([]);
 
-  const getDataSetMetaDataRS :?RequestState = useRequestState([EDM, GET_DATA_SET_METADATA]);
-
   const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
 
   useEffect(() => {
-    dispatch(getDataSetMetaData({ dataSetId, organizationId }));
-  }, [dispatch, dataSetId, organizationId]);
-
-  useEffect(() => {
     // NOTE: the column EntityType is ol.column
-    const data = get(metadata, DATA_SET_COLUMNS, List()).map((column :Map) => ({
+    const data :List = get(metadata, DATA_SET_COLUMNS, List()).map((column :Map) => ({
       description: getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]),
       id: getPropertyValue(column, [FQNS.OL_ID, 0]),
       title: getPropertyValue(column, [FQNS.OL_TITLE, 0]),
@@ -111,23 +97,12 @@ const DataSetMetaDataContainer = ({
 
   return (
     <AppContentWrapper>
-      {
-        isPending(getDataSetMetaDataRS) && (
-          <Spinner />
-        )
-      }
-      {
-        isSuccess(getDataSetMetaDataRS) && (
-          <>
-            <Table components={components} data={tableData} headers={TABLE_HEADERS} />
-            <EditMetadataModal
-                isVisible={modalState.isVisible}
-                metadata={metadata}
-                onClose={() => modalDispatch({ type: CLOSE })}
-                property={modalState.selectedRowData} />
-          </>
-        )
-      }
+      <Table components={components} data={tableData} headers={TABLE_HEADERS} />
+      <EditMetadataModal
+          isVisible={modalState.isVisible}
+          metadata={metadata}
+          onClose={() => modalDispatch({ type: CLOSE })}
+          property={modalState.selectedRowData} />
     </AppContentWrapper>
   );
 };
