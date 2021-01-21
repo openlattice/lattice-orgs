@@ -110,10 +110,15 @@ function* getDataSetMetaDataWorker(action :SequenceAction) :Saga<WorkerResponse>
     );
     if (response2.error) throw response2.error;
 
+    // NOTE: just make sure the search results include columns ONLY for the data set we are about
+    const dataSetColumns = response2.data.hits.filter((searchHit :Object) => (
+      getPropertyValue(searchHit, [FQNS.OL_DATA_SET_NAME, 0]) === dataSetName
+    ));
+
     workerResponse = {
       data: fromJS({
         [DATA_SET]: dataSet,
-        [DATA_SET_COLUMNS]: response2.data.hits,
+        [DATA_SET_COLUMNS]: dataSetColumns,
       }),
     };
     yield put(getDataSetMetaData.success(action.id, workerResponse.data));
