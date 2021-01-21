@@ -15,7 +15,7 @@ const FQNS = {
   CONTACT_EMAIL: FQN.of('contact.Email'),
   CONTACT_PHONE_NUMBER: FQN.of('contact.phonenumber'),
   EKID: FQN.of(OPENLATTICE_ID_FQN),
-  OL_ACL_KEY: FQN.of('ol.aclkey'),
+  OL_ACL_KEYS: FQN.of('ol.aclkeys'),
   OL_COLUMN_INFO: FQN.of('ol.columninfo'),
   OL_COLUMN_NAME: FQN.of('ol.column_name'),
   OL_DATA_SET_NAME: FQN.of('ol.dataset_name'),

@@ -5,6 +5,7 @@
 import { DataProcessingUtils } from 'lattice-fabricate';
 
 import { ESNS, FQNS } from '../../../core/edm/constants';
+import { DATA_SET_COLUMNS } from '../../../core/redux/constants';
 import { PERMISSION_TYPE_RS_OPTIONS } from '../../permissions/constants';
 
 const { getEntityAddressKey, getPageSectionKey } = DataProcessingUtils;
@@ -12,7 +13,6 @@ const { getEntityAddressKey, getPageSectionKey } = DataProcessingUtils;
 const ACCESS_REQUEST_PSK = getPageSectionKey(1, 1);
 const ACCESS_REQUEST_EAK = getEntityAddressKey(0, ESNS.ACCESS_REQUESTS, FQNS.OL_TEXT);
 
-const DATA_SET_PROPERTIES :'dataSetProperties' = 'dataSetProperties';
 const PERMISSION_TYPES :'permissionTypes' = 'permissionTypes';
 
 const dataSchema = {
@@ -39,7 +39,7 @@ const dataSchema = {
               title: 'Permissions',
               uniqueItems: true,
             },
-            [DATA_SET_PROPERTIES]: {
+            [DATA_SET_COLUMNS]: {
               items: {
                 enum: [],
                 enumNames: [],
@@ -78,7 +78,7 @@ const uiSchema = {
         'ui:options': { multiple: true },
         classNames: 'column-span-12',
       },
-      [DATA_SET_PROPERTIES]: {
+      [DATA_SET_COLUMNS]: {
         'ui:widget': 'checkboxes',
         classNames: 'column-span-12',
       },
@@ -89,7 +89,6 @@ const uiSchema = {
 export {
   ACCESS_REQUEST_EAK,
   ACCESS_REQUEST_PSK,
-  DATA_SET_PROPERTIES,
   PERMISSION_TYPES,
   dataSchema,
   uiSchema,

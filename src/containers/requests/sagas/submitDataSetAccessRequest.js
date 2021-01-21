@@ -25,6 +25,7 @@ import type { SequenceAction } from 'redux-reqseq';
 import { submitDataGraph } from '../../../core/data/actions';
 import { submitDataGraphWorker } from '../../../core/data/sagas';
 import { FQNS } from '../../../core/edm/constants';
+import { DATA_SET_COLUMNS } from '../../../core/redux/constants';
 import { selectOrganization, selectPropertyTypes } from '../../../core/redux/selectors';
 import { toSagaError } from '../../../utils';
 import { ERR_INVALID_PRINCIPAL_ID, ERR_MISSING_ORG } from '../../../utils/constants/errors';
@@ -38,7 +39,6 @@ const { isNonEmptyString } = LangUtils;
 const {
   ACCESS_REQUEST_EAK,
   ACCESS_REQUEST_PSK,
-  DATA_SET_PROPERTIES,
   PERMISSION_TYPES,
 } = DataSetAccessRequestSchema;
 
@@ -74,7 +74,7 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
 
     const propertyTypes :Map<UUID, PropertyType> = yield select(
       selectPropertyTypes([
-        FQNS.OL_ACL_KEY,
+        FQNS.OL_ACL_KEYS,
         FQNS.OL_ID,
         FQNS.OL_PERMISSIONS,
         FQNS.OL_REQUEST_DATE_TIME,
@@ -87,7 +87,7 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
     const propertyTypeIds :Map<FQN, UUID> = propertyTypes.map((propertyType) => propertyType.type).flip();
 
     const keys :UUID[][] = [];
-    getIn(data, [ACCESS_REQUEST_PSK, ACCESS_REQUEST_EAK, DATA_SET_PROPERTIES], []).forEach((propertyId :UUID) => {
+    getIn(data, [ACCESS_REQUEST_PSK, ACCESS_REQUEST_EAK, DATA_SET_COLUMNS], []).forEach((propertyId :UUID) => {
       keys.push([dataSetId, propertyId]);
     });
 
@@ -103,9 +103,9 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
      *   ol.requestdatetime = datetime the request was submitted
      *   ol.requestprincipalid = principal of user requesting access
      */
-    const ACCESS_REQUESTS_ESID = organization?.metadataEntitySetIds.accessRequests;
+    const ACCESS_REQUESTS_ESID = organization.metadataEntitySetIds.accessRequests;
     const accessRequestEntityData = {
-      [get(propertyTypeIds, FQNS.OL_ACL_KEY)]: [JSON.stringify(keys)],
+      [get(propertyTypeIds, FQNS.OL_ACL_KEYS)]: [JSON.stringify(keys)],
       [get(propertyTypeIds, FQNS.OL_ID)]: [uuid()],
       [get(propertyTypeIds, FQNS.OL_PERMISSIONS)]: permissionTypes,
       [get(propertyTypeIds, FQNS.OL_REQUEST_DATE_TIME)]: [DateTime.local().toISO()],

@@ -27,7 +27,7 @@ import {
   selectDataSetSchema
 } from '../../../../core/redux/selectors';
 import { Routes } from '../../../../core/router';
-import { getDataSetField, isAtlasDataSet } from '../../../../utils';
+import { isAtlasDataSet } from '../../../../utils';
 import { OPENLATTICE } from '../../../../utils/constants';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
@@ -75,15 +75,16 @@ const reducer = (state, action) => {
 
 const DataSetActionButton = ({
   dataSet,
+  dataSetId,
   isOwner,
   organizationId,
 } :{|
   dataSet :EntitySet | Map;
+  dataSetId :UUID;
   isOwner :boolean;
   organizationId :UUID;
 |}) => {
 
-  const dataSetId :UUID = getDataSetField(dataSet, 'id');
   const dataSetKey :List<UUID> = List([dataSetId]);
   const isAtlas :boolean = isAtlasDataSet(dataSet);
 

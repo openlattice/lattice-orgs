@@ -4,18 +4,18 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { Map, setIn } from 'immutable';
+import {
+  List,
+  Map,
+  get,
+  setIn,
+} from 'immutable';
 import { Types } from 'lattice';
 import { Form } from 'lattice-fabricate';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
-import { ReduxUtils, useRequestState } from 'lattice-utils';
+import { DataUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type {
-  EntitySet,
-  Organization,
-  PropertyType,
-  UUID,
-} from 'lattice';
+import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import {
@@ -32,24 +32,23 @@ import {
   Crumbs,
   Spinner,
 } from '../../components';
+import { FQNS } from '../../core/edm/constants';
 import { resetRequestState } from '../../core/redux/actions';
-import { REQUESTS } from '../../core/redux/constants';
+import { DATA_SET, DATA_SET_COLUMNS, REQUESTS } from '../../core/redux/constants';
 import {
-  selectDataSet,
   selectDataSetAccessRequestDataSchema,
   selectDataSetAccessRequestUISchema,
-  selectDataSetProperties,
+  selectDataSetMetaData,
   selectOrganization,
 } from '../../core/redux/selectors';
-import { getDataSetField } from '../../utils';
 
 const { PermissionTypes } = Types;
+const { getPropertyValue } = DataUtils;
 const { isPending, isSuccess } = ReduxUtils;
 
 const {
   ACCESS_REQUEST_EAK,
   ACCESS_REQUEST_PSK,
-  DATA_SET_PROPERTIES,
   PERMISSION_TYPES,
 } = DataSetAccessRequestSchema;
 
@@ -75,14 +74,14 @@ const DataSetAccessRequestContainer = ({
   const submitRS :?RequestState = useRequestState([REQUESTS, SUBMIT_DATA_SET_ACCESS_REQUEST]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const dataSet :?EntitySet | Map = useSelector(selectDataSet(dataSetId));
-  const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(dataSetId));
-  const propertiesHash :number = properties.hashCode();
+  const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
   const dataSchema = useSelector(selectDataSetAccessRequestDataSchema());
   const uiSchema = useSelector(selectDataSetAccessRequestUISchema());
 
-  const name :string = getDataSetField(dataSet, 'name');
-  const title :string = getDataSetField(dataSet, 'title');
+  const dataSetMetaData = get(metadata, DATA_SET, Map());
+  const dataSetColumnsMetaData = get(metadata, DATA_SET_COLUMNS, List());
+  const name :string = getPropertyValue(dataSetMetaData, [FQNS.OL_DATA_SET_NAME, 0]);
+  const title :string = getPropertyValue(dataSetMetaData, [FQNS.OL_TITLE, 0]);
 
   useEffect(() => () => {
     dispatch(resetRequestState([INITIALIZE_DATA_SET_ACCESS_REQUEST]));
@@ -97,11 +96,11 @@ const DataSetAccessRequestContainer = ({
     if (isSuccess(initRS)) {
       setData((prevData) => {
         let newData = prevData;
-        // NOTE: initialize data with all properties selected by default
+        // NOTE: initialize data with all columns selected by default
         newData = setIn(
           newData,
-          [ACCESS_REQUEST_PSK, ACCESS_REQUEST_EAK, DATA_SET_PROPERTIES],
-          properties.keySeq().toJS(),
+          [ACCESS_REQUEST_PSK, ACCESS_REQUEST_EAK, DATA_SET_COLUMNS],
+          dataSetColumnsMetaData.map((column :Map) => getPropertyValue(column, [FQNS.OL_ID, 0])).toJS(),
         );
         // NOTE: initialize data with OWNER, READ, WRITE selected by default
         newData = setIn(
@@ -112,7 +111,7 @@ const DataSetAccessRequestContainer = ({
         return newData;
       });
     }
-  }, [initRS, propertiesHash]);
+  }, [initRS, dataSetColumnsMetaData]);
 
   if (organization) {
 

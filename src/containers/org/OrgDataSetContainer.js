@@ -78,7 +78,7 @@ const OrgDataSetContainer = ({
   const isOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
   const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
 
-  // TODO: remove once "ol.dataSet" has properties for all EntitySet fields
+  // TODO: remove once "ol.dataset" has properties for all EntitySet fields
   const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets([dataSetId]));
   const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets([dataSetId]));
   const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
@@ -141,7 +141,11 @@ const OrgDataSetContainer = ({
                 <StackGrid>
                   <SpaceBetweenGrid>
                     <Typography variant="h1">{title || name}</Typography>
-                    <DataSetActionButton dataSet={dataSet} isOwner={isOwner} organizationId={organizationId} />
+                    <DataSetActionButton
+                        dataSet={dataSet}
+                        dataSetId={dataSetId}
+                        isOwner={isOwner}
+                        organizationId={organizationId} />
                   </SpaceBetweenGrid>
                   <Typography>{description || name}</Typography>
                 </StackGrid>
