@@ -172,7 +172,7 @@ const AssignPermissionsToObjectModalBody = ({
                 <>
                   <ModalBody>
                     <StepConfirm
-                        assignPermissionsRS={assignPermissionsRS}
+                        requestState={assignPermissionsRS}
                         confirmText={confirmText} />
                   </ModalBody>
                   <ModalFooter

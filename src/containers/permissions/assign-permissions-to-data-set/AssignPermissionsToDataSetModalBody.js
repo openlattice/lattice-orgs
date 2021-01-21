@@ -123,7 +123,7 @@ const AssignPermissionsToDataSetModalBody = ({
                 <>
                   <ModalBody>
                     <StepConfirm
-                        assignPermissionsRS={assignPermissionsToDataSetRS}
+                        requestState={assignPermissionsToDataSetRS}
                         confirmText={confirmText} />
                   </ModalBody>
                   <ModalFooter
