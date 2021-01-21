@@ -17,13 +17,18 @@ const getOrSelectDataSet :RequestSequence = newRequestSequence(GET_OR_SELECT_DAT
 const GET_OR_SELECT_DATA_SETS :'GET_OR_SELECT_DATA_SETS' = 'GET_OR_SELECT_DATA_SETS';
 const getOrSelectDataSets :RequestSequence = newRequestSequence(GET_OR_SELECT_DATA_SETS);
 
+const UPDATE_DATA_SET_METADATA :'UPDATE_DATA_SET_METADATA' = 'UPDATE_DATA_SET_METADATA';
+const updateDataSetMetaData :RequestSequence = newRequestSequence(UPDATE_DATA_SET_METADATA);
+
 export {
   GET_DATA_SET_METADATA,
   GET_EDM_TYPES,
   GET_OR_SELECT_DATA_SET,
   GET_OR_SELECT_DATA_SETS,
+  UPDATE_DATA_SET_METADATA,
   getDataSetMetaData,
   getEntityDataModelTypes,
   getOrSelectDataSet,
   getOrSelectDataSets,
+  updateDataSetMetaData,
 };

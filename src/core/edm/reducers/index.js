@@ -22,6 +22,7 @@ import getOrganizationDataSetsReducer from './getOrganizationDataSetsReducer';
 import promoteStagingTableReducer from './promoteStagingTableReducer';
 import searchEntitySetMetaDataReducer from './searchEntitySetMetaDataReducer';
 import transportOrganizationEntitySetReducer from './transportOrganizationEntitySetReducer';
+import updateDataSetMetaDataReducer from './updateDataSetMetaDataReducer';
 
 import { RESET_REQUEST_STATE } from '../../redux/actions';
 import {
@@ -42,10 +43,12 @@ import {
   GET_EDM_TYPES,
   GET_OR_SELECT_DATA_SET,
   GET_OR_SELECT_DATA_SETS,
+  UPDATE_DATA_SET_METADATA,
   getDataSetMetaData,
   getEntityDataModelTypes,
   getOrSelectDataSet,
   getOrSelectDataSets,
+  updateDataSetMetaData,
 } from '../actions';
 
 const {
@@ -90,6 +93,7 @@ const INITIAL_STATE :Map = fromJS({
   [PROMOTE_STAGING_TABLE]: RS_INITIAL_STATE,
   [SEARCH_ENTITY_SET_METADATA]: RS_INITIAL_STATE,
   [TRANSPORT_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
+  [UPDATE_DATA_SET_METADATA]: RS_INITIAL_STATE,
 
   // data
   [ATLAS_DATA_SETS]: Map(),
@@ -145,6 +149,9 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case transportOrganizationEntitySet.case(action.type):
       return transportOrganizationEntitySetReducer(state, action);
+
+    case updateDataSetMetaData.case(action.type):
+      return updateDataSetMetaDataReducer(state, action);
 
     default:
       return state;

@@ -40,16 +40,16 @@ const OPEN :'OPEN' = 'OPEN';
 const CLOSE :'CLOSE' = 'CLOSE';
 
 const INITIAL_MODAL_STATE = {
+  data: {},
   isVisible: false,
-  selectedRowData: undefined,
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
     case OPEN: {
       return {
+        data: action.payload,
         isVisible: true,
-        selectedRowData: action.payload,
       };
     }
     case CLOSE:
@@ -62,9 +62,11 @@ const reducer = (state, action) => {
 const DataSetMetaDataContainer = ({
   dataSetId,
   isOwner,
+  organizationId,
 } :{|
   dataSetId :UUID;
   isOwner :boolean;
+  organizationId :UUID;
 |}) => {
 
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_MODAL_STATE);
@@ -99,10 +101,12 @@ const DataSetMetaDataContainer = ({
     <AppContentWrapper>
       <Table components={components} data={tableData} headers={TABLE_HEADERS} />
       <EditMetadataModal
+          data={modalState.data}
+          dataSetId={dataSetId}
+          isColumn
           isVisible={modalState.isVisible}
-          metadata={metadata}
           onClose={() => modalDispatch({ type: CLOSE })}
-          property={modalState.selectedRowData} />
+          organizationId={organizationId} />
     </AppContentWrapper>
   );
 };

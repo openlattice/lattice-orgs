@@ -9,4 +9,3 @@ export { default as getOrganizationIntegrationDetailsReducer } from './getOrgani
 export { default as registerOrganizationDataSourceReducer } from './registerOrganizationDataSourceReducer';
 export { default as renameOrganizationDatabaseReducer } from './renameOrganizationDatabaseReducer';
 export { default as updateOrganizationDataSourceReducer } from './updateOrganizationDataSourceReducer';
-export { default as ShiproomReducer } from './ShiproomReducer';

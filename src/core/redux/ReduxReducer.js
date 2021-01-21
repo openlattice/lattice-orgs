@@ -15,13 +15,11 @@ import {
   PERMISSIONS,
   REQUESTS,
   SEARCH,
-  SHIPROOM,
   USERS,
 } from './constants';
 
 import { AccountReducer } from '../../containers/account';
 import { AppReducer } from '../../containers/app';
-import { ShiproomReducer } from '../../containers/org/reducers';
 import { OrgsReducer } from '../../containers/orgs';
 import { RequestsReducer } from '../../containers/requests';
 import { EDMReducer } from '../edm';
@@ -40,7 +38,6 @@ export default function reduxReducer(routerHistory :any) {
     [PERMISSIONS]: PermissionsReducer,
     [REQUESTS]: RequestsReducer,
     [SEARCH]: SearchReducer,
-    [SHIPROOM]: ShiproomReducer,
     [USERS]: UsersReducer,
     router: connectRouter(routerHistory),
   });

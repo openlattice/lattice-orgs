@@ -9,11 +9,11 @@ import {
   takeEvery,
 } from '@redux-saga/core/effects';
 import { Map, fromJS } from 'immutable';
+import { Models } from 'lattice';
 import { SearchApiActions, SearchApiSagas } from 'lattice-sagas';
 import { DataUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
-  FQN,
   Organization,
   PropertyType,
   UUID,
@@ -37,6 +37,7 @@ import { FQNS } from '../constants';
 
 const LOG = new Logger('EDMSagas');
 
+const { FQN } = Models;
 const { searchEntitySetData } = SearchApiActions;
 const { searchEntitySetDataWorker } = SearchApiSagas;
 const { getPropertyValue } = DataUtils;
@@ -91,7 +92,7 @@ function* getDataSetMetaDataWorker(action :SequenceAction) :Saga<WorkerResponse>
       throw new Error(ERR_UNEXPECTED_SEARCH_RESULTS);
     }
 
-    const dataSet = response1.data.hits[0];
+    const dataSet = fromJS(response1.data.hits).get(0, Map()).mapKeys((key :string) => FQN.of(key));
     const dataSetName :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
 
     const response2 :WorkerResponse = yield call(
@@ -110,13 +111,13 @@ function* getDataSetMetaDataWorker(action :SequenceAction) :Saga<WorkerResponse>
     );
     if (response2.error) throw response2.error;
 
-    // NOTE: just make sure the search results include columns ONLY for the data set we are about
-    const dataSetColumns = response2.data.hits.filter((searchHit :Object) => (
-      getPropertyValue(searchHit, [FQNS.OL_DATA_SET_NAME, 0]) === dataSetName
-    ));
+    const dataSetColumns = fromJS(response2.data.hits)
+      // NOTE: just make sure the search results include columns ONLY for the data set we are about
+      .filter((column :Map) => getPropertyValue(column, [FQNS.OL_DATA_SET_NAME, 0]) === dataSetName)
+      .map((column :Map) => column.mapKeys((key :string) => FQN.of(key)));
 
     workerResponse = {
-      data: fromJS({
+      data: Map({
         [DATA_SET]: dataSet,
         [DATA_SET_COLUMNS]: dataSetColumns,
       }),

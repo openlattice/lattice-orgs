@@ -48,7 +48,6 @@ export const INTEGRATION_DETAILS :'integrationDetails' = 'integrationDetails';
 export const IS_OWNER :'isOwner' = 'isOwner';
 export const METADATA :'metadata' = 'metadata';
 export const REQUESTS :'requests' = 'requests';
-export const SHIPROOM :'shiproom' = 'shiproom';
 export const USER_SEARCH_RESULTS :'userSearchResults' = 'userSearchResults';
 
 // TODO: does this belong here?
