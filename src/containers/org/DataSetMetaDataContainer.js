@@ -22,7 +22,7 @@ import { FQNS } from '../../core/edm/constants';
 import { DATA_SET_COLUMNS } from '../../core/redux/constants';
 import { selectDataSetMetaData } from '../../core/redux/selectors';
 
-const { getPropertyValue } = DataUtils;
+const { getEntityKeyId, getPropertyValue } = DataUtils;
 
 const TABLE_HEADERS = [
   { key: 'title', label: 'TITLE' },
@@ -76,7 +76,7 @@ const DataSetMetaDataContainer = ({
     // NOTE: the column EntityType is ol.column
     const data :List = get(metadata, DATA_SET_COLUMNS, List()).map((column :Map) => ({
       description: getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]),
-      id: getPropertyValue(column, [FQNS.OL_ID, 0]),
+      id: getEntityKeyId(column),
       title: getPropertyValue(column, [FQNS.OL_TITLE, 0]),
       type: getPropertyValue(column, [FQNS.OL_TYPE, 0]),
     }));
