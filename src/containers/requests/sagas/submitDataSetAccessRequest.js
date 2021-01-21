@@ -14,15 +14,20 @@ import { LangUtils, Logger } from 'lattice-utils';
 import { DateTime } from 'luxon';
 import { v4 as uuid } from 'uuid';
 import type { Saga } from '@redux-saga/core';
-import type { FQN, PropertyType, UUID } from 'lattice';
+import type {
+  FQN,
+  Organization,
+  PropertyType,
+  UUID,
+} from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { submitDataGraph } from '../../../core/data/actions';
 import { submitDataGraphWorker } from '../../../core/data/sagas';
 import { FQNS } from '../../../core/edm/constants';
-import { selectPropertyTypes } from '../../../core/redux/selectors';
+import { selectOrganization, selectPropertyTypes } from '../../../core/redux/selectors';
 import { toSagaError } from '../../../utils';
-import { ERR_INVALID_PRINCIPAL_ID } from '../../../utils/constants/errors';
+import { ERR_INVALID_ORGANIZATION, ERR_INVALID_PRINCIPAL_ID } from '../../../utils/constants/errors';
 import { SUBMIT_DATA_SET_ACCESS_REQUEST, submitDataSetAccessRequest } from '../actions';
 import { DataSetAccessRequestSchema } from '../schemas';
 
@@ -45,7 +50,7 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
     const {
       data,
       dataSetId,
-      // organizationId,
+      organizationId,
       schema,
     } :{
       data :Object;
@@ -57,24 +62,29 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
       |};
     } = action.value;
 
+    const organization :?Organization = yield select(selectOrganization(organizationId));
+    if (!organization) {
+      throw new Error(ERR_INVALID_ORGANIZATION);
+    }
+
     const userId :string = get(AuthUtils.getUserInfo(), 'id', '');
     if (!isNonEmptyString(userId)) {
       throw new Error(ERR_INVALID_PRINCIPAL_ID);
     }
 
-    const propertyTypes :Map<UUID, PropertyType> = yield select(selectPropertyTypes([
-      FQNS.OL_ACL_KEY,
-      FQNS.OL_ID,
-      FQNS.OL_PERMISSIONS,
-      FQNS.OL_REQUEST_DATE_TIME,
-      FQNS.OL_REQUEST_PRINCIPAL_ID,
-      FQNS.OL_SCHEMA,
-      FQNS.OL_TEXT,
-    ]));
+    const propertyTypes :Map<UUID, PropertyType> = yield select(
+      selectPropertyTypes([
+        FQNS.OL_ACL_KEY,
+        FQNS.OL_ID,
+        FQNS.OL_PERMISSIONS,
+        FQNS.OL_REQUEST_DATE_TIME,
+        FQNS.OL_REQUEST_PRINCIPAL_ID,
+        FQNS.OL_SCHEMA,
+        FQNS.OL_TEXT,
+      ])
+    );
 
-    const propertyTypeIds :Map<FQN, UUID> = propertyTypes
-      .mapKeys((id :UUID, propertyType :PropertyType) => propertyType.type)
-      .map((propertyType :PropertyType) => propertyType.id);
+    const propertyTypeIds :Map<FQN, UUID> = propertyTypes.map((propertyType) => propertyType.type).flip();
 
     const keys :UUID[][] = [];
     getIn(data, [ACCESS_REQUEST_PSK, ACCESS_REQUEST_EAK, DATA_SET_PROPERTIES], []).forEach((propertyId :UUID) => {
@@ -93,7 +103,7 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
      *   ol.requestdatetime = datetime the request was submitted
      *   ol.requestprincipalid = principal of user requesting access
      */
-    const ACCESS_REQUESTS_ESID = '279ef887-9a9e-4954-9ab8-b529bc0d732a';
+    const ACCESS_REQUESTS_ESID = organization?.metadataEntitySetIds.accessRequests;
     const accessRequestEntityData = {
       [get(propertyTypeIds, FQNS.OL_ACL_KEY)]: [JSON.stringify(keys)],
       [get(propertyTypeIds, FQNS.OL_ID)]: [uuid()],

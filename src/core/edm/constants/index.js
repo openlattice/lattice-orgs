@@ -15,8 +15,10 @@ const FQNS = {
   EKID: FQN.of(OPENLATTICE_ID_FQN),
   OL_ACL_KEY: FQN.of('ol.aclkey'),
   OL_COLUMN_INFO: FQN.of('ol.columninfo'),
+  OL_COLUMN_NAME: FQN.of('ol.column_name'),
   OL_DATA_SET_NAME: FQN.of('ol.dataset_name'),
   OL_DATE_TIME: FQN.of('ol.datetime'),
+  OL_DESCRIPTION: FQN.of('ol.description'),
   OL_ID: FQN.of('ol.id'),
   OL_PERMISSIONS: FQN.of('ol.permissions'),
   OL_REQUEST_DATE_TIME: FQN.of('ol.requestdatetime'),
@@ -27,6 +29,8 @@ const FQNS = {
   OL_STANDARDIZED: FQN.of('ol.standardized'),
   OL_STATUS: FQN.of('ol.status'),
   OL_TEXT: FQN.of('ol.text'),
+  OL_TITLE: FQN.of('ol.title'),
+  OL_TYPE: FQN.of('ol.type'),
 };
 
 // TODO: DELETE ONCE PROPERLY IMPLEMENTED

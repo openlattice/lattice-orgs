@@ -11,6 +11,7 @@ import {
 } from 'lattice-sagas';
 
 import destroyTransportedOrganizationEntitySetReducer from './destroyTransportedOrganizationEntitySetReducer';
+import getDataSetMetaDataReducer from './getDataSetMetaDataReducer';
 import getEntityDataModelTypesReducer from './getEntityDataModelTypesReducer';
 import getEntitySetReducer from './getEntitySetReducer';
 import getEntitySetsReducer from './getEntitySetsReducer';
@@ -30,15 +31,18 @@ import {
   ENTITY_SETS_INDEX_MAP,
   ENTITY_TYPES,
   ENTITY_TYPES_INDEX_MAP,
+  METADATA,
   PROPERTY_TYPES,
   PROPERTY_TYPES_INDEX_MAP,
   RS_INITIAL_STATE,
 } from '../../redux/constants';
 import { resetRequestStateReducer } from '../../redux/reducers';
 import {
+  GET_DATA_SET_METADATA,
   GET_EDM_TYPES,
   GET_OR_SELECT_DATA_SET,
   GET_OR_SELECT_DATA_SETS,
+  getDataSetMetaData,
   getEntityDataModelTypes,
   getOrSelectDataSet,
   getOrSelectDataSets,
@@ -74,17 +78,18 @@ const {
 
 const INITIAL_STATE :Map = fromJS({
   // actions
+  [DESTROY_TRANSPORTED_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
+  [GET_DATA_SET_METADATA]: RS_INITIAL_STATE,
   [GET_EDM_TYPES]: RS_INITIAL_STATE,
   [GET_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ENTITY_SET]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SET_SCHEMA]: RS_INITIAL_STATE,
-  [GET_OR_SELECT_DATA_SET]: RS_INITIAL_STATE,
   [GET_OR_SELECT_DATA_SETS]: RS_INITIAL_STATE,
-  [SEARCH_ENTITY_SET_METADATA]: RS_INITIAL_STATE,
+  [GET_OR_SELECT_DATA_SET]: RS_INITIAL_STATE,
   [PROMOTE_STAGING_TABLE]: RS_INITIAL_STATE,
+  [SEARCH_ENTITY_SET_METADATA]: RS_INITIAL_STATE,
   [TRANSPORT_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
-  [DESTROY_TRANSPORTED_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
 
   // data
   [ATLAS_DATA_SETS]: Map(),
@@ -93,6 +98,7 @@ const INITIAL_STATE :Map = fromJS({
   [ENTITY_SETS_INDEX_MAP]: Map(),
   [ENTITY_TYPES]: List(),
   [ENTITY_TYPES_INDEX_MAP]: Map(),
+  [METADATA]: Map(),
   [PROPERTY_TYPES]: List(),
   [PROPERTY_TYPES_INDEX_MAP]: Map(),
 });
@@ -106,6 +112,9 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case destroyTransportedOrganizationEntitySet.case(action.type):
       return destroyTransportedOrganizationEntitySetReducer(state, action);
+
+    case getDataSetMetaData.case(action.type):
+      return getDataSetMetaDataReducer(state, action);
 
     case getEntityDataModelTypes.case(action.type):
       return getEntityDataModelTypesReducer(state, action);

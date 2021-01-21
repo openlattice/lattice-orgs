@@ -34,11 +34,11 @@ function* getOwnerStatusWorker(action :SequenceAction) :Saga<WorkerResponse> {
 
   try {
     yield put(getOwnerStatus.request(action.id, action.value));
-    const entitySetId = action.value;
+    const dataSetId = action.value;
 
     const accessChecks :AccessCheck[] = [
       (new AccessCheckBuilder())
-        .setAclKey([entitySetId])
+        .setAclKey([dataSetId])
         .setPermissions([PermissionTypes.OWNER])
         .build()
     ];
@@ -49,7 +49,7 @@ function* getOwnerStatusWorker(action :SequenceAction) :Saga<WorkerResponse> {
 
     workerResponse = {
       data: Map({
-        [entitySetId]: isOwner
+        [dataSetId]: isOwner
       })
     };
     yield put(getOwnerStatus.success(action.id, workerResponse.data));
