@@ -238,9 +238,12 @@ const PeopleTable = ({
           <AssignRolesToMembersModal
               isVisible={isVisibleAssignRolesModal}
               members={selectedMembers}
-              roles={roles}
               onClose={() => setIsVisibleAssignRolesModal(false)}
-              organizationId={organizationId} />
+              organizationId={organizationId}
+              roles={roles}
+              shouldCloseOnOutsideClick={false}
+              textTitle="Add Roles"
+              withFooter={false} />
         )
       }
     </div>
