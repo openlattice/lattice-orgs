@@ -38,6 +38,7 @@ export const ATLAS_DATA_SET_IDS :'atlasDataSetIds' = 'atlasDataSetIds';
 export const CURRENT :'current' = 'current';
 export const DATABASE_NAME :'databaseName' = 'databaseName';
 export const DATA_SET_SCHEMA :'dataSetSchema' = 'dataSetSchema';
+export const DATA_SOURCES :'dataSources' = 'dataSources';
 export const ENTITY_SET_IDS :'entitySetIds' = 'entitySetIds';
 export const INTEGRATION_DETAILS :'integrationDetails' = 'integrationDetails';
 export const IS_OWNER :'isOwner' = 'isOwner';

@@ -84,30 +84,33 @@ function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
     });
 
     const updates = [];
-    keys.forEach((key :List<UUID>) => {
+    const permissions = Map().withMutations((mutableMap) => {
+      keys.forEach((key :List<UUID>) => {
 
-      const ace = (new AceBuilder())
-        .setPermissions(permissionTypes)
-        .setPrincipal(principal)
-        .build();
+        const ace = (new AceBuilder())
+          .setPermissions(permissionTypes)
+          .setPrincipal(principal)
+          .build();
 
-      const acl = (new AclBuilder())
-        .setAces([ace])
-        .setAclKey(key)
-        .build();
+        const acl = (new AclBuilder())
+          .setAces([ace])
+          .setAclKey(key)
+          .build();
 
-      const aclData = (new AclDataBuilder())
-        .setAcl(acl)
-        .setAction(ActionTypes.ADD)
-        .build();
+        const aclData = (new AclDataBuilder())
+          .setAcl(acl)
+          .setAction(ActionTypes.ADD)
+          .build();
 
-      updates.push(aclData);
+        mutableMap.set(key, ace);
+        updates.push(aclData);
+      });
     });
 
     const response :WorkerResponse = yield call(updateAclsWorker, updateAcls(updates));
     if (response.error) throw response.error;
 
-    yield put(assignPermissionsToDataSet.success(action.id));
+    yield put(assignPermissionsToDataSet.success(action.id, { permissions }));
   }
   catch (error) {
     LOG.error(action.type, error);

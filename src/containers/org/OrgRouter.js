@@ -21,6 +21,7 @@ import OrgContainer from './OrgContainer';
 import OrgDataSetContainer from './OrgDataSetContainer';
 import OrgDataSetObjectPermissionsContainer from './OrgDataSetObjectPermissionsContainer';
 import OrgDataSetsContainer from './OrgDataSetsContainer';
+import OrgDataSourcesContainer from './OrgDataSourcesContainer';
 import OrgObjectPermissionsContainer from './OrgObjectPermissionsContainer';
 import OrgPeopleContainer from './members/OrgPeopleContainer';
 import OrgRoleContainer from './OrgRoleContainer';
@@ -63,6 +64,7 @@ const OrgRouter = () => {
   const matchOrganization = useRouteMatch(Routes.ORG);
   const matchOrganizationDataSet = useRouteMatch(Routes.ORG_DATA_SET);
   const matchOrganizationDataSets = useRouteMatch(Routes.ORG_DATA_SETS);
+  const matchOrganizationDataSources = useRouteMatch(Routes.ORG_DATA_SOURCES);
   const matchOrganizationMember = useRouteMatch(Routes.ORG_MEMBER);
   const matchOrganizationRole = useRouteMatch(Routes.ORG_ROLE);
   const matchOrganizationRoles = useRouteMatch(Routes.ORG_ROLES);
@@ -80,6 +82,9 @@ const OrgRouter = () => {
   }
   else if (matchOrganizationDataSets) {
     organizationId = getParamFromMatch(matchOrganizationDataSets, Routes.ORG_ID_PARAM);
+  }
+  else if (matchOrganizationDataSources) {
+    organizationId = getParamFromMatch(matchOrganizationDataSources, Routes.ORG_ID_PARAM);
   }
   else if (matchOrganizationMember) {
     organizationId = getParamFromMatch(matchOrganizationMember, Routes.ORG_ID_PARAM);
@@ -217,6 +222,12 @@ const OrgRouter = () => {
         : null
     );
 
+    const renderOrgDataSourcesContainer = () => (
+      (organizationId)
+        ? <OrgDataSourcesContainer organizationId={organizationId} organizationRoute={organizationRoute} />
+        : null
+    );
+
     const renderOrgDataSetObjectPermissionsContainer = () => (
       (organizationId && dataSetId)
         ? (
@@ -302,6 +313,7 @@ const OrgRouter = () => {
         <Route path={Routes.ORG_DATA_SET_OBJECT_PERMISSIONS} render={renderOrgDataSetObjectPermissionsContainer} />
         <Route path={Routes.ORG_DATA_SET} render={renderOrgDataSetContainer} />
         <Route path={Routes.ORG_DATA_SETS} render={renderOrgDataSetsContainer} />
+        <Route path={Routes.ORG_DATA_SOURCES} render={renderOrgDataSourcesContainer} />
         <Route path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
         <Route path={Routes.ORG_PEOPLE} render={renderOrgPeopleContainer} />
         <Route path={Routes.ORG_MEMBERS} render={renderOrgMembersContainer} />
