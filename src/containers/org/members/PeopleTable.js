@@ -2,9 +2,13 @@
 import React, { useReducer, useState } from 'react';
 
 import styled from 'styled-components';
-import { faAngleDown, faPlus } from '@fortawesome/pro-regular-svg-icons';
+import { faPlus } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List, Map, Set } from 'immutable';
+import {
+  List,
+  Map,
+  Set,
+} from 'immutable';
 import {
   Button,
   Checkbox,
@@ -14,12 +18,14 @@ import {
 } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
 
+import BulkActionButton from './components/BulkActionButton';
 import FilterButton from './components/FilterButton';
 import TableRow from './components/TableRow';
 import memberHasSelectedIdentityTypes from './utils/memberHasSelectedIdentityTypes';
 import memberHasSelectedRoles from './utils/memberHasSelectedRoles';
 
 import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
+import AssignRolesToMembersModal from '../components/AssignRolesToMembersModal';
 import { getUserProfile } from '../../../utils';
 import {
   FILTER,
@@ -57,8 +63,6 @@ const Selection = styled.span`
 
 const PlusIcon = <FontAwesomeIcon icon={faPlus} size="lg" />;
 
-const ChevronDown = <FontAwesomeIcon icon={faAngleDown} />;
-
 const MAX_PER_PAGE = 20;
 
 type Props = {
@@ -79,7 +83,7 @@ const PeopleTable = ({
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
   const [isVisibleAddMemberToOrgModal, setIsVisibleAddMemberToOrgModal] = useState(false);
-  // const [isVisibleAssignRoleModal, setIsVisibleAssignRoleModal] = useState(false);
+  const [isVisibleAssignRolesModal, setIsVisibleAssignRolesModal] = useState(false);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
   const [targetMember, setTargetMember] = useState();
   const [targetRole, setTargetRole] = useState();
@@ -87,6 +91,7 @@ const PeopleTable = ({
     role: Set(),
     authorization: Set(),
   }));
+  const [selectedMembers, setSelectedMembers] = useState(Map());
 
   let filteredMembers = members;
   // filter by query
@@ -133,10 +138,18 @@ const PeopleTable = ({
   const handleOnFilterChange = (category :string, id :string) => {
     const categoryFilters = selectedFilters.get(category, Set());
     const newFilters = categoryFilters.includes(id)
-      ? categoryFilters.delete(id)
+      ? categoryFilters.remove(id)
       : categoryFilters.add(id);
 
     setSelectedFilters(selectedFilters.set(category, newFilters));
+  };
+
+  const handleSelectMember = (member :Map) => {
+    const { id } = getUserProfile(member);
+    const newSelection = selectedMembers.has(id)
+      ? selectedMembers.remove(id)
+      : selectedMembers.set(id, member);
+    setSelectedMembers(newSelection);
   };
 
   return (
@@ -146,7 +159,7 @@ const PeopleTable = ({
           <Checkbox />
           <Selection>{`${members.size} members`}</Selection>
         </MembersCheckboxWrapper>
-        <Button endIcon={ChevronDown} variant="text">Bulk Actions</Button>
+        <BulkActionButton onAddRolesClick={() => setIsVisibleAssignRolesModal(true)} />
         <SearchInput onChange={handleOnChangeMemberFilterQuery} />
         <FilterButton
             filter={selectedFilters}
@@ -175,11 +188,13 @@ const PeopleTable = ({
                     isOwner={isOwner}
                     key={id}
                     member={member}
+                    onRemoveMember={handleRemoveMember}
+                    onSelectMember={handleSelectMember}
                     onUnassign={handleUnassignRole}
                     onUnassignAll={handleUnassignAllRoles}
-                    onRemoveMember={handleRemoveMember}
                     organizationId={organizationId}
-                    roles={roles} />
+                    roles={roles}
+                    selected={selectedMembers.has(id)} />
               );
             })
           }
@@ -218,8 +233,17 @@ const PeopleTable = ({
               organizationId={organizationId} />
         )
       }
+      {
+        isOwner && (
+          <AssignRolesToMembersModal
+              isVisible={isVisibleAssignRolesModal}
+              members={selectedMembers}
+              roles={roles}
+              onClose={() => setIsVisibleAssignRolesModal(false)}
+              organizationId={organizationId} />
+        )
+      }
     </div>
-
   );
 };
 

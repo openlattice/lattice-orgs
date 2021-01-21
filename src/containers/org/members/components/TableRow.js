@@ -51,19 +51,23 @@ const RolesWrapper = styled.div`
 type Props = {
   isOwner :boolean;
   member :Map;
-  onUnassign :(member :Map, role :Role) => void;
   onRemoveMember :(member :Map) => void;
+  onSelectMember :(member :Map) => void;
+  onUnassign :(member :Map, role :Role) => void;
   organizationId :UUID;
   roles :Role[];
+  selected :boolean;
 };
 
 const TableRow = ({
   isOwner,
   member,
   onRemoveMember,
+  onSelectMember,
   onUnassign,
   organizationId,
   roles,
+  selected,
 } :Props) => {
 
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
@@ -90,10 +94,14 @@ const TableRow = ({
     onRemoveMember(member);
   };
 
+  const handleSelectMember = () => {
+    onSelectMember(member);
+  };
+
   return (
     <Row>
       <Cell>
-        <Checkbox />
+        <Checkbox checked={selected} onChange={handleSelectMember} />
       </Cell>
       <Cell as="th">
         <Typography align="left" noWrap>{name || email}</Typography>
@@ -142,9 +150,9 @@ const TableRow = ({
             <MenuItem>
               Add role
             </MenuItem>
-            <MenuItem>
+            {/* <MenuItem>
               Remove all roles
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem onClick={handleRemoveMember}>
               Delete person
             </MenuItem>
