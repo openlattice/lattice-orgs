@@ -75,6 +75,7 @@ export default function* sagas() :Saga<*> {
     fork(EDMSagas.getOrSelectDataSetsWatcher),
 
     // OrgSagas
+    fork(OrgSagas.assignRolesToMembersWatcher),
     fork(OrgSagas.addRoleToOrganizationWatcher),
     fork(OrgSagas.createNewOrganizationWatcher),
     fork(OrgSagas.editMetadataWatcher),
