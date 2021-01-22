@@ -96,9 +96,7 @@ const OrgDataSourcesContainer = ({
         <StackGrid gap={24}>
           <StackGrid>
             <Typography variant="h1">Data Sources</Typography>
-            <Typography>
-              Manage organization data sources.
-            </Typography>
+            <Typography>Manage organization data sources.</Typography>
           </StackGrid>
           <ActionsGrid>
             <SearchInput onChange={handleOnChangeFilterQuery} placeholder="Filter data sources" />

@@ -110,8 +110,11 @@ const DataSetAccessRequestsContainer = ({
           <CrumbLink to={dataSetRoute}>{title || name}</CrumbLink>
           <CrumbItem>Access Requests</CrumbItem>
         </Crumbs>
-        <StackGrid>
-          <Typography variant="h1">Access Requests</Typography>
+        <StackGrid gap={24}>
+          <StackGrid>
+            <Typography variant="h1">Access Requests</Typography>
+            <Typography>Manage data set access requests.</Typography>
+          </StackGrid>
           {
             isPending(requestState) && (
               <Spinner />
@@ -122,36 +125,38 @@ const DataSetAccessRequestsContainer = ({
               <Typography>There are no requests for access.</Typography>
             )
           }
-          {
-            isSuccess(requestState) && !requests.isEmpty() && (
-              requests.map((request :Map) => {
-                const status = getPropertyValue(request, [FQNS.OL_STATUS, 0]) || RequestStatusTypes.PENDING;
-                return (
-                  <CardSegment key={getEntityKeyId(request)}>
-                    <SpaceBetweenGrid>
-                      <GapGrid>
-                        <Tag mode={getStatusTagMode(status)}>{status}</Tag>
-                        <Typography>{getPropertyValue(request, [FQNS.OL_REQUEST_PRINCIPAL_ID, 0])}</Typography>
-                      </GapGrid>
-                      <GapGrid>
-                        <Typography>
-                          {
-                            formatDateTime(
-                              getPropertyValue(request, [FQNS.OL_REQUEST_DATE_TIME, 0]),
-                              DateTime.DATETIME_MED,
-                            )
-                          }
-                        </Typography>
-                        <IconButton aria-label="view access request" onClick={() => setTargetRequest(request)}>
-                          <FontAwesomeIcon color={NEUTRAL.N800} fixedWidth icon={faExpandAlt} />
-                        </IconButton>
-                      </GapGrid>
-                    </SpaceBetweenGrid>
-                  </CardSegment>
-                );
-              })
-            )
-          }
+          <div>
+            {
+              isSuccess(requestState) && !requests.isEmpty() && (
+                requests.map((request :Map) => {
+                  const status = getPropertyValue(request, [FQNS.OL_STATUS, 0]) || RequestStatusTypes.PENDING;
+                  return (
+                    <CardSegment key={getEntityKeyId(request)}>
+                      <SpaceBetweenGrid>
+                        <GapGrid>
+                          <Tag mode={getStatusTagMode(status)}>{status}</Tag>
+                          <Typography>{getPropertyValue(request, [FQNS.OL_REQUEST_PRINCIPAL_ID, 0])}</Typography>
+                        </GapGrid>
+                        <GapGrid>
+                          <Typography>
+                            {
+                              formatDateTime(
+                                getPropertyValue(request, [FQNS.OL_REQUEST_DATE_TIME, 0]),
+                                DateTime.DATETIME_MED,
+                              )
+                            }
+                          </Typography>
+                          <IconButton aria-label="view access request" onClick={() => setTargetRequest(request)}>
+                            <FontAwesomeIcon color={NEUTRAL.N800} fixedWidth icon={faExpandAlt} />
+                          </IconButton>
+                        </GapGrid>
+                      </SpaceBetweenGrid>
+                    </CardSegment>
+                  );
+                })
+              )
+            }
+          </div>
         </StackGrid>
         <DataSetAccessRequestModal
             dataSetId={dataSetId}
