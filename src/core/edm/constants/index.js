@@ -18,6 +18,7 @@ const FQNS = {
   OL_ACL_KEYS: FQN.of('ol.aclkeys'),
   OL_COLUMN_INFO: FQN.of('ol.columninfo'),
   OL_COLUMN_NAME: FQN.of('ol.column_name'),
+  OL_DATA_SET_ID: FQN.of('ol.datasetid'),
   OL_DATA_SET_NAME: FQN.of('ol.dataset_name'),
   OL_DATE_TIME: FQN.of('ol.datetime'),
   OL_DESCRIPTION: FQN.of('ol.description'),

@@ -107,6 +107,7 @@ export default function* sagas() :Saga<*> {
     fork(PermissionsSagas.updatePermissionsWatcher),
 
     // RequestsSagas
+    fork(RequestsSagas.getDataSetAccessRequestsWatcher),
     fork(RequestsSagas.initializeDataSetAccessRequestWatcher),
     fork(RequestsSagas.submitDataSetAccessRequestWatcher),
 

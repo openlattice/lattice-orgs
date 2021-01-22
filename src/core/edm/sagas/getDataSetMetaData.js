@@ -81,7 +81,7 @@ function* getDataSetMetaDataWorker(action :SequenceAction) :Saga<WorkerResponse>
             searchTerm: `entity.${propertyTypeIds.get(FQNS.OL_ID)}:${JSON.stringify(dataSetId)}`,
           }],
         }],
-        entitySetIds: [organization?.metadataEntitySetIds.datasets],
+        entitySetIds: [organization.metadataEntitySetIds.datasets],
         maxHits: 1,
         start: 0,
       }),

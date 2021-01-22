@@ -43,7 +43,7 @@ import {
   clearSearchState,
 } from '../../core/search/actions';
 import { ERR_INVALID_UUID } from '../../utils/constants/errors';
-import { DataSetAccessRequestContainer } from '../requests';
+import { DataSetAccessRequestContainer, DataSetAccessRequestsContainer } from '../requests';
 
 const { isValidUUID } = ValidationUtils;
 const { getParamFromMatch } = RoutingUtils;
@@ -234,6 +234,19 @@ const OrgRouter = () => {
         : null
     );
 
+    const renderOrgDataSetAccessRequestsContainer = () => (
+      (organizationId && dataSetId)
+        ? (
+          <DataSetAccessRequestsContainer
+              dataSetId={dataSetId}
+              dataSetRoute={dataSetRoute}
+              dataSetsRoute={dataSetsRoute}
+              organizationId={organizationId}
+              organizationRoute={organizationRoute} />
+        )
+        : null
+    );
+
     const renderOrgDataSetsContainer = () => (
       (organizationId)
         ? <OrgDataSetsContainer organizationId={organizationId} organizationRoute={organizationRoute} />
@@ -323,6 +336,7 @@ const OrgRouter = () => {
     return (
       <Switch>
         <Route path={Routes.ORG_DATA_SET_ACCESS_REQUEST} render={renderOrgDataSetAccessRequestContainer} />
+        <Route path={Routes.ORG_DATA_SET_ACCESS_REQUESTS} render={renderOrgDataSetAccessRequestsContainer} />
         <Route path={Routes.ORG_DATA_SET_OBJECT_PERMISSIONS} render={renderOrgDataSetObjectPermissionsContainer} />
         <Route path={Routes.ORG_DATA_SET} render={renderOrgDataSetContainer} />
         <Route path={Routes.ORG_DATA_SETS} render={renderOrgDataSetsContainer} />
