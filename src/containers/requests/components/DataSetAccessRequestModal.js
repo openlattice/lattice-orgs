@@ -4,7 +4,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { List, Map, fromJS } from 'immutable';
+import { Map } from 'immutable';
 import { Form } from 'lattice-fabricate';
 import { ActionModal } from 'lattice-ui-kit';
 import { DataUtils, ReduxUtils, useRequestState } from 'lattice-utils';
@@ -20,7 +20,7 @@ import { REQUESTS } from '../../../core/redux/constants';
 import { SUBMIT_DATA_SET_ACCESS_RESPONSE, submitDataSetAccessResponse } from '../actions';
 import { RequestStatusTypes } from '../constants';
 
-const { getEntityKeyId, getPropertyValue } = DataUtils;
+const { getPropertyValue } = DataUtils;
 const { isSuccess } = ReduxUtils;
 
 const DataSetAccessRequestModal = ({
@@ -41,16 +41,13 @@ const DataSetAccessRequestModal = ({
 
   const [isVisible, setIsVisible] = useState(false);
   const [data, setData] = useState({});
-  const [keys, setKeys] = useState(List());
   const [schema, setSchema] = useState({ dataSchema: {}, uiSchema: {} });
 
   useEffect(() => {
     try {
-      const parsedKeys = JSON.parse(getPropertyValue(request, [FQNS.OL_ACL_KEYS, 0]));
       const parsedData = JSON.parse(getPropertyValue(request, [FQNS.OL_TEXT, 0]));
       const parsedSchema = JSON.parse(getPropertyValue(request, [FQNS.OL_SCHEMA, 0]));
       setData(parsedData);
-      setKeys(fromJS(parsedKeys));
       setSchema(parsedSchema);
       // set isVisible to true if all goes well
       setIsVisible(true);
@@ -76,9 +73,8 @@ const DataSetAccessRequestModal = ({
     dispatch(
       submitDataSetAccessResponse({
         dataSetId,
-        entityKeyId: getEntityKeyId(request),
-        keys,
         organizationId,
+        request,
         status: RequestStatusTypes.APPROVED,
       })
     );
@@ -88,8 +84,7 @@ const DataSetAccessRequestModal = ({
     dispatch(
       submitDataSetAccessResponse({
         dataSetId,
-        entityKeyId: getEntityKeyId(request),
-        keys,
+        request,
         organizationId,
         status: RequestStatusTypes.REJECTED,
       })

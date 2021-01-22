@@ -26,16 +26,16 @@ export default function reducer(state :Map, action :SequenceAction) {
       if (storedAction) {
         const {
           dataSetId,
-          entityKeyId,
+          request,
           status,
         } :{
           dataSetId :UUID;
-          entityKeyId :UUID;
+          request :Map;
           organizationId :UUID;
           status :RequestStatusType;
         } = storedAction.value;
         const requests :List<Map> = state.getIn([ACCESS_REQUESTS, dataSetId], List());
-        const targetIndex :number = requests.findIndex((request :Map) => getEntityKeyId(request) === entityKeyId);
+        const targetIndex :number = requests.findIndex((r :Map) => getEntityKeyId(r) === getEntityKeyId(request));
         if (targetIndex >= 0) {
           return state
             .setIn([ACCESS_REQUESTS, dataSetId, targetIndex, FQNS.OL_STATUS], List([status]))

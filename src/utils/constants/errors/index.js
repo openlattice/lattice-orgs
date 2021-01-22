@@ -2,6 +2,7 @@
  * @flow
  */
 
+const ERR_INVALID_ACL_KEY :'invalid acl key' = 'invalid acl key';
 const ERR_INVALID_PRINCIPAL_ID :'invalid principal id' = 'invalid principal id';
 const ERR_INVALID_REQUEST_STATUS :'invalid RequestStatusType' = 'invalid RequestStatusType';
 const ERR_INVALID_UUID :'invalid uuid' = 'invalid uuid';
@@ -11,6 +12,7 @@ const ERR_UNEXPECTED_SEARCH_RESULTS :'unexpected search results' = 'unexpected s
 const ERR_UNEXPECTED_STATE :'unexpected state' = 'unexpected state';
 
 export {
+  ERR_INVALID_ACL_KEY,
   ERR_INVALID_PRINCIPAL_ID,
   ERR_INVALID_REQUEST_STATUS,
   ERR_INVALID_UUID,

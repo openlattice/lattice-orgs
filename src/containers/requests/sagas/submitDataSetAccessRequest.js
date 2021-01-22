@@ -94,7 +94,7 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
       throw new Error(ERR_MISSING_PROPERTY_TYPE);
     }
 
-    const keys :UUID[][] = [];
+    const keys :UUID[][] = [[dataSetId]];
     getIn(data, [ACCESS_REQUEST_PSK, ACCESS_REQUEST_EAK, DATA_SET_COLUMNS], []).forEach((propertyId :UUID) => {
       keys.push([dataSetId, propertyId]);
     });
