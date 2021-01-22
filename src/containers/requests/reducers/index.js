@@ -2,11 +2,12 @@
  * @flow
  */
 
-import { List, Map, fromJS } from 'immutable';
+import { Map, fromJS } from 'immutable';
 
 import getDataSetAccessRequestsReducer from './getDataSetAccessRequestsReducer';
 import initializeDataSetAccessRequestReducer from './initializeDataSetAccessRequestReducer';
 import submitDataSetAccessRequestReducer from './submitDataSetAccessRequestReducer';
+import submitDataSetAccessResponseReducer from './submitDataSetAccessResponseReducer';
 
 import { RESET_REQUEST_STATE } from '../../../core/redux/actions';
 import {
@@ -20,9 +21,11 @@ import {
   GET_DATA_SET_ACCESS_REQUESTS,
   INITIALIZE_DATA_SET_ACCESS_REQUEST,
   SUBMIT_DATA_SET_ACCESS_REQUEST,
+  SUBMIT_DATA_SET_ACCESS_RESPONSE,
   getDataSetAccessRequests,
   initializeDataSetAccessRequest,
   submitDataSetAccessRequest,
+  submitDataSetAccessResponse,
 } from '../actions';
 
 const INITIAL_STATE :Map = fromJS({
@@ -30,6 +33,7 @@ const INITIAL_STATE :Map = fromJS({
   [GET_DATA_SET_ACCESS_REQUESTS]: RS_INITIAL_STATE,
   [INITIALIZE_DATA_SET_ACCESS_REQUEST]: RS_INITIAL_STATE,
   [SUBMIT_DATA_SET_ACCESS_REQUEST]: RS_INITIAL_STATE,
+  [SUBMIT_DATA_SET_ACCESS_RESPONSE]: RS_INITIAL_STATE,
   // data
   [ACCESS_REQUESTS]: Map(),
   [ACCESS_REQUEST_DATA_SCHEMA]: undefined,
@@ -54,6 +58,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case submitDataSetAccessRequest.case(action.type): {
       return submitDataSetAccessRequestReducer(state, action);
+    }
+
+    case submitDataSetAccessResponse.case(action.type): {
+      return submitDataSetAccessResponseReducer(state, action);
     }
 
     default:

@@ -110,6 +110,7 @@ export default function* sagas() :Saga<*> {
     fork(RequestsSagas.getDataSetAccessRequestsWatcher),
     fork(RequestsSagas.initializeDataSetAccessRequestWatcher),
     fork(RequestsSagas.submitDataSetAccessRequestWatcher),
+    fork(RequestsSagas.submitDataSetAccessResponseWatcher),
 
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),

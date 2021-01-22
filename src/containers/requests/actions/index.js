@@ -16,11 +16,16 @@ const initializeDataSetAccessRequest :RequestSequence = newRequestSequence(INITI
 const SUBMIT_DATA_SET_ACCESS_REQUEST :'SUBMIT_DATA_SET_ACCESS_REQUEST' = 'SUBMIT_DATA_SET_ACCESS_REQUEST';
 const submitDataSetAccessRequest :RequestSequence = newRequestSequence(SUBMIT_DATA_SET_ACCESS_REQUEST);
 
+const SUBMIT_DATA_SET_ACCESS_RESPONSE :'SUBMIT_DATA_SET_ACCESS_RESPONSE' = 'SUBMIT_DATA_SET_ACCESS_RESPONSE';
+const submitDataSetAccessResponse :RequestSequence = newRequestSequence(SUBMIT_DATA_SET_ACCESS_RESPONSE);
+
 export {
   GET_DATA_SET_ACCESS_REQUESTS,
   INITIALIZE_DATA_SET_ACCESS_REQUEST,
   SUBMIT_DATA_SET_ACCESS_REQUEST,
+  SUBMIT_DATA_SET_ACCESS_RESPONSE,
   getDataSetAccessRequests,
   initializeDataSetAccessRequest,
   submitDataSetAccessRequest,
+  submitDataSetAccessResponse,
 };
