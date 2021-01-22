@@ -4,7 +4,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { Map } from 'immutable';
+import { List, Map, fromJS } from 'immutable';
 import { Form } from 'lattice-fabricate';
 import { ActionModal } from 'lattice-ui-kit';
 import { DataUtils, ReduxUtils, useRequestState } from 'lattice-utils';
@@ -41,18 +41,23 @@ const DataSetAccessRequestModal = ({
 
   const [isVisible, setIsVisible] = useState(false);
   const [data, setData] = useState({});
+  const [keys, setKeys] = useState(List());
   const [schema, setSchema] = useState({ dataSchema: {}, uiSchema: {} });
 
   useEffect(() => {
     try {
+      const parsedKeys = JSON.parse(getPropertyValue(request, [FQNS.OL_ACL_KEYS, 0]));
       const parsedData = JSON.parse(getPropertyValue(request, [FQNS.OL_TEXT, 0]));
       const parsedSchema = JSON.parse(getPropertyValue(request, [FQNS.OL_SCHEMA, 0]));
       setData(parsedData);
+      setKeys(fromJS(parsedKeys));
       setSchema(parsedSchema);
       // set isVisible to true if all goes well
       setIsVisible(true);
     }
-    catch (e) { /**/ }
+    catch (e) {
+      // TODO: it's likely that something is wrong with the request entity - we should show an error
+    }
   }, [request]);
 
   const handleOnClose = useCallback(() => {
@@ -72,6 +77,7 @@ const DataSetAccessRequestModal = ({
       submitDataSetAccessResponse({
         dataSetId,
         entityKeyId: getEntityKeyId(request),
+        keys,
         organizationId,
         status: RequestStatusTypes.APPROVED,
       })
@@ -83,6 +89,7 @@ const DataSetAccessRequestModal = ({
       submitDataSetAccessResponse({
         dataSetId,
         entityKeyId: getEntityKeyId(request),
+        keys,
         organizationId,
         status: RequestStatusTypes.REJECTED,
       })
