@@ -32,7 +32,7 @@ function* getDataSetAccessRequestsWorker(action :SequenceAction) :Saga<*> {
     yield put(getDataSetAccessRequests.request(action.id, action.value));
 
     const {
-      dataSetId,
+      // dataSetId,
       organizationId,
     } :{|
       dataSetId :UUID;
