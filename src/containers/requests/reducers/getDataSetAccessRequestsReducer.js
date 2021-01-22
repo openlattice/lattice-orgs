@@ -2,14 +2,11 @@
  * @flow
  */
 
-import { List, Map } from 'immutable';
+import { Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  ACCESS_REQUESTS,
-  REQUEST_STATE,
-} from '../../../core/redux/constants';
+import { ACCESS_REQUESTS, REQUEST_STATE } from '../../../core/redux/constants';
 import { GET_DATA_SET_ACCESS_REQUESTS, getDataSetAccessRequests } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {

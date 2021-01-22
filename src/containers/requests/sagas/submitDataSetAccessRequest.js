@@ -28,8 +28,13 @@ import { FQNS } from '../../../core/edm/constants';
 import { DATA_SET_COLUMNS } from '../../../core/redux/constants';
 import { selectOrganization, selectPropertyTypes } from '../../../core/redux/selectors';
 import { toSagaError } from '../../../utils';
-import { ERR_INVALID_PRINCIPAL_ID, ERR_MISSING_ORG } from '../../../utils/constants/errors';
+import {
+  ERR_INVALID_PRINCIPAL_ID,
+  ERR_MISSING_ORG,
+  ERR_MISSING_PROPERTY_TYPE,
+} from '../../../utils/constants/errors';
 import { SUBMIT_DATA_SET_ACCESS_REQUEST, submitDataSetAccessRequest } from '../actions';
+import { RequestStatusTypes } from '../constants';
 import { DataSetAccessRequestSchema } from '../schemas';
 
 const LOG = new Logger('RequestsSagas');
@@ -41,6 +46,17 @@ const {
   ACCESS_REQUEST_PSK,
   PERMISSION_TYPES,
 } = DataSetAccessRequestSchema;
+
+const REQUIRED_PROPERTY_TYPES :FQN[] = [
+  FQNS.OL_ACL_KEYS,
+  FQNS.OL_ID,
+  FQNS.OL_PERMISSIONS,
+  FQNS.OL_REQUEST_DATE_TIME,
+  FQNS.OL_REQUEST_PRINCIPAL_ID,
+  FQNS.OL_SCHEMA,
+  FQNS.OL_STATUS,
+  FQNS.OL_TEXT,
+];
 
 function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
 
@@ -72,19 +88,11 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
       throw new Error(ERR_INVALID_PRINCIPAL_ID);
     }
 
-    const propertyTypes :Map<UUID, PropertyType> = yield select(
-      selectPropertyTypes([
-        FQNS.OL_ACL_KEYS,
-        FQNS.OL_ID,
-        FQNS.OL_PERMISSIONS,
-        FQNS.OL_REQUEST_DATE_TIME,
-        FQNS.OL_REQUEST_PRINCIPAL_ID,
-        FQNS.OL_SCHEMA,
-        FQNS.OL_TEXT,
-      ])
-    );
-
+    const propertyTypes :Map<UUID, PropertyType> = yield select(selectPropertyTypes(REQUIRED_PROPERTY_TYPES));
     const propertyTypeIds :Map<FQN, UUID> = propertyTypes.map((propertyType) => propertyType.type).flip();
+    if (propertyTypeIds.count() !== REQUIRED_PROPERTY_TYPES.length) {
+      throw new Error(ERR_MISSING_PROPERTY_TYPE);
+    }
 
     const keys :UUID[][] = [];
     getIn(data, [ACCESS_REQUEST_PSK, ACCESS_REQUEST_EAK, DATA_SET_COLUMNS], []).forEach((propertyId :UUID) => {
@@ -98,7 +106,7 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
      *   ol.id
      *   ol.text = the RJSF "form data" object as a JSON string
      *   ol.schema = the RJSF data schema and ui schema as a JSON string
-     *   ol.aclkey = acl keys being requested
+     *   ol.aclkeys = acl keys being requested
      *   ol.permissions = permission types being requested
      *   ol.requestdatetime = datetime the request was submitted
      *   ol.requestprincipalid = principal of user requesting access
@@ -111,6 +119,7 @@ function* submitDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> {
       [get(propertyTypeIds, FQNS.OL_REQUEST_DATE_TIME)]: [DateTime.local().toISO()],
       [get(propertyTypeIds, FQNS.OL_REQUEST_PRINCIPAL_ID)]: [userId],
       [get(propertyTypeIds, FQNS.OL_SCHEMA)]: [JSON.stringify(schema)],
+      [get(propertyTypeIds, FQNS.OL_STATUS)]: [RequestStatusTypes.PENDING],
       [get(propertyTypeIds, FQNS.OL_TEXT)]: [JSON.stringify(data)],
     };
 
