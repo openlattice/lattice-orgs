@@ -28,6 +28,8 @@ import type { RequestState } from 'redux-reqseq';
 
 import { GET_DATA_SET_ACCESS_REQUESTS, getDataSetAccessRequests } from './actions';
 import { DataSetAccessRequestModal } from './components';
+import { RequestStatusTypes } from './constants';
+import type { RequestStatusType } from './constants';
 
 import {
   CrumbItem,
@@ -69,7 +71,7 @@ const DataSetAccessRequestsContainer = ({
 
   const dispatch = useDispatch();
 
-  const [accessRequest, setAccessRequest] = useState();
+  const [targetRequest, setTargetRequest] = useState();
 
   const getDataSetAccessRequestsRS :?RequestState = useRequestState([REQUESTS, GET_DATA_SET_ACCESS_REQUESTS]);
   const getDataSetMetaDataRS :?RequestState = useRequestState([EDM, GET_DATA_SET_METADATA]);
@@ -88,6 +90,16 @@ const DataSetAccessRequestsContainer = ({
   }, [dispatch, dataSetId, organizationId]);
 
   const requestState :?RequestState = reduceRequestStates([getDataSetAccessRequestsRS, getDataSetMetaDataRS]);
+
+  const getStatusTagMode = (status :RequestStatusType) => {
+    if (status === RequestStatusTypes.APPROVED) {
+      return 'success';
+    }
+    if (status === RequestStatusTypes.REJECTED) {
+      return 'danger';
+    }
+    return 'info';
+  };
 
   if (organization) {
     return (
@@ -112,33 +124,40 @@ const DataSetAccessRequestsContainer = ({
           }
           {
             isSuccess(requestState) && !requests.isEmpty() && (
-              requests.map((request :Map) => (
-                <CardSegment key={getEntityKeyId(request)}>
-                  <SpaceBetweenGrid>
-                    <GapGrid>
-                      <Tag>{getPropertyValue(request, [FQNS.OL_STATUS, 0]).toUpperCase() || 'PENDING'}</Tag>
-                      <Typography>{getPropertyValue(request, [FQNS.OL_REQUEST_PRINCIPAL_ID, 0])}</Typography>
-                    </GapGrid>
-                    <GapGrid>
-                      <Typography>
-                        {
-                          formatDateTime(
-                            getPropertyValue(request, [FQNS.OL_REQUEST_DATE_TIME, 0]),
-                            DateTime.DATETIME_MED,
-                          )
-                        }
-                      </Typography>
-                      <IconButton aria-label="view access request" onClick={() => setAccessRequest(request)}>
-                        <FontAwesomeIcon color={NEUTRAL.N800} fixedWidth icon={faExpandAlt} />
-                      </IconButton>
-                    </GapGrid>
-                  </SpaceBetweenGrid>
-                </CardSegment>
-              ))
+              requests.map((request :Map) => {
+                const status = getPropertyValue(request, [FQNS.OL_STATUS, 0]) || RequestStatusTypes.PENDING;
+                return (
+                  <CardSegment key={getEntityKeyId(request)}>
+                    <SpaceBetweenGrid>
+                      <GapGrid>
+                        <Tag mode={getStatusTagMode(status)}>{status}</Tag>
+                        <Typography>{getPropertyValue(request, [FQNS.OL_REQUEST_PRINCIPAL_ID, 0])}</Typography>
+                      </GapGrid>
+                      <GapGrid>
+                        <Typography>
+                          {
+                            formatDateTime(
+                              getPropertyValue(request, [FQNS.OL_REQUEST_DATE_TIME, 0]),
+                              DateTime.DATETIME_MED,
+                            )
+                          }
+                        </Typography>
+                        <IconButton aria-label="view access request" onClick={() => setTargetRequest(request)}>
+                          <FontAwesomeIcon color={NEUTRAL.N800} fixedWidth icon={faExpandAlt} />
+                        </IconButton>
+                      </GapGrid>
+                    </SpaceBetweenGrid>
+                  </CardSegment>
+                );
+              })
             )
           }
         </StackGrid>
-        <DataSetAccessRequestModal accessRequest={accessRequest} onClose={() => setAccessRequest()} />
+        <DataSetAccessRequestModal
+            dataSetId={dataSetId}
+            onClose={() => setTargetRequest()}
+            organizationId={organizationId}
+            request={targetRequest} />
       </AppContentWrapper>
     );
   }
