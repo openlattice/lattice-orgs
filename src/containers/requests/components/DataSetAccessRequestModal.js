@@ -15,6 +15,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody } from '../../../components';
 import { FQNS } from '../../../core/edm/constants';
+import { resetRequestState } from '../../../core/redux/actions';
 import { REQUESTS } from '../../../core/redux/constants';
 import { SUBMIT_DATA_SET_ACCESS_RESPONSE, submitDataSetAccessResponse } from '../actions';
 import { RequestStatusTypes } from '../constants';
@@ -57,7 +58,8 @@ const DataSetAccessRequestModal = ({
   const handleOnClose = useCallback(() => {
     setIsVisible(false);
     onClose();
-  }, [onClose]);
+    dispatch(resetRequestState([SUBMIT_DATA_SET_ACCESS_RESPONSE]));
+  }, [dispatch, onClose]);
 
   useEffect(() => {
     if (isSuccess(submitRS)) {
@@ -87,6 +89,7 @@ const DataSetAccessRequestModal = ({
     );
   };
 
+  // TODO: well, this is obviously not great
   const rsComponents = {
     [RequestStates.STANDBY]: <></>,
     [RequestStates.SUCCESS]: <></>,
