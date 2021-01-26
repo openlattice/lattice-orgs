@@ -75,7 +75,7 @@ const OrgContainer = ({ organizationId } :Props) => {
   ), [organizationId]);
 
   const membersPath = useMemo(() => (
-    Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId)
+    Routes.ORG_PEOPLE.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
   const settingsPath = useMemo(() => (

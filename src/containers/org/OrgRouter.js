@@ -29,7 +29,7 @@ import OrgRoleObjectPermissionsContainer from './OrgRoleObjectPermissionsContain
 import OrgRolesContainer from './OrgRolesContainer';
 import OrgSettingsContainer from './settings/OrgSettingsContainer';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from './actions';
-import { OrgMemberContainer, OrgMembersContainer } from './members';
+import { OrgMemberContainer } from './members';
 
 import { BasicErrorComponent, Spinner } from '../../components';
 import { resetRequestState } from '../../core/redux/actions';
@@ -253,12 +253,6 @@ const OrgRouter = () => {
         : null
     );
 
-    const renderOrgMembersContainer = () => (
-      (organizationId)
-        ? <OrgMembersContainer organizationId={organizationId} organizationRoute={organizationRoute} />
-        : null
-    );
-
     const renderOrgObjectPermissionsContainer = () => (
       (organizationId)
         ? <OrgObjectPermissionsContainer organizationId={organizationId} organizationRoute={organizationRoute} />
@@ -316,7 +310,6 @@ const OrgRouter = () => {
         <Route path={Routes.ORG_DATA_SOURCES} render={renderOrgDataSourcesContainer} />
         <Route path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
         <Route path={Routes.ORG_PEOPLE} render={renderOrgPeopleContainer} />
-        <Route path={Routes.ORG_MEMBERS} render={renderOrgMembersContainer} />
         <Route path={Routes.ORG_ROLE_OBJECT_PERMISSIONS} render={renderOrgRoleObjectPermissionsContainer} />
         <Route path={Routes.ORG_ROLE} render={renderOrgRoleContainer} />
         <Route path={Routes.ORG_ROLES} render={renderOrgRolesContainer} />
