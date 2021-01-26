@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react';
 
 import styled from 'styled-components';
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 // $FlowFixMe[missing-export
 import { Chip } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
@@ -24,7 +24,7 @@ const ChipsList = styled.div`
 `;
 
 type Props = {
-  deletable :boolean;
+  currentRoleAuthorizations :Map;
   member :Map;
   onUnassign :(member :Map, role :Role) => void;
   organizationId :UUID;
@@ -32,7 +32,7 @@ type Props = {
 };
 
 const RoleChipsList = ({
-  deletable,
+  currentRoleAuthorizations,
   member,
   onUnassign,
   organizationId,
@@ -63,6 +63,7 @@ const RoleChipsList = ({
       <ChipsList ref={chipListRef}>
         {
           priority.map((role, index) => {
+            const authorized = currentRoleAuthorizations.has(List(role.aclKey));
             const roleId :UUID = role.id || '';
             const key = `${id}-${roleId || index}`;
             const rolePath = `#${Routes.ORG_ROLE}`
@@ -76,7 +77,7 @@ const RoleChipsList = ({
                   href={rolePath}
                   key={key}
                   label={role.title}
-                  onDelete={deletable && getHandleDelete(role)} />
+                  onDelete={authorized && getHandleDelete(role)} />
             );
           })
         }
@@ -90,7 +91,7 @@ const RoleChipsList = ({
                   variant="outline" />
               <RoleOverflowPopover
                   anchorEl={overflowAnchorEl}
-                  deletable={deletable}
+                  currentRoleAuthorizations={currentRoleAuthorizations}
                   handleDelete={getHandleDelete}
                   onClose={handleClose}
                   open={!!overflowAnchorEl}

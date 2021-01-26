@@ -14,9 +14,7 @@ import {
   Checkbox,
   Colors,
   IconButton,
-  // $FlowFixMe
   Menu,
-  // $FlowFixMe
   MenuItem,
   Typography,
 } from 'lattice-ui-kit';
@@ -61,6 +59,7 @@ const MemberLink = styled(Link)`
 `;
 
 type Props = {
+  currentRoleAuthorizations :Map;
   isOwner :boolean;
   member :Map;
   onRemoveMember :(member :Map) => void;
@@ -72,6 +71,7 @@ type Props = {
 };
 
 const TableRow = ({
+  currentRoleAuthorizations,
   isOwner,
   member,
   onRemoveMember,
@@ -92,8 +92,8 @@ const TableRow = ({
 
   const identityProvider = member.getIn(['profile', 'identities', 0, 'provider'], '');
 
-  const currentRolesIds = orgRolesIds.intersect(memberRolesIds);
-  const currentRoles = roles.filter((role) => currentRolesIds.includes(role.id));
+  const memberOrgRoleIds = orgRolesIds.intersect(memberRolesIds);
+  const memberOrgRoles = roles.filter((role) => memberOrgRoleIds.includes(role.id));
 
   const handleButtonOnClick = (event :SyntheticEvent<HTMLButtonElement>) => {
     setMenuAnchorEl(event.currentTarget);
@@ -143,14 +143,15 @@ const TableRow = ({
       <Cell padding="small">
         <RolesWrapper>
           {
-            currentRoles.length
+            memberOrgRoles.length
               ? (
                 <RoleChipsList
+                    currentRoleAuthorizations={currentRoleAuthorizations}
                     deletable={isOwner}
                     member={member}
                     onUnassign={onUnassign}
                     organizationId={organizationId}
-                    roles={currentRoles} />
+                    roles={memberOrgRoles} />
               )
               : <Typography color="textSecondary" noWrap>{NO_ROLES_APPLIED}</Typography>
           }
@@ -184,7 +185,7 @@ const TableRow = ({
             {/* <MenuItem>
               Remove all roles
             </MenuItem> */}
-            <MenuItem onClick={handleRemoveMember}>
+            <MenuItem disabled={isOwner} onClick={handleRemoveMember}>
               Delete person
             </MenuItem>
           </Menu>

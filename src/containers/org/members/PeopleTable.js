@@ -16,6 +16,7 @@ import {
   PaginationToolbar,
   SearchInput,
 } from 'lattice-ui-kit';
+import { useSelector } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 
 import BulkActionButton from './components/BulkActionButton';
@@ -26,6 +27,7 @@ import memberHasSelectedRoles from './utils/memberHasSelectedRoles';
 
 import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
 import AssignRolesToMembersModal from '../components/AssignRolesToMembersModal';
+import { CURRENT_ROLE_AUTHORIZATIONS, PERMISSIONS } from '../../../core/redux/constants';
 import { getUserProfile } from '../../../utils';
 import {
   FILTER,
@@ -75,10 +77,11 @@ type Props = {
 const PeopleTable = ({
   isOwner,
   members,
-  roles,
   organizationId,
+  roles,
 } :Props) => {
 
+  const currentRoleAuthorizations :Map = useSelector((s) => s.getIn([PERMISSIONS, CURRENT_ROLE_AUTHORIZATIONS]));
   // consider using reducers for handling member/role/action selection
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
@@ -189,6 +192,7 @@ const PeopleTable = ({
               const { id } = getUserProfile(member);
               return (
                 <TableRow
+                    currentRoleAuthorizations={currentRoleAuthorizations}
                     isOwner={isOwner}
                     key={id}
                     member={member}

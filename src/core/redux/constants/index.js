@@ -36,6 +36,7 @@ export const ATLAS_CREDENTIALS :'atlasCredentials' = 'atlasCredentials';
 export const ATLAS_DATA_SETS :'atlasDataSets' = 'atlasDataSets';
 export const ATLAS_DATA_SET_IDS :'atlasDataSetIds' = 'atlasDataSetIds';
 export const CURRENT :'current' = 'current';
+export const CURRENT_ROLE_AUTHORIZATIONS :'currentRoleAuthorizations' = 'currentRoleAuthorizations';
 export const DATABASE_NAME :'databaseName' = 'databaseName';
 export const DATA_SET_SCHEMA :'dataSetSchema' = 'dataSetSchema';
 export const DATA_SOURCES :'dataSources' = 'dataSources';
