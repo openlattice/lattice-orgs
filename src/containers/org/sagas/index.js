@@ -3,6 +3,7 @@
  */
 
 export * from './addRoleToOrganization';
+export * from './assignRolesToMembers';
 export * from './createNewOrganization';
 export * from './editMetadata';
 export * from './editOrganizationDetails';

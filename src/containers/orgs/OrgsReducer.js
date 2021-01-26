@@ -15,6 +15,7 @@ import {
   getOrganizationsAndAuthorizations,
 } from './actions';
 
+import assignRolesToMembersReducer from '../org/reducers/assignRolesToMembersReducer';
 import { RESET_REQUEST_STATE } from '../../core/redux/actions';
 import {
   ATLAS_DATA_SET_IDS,
@@ -30,6 +31,7 @@ import {
 } from '../../core/redux/constants';
 import {
   ADD_ROLE_TO_ORGANIZATION,
+  ASSIGN_ROLES_TO_MEMBERS,
   CREATE_NEW_ORGANIZATION,
   EDIT_ORGANIZATION_DETAILS,
   EDIT_ROLE_DETAILS,
@@ -37,6 +39,7 @@ import {
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
   addRoleToOrganization,
+  assignRolesToMembers,
   createNewOrganization,
   editOrganizationDetails,
   editRoleDetails,
@@ -99,6 +102,7 @@ const INITIAL_STATE :Map = fromJS({
   [ADD_MEMBER_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [ADD_ROLE_TO_MEMBER]: RS_INITIAL_STATE,
   [ADD_ROLE_TO_ORGANIZATION]: RS_INITIAL_STATE,
+  [ASSIGN_ROLES_TO_MEMBERS]: RS_INITIAL_STATE,
   [CREATE_NEW_ORGANIZATION]: RS_INITIAL_STATE,
   [EDIT_ORGANIZATION_DETAILS]: RS_INITIAL_STATE,
   [EDIT_ROLE_DETAILS]: RS_INITIAL_STATE,
@@ -126,6 +130,10 @@ const INITIAL_STATE :Map = fromJS({
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
+
+  if (action.type === assignRolesToMembers.case(action.type)) {
+    return assignRolesToMembersReducer(state, action);
+  }
 
   if (action.type === editRoleDetails.case(action.type)) {
     return editRoleDetailsReducer(state, action);

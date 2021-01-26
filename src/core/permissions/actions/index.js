@@ -13,6 +13,9 @@ const assignPermissionsToDataSet :RequestSequence = newRequestSequence(ASSIGN_PE
 const GET_CURRENT_DATA_SET_AUTHORIZATIONS :'GET_CURRENT_DATA_SET_AUTHORIZATIONS' = 'GET_CURRENT_DATA_SET_AUTHORIZATIONS';
 const getCurrentDataSetAuthorizations :RequestSequence = newRequestSequence(GET_CURRENT_DATA_SET_AUTHORIZATIONS);
 
+const GET_CURRENT_ROLE_AUTHORIZATIONS :'GET_CURRENT_ROLE_AUTHORIZATIONS' = 'GET_CURRENT_ROLE_AUTHORIZATIONS';
+const getCurrentRoleAuthorizations :RequestSequence = newRequestSequence(GET_CURRENT_ROLE_AUTHORIZATIONS);
+
 const GET_DATA_SET_PERMISSIONS :'GET_DATA_SET_PERMISSIONS' = 'GET_DATA_SET_PERMISSIONS';
 const getDataSetPermissions :RequestSequence = newRequestSequence(GET_DATA_SET_PERMISSIONS);
 
@@ -46,9 +49,15 @@ const setPermissions :RequestSequence = newRequestSequence(SET_PERMISSIONS);
 const UPDATE_PERMISSIONS :'UPDATE_PERMISSIONS' = 'UPDATE_PERMISSIONS';
 const updatePermissions :RequestSequence = newRequestSequence(UPDATE_PERMISSIONS);
 
+const RESET_CURRENT_ROLE_AUTHORIZATIONS :'RESET_CURRENT_ROLE_AUTHORIZATIONS' = 'RESET_CURRENT_ROLE_AUTHORIZATIONS';
+const resetCurrentRoleAuthorizations = () => ({
+  type: RESET_CURRENT_ROLE_AUTHORIZATIONS
+});
+
 export {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   GET_CURRENT_DATA_SET_AUTHORIZATIONS,
+  GET_CURRENT_ROLE_AUTHORIZATIONS,
   GET_DATA_SET_PERMISSIONS,
   GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
   GET_ORG_OBJECT_PERMISSIONS,
@@ -58,10 +67,12 @@ export {
   GET_PERMISSIONS,
   INITIALIZE_DATA_SET_PERMISSIONS,
   INITIALIZE_OBJECT_PERMISSIONS,
+  RESET_CURRENT_ROLE_AUTHORIZATIONS,
   SET_PERMISSIONS,
   UPDATE_PERMISSIONS,
   assignPermissionsToDataSet,
   getCurrentDataSetAuthorizations,
+  getCurrentRoleAuthorizations,
   getDataSetPermissions,
   getOrgDataSetObjectPermissions,
   getOrgObjectPermissions,
@@ -71,6 +82,7 @@ export {
   getPermissions,
   initializeDataSetPermissions,
   initializeObjectPermissions,
+  resetCurrentRoleAuthorizations,
   setPermissions,
   updatePermissions,
 };

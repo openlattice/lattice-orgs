@@ -10,6 +10,9 @@ import type { RequestSequence } from 'redux-reqseq';
 const ADD_ROLE_TO_ORGANIZATION :'ADD_ROLE_TO_ORGANIZATION' = 'ADD_ROLE_TO_ORGANIZATION';
 const addRoleToOrganization :RequestSequence = newRequestSequence(ADD_ROLE_TO_ORGANIZATION);
 
+const ASSIGN_ROLES_TO_MEMBERS :'ASSIGN_ROLES_TO_MEMBERS' = 'ASSIGN_ROLES_TO_MEMBERS';
+const assignRolesToMembers :RequestSequence = newRequestSequence(ASSIGN_ROLES_TO_MEMBERS);
+
 const CREATE_NEW_ORGANIZATION :'CREATE_NEW_ORGANIZATION' = 'CREATE_NEW_ORGANIZATION';
 const createNewOrganization :RequestSequence = newRequestSequence(CREATE_NEW_ORGANIZATION);
 
@@ -36,6 +39,7 @@ const removeRoleFromOrganization :RequestSequence = newRequestSequence(REMOVE_RO
 
 export {
   ADD_ROLE_TO_ORGANIZATION,
+  ASSIGN_ROLES_TO_MEMBERS,
   CREATE_NEW_ORGANIZATION,
   EDIT_METADATA,
   EDIT_ORGANIZATION_DETAILS,
@@ -45,6 +49,7 @@ export {
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
   addRoleToOrganization,
+  assignRolesToMembers,
   createNewOrganization,
   editMetadata,
   editOrganizationDetails,

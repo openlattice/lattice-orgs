@@ -4,11 +4,15 @@ import React from 'react';
 import type { Node } from 'react';
 
 import styled from 'styled-components';
+import { List, Map } from 'immutable';
+import { Types } from 'lattice';
 // $FlowFixMe[missing-export]
 import { Chip, Popover } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
 
 import { Routes } from '../../../../core/router';
+
+const { PermissionTypes } = Types;
 
 const Wrapper = styled.div`
   padding: 8px;
@@ -30,7 +34,7 @@ const Wrapper = styled.div`
 
 type Props = {
   anchorEl :Node;
-  deletable :boolean;
+  currentRoleAuthorizations :Map;
   onClose :() => void;
   handleDelete :(role :Role) => Function;
   open :boolean;
@@ -40,7 +44,7 @@ type Props = {
 
 const RoleOverflowPopover = ({
   anchorEl,
-  deletable,
+  currentRoleAuthorizations,
   onClose,
   handleDelete,
   open,
@@ -64,6 +68,7 @@ const RoleOverflowPopover = ({
       <ul>
         {
           roles.map((role, index) => {
+            const authorized = currentRoleAuthorizations.getIn([List(role.aclKey), PermissionTypes.OWNER], false);
             const roleId :UUID = role.id || '';
             const key = `overflow-${roleId || index}`;
             const rolePath = `#${Routes.ORG_ROLE}`
@@ -77,7 +82,7 @@ const RoleOverflowPopover = ({
                     component="a"
                     href={rolePath}
                     label={role.title}
-                    onDelete={deletable && handleDelete(role)} />
+                    onDelete={authorized && handleDelete(role)} />
               </li>
             );
           })
