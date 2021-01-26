@@ -21,6 +21,7 @@ import type { Role, UUID } from 'lattice';
 
 import BulkActionButton from './components/BulkActionButton';
 import FilterButton from './components/FilterButton';
+import FilterChipsList from './components/FilterChipsList';
 import TableRow from './components/TableRow';
 import memberHasSelectedIdentityTypes from './utils/memberHasSelectedIdentityTypes';
 import memberHasSelectedRoles from './utils/memberHasSelectedRoles';
@@ -198,6 +199,10 @@ const PeopleTable = ({
           Add Member
         </Button>
       </TableToolbar>
+      <FilterChipsList
+          filters={selectedFilters}
+          onDelete={handleOnFilterChange}
+          roles={roles} />
       <Table cellPadding="0" cellSpacing="0">
         <colgroup>
           <col width="56px" />
