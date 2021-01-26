@@ -155,6 +155,21 @@ const PeopleTable = ({
     setSelectedMembers(newSelection);
   };
 
+  const onSelectAll = () => {
+    const newSelection = Map().withMutations((mutable) => {
+      filteredMembers.forEach((member) => {
+        const { id } = getUserProfile(member);
+        mutable.set(id, member);
+      });
+    });
+
+    setSelectedMembers(newSelection);
+  };
+
+  const onDeselectAll = () => {
+    setSelectedMembers(Map());
+  };
+
   const selectionText = selectedMembers.size
     ? `${selectedMembers.size} selected`
     : `${filteredMembers.size} members`;
@@ -163,7 +178,10 @@ const PeopleTable = ({
     <div>
       <TableToolbar>
         <MembersCheckboxWrapper>
-          <Checkbox />
+          {/* TODO: Support indeterminate checkbox state */}
+          <Checkbox
+              checked={selectedMembers.size}
+              onChange={selectedMembers.size ? onDeselectAll : onSelectAll} />
           <Selection>{selectionText}</Selection>
         </MembersCheckboxWrapper>
         <BulkActionButton onAddRolesClick={() => setIsVisibleAssignRolesModal(true)} />
