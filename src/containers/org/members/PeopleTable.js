@@ -1,6 +1,7 @@
 // @flow
-import React, { useReducer, useState } from 'react';
+import React, { useCallback, useReducer, useState } from 'react';
 
+import debounce from 'lodash/debounce';
 import styled from 'styled-components';
 import { faPlus } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -116,8 +117,13 @@ const PeopleTable = ({
     paginationDispatch({ type: PAGE, page, start });
   };
 
+  const debouncedFilterQuery = useCallback(debounce(
+    (query = '') => paginationDispatch({ type: FILTER, query }),
+    250
+  ), []);
+
   const handleOnChangeMemberFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    paginationDispatch({ type: FILTER, query: event.target.value || '' });
+    debouncedFilterQuery(event.target.value);
   };
 
   const handleUnassignRole = (member :Map, role :Role) => {
