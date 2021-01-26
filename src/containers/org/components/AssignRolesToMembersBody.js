@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Map } from 'immutable';
 import { ModalFooter } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
@@ -15,8 +15,7 @@ import SelectRoles from './SelectRoles';
 import ResetOnUnmount from '../../../components/other/ResetOnUnmount';
 import StepConfirm from '../../permissions/StepConfirm';
 import { ModalBody, StepsController } from '../../../components';
-import { CURRENT_ROLE_AUTHORIZATIONS, ORGANIZATIONS, PERMISSIONS } from '../../../core/redux/constants';
-import { selectCurrentRoleAuthorizations } from '../../../core/redux/selectors';
+import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserProfile } from '../../../utils';
 import { ASSIGN_ROLES_TO_MEMBERS, assignRolesToMembers } from '../actions';
 

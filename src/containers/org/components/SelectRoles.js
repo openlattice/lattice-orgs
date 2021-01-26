@@ -22,7 +22,7 @@ import { PERMISSIONS } from '../../../core/redux/constants';
 import { selectCurrentRoleAuthorizations } from '../../../core/redux/selectors';
 import { getUserProfile } from '../../../utils';
 
-const { isPending, isSuccess } = ReduxUtils;
+const { isSuccess } = ReduxUtils;
 const { PermissionTypes } = Types;
 
 type Props = {
