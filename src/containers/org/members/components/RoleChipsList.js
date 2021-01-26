@@ -3,7 +3,8 @@ import React, { useRef, useState } from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
-// $FlowFixMe[missing-export
+import { Types } from 'lattice';
+// $FlowFixMe[missing-export]
 import { Chip } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
 
@@ -12,6 +13,8 @@ import usePriorityVisibility from './usePriorityVisibility';
 
 import { Routes } from '../../../../core/router';
 import { getUserProfile } from '../../../../utils';
+
+const { PermissionTypes } = Types;
 
 const ChipsList = styled.div`
   display: flex;
@@ -63,7 +66,7 @@ const RoleChipsList = ({
       <ChipsList ref={chipListRef}>
         {
           priority.map((role, index) => {
-            const authorized = currentRoleAuthorizations.has(List(role.aclKey));
+            const authorized = currentRoleAuthorizations.getIn([List(role.aclKey), PermissionTypes.OWNER], false);
             const roleId :UUID = role.id || '';
             const key = `${id}-${roleId || index}`;
             const rolePath = `#${Routes.ORG_ROLE}`

@@ -27,7 +27,7 @@ import memberHasSelectedRoles from './utils/memberHasSelectedRoles';
 
 import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
 import AssignRolesToMembersModal from '../components/AssignRolesToMembersModal';
-import { CURRENT_ROLE_AUTHORIZATIONS, PERMISSIONS } from '../../../core/redux/constants';
+import { selectCurrentRoleAuthorizations } from '../../../core/redux/selectors';
 import { getUserProfile } from '../../../utils';
 import {
   FILTER,
@@ -81,7 +81,7 @@ const PeopleTable = ({
   roles,
 } :Props) => {
 
-  const currentRoleAuthorizations :Map = useSelector((s) => s.getIn([PERMISSIONS, CURRENT_ROLE_AUTHORIZATIONS]));
+  const currentRoleAuthorizations :Map = useSelector(selectCurrentRoleAuthorizations());
   // consider using reducers for handling member/role/action selection
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
@@ -126,7 +126,7 @@ const PeopleTable = ({
   };
 
   const handleUnassignAllRoles = () => {
-
+    // TODO: unassign all roles from target member
   };
 
   const handleRemoveMember = (member :Map) => {

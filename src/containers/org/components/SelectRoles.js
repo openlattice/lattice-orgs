@@ -2,18 +2,27 @@
 import React, { useState } from 'react';
 
 import debounce from 'lodash/debounce';
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
+import { Types } from 'lattice';
 import {
-  // $FlowFixMe
-  List,
+  List as LUKList,
   SearchInput,
   Typography,
 } from 'lattice-ui-kit';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
+import { useSelector } from 'react-redux';
 import type { Role } from 'lattice';
 
 import RoleListItem from './RoleListItem';
 
+import { Spinner } from '../../../components';
+import { GET_CURRENT_ROLE_AUTHORIZATIONS } from '../../../core/permissions/actions';
+import { PERMISSIONS } from '../../../core/redux/constants';
+import { selectCurrentRoleAuthorizations } from '../../../core/redux/selectors';
 import { getUserProfile } from '../../../utils';
+
+const { isPending, isSuccess } = ReduxUtils;
+const { PermissionTypes } = Types;
 
 type Props = {
   onClick :(role :Role) => void;
@@ -28,7 +37,12 @@ const SelectRoles = ({
   selectedRoles,
   members,
 } :Props) => {
+
+  const currentRoleAuthorizations :Map = useSelector(selectCurrentRoleAuthorizations());
+  const requestState = useRequestState([PERMISSIONS, GET_CURRENT_ROLE_AUTHORIZATIONS]);
   const [filterQuery, setFilterQuery] = useState('');
+
+  const success = isSuccess(requestState);
   const debounceSetSearchTerm = debounce((value) => {
     setFilterQuery(value);
   }, 250);
@@ -56,12 +70,15 @@ const SelectRoles = ({
       <SearchInput
           onChange={onSearchInputChange}
           placeholder="Search for a role by name" />
-      <List>
+      <LUKList>
+        { !success && <Spinner size="3x" />}
         {
-          filteredRoles.map((role, index) => {
+          success && filteredRoles.map((role, index) => {
+            const authorized = currentRoleAuthorizations.getIn([List(role.aclKey), PermissionTypes.OWNER], false);
             const id = role.id || '';
             return (
               <RoleListItem
+                  disabled={!authorized}
                   checked={selectedRoles.has(id)}
                   disableGutters
                   divider={index !== filteredRoles.length - 1}
@@ -71,7 +88,7 @@ const SelectRoles = ({
             );
           })
         }
-      </List>
+      </LUKList>
     </div>
   );
 };

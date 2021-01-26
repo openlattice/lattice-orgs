@@ -3,14 +3,10 @@
 import React from 'react';
 
 import {
-  // $FlowFixMe
   Avatar,
   Checkbox,
-  // $FlowFixMe
   ListItem,
-  // $FlowFixMe
   ListItemAvatar,
-  // $FlowFixMe
   ListItemSecondaryAction,
   Typography,
 } from 'lattice-ui-kit';
@@ -19,12 +15,14 @@ import type { Role } from 'lattice';
 type Props = {
   role :Role;
   checked :boolean;
+  disabled :boolean;
   onSecondaryChange :(role :Role) => void;
 };
 
 const RoleListItem = ({
   role,
   checked,
+  disabled,
   onSecondaryChange,
   ...rest
 } :Props) => {
@@ -33,15 +31,17 @@ const RoleListItem = ({
     onSecondaryChange(role);
   };
 
+  const color = disabled ? 'textSecondary' : 'textPrimary';
+
   return (
     // eslint-disable-next-line react/jsx-props-no-spreading
     <ListItem {...rest}>
       <ListItemAvatar>
         <Avatar>{role.title[0].toUpperCase()}</Avatar>
       </ListItemAvatar>
-      <Typography variant="body2">{role.title}</Typography>
+      <Typography color={color} variant="body2">{role.title}</Typography>
       <ListItemSecondaryAction>
-        <Checkbox checked={checked} onChange={handleCheckboxChange} />
+        <Checkbox checked={checked} disabled={disabled} onChange={handleCheckboxChange} />
       </ListItemSecondaryAction>
     </ListItem>
   );

@@ -5,11 +5,14 @@ import type { Node } from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
+import { Types } from 'lattice';
 // $FlowFixMe[missing-export]
 import { Chip, Popover } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
 
 import { Routes } from '../../../../core/router';
+
+const { PermissionTypes } = Types;
 
 const Wrapper = styled.div`
   padding: 8px;
@@ -65,7 +68,7 @@ const RoleOverflowPopover = ({
       <ul>
         {
           roles.map((role, index) => {
-            const authorized = currentRoleAuthorizations.has(List(role.aclKey));
+            const authorized = currentRoleAuthorizations.getIn([List(role.aclKey), PermissionTypes.OWNER], false);
             const roleId :UUID = role.id || '';
             const key = `overflow-${roleId || index}`;
             const rolePath = `#${Routes.ORG_ROLE}`
