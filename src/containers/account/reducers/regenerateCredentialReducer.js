@@ -18,8 +18,7 @@ export default function reducer(state :Map, action :SequenceAction) {
       .setIn([REGENERATE_CREDENTIAL, REQUEST_STATE], RequestStates.PENDING)
       .setIn([REGENERATE_CREDENTIAL, action.id], action),
     SUCCESS: () => {
-      const storedAction = state.getIn([REGENERATE_CREDENTIAL, action.id]);
-      if (storedAction) {
+      if (state.hasIn([REGENERATE_CREDENTIAL, action.id])) {
         return state
           .setIn([REGENERATE_CREDENTIAL, REQUEST_STATE], RequestStates.SUCCESS);
       }
