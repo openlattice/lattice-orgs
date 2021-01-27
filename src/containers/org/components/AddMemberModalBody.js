@@ -9,10 +9,10 @@ import { faTimes } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map } from 'immutable';
 import {
+  Checkbox,
   IconButton,
   List,
   ListItem,
-  ListItemSecondaryAction,
   ModalFooter,
   Typography,
 } from 'lattice-ui-kit';
@@ -22,6 +22,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import ListItemSecondaryAction from './styled/ListItemSecondaryAction';
 import SearchMemberBar from './SearchMemberBar';
 
 import { ModalBody } from '../../../components';
@@ -34,7 +35,6 @@ const CloseIcon = () => <FontAwesomeIcon fixedWidth icon={faTimes} />;
 const StyledFooter = styled(ModalFooter)`
   padding: 16px 0 30px;
 `;
-
 type Props = {
   organizationId :UUID;
 };
@@ -71,10 +71,11 @@ const AddMemberModalBody = ({ organizationId } :Props) => {
             selectedMembers.valueSeq().map((member, index) => {
               const { name, email, id } = getUserProfile(member);
               return (
-                <ListItem disableGutters divider={index !== selectedMembers.size - 1} key={id}>
+                <ListItem divider={index !== selectedMembers.size - 1} key={id}>
                   {name || email}
                   <ListItemSecondaryAction>
                     <IconButton aria-label="remove-member"><CloseIcon /></IconButton>
+                    {/* <Checkbox /> */}
                   </ListItemSecondaryAction>
                 </ListItem>
               );

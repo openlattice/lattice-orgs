@@ -10,11 +10,10 @@ import {
   ListItem,
   // $FlowFixMe[missing-export]
   ListItemAvatar,
-  // $FlowFixMe[missing-export]
-  ListItemSecondaryAction,
   Typography,
 } from 'lattice-ui-kit';
 import type { Role } from 'lattice';
+import ListItemSecondaryAction from './styled/ListItemSecondaryAction';
 
 type Props = {
   role :Role;
