@@ -103,7 +103,7 @@ const AccountContainer = () => {
     }
     if (regenerateAtlasCredentialsIsFailure) {
       setSnackbarText(REGENERATE_FAILURE);
-      setSnackbarSeverity('failure');
+      setSnackbarSeverity('error');
       setSnackbarOpen(true);
     }
   }, [
