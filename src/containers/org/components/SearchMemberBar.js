@@ -20,16 +20,19 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 
 import { USERS, USER_SEARCH_RESULTS } from '../../../core/redux/constants';
+import { resetUserSearchResults } from '../../../core/users/actions';
 import { getUserTitle } from '../../../utils';
 import type { ReactSelectOption } from '../../../types';
 
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 type Props = {
-  onChange :(option :?ReactSelectOption<Map>) => void;
+  onChange :(option ?:ReactSelectOption<Map>) => void;
 };
 
-const SearchMemberBar = ({ onChange } :Props) => {
+const SearchMemberBar = ({
+  onChange,
+} :Props) => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const searchRequestState = useRequestState([USERS, SEARCH_ALL_USERS]);
@@ -48,21 +51,34 @@ const SearchMemberBar = ({ onChange } :Props) => {
   }, [userSearchResults]);
 
   const debounceDispatchSearch = useCallback(debounce((value) => {
-    dispatch(searchAllUsers(value));
+    if (value) {
+      dispatch(searchAllUsers(value));
+    }
+    else {
+      dispatch(resetUserSearchResults());
+    }
   }, 250), []);
 
   useEffect(() => {
     debounceDispatchSearch(searchTerm.trim());
   }, [debounceDispatchSearch, searchTerm]);
 
+  const handleInputChange = (query, { action }) => {
+    if (action === 'input-change') {
+      setSearchTerm(query);
+    }
+  };
+
   return (
     <Select
         hideDropdownIcon
         inputIcon={<FontAwesomeIcon icon={faSearch} />}
         isClearable
+        closeMenuOnSelect={false}
+        value={null}
         isLoading={searchRequestState === RequestStates.PENDING}
         onChange={onChange}
-        onInputChange={setSearchTerm}
+        onInputChange={handleInputChange}
         inputValue={searchTerm}
         options={options}
         placeholder="Search members" />

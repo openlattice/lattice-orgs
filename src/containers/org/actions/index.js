@@ -10,6 +10,9 @@ import type { RequestSequence } from 'redux-reqseq';
 const ADD_ROLE_TO_ORGANIZATION :'ADD_ROLE_TO_ORGANIZATION' = 'ADD_ROLE_TO_ORGANIZATION';
 const addRoleToOrganization :RequestSequence = newRequestSequence(ADD_ROLE_TO_ORGANIZATION);
 
+const ADD_MEMBERS_TO_ORGANIZATION :'ADD_MEMBERS_TO_ORGANIZATION' = 'ADD_MEMBERS_TO_ORGANIZATION';
+const addMembersToOrganization :RequestSequence = newRequestSequence(ADD_MEMBERS_TO_ORGANIZATION);
+
 const ASSIGN_ROLES_TO_MEMBERS :'ASSIGN_ROLES_TO_MEMBERS' = 'ASSIGN_ROLES_TO_MEMBERS';
 const assignRolesToMembers :RequestSequence = newRequestSequence(ASSIGN_ROLES_TO_MEMBERS);
 
@@ -38,6 +41,7 @@ const REMOVE_ROLE_FROM_ORGANIZATION :'REMOVE_ROLE_FROM_ORGANIZATION' = 'REMOVE_R
 const removeRoleFromOrganization :RequestSequence = newRequestSequence(REMOVE_ROLE_FROM_ORGANIZATION);
 
 export {
+  ADD_MEMBERS_TO_ORGANIZATION,
   ADD_ROLE_TO_ORGANIZATION,
   ASSIGN_ROLES_TO_MEMBERS,
   CREATE_NEW_ORGANIZATION,
@@ -48,6 +52,7 @@ export {
   GET_SHIPROOM_METADATA,
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
+  addMembersToOrganization,
   addRoleToOrganization,
   assignRolesToMembers,
   createNewOrganization,
