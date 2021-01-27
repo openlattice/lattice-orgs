@@ -2,12 +2,20 @@
  * @flow
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Map } from 'immutable';
 import { AuthUtils } from 'lattice-auth';
 import { PrincipalsApiActions } from 'lattice-sagas';
-import { AppContentWrapper, Input, Typography } from 'lattice-ui-kit';
+import {
+  // $FlowFixMe
+  Alert,
+  AppContentWrapper,
+  Input,
+  // $FlowFixMe
+  Snackbar,
+  Typography
+} from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { UserInfo } from 'lattice-auth';
@@ -26,7 +34,15 @@ import { ACCOUNT } from '../../core/redux/constants';
 import { selectAtlasCredentials } from '../../core/redux/selectors';
 import { clipboardWriteText } from '../../utils';
 
-const { isPending, isStandby, isSuccess } = ReduxUtils;
+const REGENERATE_SUCCESS = 'Atlas credential successfully regenerated.';
+const REGENERATE_FAILURE = 'Atlas credential failed to regenerate.';
+
+const {
+  isFailure,
+  isPending,
+  isStandby,
+  isSuccess
+} = ReduxUtils;
 
 const {
   GET_ATLAS_CREDENTIALS,
@@ -48,16 +64,30 @@ const AccountContainer = () => {
   const getAtlasCredentialsRS :?RequestState = useRequestState([ACCOUNT, GET_ATLAS_CREDENTIALS]);
   const regenerateAtlasCredentialsRS :?RequestState = useRequestState([ACCOUNT, REGENERATE_CREDENTIAL]);
   const atlasCredentials :Map = useSelector(selectAtlasCredentials());
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarText, setSnackbarText] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('');
 
   const getAtlasCredentialsIsPending = isPending(getAtlasCredentialsRS);
   const getAtlasCredentialsIsStandby = isStandby(getAtlasCredentialsRS);
+  const getAtlasCredentialsIsSuccess = isSuccess(getAtlasCredentialsRS);
 
-  const regeneratingAtlasCredentials = isPending(regenerateAtlasCredentialsRS);
-  const atlasCredentialsRegenerated = isSuccess(regenerateAtlasCredentialsRS);
+  const regenerateAtlasCredentialsIsPending = isPending(regenerateAtlasCredentialsRS);
+  const regenerateAtlasCredentialsIsSuccess = isSuccess(regenerateAtlasCredentialsRS);
+  const regenerateAtlasCredentialsIsFailure = isFailure(regenerateAtlasCredentialsRS);
 
   const atlasCredentialsPending = getAtlasCredentialsIsPending
     || getAtlasCredentialsIsStandby
-    || regeneratingAtlasCredentials;
+    || regenerateAtlasCredentialsIsPending;
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+    setSnackbarText('');
+    setSnackbarSeverity('');
+  };
 
   const regenerateAtlasCredential = () => {
     dispatch(regenerateCredential());
@@ -66,10 +96,30 @@ const AccountContainer = () => {
   const thisUserInfo :UserInfo = AuthUtils.getUserInfo() || {};
 
   useEffect(() => {
-    if (atlasCredentialsRegenerated) {
+    if (regenerateAtlasCredentialsIsSuccess && getAtlasCredentialsIsSuccess) {
+      setSnackbarText(REGENERATE_SUCCESS);
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    }
+    if (regenerateAtlasCredentialsIsFailure) {
+      setSnackbarText(REGENERATE_FAILURE);
+      setSnackbarSeverity('failure');
+      setSnackbarOpen(true);
+    }
+  }, [
+    regenerateAtlasCredentialsIsSuccess,
+    regenerateAtlasCredentialsIsFailure,
+    getAtlasCredentialsIsSuccess,
+    setSnackbarOpen,
+    setSnackbarSeverity,
+    setSnackbarText
+  ]);
+
+  useEffect(() => {
+    if (regenerateAtlasCredentialsIsSuccess) {
       dispatch(getAtlasCredentials());
     }
-  }, [dispatch, atlasCredentialsRegenerated]);
+  }, [dispatch, regenerateAtlasCredentialsIsSuccess]);
 
   useEffect(() => {
     dispatch(getAtlasCredentials());
@@ -138,6 +188,11 @@ const AccountContainer = () => {
           </ActionsGrid>
         </StackGrid>
       </StackGrid>
+      <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity={snackbarSeverity}>
+          {snackbarText}
+        </Alert>
+      </Snackbar>
     </AppContentWrapper>
   );
 };
