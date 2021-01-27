@@ -6,28 +6,34 @@ import React, { useEffect } from 'react';
 
 import { Map } from 'immutable';
 import { AuthUtils } from 'lattice-auth';
-import { PrincipalsApiActions } from 'lattice-sagas';
 import { AppContentWrapper, Input, Typography } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 import type { UserInfo } from 'lattice-auth';
 import type { RequestState } from 'redux-reqseq';
+import { PrincipalsApiActions } from 'lattice-sagas';
 
 import { clearAtlasCredentials } from './actions';
 
 import {
   ActionsGrid,
   CopyButton,
+  RefreshButton,
   Pre,
-  Spinner,
   StackGrid,
 } from '../../components';
 import { ACCOUNT } from '../../core/redux/constants';
 import { selectAtlasCredentials } from '../../core/redux/selectors';
 import { clipboardWriteText } from '../../utils';
 
-const { GET_ATLAS_CREDENTIALS, getAtlasCredentials } = PrincipalsApiActions;
+const { isPending, isStandby, isSuccess } = ReduxUtils;
+
+const {
+  GET_ATLAS_CREDENTIALS,
+  REGENERATE_CREDENTIAL,
+  getAtlasCredentials,
+  regenerateCredential
+} = PrincipalsApiActions;
 
 const DASHES :'---' = '---';
 
@@ -40,9 +46,30 @@ const AccountContainer = () => {
   const dispatch = useDispatch();
 
   const getAtlasCredentialsRS :?RequestState = useRequestState([ACCOUNT, GET_ATLAS_CREDENTIALS]);
+  const regenerateAtlasCredentialsRS :?RequestState = useRequestState([ACCOUNT, REGENERATE_CREDENTIAL]);
   const atlasCredentials :Map = useSelector(selectAtlasCredentials());
 
+  const getAtlasCredentialsIsPending = isPending(getAtlasCredentialsRS);
+  const getAtlasCredentialsIsStandby = isStandby(getAtlasCredentialsRS);
+
+  const regeneratingAtlasCredentials = isPending(regenerateAtlasCredentialsRS);
+  const atlasCredentialsRegenerated = isSuccess(regenerateAtlasCredentialsRS);
+
+  const atlasCredentialsPending = getAtlasCredentialsIsPending
+    || getAtlasCredentialsIsStandby
+    || regeneratingAtlasCredentials;
+
+  const regenerateAtlasCredential = () => {
+    dispatch(regenerateCredential());
+  };
+
   const thisUserInfo :UserInfo = AuthUtils.getUserInfo() || {};
+
+  useEffect(() => {
+    if (atlasCredentialsRegenerated) {
+      dispatch(getAtlasCredentials());
+    }
+  }, [dispatch, atlasCredentialsRegenerated]);
 
   useEffect(() => {
     dispatch(getAtlasCredentials());
@@ -51,14 +78,6 @@ const AccountContainer = () => {
   useEffect(() => () => {
     dispatch(clearAtlasCredentials());
   }, [dispatch]);
-
-  if (getAtlasCredentialsRS === RequestStates.PENDING || getAtlasCredentialsRS === RequestStates.STANDBY) {
-    return (
-      <AppContentWrapper>
-        <Spinner />
-      </AppContentWrapper>
-    );
-  }
 
   return (
     <AppContentWrapper>
@@ -94,30 +113,30 @@ const AccountContainer = () => {
                 onClick={() => clipboardWriteText(AuthUtils.getAuthToken())} />
           </ActionsGrid>
         </StackGrid>
-        {
-          getAtlasCredentialsRS === RequestStates.SUCCESS && (
-            <>
-              <StackGrid gap={4}>
-                <Typography component="h2" variant="body2">ATLAS USERNAME</Typography>
-                <ActionsGrid fit>
-                  {PasswordInput}
-                  <CopyButton
-                      aria-label="copy atlas username"
-                      onClick={() => clipboardWriteText(atlasCredentials.get('username'))} />
-                </ActionsGrid>
-              </StackGrid>
-              <StackGrid gap={4}>
-                <Typography component="h2" variant="body2">ATLAS CREDENTIAL</Typography>
-                <ActionsGrid fit>
-                  {PasswordInput}
-                  <CopyButton
-                      aria-label="copy atlas credential"
-                      onClick={() => clipboardWriteText(atlasCredentials.get('credential'))} />
-                </ActionsGrid>
-              </StackGrid>
-            </>
-          )
-        }
+        <StackGrid gap={4}>
+          <Typography component="h2" variant="body2">ATLAS USERNAME</Typography>
+          <ActionsGrid fit>
+            {PasswordInput}
+            <CopyButton
+                aria-label="copy atlas username"
+                isDisabled={atlasCredentialsPending}
+                onClick={() => clipboardWriteText(atlasCredentials.get('username'))} />
+          </ActionsGrid>
+        </StackGrid>
+        <StackGrid gap={4}>
+          <Typography component="h2" variant="body2">ATLAS CREDENTIAL</Typography>
+          <ActionsGrid fit>
+            {PasswordInput}
+            <CopyButton
+                aria-label="copy atlas credential"
+                isDisabled={atlasCredentialsPending}
+                onClick={() => clipboardWriteText(atlasCredentials.get('credential'))} />
+            <RefreshButton
+                aria-label="regenerate atlas credential"
+                isDisabled={atlasCredentialsPending}
+                onClick={regenerateAtlasCredential} />
+          </ActionsGrid>
+        </StackGrid>
       </StackGrid>
     </AppContentWrapper>
   );
