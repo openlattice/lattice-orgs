@@ -6,20 +6,20 @@ import React, { useEffect } from 'react';
 
 import { Map } from 'immutable';
 import { AuthUtils } from 'lattice-auth';
+import { PrincipalsApiActions } from 'lattice-sagas';
 import { AppContentWrapper, Input, Typography } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { UserInfo } from 'lattice-auth';
 import type { RequestState } from 'redux-reqseq';
-import { PrincipalsApiActions } from 'lattice-sagas';
 
 import { clearAtlasCredentials } from './actions';
 
 import {
   ActionsGrid,
   CopyButton,
-  RefreshButton,
   Pre,
+  RefreshButton,
   StackGrid,
 } from '../../components';
 import { ACCOUNT } from '../../core/redux/constants';
@@ -119,7 +119,7 @@ const AccountContainer = () => {
             {PasswordInput}
             <CopyButton
                 aria-label="copy atlas username"
-                isDisabled={atlasCredentialsPending}
+                isPending={atlasCredentialsPending}
                 onClick={() => clipboardWriteText(atlasCredentials.get('username'))} />
           </ActionsGrid>
         </StackGrid>
@@ -129,11 +129,11 @@ const AccountContainer = () => {
             {PasswordInput}
             <CopyButton
                 aria-label="copy atlas credential"
-                isDisabled={atlasCredentialsPending}
+                isPending={atlasCredentialsPending}
                 onClick={() => clipboardWriteText(atlasCredentials.get('credential'))} />
             <RefreshButton
                 aria-label="regenerate atlas credential"
-                isDisabled={atlasCredentialsPending}
+                isPending={atlasCredentialsPending}
                 onClick={regenerateAtlasCredential} />
           </ActionsGrid>
         </StackGrid>
