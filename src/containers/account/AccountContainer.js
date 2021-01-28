@@ -101,7 +101,7 @@ const AccountContainer = () => {
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
     }
-    if (regenerateAtlasCredentialsIsFailure) {
+    else if (regenerateAtlasCredentialsIsFailure) {
       setSnackbarText(REGENERATE_FAILURE);
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
@@ -189,9 +189,13 @@ const AccountContainer = () => {
         </StackGrid>
       </StackGrid>
       <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleClose}>
-        <Alert onClose={handleClose} severity={snackbarSeverity}>
-          {snackbarText}
-        </Alert>
+        {
+          snackbarOpen && (
+            <Alert onClose={handleClose} severity={snackbarSeverity}>
+              {snackbarText}
+            </Alert>
+          )
+        }
       </Snackbar>
     </AppContentWrapper>
   );
