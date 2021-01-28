@@ -23,13 +23,13 @@ import OrgDataSetObjectPermissionsContainer from './OrgDataSetObjectPermissionsC
 import OrgDataSetsContainer from './OrgDataSetsContainer';
 import OrgDataSourcesContainer from './OrgDataSourcesContainer';
 import OrgObjectPermissionsContainer from './OrgObjectPermissionsContainer';
-import OrgPeopleContainer from './members/OrgPeopleContainer';
+import OrgPeopleContainer from './people/OrgPeopleContainer';
 import OrgRoleContainer from './OrgRoleContainer';
 import OrgRoleObjectPermissionsContainer from './OrgRoleObjectPermissionsContainer';
 import OrgRolesContainer from './OrgRolesContainer';
 import OrgSettingsContainer from './settings/OrgSettingsContainer';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from './actions';
-import { OrgMemberContainer } from './members';
+import { OrgMemberContainer } from './people';
 
 import { BasicErrorComponent, Spinner } from '../../components';
 import { resetRequestState } from '../../core/redux/actions';
@@ -157,9 +157,9 @@ const OrgRouter = () => {
     return NO_ROUTE;
   }, [dataSetId, organizationId]);
 
-  const membersRoute = useMemo(() => {
+  const peopleRoute = useMemo(() => {
     if (organizationId) {
-      return Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId);
+      return Routes.ORG_PEOPLE.replace(Routes.ORG_ID_PARAM, organizationId);
     }
     return NO_ROUTE;
   }, [organizationId]);
@@ -246,7 +246,7 @@ const OrgRouter = () => {
         ? (
           <OrgMemberContainer
               memberPrincipalId={memberPrincipalId}
-              membersRoute={membersRoute}
+              peopleRoute={peopleRoute}
               organizationId={organizationId}
               organizationRoute={organizationRoute} />
         )
