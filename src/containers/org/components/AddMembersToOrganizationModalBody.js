@@ -38,7 +38,7 @@ type Props = {
 
 const resetStatePath = [[ADD_MEMBERS_TO_ORGANIZATION]];
 
-const AddMemberModalBody = ({ members, onClose, organizationId } :Props) => {
+const AddMembersToOrganzationModalBody = ({ members, onClose, organizationId } :Props) => {
   const dispatch = useDispatch();
   const [step, stepBack, stepNext] = useStepState(2);
   const [selectedMembers, setMembers] = useState(Map());
@@ -131,4 +131,4 @@ const AddMemberModalBody = ({ members, onClose, organizationId } :Props) => {
   );
 };
 
-export default AddMemberModalBody;
+export default AddMembersToOrganzationModalBody;

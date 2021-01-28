@@ -8,7 +8,7 @@ import { Modal } from 'lattice-ui-kit';
 import type { List } from 'immutable';
 import type { UUID } from 'lattice';
 
-import AddMemberModalBody from './AddMemberModalBody';
+import AddMembersToOrganizationModalBody from './AddMembersToOrganizationModalBody';
 
 type Props = {
   isVisible :boolean;
@@ -17,7 +17,7 @@ type Props = {
   members :List;
 };
 
-const AddMemberToOrgModal = ({
+const AddMembersToOrganizationModal = ({
   isVisible,
   onClose,
   organizationId,
@@ -29,11 +29,11 @@ const AddMemberToOrgModal = ({
       textTitle="Add Members"
       viewportScrolling
       withFooter={false}>
-    <AddMemberModalBody
+    <AddMembersToOrganizationModalBody
         members={members}
         onClose={onClose}
         organizationId={organizationId} />
   </Modal>
 );
 
-export default AddMemberToOrgModal;
+export default AddMembersToOrganizationModal;

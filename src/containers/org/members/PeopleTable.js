@@ -27,7 +27,7 @@ import TableRow from './components/TableRow';
 import memberHasSelectedIdentityTypes from './utils/memberHasSelectedIdentityTypes';
 import memberHasSelectedRoles from './utils/memberHasSelectedRoles';
 
-import AddMemberToOrgModal from '../components/AddMemberToOrgModal';
+import AddMembersToOrganizationModal from '../components/AddMembersToOrganizationModal';
 import AssignRolesToMembersModal from '../components/AssignRolesToMembersModal';
 import { selectCurrentRoleAuthorizations } from '../../../core/redux/selectors';
 import { getUserProfile } from '../../../utils';
@@ -87,7 +87,7 @@ const PeopleTable = ({
   // consider using reducers for handling member/role/action selection
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
-  const [isVisibleAddMemberToOrgModal, setIsVisibleAddMemberToOrgModal] = useState(false);
+  const [isVisibleAddMembersToOrganizationModal, setIsVisibleAddMembersToOrganizationModal] = useState(false);
   const [isVisibleAssignRolesModal, setIsVisibleAssignRolesModal] = useState(false);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
   const [targetMember, setTargetMember] = useState();
@@ -142,7 +142,7 @@ const PeopleTable = ({
   };
 
   const handleAddMember = () => {
-    setIsVisibleAddMemberToOrgModal(true);
+    setIsVisibleAddMembersToOrganizationModal(true);
   };
 
   const handleOnFilterChange = (category :string, id :string) => {
@@ -254,10 +254,10 @@ const PeopleTable = ({
       }
       {
         isOwner && (
-          <AddMemberToOrgModal
-              isVisible={isVisibleAddMemberToOrgModal}
+          <AddMembersToOrganizationModal
+              isVisible={isVisibleAddMembersToOrganizationModal}
               members={members}
-              onClose={() => setIsVisibleAddMemberToOrgModal(false)}
+              onClose={() => setIsVisibleAddMembersToOrganizationModal(false)}
               organizationId={organizationId} />
         )
       }
