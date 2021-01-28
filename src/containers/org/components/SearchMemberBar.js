@@ -12,7 +12,7 @@ import React, {
 import debounce from 'lodash/debounce';
 import { faSearch } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 import { PrincipalsApiActions } from 'lattice-sagas';
 import { Select } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
@@ -21,17 +21,19 @@ import { RequestStates } from 'redux-reqseq';
 
 import { USERS, USER_SEARCH_RESULTS } from '../../../core/redux/constants';
 import { resetUserSearchResults } from '../../../core/users/actions';
-import { getUserTitle } from '../../../utils';
+import { getUserProfile, getUserTitle } from '../../../utils';
 import type { ReactSelectOption } from '../../../types';
 
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 type Props = {
   onChange :(option ?:ReactSelectOption<Map>) => void;
+  existingMembers ?:List;
 };
 
 const SearchMemberBar = ({
   onChange,
+  existingMembers
 } :Props) => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
@@ -41,14 +43,22 @@ const SearchMemberBar = ({
   const options = useMemo(() => {
     const selectOptions = [];
     userSearchResults.forEach((user) => {
-      selectOptions.push({
-        label: getUserTitle(user),
-        value: user,
+      const { id } = getUserProfile(user);
+      const exists = !!existingMembers?.find((member) => {
+        const { id: existingMemberId } = getUserProfile(member);
+        return id === existingMemberId;
       });
+
+      if (!exists) {
+        selectOptions.push({
+          label: getUserTitle(user),
+          value: user,
+        });
+      }
     }, [userSearchResults]);
 
     return selectOptions;
-  }, [userSearchResults]);
+  }, [existingMembers, userSearchResults]);
 
   const debounceDispatchSearch = useCallback(debounce((value) => {
     if (value) {
@@ -83,6 +93,10 @@ const SearchMemberBar = ({
         options={options}
         placeholder="Search members" />
   );
+};
+
+SearchMemberBar.defaultProps = {
+  existingMembers: List()
 };
 
 export default SearchMemberBar;

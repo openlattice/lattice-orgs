@@ -256,7 +256,7 @@ const PeopleTable = ({
         isOwner && (
           <AddMemberToOrgModal
               isVisible={isVisibleAddMemberToOrgModal}
-              member={targetMember}
+              members={members}
               onClose={() => setIsVisibleAddMemberToOrgModal(false)}
               organizationId={organizationId} />
         )
