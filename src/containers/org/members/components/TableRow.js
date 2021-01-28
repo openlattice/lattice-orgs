@@ -187,7 +187,7 @@ const TableRow = ({
             {/* <MenuItem>
               Remove all roles
             </MenuItem> */}
-            <MenuItem disabled={isOwner} onClick={handleRemoveMember}>
+            <MenuItem disabled={!isOwner} onClick={handleRemoveMember}>
               Delete person
             </MenuItem>
           </Menu>
