@@ -10,7 +10,7 @@ import {
   ListItem,
 } from 'lattice-ui-kit';
 
-import ListItemSecondaryAction from './styled/ListItemSecondaryAction';
+import StyledListItemSecondaryAction from './styled/StyledListItemSecondaryAction';
 
 import { getUserProfile } from '../../../utils';
 
@@ -36,11 +36,11 @@ const AddMemberListItem = ({
     // eslint-disable-next-line react/jsx-props-no-spreading
     <ListItem {...rest}>
       {name || email}
-      <ListItemSecondaryAction>
+      <StyledListItemSecondaryAction>
         <IconButton aria-label="remove-member" onClick={handleClick}>
           <CloseIcon />
         </IconButton>
-      </ListItemSecondaryAction>
+      </StyledListItemSecondaryAction>
     </ListItem>
   );
 };

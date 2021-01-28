@@ -13,7 +13,8 @@ import {
   Typography,
 } from 'lattice-ui-kit';
 import type { Role } from 'lattice';
-import ListItemSecondaryAction from './styled/ListItemSecondaryAction';
+
+import StyledListItemSecondaryAction from './styled/StyledListItemSecondaryAction';
 
 type Props = {
   role :Role;
@@ -43,9 +44,9 @@ const RoleListItem = ({
         <Avatar>{role.title[0].toUpperCase()}</Avatar>
       </ListItemAvatar>
       <Typography color={color} variant="body2">{role.title}</Typography>
-      <ListItemSecondaryAction>
+      <StyledListItemSecondaryAction>
         <Checkbox checked={checked} disabled={disabled} onChange={handleCheckboxChange} />
-      </ListItemSecondaryAction>
+      </StyledListItemSecondaryAction>
     </ListItem>
   );
 };

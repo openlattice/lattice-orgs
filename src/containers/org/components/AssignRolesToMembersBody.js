@@ -2,15 +2,14 @@
 
 import React, { useState } from 'react';
 
-import styled from 'styled-components';
 import { Map } from 'immutable';
-import { ModalFooter } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import SelectRoles from './SelectRoles';
+import StyledFooter from './styled/StyledFooter';
 
 import ResetOnUnmount from '../../../components/other/ResetOnUnmount';
 import StepConfirm from '../../permissions/StepConfirm';
@@ -22,10 +21,6 @@ import { ASSIGN_ROLES_TO_MEMBERS, assignRolesToMembers } from '../actions';
 const { isPending, isSuccess } = ReduxUtils;
 
 const resetStatePath = [[ASSIGN_ROLES_TO_MEMBERS]];
-
-const StyledFooter = styled(ModalFooter)`
-  padding: 16px 0 30px;
-`;
 
 type Props = {
   onClose :() => void;

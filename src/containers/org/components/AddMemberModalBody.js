@@ -4,12 +4,10 @@
 
 import React, { useCallback, useState } from 'react';
 
-import styled from 'styled-components';
 import { Map } from 'immutable';
 import {
-// $FlowFixMe[missing-export]
+  // $FlowFixMe[missing-export]
   List as LUKList,
-  ModalFooter,
   Typography,
 } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
@@ -20,6 +18,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import AddMemberListItem from './AddMemberListItem';
 import SearchMemberBar from './SearchMemberBar';
+import StyledFooter from './styled/StyledFooter';
 
 import { ModalBody } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
@@ -28,10 +27,6 @@ import { ADD_MEMBERS_TO_ORGANIZATION, addMembersToOrganization } from '../action
 import type { ReactSelectOption } from '../../../types';
 
 const { isPending, isSuccess } = ReduxUtils;
-
-const StyledFooter = styled(ModalFooter)`
-  padding: 16px 0 30px;
-`;
 
 type Props = {
   members :List;
