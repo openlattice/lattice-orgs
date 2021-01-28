@@ -23,13 +23,12 @@ import OrgDataSetObjectPermissionsContainer from './OrgDataSetObjectPermissionsC
 import OrgDataSetsContainer from './OrgDataSetsContainer';
 import OrgDataSourcesContainer from './OrgDataSourcesContainer';
 import OrgObjectPermissionsContainer from './OrgObjectPermissionsContainer';
-import OrgPeopleContainer from './people/OrgPeopleContainer';
 import OrgRoleContainer from './OrgRoleContainer';
 import OrgRoleObjectPermissionsContainer from './OrgRoleObjectPermissionsContainer';
 import OrgRolesContainer from './OrgRolesContainer';
 import OrgSettingsContainer from './settings/OrgSettingsContainer';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from './actions';
-import { OrgMemberContainer } from './people';
+import { OrgMemberContainer, OrgPeopleContainer } from './people';
 
 import { BasicErrorComponent, Spinner } from '../../components';
 import { resetRequestState } from '../../core/redux/actions';
