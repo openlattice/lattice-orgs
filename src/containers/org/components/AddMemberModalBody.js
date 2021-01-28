@@ -7,9 +7,8 @@ import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 import { Map } from 'immutable';
 import {
-  IconButton,
+// $FlowFixMe[missing-export]
   List as LUKList,
-  ListItem,
   ModalFooter,
   Typography,
 } from 'lattice-ui-kit';
