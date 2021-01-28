@@ -74,7 +74,7 @@ const OrgContainer = ({ organizationId } :Props) => {
     Routes.ORG_DATA_SETS.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
-  const membersPath = useMemo(() => (
+  const peoplePath = useMemo(() => (
     Routes.ORG_PEOPLE.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
@@ -106,7 +106,7 @@ const OrgContainer = ({ organizationId } :Props) => {
           <div>
             <span>Members</span>
             <b>{organization.members.length}</b>
-            <ManageLink to={membersPath}>
+            <ManageLink to={peoplePath}>
               <span>Manage Members</span>
               <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
             </ManageLink>
