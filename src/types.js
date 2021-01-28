@@ -43,7 +43,7 @@ type UserProfile = {
   email :string;
   familyName :string;
   givenName :string;
-  id :UUID;
+  id :string;
   name :string;
 };
 
