@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 
 import { Map } from 'immutable';
-import { ReduxUtils, useRequestState } from 'lattice-utils';
+import { ReduxUtils, useRequestState, useStepState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -13,7 +13,7 @@ import StyledFooter from './styled/StyledFooter';
 
 import ResetOnUnmount from '../../../components/other/ResetOnUnmount';
 import StepConfirm from '../../permissions/StepConfirm';
-import { ModalBody, StepsController } from '../../../components';
+import { ModalBody } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserProfile } from '../../../utils';
 import { ASSIGN_ROLES_TO_MEMBERS, assignRolesToMembers } from '../actions';
@@ -36,6 +36,7 @@ const AssignRolesToMembersModalBody = ({
   roles,
 } :Props) => {
   const dispatch = useDispatch();
+  const [step, stepBack, stepNext] = useStepState(2);
   const requestState :?RequestState = useRequestState([ORGANIZATIONS, ASSIGN_ROLES_TO_MEMBERS]);
   const [selectedRoles, setSelectedRoles] = useState(Map());
 
@@ -67,53 +68,47 @@ const AssignRolesToMembersModalBody = ({
   const successText = `${selectedRoles.size} roles were added to ${membersText}.`;
 
   return (
-    <StepsController>
+    <>
       {
-        ({ step, stepBack, stepNext }) => (
+        step === 0 && (
           <>
-            {
-              step === 0 && (
-                <>
-                  <ModalBody>
-                    <SelectRoles
-                        members={members}
-                        onClick={handleSelectRole}
-                        roles={roles}
-                        selectedRoles={selectedRoles} />
-                  </ModalBody>
-                  <StyledFooter
-                      isDisabledPrimary={!selectedRoles.size}
-                      onClickPrimary={stepNext}
-                      shouldStretchButtons
-                      textPrimary="Continue" />
-                </>
-              )
-            }
-            {
-              step === 1 && (
-                <>
-                  <ModalBody>
-                    <ResetOnUnmount paths={resetStatePath}>
-                      <StepConfirm
-                          confirmText={confirmText}
-                          requestState={requestState}
-                          successText={successText} />
-                    </ResetOnUnmount>
-                  </ModalBody>
-                  <StyledFooter
-                      isPendingPrimary={pending}
-                      onClickPrimary={success ? onClose : handleSave}
-                      onClickSecondary={stepBack}
-                      shouldStretchButtons
-                      textPrimary={success ? 'Close' : 'Save'}
-                      textSecondary={success ? '' : 'Back'} />
-                </>
-              )
-            }
+            <ModalBody>
+              <SelectRoles
+                  members={members}
+                  onClick={handleSelectRole}
+                  roles={roles}
+                  selectedRoles={selectedRoles} />
+            </ModalBody>
+            <StyledFooter
+                isDisabledPrimary={!selectedRoles.size}
+                onClickPrimary={stepNext}
+                shouldStretchButtons
+                textPrimary="Continue" />
           </>
         )
       }
-    </StepsController>
+      {
+        step === 1 && (
+          <>
+            <ModalBody>
+              <ResetOnUnmount paths={resetStatePath}>
+                <StepConfirm
+                    confirmText={confirmText}
+                    requestState={requestState}
+                    successText={successText} />
+              </ResetOnUnmount>
+            </ModalBody>
+            <StyledFooter
+                isPendingPrimary={pending}
+                onClickPrimary={success ? onClose : handleSave}
+                onClickSecondary={stepBack}
+                shouldStretchButtons
+                textPrimary={success ? 'Close' : 'Save'}
+                textSecondary={success ? '' : 'Back'} />
+          </>
+        )
+      }
+    </>
   );
 };
 

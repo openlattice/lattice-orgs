@@ -26,10 +26,13 @@ const AddMemberToOrgModal = ({
   <Modal
       isVisible={isVisible}
       onClose={onClose}
-      textTitle="Add Member"
+      textTitle="Add Members"
       viewportScrolling
       withFooter={false}>
-    <AddMemberModalBody members={members} organizationId={organizationId} />
+    <AddMemberModalBody
+        members={members}
+        onClose={onClose}
+        organizationId={organizationId} />
   </Modal>
 );
 

@@ -30,6 +30,7 @@ import {
   RS_INITIAL_STATE,
 } from '../../core/redux/constants';
 import {
+  ADD_MEMBERS_TO_ORGANIZATION,
   ADD_ROLE_TO_ORGANIZATION,
   ASSIGN_ROLES_TO_MEMBERS,
   CREATE_NEW_ORGANIZATION,
@@ -38,6 +39,7 @@ import {
   GET_ORGANIZATION_INTEGRATION_DETAILS,
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
+  addMembersToOrganization,
   addRoleToOrganization,
   assignRolesToMembers,
   createNewOrganization,
@@ -48,6 +50,7 @@ import {
   removeRoleFromOrganization,
 } from '../org/actions';
 import {
+  addMembersToOrganizationReducer,
   editRoleDetailsReducer,
   getOrganizationDataSetsReducer,
   getOrganizationDataSourcesReducer,
@@ -100,6 +103,7 @@ const { getUserId } = PersonUtils;
 const INITIAL_STATE :Map = fromJS({
   // actions
   [ADD_MEMBER_TO_ORGANIZATION]: RS_INITIAL_STATE,
+  [ADD_MEMBERS_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [ADD_ROLE_TO_MEMBER]: RS_INITIAL_STATE,
   [ADD_ROLE_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [ASSIGN_ROLES_TO_MEMBERS]: RS_INITIAL_STATE,
@@ -130,6 +134,10 @@ const INITIAL_STATE :Map = fromJS({
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
+
+  if (action.type === addMembersToOrganization.case(action.type)) {
+    return addMembersToOrganizationReducer(state, action);
+  }
 
   if (action.type === assignRolesToMembers.case(action.type)) {
     return assignRolesToMembersReducer(state, action);
