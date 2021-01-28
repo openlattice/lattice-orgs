@@ -46,7 +46,7 @@ function* addMembersToOrganizationWorker(action :SequenceAction) :Saga<void> {
       const assignment = call(addMemberToOrganizationWorker, addMemberToOrganization({
         memberId,
         organizationId,
-        profile: member
+        profile: member,
       }));
       allAddMemberRequests.push(assignment);
     });

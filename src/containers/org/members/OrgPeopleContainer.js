@@ -69,12 +69,10 @@ const OrgPeopleContainer = ({
   }, [dispatch]);
 
   useEffect(() => {
-    if (roleAclKeys) {
-      dispatch(getCurrentRoleAuthorizations({
-        aclKeys: roleAclKeys,
-        permissions: [PermissionTypes.OWNER]
-      }));
-    }
+    dispatch(getCurrentRoleAuthorizations({
+      aclKeys: roleAclKeys,
+      permissions: [PermissionTypes.OWNER]
+    }));
 
     return () => {
       dispatch(resetRequestState([GET_CURRENT_ROLE_AUTHORIZATIONS]));

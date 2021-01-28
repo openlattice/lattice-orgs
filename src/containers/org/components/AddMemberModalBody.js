@@ -5,44 +5,47 @@
 import React, { useCallback, useState } from 'react';
 
 import styled from 'styled-components';
-import { faTimes } from '@fortawesome/pro-regular-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map } from 'immutable';
 import {
-  Checkbox,
   IconButton,
-  List,
+  List as LUKList,
   ListItem,
   ModalFooter,
   Typography,
 } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
+import type { List } from 'immutable';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import ListItemSecondaryAction from './styled/ListItemSecondaryAction';
+import AddMemberListItem from './AddMemberListItem';
 import SearchMemberBar from './SearchMemberBar';
 
 import { ModalBody } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserProfile } from '../../../utils';
-import { addMembersToOrganization } from '../actions';
+import { ADD_MEMBERS_TO_ORGANIZATION, addMembersToOrganization } from '../actions';
 import type { ReactSelectOption } from '../../../types';
 
-const CloseIcon = () => <FontAwesomeIcon fixedWidth icon={faTimes} />;
+const { isPending, isSuccess } = ReduxUtils;
+
 const StyledFooter = styled(ModalFooter)`
   padding: 16px 0 30px;
 `;
+
 type Props = {
+  members :List;
   organizationId :UUID;
 };
 
-const AddMemberModalBody = ({ organizationId } :Props) => {
+const AddMemberModalBody = ({ members, organizationId } :Props) => {
   const dispatch = useDispatch();
   const [selectedMembers, setMembers] = useState(Map());
-  // const requestState :?RequestState = useRequestState([ORGANIZATIONS, ADD_MEMBER_TO_ORGANIZATION]);
+  const requestState :?RequestState = useRequestState([ORGANIZATIONS, ADD_MEMBERS_TO_ORGANIZATION]);
+
+  const pending = isPending(requestState);
+  const success = isSuccess(requestState);
 
   const handleChange = useCallback((option ?:ReactSelectOption<Map>) => {
     const { id } = getUserProfile(option?.value);
@@ -51,6 +54,11 @@ const AddMemberModalBody = ({ organizationId } :Props) => {
       setMembers(newMembers);
     }
   }, [selectedMembers]);
+
+  const handleRemoveMember = (id :string) => {
+    const newMembers = selectedMembers.remove(id);
+    setMembers(newMembers);
+  };
 
   const handleOnClickPrimary = () => {
     dispatch(
@@ -65,25 +73,25 @@ const AddMemberModalBody = ({ organizationId } :Props) => {
     <>
       <ModalBody>
         <Typography>Search and select the people you wish to add to the organization</Typography>
-        <SearchMemberBar onChange={handleChange} />
-        <List>
+        <SearchMemberBar existingMembers={members} onChange={handleChange} />
+        <LUKList>
           {
             selectedMembers.valueSeq().map((member, index) => {
-              const { name, email, id } = getUserProfile(member);
+              const { id } = getUserProfile(member);
               return (
-                <ListItem divider={index !== selectedMembers.size - 1} key={id}>
-                  {name || email}
-                  <ListItemSecondaryAction>
-                    <IconButton aria-label="remove-member"><CloseIcon /></IconButton>
-                    {/* <Checkbox /> */}
-                  </ListItemSecondaryAction>
-                </ListItem>
+                <AddMemberListItem
+                    disableGutters
+                    divider={index !== selectedMembers.size - 1}
+                    key={`member-${id}`}
+                    member={member}
+                    onClick={handleRemoveMember} />
               );
             })
           }
-        </List>
+        </LUKList>
       </ModalBody>
       <StyledFooter
+          isPendingPrimary={pending}
           isPrimaryDisabled={!selectedMembers.size}
           onClickPrimary={handleOnClickPrimary}
           shouldStretchButtons

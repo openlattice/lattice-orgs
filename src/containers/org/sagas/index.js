@@ -2,6 +2,7 @@
  * @flow
  */
 
+export * from './addMembersToOrganization';
 export * from './addRoleToOrganization';
 export * from './assignRolesToMembers';
 export * from './createNewOrganization';
