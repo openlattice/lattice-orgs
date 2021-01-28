@@ -6,6 +6,7 @@ import React, { useReducer, useRef } from 'react';
 
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// $FlowFixMe
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { useGoToRoute } from 'lattice-utils';
 import { useSelector } from 'react-redux';
