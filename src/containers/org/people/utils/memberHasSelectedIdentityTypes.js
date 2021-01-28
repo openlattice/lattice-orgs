@@ -1,6 +1,5 @@
 // @flow
-import { List, Map } from 'immutable';
-import type { Role } from 'lattice';
+import { List, Map, Set } from 'immutable';
 
 import {
   AUTH0,
@@ -9,7 +8,7 @@ import {
   SOCIAL
 } from './constants';
 
-export default function memberHasSelectedIdentityTypes(member :Map, selectedIdentityTypes :Role[]) {
+export default function memberHasSelectedIdentityTypes(member :Map, selectedIdentityTypes :Set) {
   return selectedIdentityTypes.reduce((matchesAllFilters, identityType) => {
     const memberIdentities :List = member.getIn(['profile', 'identities'], List());
     let memberHasIdentityType = false;
