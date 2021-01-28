@@ -26,17 +26,17 @@ const { isSuccess } = ReduxUtils;
 const { PermissionTypes } = Types;
 
 type Props = {
+  members :Map;
   onClick :(role :Role) => void;
   roles :Role[];
   selectedRoles :Map;
-  members :Map;
 };
 
 const SelectRoles = ({
+  members,
   onClick,
   roles,
   selectedRoles,
-  members,
 } :Props) => {
 
   const currentRoleAuthorizations :Map = useSelector(selectCurrentRoleAuthorizations());

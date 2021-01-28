@@ -23,10 +23,10 @@ const { isPending, isSuccess } = ReduxUtils;
 const resetStatePath = [[ASSIGN_ROLES_TO_MEMBERS]];
 
 type Props = {
-  onClose :() => void;
   members :Map;
-  roles :Role[];
+  onClose :() => void;
   organizationId :UUID;
+  roles :Role[];
 };
 
 const AssignRolesToMembersModalBody = ({

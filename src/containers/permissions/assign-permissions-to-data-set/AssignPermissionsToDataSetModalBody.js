@@ -123,8 +123,8 @@ const AssignPermissionsToDataSetModalBody = ({
                 <>
                   <ModalBody>
                     <StepConfirm
-                        requestState={assignPermissionsToDataSetRS}
-                        confirmText={confirmText} />
+                        confirmText={confirmText}
+                        requestState={assignPermissionsToDataSetRS} />
                   </ModalBody>
                   <ModalFooter
                       isPendingPrimary={assignPermissionsToDataSetRS === RequestStates.PENDING}

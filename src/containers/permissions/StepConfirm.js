@@ -19,12 +19,12 @@ const {
 } = ReduxUtils;
 
 const StepConfirm = ({
-  requestState,
   confirmText,
+  requestState,
   successText,
 } :{
-  requestState :?RequestState;
   confirmText :Node;
+  requestState :?RequestState;
   successText :Node;
 }) => (
   <StackGrid>
