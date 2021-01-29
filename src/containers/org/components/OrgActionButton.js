@@ -74,6 +74,10 @@ const OrgActionButton = ({
     Routes.ORG_DATA_SOURCES.replace(Routes.ORG_ID_PARAM, organizationId)
   );
 
+  const goToSettings = useGoToRoute(
+    Routes.ORG_SETTINGS.replace(Routes.ORG_ID_PARAM, organizationId)
+  );
+
   const handleOpenMenu = () => {
     dispatch({ type: OPEN_MENU });
   };
@@ -118,7 +122,10 @@ const OrgActionButton = ({
             vertical: 'top',
           }}>
         <MenuItem disabled={!isOwner} onClick={handleOpenDescription}>
-          Edit Description
+          Edit Details
+        </MenuItem>
+        <MenuItem onClick={goToSettings}>
+          Database Details
         </MenuItem>
         <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
           Manage Permissions

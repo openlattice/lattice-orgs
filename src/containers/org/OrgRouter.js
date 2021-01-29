@@ -20,7 +20,6 @@ import type { RequestState } from 'redux-reqseq';
 import OrgContainer from './OrgContainer';
 import OrgDataSetContainer from './OrgDataSetContainer';
 import OrgDataSetObjectPermissionsContainer from './OrgDataSetObjectPermissionsContainer';
-import OrgDataSetsContainer from './OrgDataSetsContainer';
 import OrgDataSourcesContainer from './OrgDataSourcesContainer';
 import OrgObjectPermissionsContainer from './OrgObjectPermissionsContainer';
 import OrgRoleContainer from './OrgRoleContainer';
@@ -208,16 +207,9 @@ const OrgRouter = () => {
               dataSetDataRoute={dataSetDataRoute}
               dataSetId={dataSetId}
               dataSetRoute={dataSetRoute}
-              dataSetsRoute={dataSetsRoute}
               organizationId={organizationId}
               organizationRoute={organizationRoute} />
         )
-        : null
-    );
-
-    const renderOrgDataSetsContainer = () => (
-      (organizationId)
-        ? <OrgDataSetsContainer organizationId={organizationId} organizationRoute={organizationRoute} />
         : null
     );
 
@@ -305,7 +297,6 @@ const OrgRouter = () => {
       <Switch>
         <Route path={Routes.ORG_DATA_SET_OBJECT_PERMISSIONS} render={renderOrgDataSetObjectPermissionsContainer} />
         <Route path={Routes.ORG_DATA_SET} render={renderOrgDataSetContainer} />
-        <Route path={Routes.ORG_DATA_SETS} render={renderOrgDataSetsContainer} />
         <Route path={Routes.ORG_DATA_SOURCES} render={renderOrgDataSourcesContainer} />
         <Route path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
         <Route path={Routes.ORG_PEOPLE} render={renderOrgPeopleContainer} />
