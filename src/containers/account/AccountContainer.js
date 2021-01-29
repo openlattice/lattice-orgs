@@ -2,15 +2,22 @@
  * @flow
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { Map } from 'immutable';
 import { AuthUtils } from 'lattice-auth';
 import { PrincipalsApiActions } from 'lattice-sagas';
-import { AppContentWrapper, Input, Typography } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import {
+  // $FlowFixMe
+  Alert,
+  AppContentWrapper,
+  Input,
+  // $FlowFixMe
+  Snackbar,
+  Typography
+} from 'lattice-ui-kit';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 import type { UserInfo } from 'lattice-auth';
 import type { RequestState } from 'redux-reqseq';
 
@@ -20,14 +27,29 @@ import {
   ActionsGrid,
   CopyButton,
   Pre,
-  Spinner,
+  RefreshButton,
   StackGrid,
 } from '../../components';
 import { ACCOUNT } from '../../core/redux/constants';
 import { selectAtlasCredentials } from '../../core/redux/selectors';
 import { clipboardWriteText } from '../../utils';
 
-const { GET_ATLAS_CREDENTIALS, getAtlasCredentials } = PrincipalsApiActions;
+const REGENERATE_SUCCESS = 'Atlas credential successfully regenerated.';
+const REGENERATE_FAILURE = 'Atlas credential failed to regenerate.';
+
+const {
+  isFailure,
+  isPending,
+  isStandby,
+  isSuccess
+} = ReduxUtils;
+
+const {
+  GET_ATLAS_CREDENTIALS,
+  REGENERATE_CREDENTIAL,
+  getAtlasCredentials,
+  regenerateCredential
+} = PrincipalsApiActions;
 
 const DASHES :'---' = '---';
 
@@ -40,9 +62,64 @@ const AccountContainer = () => {
   const dispatch = useDispatch();
 
   const getAtlasCredentialsRS :?RequestState = useRequestState([ACCOUNT, GET_ATLAS_CREDENTIALS]);
+  const regenerateAtlasCredentialsRS :?RequestState = useRequestState([ACCOUNT, REGENERATE_CREDENTIAL]);
   const atlasCredentials :Map = useSelector(selectAtlasCredentials());
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarText, setSnackbarText] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('');
+
+  const getAtlasCredentialsIsPending = isPending(getAtlasCredentialsRS);
+  const getAtlasCredentialsIsStandby = isStandby(getAtlasCredentialsRS);
+  const getAtlasCredentialsIsSuccess = isSuccess(getAtlasCredentialsRS);
+
+  const regenerateAtlasCredentialsIsPending = isPending(regenerateAtlasCredentialsRS);
+  const regenerateAtlasCredentialsIsSuccess = isSuccess(regenerateAtlasCredentialsRS);
+  const regenerateAtlasCredentialsIsFailure = isFailure(regenerateAtlasCredentialsRS);
+
+  const atlasCredentialsPending = getAtlasCredentialsIsPending
+    || getAtlasCredentialsIsStandby
+    || regenerateAtlasCredentialsIsPending;
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+    setSnackbarText('');
+    setSnackbarSeverity('');
+  };
+
+  const regenerateAtlasCredential = () => {
+    dispatch(regenerateCredential());
+  };
 
   const thisUserInfo :UserInfo = AuthUtils.getUserInfo() || {};
+
+  useEffect(() => {
+    if (regenerateAtlasCredentialsIsSuccess && getAtlasCredentialsIsSuccess) {
+      setSnackbarText(REGENERATE_SUCCESS);
+      setSnackbarSeverity('success');
+      setSnackbarOpen(true);
+    }
+    else if (regenerateAtlasCredentialsIsFailure) {
+      setSnackbarText(REGENERATE_FAILURE);
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+    }
+  }, [
+    regenerateAtlasCredentialsIsSuccess,
+    regenerateAtlasCredentialsIsFailure,
+    getAtlasCredentialsIsSuccess,
+    setSnackbarOpen,
+    setSnackbarSeverity,
+    setSnackbarText
+  ]);
+
+  useEffect(() => {
+    if (regenerateAtlasCredentialsIsSuccess) {
+      dispatch(getAtlasCredentials());
+    }
+  }, [dispatch, regenerateAtlasCredentialsIsSuccess]);
 
   useEffect(() => {
     dispatch(getAtlasCredentials());
@@ -51,14 +128,6 @@ const AccountContainer = () => {
   useEffect(() => () => {
     dispatch(clearAtlasCredentials());
   }, [dispatch]);
-
-  if (getAtlasCredentialsRS === RequestStates.PENDING || getAtlasCredentialsRS === RequestStates.STANDBY) {
-    return (
-      <AppContentWrapper>
-        <Spinner />
-      </AppContentWrapper>
-    );
-  }
 
   return (
     <AppContentWrapper>
@@ -94,31 +163,40 @@ const AccountContainer = () => {
                 onClick={() => clipboardWriteText(AuthUtils.getAuthToken())} />
           </ActionsGrid>
         </StackGrid>
+        <StackGrid gap={4}>
+          <Typography component="h2" variant="body2">ATLAS USERNAME</Typography>
+          <ActionsGrid fit>
+            {PasswordInput}
+            <CopyButton
+                aria-label="copy atlas username"
+                isPending={atlasCredentialsPending}
+                onClick={() => clipboardWriteText(atlasCredentials.get('username'))} />
+          </ActionsGrid>
+        </StackGrid>
+        <StackGrid gap={4}>
+          <Typography component="h2" variant="body2">ATLAS CREDENTIAL</Typography>
+          <ActionsGrid fit>
+            {PasswordInput}
+            <CopyButton
+                aria-label="copy atlas credential"
+                isPending={atlasCredentialsPending}
+                onClick={() => clipboardWriteText(atlasCredentials.get('credential'))} />
+            <RefreshButton
+                aria-label="regenerate atlas credential"
+                isPending={atlasCredentialsPending}
+                onClick={regenerateAtlasCredential} />
+          </ActionsGrid>
+        </StackGrid>
+      </StackGrid>
+      <Snackbar open={snackbarOpen} autoHideDuration={5000} onClose={handleClose}>
         {
-          getAtlasCredentialsRS === RequestStates.SUCCESS && (
-            <>
-              <StackGrid gap={4}>
-                <Typography component="h2" variant="body2">ATLAS USERNAME</Typography>
-                <ActionsGrid fit>
-                  {PasswordInput}
-                  <CopyButton
-                      aria-label="copy atlas username"
-                      onClick={() => clipboardWriteText(atlasCredentials.get('username'))} />
-                </ActionsGrid>
-              </StackGrid>
-              <StackGrid gap={4}>
-                <Typography component="h2" variant="body2">ATLAS CREDENTIAL</Typography>
-                <ActionsGrid fit>
-                  {PasswordInput}
-                  <CopyButton
-                      aria-label="copy atlas credential"
-                      onClick={() => clipboardWriteText(atlasCredentials.get('credential'))} />
-                </ActionsGrid>
-              </StackGrid>
-            </>
+          snackbarOpen && (
+            <Alert onClose={handleClose} severity={snackbarSeverity}>
+              {snackbarText}
+            </Alert>
           )
         }
-      </StackGrid>
+      </Snackbar>
     </AppContentWrapper>
   );
 };

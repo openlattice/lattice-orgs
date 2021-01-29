@@ -2,7 +2,7 @@
 import React from 'react';
 
 import { OrganizationsApiActions } from 'lattice-sagas';
-// $FlowFixMe[missing-export
+// $FlowFixMe
 import { MenuItem } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
