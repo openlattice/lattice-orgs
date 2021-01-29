@@ -46,9 +46,9 @@ const Cell = styled.td`
 `;
 
 const RolesWrapper = styled.div`
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
 `;
 
 const MemberLink = styled(Link)`

@@ -28,8 +28,8 @@ const AssignRolesToMembersModal = ({
       {...rest}
       onClose={onClose}>
     <AssignRolesToMembersModalBody
-        onClose={onClose}
         members={members}
+        onClose={onClose}
         organizationId={organizationId}
         roles={roles} />
   </Modal>

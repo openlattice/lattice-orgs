@@ -35,18 +35,18 @@ const Wrapper = styled.div`
 type Props = {
   anchorEl :Node;
   currentRoleAuthorizations :Map;
-  onClose :() => void;
   handleDelete :(role :Role) => Function;
+  onClose :() => void;
   open :boolean;
-  roles :Role[];
   organizationId :UUID;
+  roles :Role[];
 };
 
 const RoleOverflowPopover = ({
   anchorEl,
   currentRoleAuthorizations,
-  onClose,
   handleDelete,
+  onClose,
   open,
   organizationId,
   roles,

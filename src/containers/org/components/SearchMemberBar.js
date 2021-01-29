@@ -15,15 +15,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { PrincipalsApiActions } from 'lattice-sagas';
 import { Select } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 
 import { USERS, USER_SEARCH_RESULTS } from '../../../core/redux/constants';
 import { resetUserSearchResults } from '../../../core/users/actions';
 import { getUserProfile, getUserTitle } from '../../../utils';
 import type { ReactSelectOption } from '../../../types';
 
+const { isPending } = ReduxUtils;
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 type Props = {
@@ -81,17 +81,17 @@ const SearchMemberBar = ({
 
   return (
     <Select
+        closeMenuOnSelect={false}
         hideDropdownIcon
         inputIcon={<FontAwesomeIcon icon={faSearch} />}
+        inputValue={searchTerm}
         isClearable
-        closeMenuOnSelect={false}
-        value={null}
-        isLoading={searchRequestState === RequestStates.PENDING}
+        isLoading={isPending(searchRequestState)}
         onChange={onChange}
         onInputChange={handleInputChange}
-        inputValue={searchTerm}
         options={options}
-        placeholder="Search members" />
+        placeholder="Search members"
+        value={null} />
   );
 };
 

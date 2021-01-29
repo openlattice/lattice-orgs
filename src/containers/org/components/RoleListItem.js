@@ -17,17 +17,17 @@ import type { Role } from 'lattice';
 import StyledListItemSecondaryAction from './styled/StyledListItemSecondaryAction';
 
 type Props = {
-  role :Role;
   checked :boolean;
   disabled :boolean;
   onSecondaryChange :(role :Role) => void;
+  role :Role;
 };
 
 const RoleListItem = ({
-  role,
   checked,
   disabled,
   onSecondaryChange,
+  role,
   ...rest
 } :Props) => {
 

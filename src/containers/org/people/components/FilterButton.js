@@ -36,10 +36,10 @@ const SlimMenuItem = styled(MenuItem)`
 `;
 
 const FilterItem = styled.div`
+  align-items: center;
   display: flex;
   flex: 0 1 100%;
   justify-content: space-between;
-  align-items: center;
 
   > :first-child {
     margin-right: 16px;
