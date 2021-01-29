@@ -78,10 +78,6 @@ const OrgContainer = ({ organizationId } :Props) => {
     Routes.ORG_PEOPLE.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
-  const settingsPath = useMemo(() => (
-    Routes.ORG_SETTINGS.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
   const dataSetCount = entitySetIds.count() + atlasDataSetIds.count();
 
   if (organization) {
@@ -97,10 +93,6 @@ const OrgContainer = ({ organizationId } :Props) => {
               <div>{organization.description}</div>
             )
           }
-          <ManageLink to={settingsPath}>
-            <span>Database Details</span>
-            <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
-          </ManageLink>
         </StackGrid>
         <Boxes>
           <div>
