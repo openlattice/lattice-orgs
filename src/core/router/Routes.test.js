@@ -22,12 +22,12 @@ describe('routes', () => {
     expect(Routes.ORG).toEqual('/orgs/:organizationId');
   });
 
-  test('should export the correct ORG_MEMBERS path', () => {
-    expect(Routes.ORG_MEMBERS).toEqual('/orgs/:organizationId/members');
+  test('should export the correct ORG_PEOPLE path', () => {
+    expect(Routes.ORG_PEOPLE).toEqual('/orgs/:organizationId/people');
   });
 
   test('should export the correct ORG_MEMBER path', () => {
-    expect(Routes.ORG_MEMBER).toEqual('/orgs/:organizationId/members/:principalId');
+    expect(Routes.ORG_MEMBER).toEqual('/orgs/:organizationId/people/:principalId');
   });
 
 });

@@ -51,12 +51,12 @@ const PanelColumn = styled.div`
 
 const OrgMemberContainer = ({
   memberPrincipalId,
-  membersRoute,
+  peopleRoute,
   organizationId,
   organizationRoute,
 } :{|
   memberPrincipalId :UUID;
-  membersRoute :string;
+  peopleRoute :string;
   organizationId :UUID;
   organizationRoute :string;
 |}) => {
@@ -97,7 +97,7 @@ const OrgMemberContainer = ({
             <AppContentWrapper>
               <Crumbs>
                 <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
-                <CrumbLink to={membersRoute}>Members</CrumbLink>
+                <CrumbLink to={peopleRoute}>People</CrumbLink>
                 <CrumbItem>{memberName}</CrumbItem>
               </Crumbs>
               <StackGrid gap={24}>

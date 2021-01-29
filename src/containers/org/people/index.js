@@ -3,4 +3,4 @@
  */
 
 export { default as OrgMemberContainer } from './OrgMemberContainer';
-export { default as OrgMembersContainer } from './OrgMembersContainer';
+export { default as OrgPeopleContainer } from './OrgPeopleContainer';

@@ -26,12 +26,12 @@ import { RequestStates } from 'redux-reqseq';
 import type { RequestState } from 'redux-reqseq';
 
 import { INITIALIZE_APPLICATION, initializeApplication } from './AppActions';
-import { AccountContainer } from '../account';
 
 import { OpenLatticeIconSVG } from '../../assets/svg/icons';
 import { BasicErrorComponent } from '../../components';
 import { APP } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
+import { AccountContainer } from '../account';
 import { OrgRouter } from '../org';
 import { OrgsContainer } from '../orgs';
 

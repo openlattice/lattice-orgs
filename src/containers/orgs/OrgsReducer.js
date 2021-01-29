@@ -15,6 +15,7 @@ import {
   getOrganizationsAndAuthorizations,
 } from './actions';
 
+import assignRolesToMembersReducer from '../org/reducers/assignRolesToMembersReducer';
 import { RESET_REQUEST_STATE } from '../../core/redux/actions';
 import {
   ATLAS_DATA_SET_IDS,
@@ -29,14 +30,18 @@ import {
   RS_INITIAL_STATE,
 } from '../../core/redux/constants';
 import {
+  ADD_MEMBERS_TO_ORGANIZATION,
   ADD_ROLE_TO_ORGANIZATION,
+  ASSIGN_ROLES_TO_MEMBERS,
   CREATE_NEW_ORGANIZATION,
   EDIT_ORGANIZATION_DETAILS,
   EDIT_ROLE_DETAILS,
   GET_ORGANIZATION_INTEGRATION_DETAILS,
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
+  addMembersToOrganization,
   addRoleToOrganization,
+  assignRolesToMembers,
   createNewOrganization,
   editOrganizationDetails,
   editRoleDetails,
@@ -45,6 +50,7 @@ import {
   removeRoleFromOrganization,
 } from '../org/actions';
 import {
+  addMembersToOrganizationReducer,
   editRoleDetailsReducer,
   getOrganizationDataSetsReducer,
   getOrganizationDataSourcesReducer,
@@ -97,8 +103,10 @@ const { getUserId } = PersonUtils;
 const INITIAL_STATE :Map = fromJS({
   // actions
   [ADD_MEMBER_TO_ORGANIZATION]: RS_INITIAL_STATE,
+  [ADD_MEMBERS_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [ADD_ROLE_TO_MEMBER]: RS_INITIAL_STATE,
   [ADD_ROLE_TO_ORGANIZATION]: RS_INITIAL_STATE,
+  [ASSIGN_ROLES_TO_MEMBERS]: RS_INITIAL_STATE,
   [CREATE_NEW_ORGANIZATION]: RS_INITIAL_STATE,
   [EDIT_ORGANIZATION_DETAILS]: RS_INITIAL_STATE,
   [EDIT_ROLE_DETAILS]: RS_INITIAL_STATE,
@@ -126,6 +134,14 @@ const INITIAL_STATE :Map = fromJS({
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
+
+  if (action.type === addMembersToOrganization.case(action.type)) {
+    return addMembersToOrganizationReducer(state, action);
+  }
+
+  if (action.type === assignRolesToMembers.case(action.type)) {
+    return assignRolesToMembersReducer(state, action);
+  }
 
   if (action.type === editRoleDetails.case(action.type)) {
     return editRoleDetailsReducer(state, action);
@@ -178,7 +194,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           const storedSeqAction :?SequenceAction = state.getIn([ADD_MEMBER_TO_ORGANIZATION, seqAction.id]);
           if (storedSeqAction) {
 
-            const { memberId, organizationId } = storedSeqAction.value;
+            const { memberId, organizationId, profile } = storedSeqAction.value;
             const memberPrincipal :Principal = (new PrincipalBuilder())
               .setId(memberId)
               .setType(PrincipalTypes.USER)
@@ -186,6 +202,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
             const orgMemberObject = fromJS({
               principal: { principal: memberPrincipal.toImmutable() },
+              profile,
+              roles: List()
             });
 
             const currentOrg :Organization = state.getIn([ORGS, organizationId]);
@@ -263,7 +281,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
             const role :Role = seqAction.value;
             const org :Organization = state.getIn([ORGS, role.organizationId]);
-            const updatedRoles = [...org.roles, role].sort((role1, role2) => (role1.title < role2.title ? -1 : 0));
+            const updatedRoles = [...org.roles, role].sort((roleA, roleB) => (roleA.title.localeCompare(roleB.title)));
             const updatedOrg = (new OrganizationBuilder(org))
               .setRoles(updatedRoles)
               .build();

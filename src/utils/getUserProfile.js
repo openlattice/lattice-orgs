@@ -29,8 +29,10 @@ export default function getUserProfile(user :any) :UserProfile {
   }
 
   return {
+    email: get(auth0UserProfile, 'email', ''),
     familyName,
     givenName,
+    id: get(auth0UserProfile, 'user_id', ''),
     name,
   };
 }
