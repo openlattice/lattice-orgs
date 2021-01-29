@@ -4,10 +4,8 @@
 
 import React, { useMemo } from 'react';
 
-import styled from 'styled-components';
-import { faChevronRight } from '@fortawesome/pro-solid-svg-icons';
+import { faUser } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Set } from 'immutable';
 import { AppContentWrapper, Colors, Typography } from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
@@ -15,50 +13,18 @@ import type { Organization, UUID } from 'lattice';
 
 import OrgActionButton from './components/OrgActionButton';
 
-import { CrumbLink, SpaceBetweenGrid, StackGrid } from '../../components';
-import { selectOrganizationAtlasDataSetIds, selectOrganizationEntitySetIds } from '../../core/redux/selectors';
+import { BadgeCheckIcon } from '../../assets';
+import {
+  CrumbLink,
+  GapGrid,
+  SpaceBetweenGrid,
+  StackGrid,
+} from '../../components';
 import { Routes } from '../../core/router';
 
-const { NEUTRAL } = Colors;
+const { PURPLE } = Colors;
 const { isNonEmptyString } = LangUtils;
 const { selectOrganization } = ReduxUtils;
-
-const Boxes = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 48px;
-
-  > div {
-    border: 1px solid ${NEUTRAL.N200};
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 48px;
-    margin-right: 48px;
-    max-width: 335px;
-    padding: 24px 36px;
-    width: 100%;
-
-    > span {
-      color: ${NEUTRAL.N500};
-    }
-
-    > b {
-      font-size: 50px;
-    }
-  }
-`;
-
-const ManageLink = styled(CrumbLink)`
-  align-items: center;
-  font-size: 16px;
-
-  > svg {
-    font-size: 12px;
-    margin-left: 8px;
-    margin-top: 2px;
-  }
-`;
 
 type Props = {
   organizationId :UUID;
@@ -67,25 +33,37 @@ type Props = {
 const OrgContainer = ({ organizationId } :Props) => {
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const atlasDataSetIds :Set<UUID> = useSelector(selectOrganizationAtlasDataSetIds(organizationId));
-  const entitySetIds :Set<UUID> = useSelector(selectOrganizationEntitySetIds(organizationId));
-
-  const dataSetsPath = useMemo(() => (
-    Routes.ORG_DATA_SETS.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
 
   const peoplePath = useMemo(() => (
     Routes.ORG_PEOPLE.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
-  const dataSetCount = entitySetIds.count() + atlasDataSetIds.count();
+  const rolesPath = useMemo(() => (
+    Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId)
+  ), [organizationId]);
 
   if (organization) {
+    const rolesCount :number = organization.roles.length;
+    const peopleCount :number = organization.members.length;
     return (
       <AppContentWrapper>
         <StackGrid>
           <SpaceBetweenGrid>
-            <Typography variant="h1">{organization.title}</Typography>
+            <GapGrid gap={32}>
+              <Typography variant="h1">{organization.title}</Typography>
+              <CrumbLink to={peoplePath}>
+                <GapGrid gap={8}>
+                  <FontAwesomeIcon color={PURPLE.P300} fixedWidth icon={faUser} size="lg" />
+                  <Typography color="primary">{`${peopleCount} People`}</Typography>
+                </GapGrid>
+              </CrumbLink>
+              <CrumbLink to={rolesPath}>
+                <GapGrid gap={8}>
+                  <BadgeCheckIcon />
+                  <Typography color="primary">{`${rolesCount} Roles`}</Typography>
+                </GapGrid>
+              </CrumbLink>
+            </GapGrid>
             <OrgActionButton organization={organization} />
           </SpaceBetweenGrid>
           {
@@ -94,24 +72,6 @@ const OrgContainer = ({ organizationId } :Props) => {
             )
           }
         </StackGrid>
-        <Boxes>
-          <div>
-            <span>Members</span>
-            <b>{organization.members.length}</b>
-            <ManageLink to={peoplePath}>
-              <span>Manage Members</span>
-              <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
-            </ManageLink>
-          </div>
-          <div>
-            <span>Data Sets</span>
-            <b>{dataSetCount}</b>
-            <ManageLink to={dataSetsPath}>
-              <span>Manage Data Sets</span>
-              <FontAwesomeIcon fixedWidth icon={faChevronRight} size="sm" />
-            </ManageLink>
-          </div>
-        </Boxes>
       </AppContentWrapper>
     );
   }
