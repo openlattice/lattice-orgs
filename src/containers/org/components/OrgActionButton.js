@@ -122,7 +122,7 @@ const OrgActionButton = ({
             vertical: 'top',
           }}>
         <MenuItem disabled={!isOwner} onClick={handleOpenDescription}>
-          Edit Description
+          Edit Details
         </MenuItem>
         <MenuItem onClick={goToSettings}>
           Database Details
