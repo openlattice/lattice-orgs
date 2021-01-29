@@ -44,14 +44,12 @@ const OrgDataSetContainer = ({
   dataSetDataRoute,
   dataSetId,
   dataSetRoute,
-  dataSetsRoute,
   organizationId,
   organizationRoute,
 } :{|
   dataSetDataRoute :string;
   dataSetId :UUID;
   dataSetRoute :string;
-  dataSetsRoute :string;
   organizationId :UUID;
   organizationRoute :string;
 |}) => {
@@ -97,7 +95,6 @@ const OrgDataSetContainer = ({
         <AppContentWrapper>
           <Crumbs>
             <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
-            <CrumbLink to={dataSetsRoute}>Data Sets</CrumbLink>
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
           {
