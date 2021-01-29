@@ -5,6 +5,7 @@
 import styled from 'styled-components';
 
 import AtlasDataSetIconSVG from './atlas-data-set-icon.svg';
+import BadgeCheckIconSVG from './badge-check-icon.svg';
 import EntitySetIconSVG from './entity-set-icon.svg';
 import ExternalLinkSVG from './external-link.svg';
 import OpenLatticeIconSVG from './ol-icon.svg';
@@ -13,6 +14,11 @@ import RoleIconSVG from './role-icon.svg';
 const AtlasDataSetIcon = styled.img.attrs({
   alt: 'atlas-data-set-icon',
   src: AtlasDataSetIconSVG,
+})``;
+
+const BadgeCheckIcon = styled.img.attrs({
+  alt: 'badge-check-icon',
+  src: BadgeCheckIconSVG,
 })``;
 
 const EntitySetIcon = styled.img.attrs({
@@ -38,6 +44,8 @@ const RoleIcon = styled.img.attrs({
 export {
   AtlasDataSetIcon,
   AtlasDataSetIconSVG,
+  BadgeCheckIcon,
+  BadgeCheckIconSVG,
   EntitySetIcon,
   EntitySetIconSVG,
   ExternalLinkIcon,
