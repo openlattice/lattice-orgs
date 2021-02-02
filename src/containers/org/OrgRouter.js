@@ -36,7 +36,6 @@ import { Routes } from '../../core/router';
 import {
   SEARCH_DATA,
   SEARCH_DATA_SETS,
-  SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS,
   SEARCH_ORGANIZATION_DATA_SETS,
   clearSearchState,
 } from '../../core/search/actions';
@@ -121,7 +120,6 @@ const OrgRouter = () => {
     return () => {
       dispatch(clearSearchState(SEARCH_DATA));
       dispatch(clearSearchState(SEARCH_DATA_SETS));
-      dispatch(clearSearchState(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
       dispatch(clearSearchState(SEARCH_ORGANIZATION_DATA_SETS));
       dispatch(resetRequestState([INITIALIZE_ORGANIZATION]));
     };

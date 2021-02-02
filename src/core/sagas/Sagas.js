@@ -123,7 +123,6 @@ export default function* sagas() :Saga<*> {
     fork(RoutingSagas.goToRouteWatcher),
 
     // SearchSagas
-    fork(SearchSagas.searchDataSetsToAssignPermissionsWatcher),
     fork(SearchSagas.searchDataSetsWatcher),
     fork(SearchSagas.searchDataWatcher),
     fork(SearchSagas.searchOrganizationDataSetsWatcher),
