@@ -12,6 +12,7 @@ import { useGoToRoute } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
+import DeleteOrgModal from './DeleteOrgModal';
 import OrgDescriptionModal from './OrgDescriptionModal';
 
 import { selectCurrentUserIsOrgOwner } from '../../../core/redux/selectors';
@@ -161,6 +162,10 @@ const OrgActionButton = ({
       <OrgDescriptionModal
           isVisible={state.descriptionOpen}
           onClose={handleCloseDescription}
+          organization={organization} />
+      <DeleteOrgModal
+          isVisible={state.deleteOpen}
+          onClose={handleCloseDelete}
           organization={organization} />
     </>
   );
