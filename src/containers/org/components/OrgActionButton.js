@@ -17,14 +17,17 @@ import OrgDescriptionModal from './OrgDescriptionModal';
 import { selectCurrentUserIsOrgOwner } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 
+const CLOSE_DELETE = 'CLOSE_DELETE';
 const CLOSE_DESCRIPTION = 'CLOSE_DESCRIPTION';
 const CLOSE_MENU = 'CLOSE_MENU';
+const OPEN_DELETE = 'OPEN_DELETE';
 const OPEN_DESCRIPTION = 'OPEN_DESCRIPTION';
 const OPEN_MENU = 'OPEN_MENU';
 
 const INITIAL_STATE = {
   menuOpen: false,
   descriptionOpen: false,
+  deleteOpen: false,
 };
 
 const reducer = (state, action) => {
@@ -48,6 +51,16 @@ const reducer = (state, action) => {
       return {
         menuOpen: false,
         descriptionOpen: true,
+      };
+    case CLOSE_DELETE:
+      return {
+        ...state,
+        deleteOpen: false,
+      };
+    case OPEN_DELETE:
+      return {
+        menuOpen: false,
+        deleteOpen: true,
       };
     default:
       return state;
@@ -94,6 +107,14 @@ const OrgActionButton = ({
     dispatch({ type: CLOSE_DESCRIPTION });
   };
 
+  const handleOpenDelete = () => {
+    dispatch({ type: OPEN_DELETE });
+  };
+
+  const handleCloseDelete = () => {
+    dispatch({ type: CLOSE_DELETE });
+  };
+
   return (
     <>
       <IconButton
@@ -132,6 +153,9 @@ const OrgActionButton = ({
         </MenuItem>
         <MenuItem onClick={goToManageDataSources}>
           Manage Data Sources
+        </MenuItem>
+        <MenuItem onClick={handleOpenDelete}>
+          Delete Organization
         </MenuItem>
       </Menu>
       <OrgDescriptionModal
