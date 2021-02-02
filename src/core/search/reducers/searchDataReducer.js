@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { Map, List, fromJS } from 'immutable';
+import { Map, List } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -29,7 +29,7 @@ export default function reducer(state :Map, action :SequenceAction) {
       const storedAction :SequenceAction = state.getIn([SEARCH_DATA, action.id]);
       if (storedAction) {
         return state
-          .setIn([SEARCH_DATA, HITS], fromJS(action.value[HITS]))
+          .setIn([SEARCH_DATA, HITS], action.value[HITS])
           .setIn([SEARCH_DATA, PAGE], storedAction.value[PAGE])
           .setIn([SEARCH_DATA, QUERY], storedAction.value[QUERY])
           .setIn([SEARCH_DATA, TOTAL_HITS], action.value[TOTAL_HITS])
@@ -38,10 +38,13 @@ export default function reducer(state :Map, action :SequenceAction) {
       return state;
     },
     FAILURE: () => {
-      if (state.hasIn([SEARCH_DATA, action.id])) {
+      const storedAction :SequenceAction = state.getIn([SEARCH_DATA, action.id]);
+      if (storedAction) {
         return state
           .setIn([SEARCH_DATA, ERROR], action.value)
           .setIn([SEARCH_DATA, HITS], List())
+          .setIn([SEARCH_DATA, PAGE], storedAction.value[PAGE])
+          .setIn([SEARCH_DATA, QUERY], storedAction.value[QUERY])
           .setIn([SEARCH_DATA, TOTAL_HITS], 0)
           .setIn([SEARCH_DATA, REQUEST_STATE], RequestStates.FAILURE);
       }

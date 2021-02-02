@@ -13,11 +13,7 @@ import { Models } from 'lattice';
 import { SearchApiActions, SearchApiSagas } from 'lattice-sagas';
 import { DataUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
-import type {
-  Organization,
-  PropertyType,
-  UUID,
-} from 'lattice';
+import type { Organization, PropertyType, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -29,10 +25,7 @@ import {
 import { DATA_SET, DATA_SET_COLUMNS } from '../../redux/constants';
 import { selectOrganization, selectPropertyTypes } from '../../redux/selectors';
 import { MAX_HITS_10000 } from '../../search/constants';
-import {
-  GET_DATA_SET_METADATA,
-  getDataSetMetaData,
-} from '../actions';
+import { GET_DATA_SET_METADATA, getDataSetMetaData } from '../actions';
 import { FQNS } from '../constants';
 
 const LOG = new Logger('EDMSagas');
@@ -64,12 +57,13 @@ function* getDataSetMetaDataWorker(action :SequenceAction) :Saga<WorkerResponse>
 
     const propertyTypes :Map<UUID, PropertyType> = yield select(
       selectPropertyTypes([
+        FQNS.OL_DATA_SET_ID,
         FQNS.OL_DATA_SET_NAME,
         FQNS.OL_ID,
       ])
     );
     const propertyTypeIds :Map<FQN, UUID> = propertyTypes.map((propertyType) => propertyType.type).flip();
-    if (propertyTypeIds.count() !== 2) {
+    if (propertyTypeIds.count() !== 3) {
       throw new Error(ERR_MISSING_PROPERTY_TYPE);
     }
 
@@ -100,11 +94,12 @@ function* getDataSetMetaDataWorker(action :SequenceAction) :Saga<WorkerResponse>
       searchEntitySetData({
         constraints: [{
           constraints: [{
-            // TODO: use dataSetId instead of dataSetName once the backend is updated
+            fuzzy: false,
+            // NOTE: unfortunately, we can't search by the data set id because UUIDs are not indexed in elasticsearch
             searchTerm: `entity.${propertyTypeIds.get(FQNS.OL_DATA_SET_NAME)}:${JSON.stringify(dataSetName)}`,
           }],
         }],
-        entitySetIds: [organization?.metadataEntitySetIds.columns],
+        entitySetIds: [organization.metadataEntitySetIds.columns],
         maxHits: MAX_HITS_10000,
         start: 0,
       }),
@@ -112,8 +107,9 @@ function* getDataSetMetaDataWorker(action :SequenceAction) :Saga<WorkerResponse>
     if (response2.error) throw response2.error;
 
     const dataSetColumns = fromJS(response2.data.hits)
-      // NOTE: just make sure the search results include columns ONLY for the data set we are about
+      // NOTE: just make sure the search results include columns ONLY for the data set we care about
       .filter((column :Map) => getPropertyValue(column, [FQNS.OL_DATA_SET_NAME, 0]) === dataSetName)
+      .filter((column :Map) => getPropertyValue(column, [FQNS.OL_DATA_SET_ID, 0]) === dataSetId)
       .map((column :Map) => column.mapKeys((key :string) => FQN.of(key)));
 
     workerResponse = {

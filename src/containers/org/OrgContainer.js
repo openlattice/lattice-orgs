@@ -44,7 +44,6 @@ import {
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import {
-  SEARCH_DATA,
   SEARCH_ORGANIZATION_DATA_SETS,
   clearSearchState,
   searchOrganizationDataSets,
@@ -71,14 +70,10 @@ const OrgContainer = ({
   const searchOrgDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_ORGANIZATION_DATA_SETS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const searchPage :number = useSelector(selectSearchPage(SEARCH_DATA));
-  const searchQuery :string = useSelector(selectSearchQuery(SEARCH_DATA));
-  const searchHits :List = useSelector(selectSearchHits(SEARCH_DATA));
-  const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_DATA));
-
-  useEffect(() => () => {
-    dispatch(clearSearchState(SEARCH_DATA));
-  }, [dispatch]);
+  const searchPage :number = useSelector(selectSearchPage(SEARCH_ORGANIZATION_DATA_SETS));
+  const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS));
+  const searchHits :List = useSelector(selectSearchHits(SEARCH_ORGANIZATION_DATA_SETS));
+  const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_ORGANIZATION_DATA_SETS));
 
   useEffect(() => {
     if (isStandby(searchOrgDataSetsRS)) {
@@ -173,8 +168,8 @@ const OrgContainer = ({
               searchHits.valueSeq().map((searchHit :Map) => (
                 <DataSetSearchResultCard
                     key={getEntityKeyId(searchHit)}
-                    searchHit={searchHit}
-                    organizationId={organizationId} />
+                    organizationId={organizationId}
+                    searchResult={searchHit} />
               ))
             )
           }

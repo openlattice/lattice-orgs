@@ -27,7 +27,7 @@ const { getEntityKeyId, getPropertyValue } = DataUtils;
 const TABLE_HEADERS = [
   { key: 'title', label: 'TITLE' },
   { key: 'description', label: 'DESCRIPTION' },
-  { key: 'type', label: 'DATA TYPE' },
+  { key: 'dataType', label: 'DATA TYPE' },
   {
     cellStyle: { width: '56px' }, // 36px icon width + 10px left/right padding
     key: 'action',
@@ -77,10 +77,10 @@ const DataSetMetaDataContainer = ({
   useEffect(() => {
     // NOTE: the column EntityType is ol.column
     const data :List = get(metadata, DATA_SET_COLUMNS, List()).map((column :Map) => ({
+      dataType: getPropertyValue(column, [FQNS.OL_DATA_TYPE, 0]),
       description: getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]),
       id: getEntityKeyId(column),
       title: getPropertyValue(column, [FQNS.OL_TITLE, 0]),
-      type: getPropertyValue(column, [FQNS.OL_TYPE, 0]),
     }));
     setTableData(data.toJS());
   }, [metadata]);
