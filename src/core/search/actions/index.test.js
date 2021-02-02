@@ -7,7 +7,6 @@ const ACTION_TYPES = OrderedSet([
   'SEARCH_DATA',
   'SEARCH_DATA_SETS',
   'SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS',
-  'SEARCH_DATA_SETS_TO_FILTER',
   'SEARCH_ORGANIZATION_DATA_SETS',
 ]).toJS();
 
@@ -15,7 +14,6 @@ const REQSEQ_NAMES = OrderedSet([
   'searchData',
   'searchDataSets',
   'searchDataSetsToAssignPermissions',
-  'searchDataSetsToFilter',
   'searchOrganizationDataSets',
 ]).toJS();
 
