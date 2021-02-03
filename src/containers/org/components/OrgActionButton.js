@@ -25,10 +25,14 @@ const OPEN_DELETE = 'OPEN_DELETE';
 const OPEN_DESCRIPTION = 'OPEN_DESCRIPTION';
 const OPEN_MENU = 'OPEN_MENU';
 
-const INITIAL_STATE = {
-  menuOpen: false,
-  descriptionOpen: false,
+const INITIAL_STATE :{|
+  deleteOpen :boolean;
+  descriptionOpen :boolean;
+  menuOpen :boolean;
+|} = {
   deleteOpen: false,
+  descriptionOpen: false,
+  menuOpen: false,
 };
 
 const reducer = (state, action) => {
@@ -50,8 +54,9 @@ const reducer = (state, action) => {
       };
     case OPEN_DESCRIPTION:
       return {
-        menuOpen: false,
+        ...state,
         descriptionOpen: true,
+        menuOpen: false,
       };
     case CLOSE_DELETE:
       return {
@@ -60,8 +65,9 @@ const reducer = (state, action) => {
       };
     case OPEN_DELETE:
       return {
-        menuOpen: false,
+        ...state,
         deleteOpen: true,
+        menuOpen: false,
       };
     default:
       return state;
