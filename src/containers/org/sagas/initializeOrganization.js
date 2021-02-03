@@ -9,11 +9,13 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { List } from 'immutable';
+import { List, Set } from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   AuthorizationsApiActions,
   AuthorizationsApiSagas,
+  DataSetsApiActions,
+  DataSetsApiSagas,
   OrganizationsApiActions,
   OrganizationsApiSagas,
 } from 'lattice-sagas';
@@ -23,7 +25,11 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { selectOrganizationMembers } from '../../../core/redux/selectors';
+import {
+  selectOrganizationAtlasDataSetIds,
+  selectOrganizationEntitySetIds,
+  selectOrganizationMembers,
+} from '../../../core/redux/selectors';
 import { toSagaError } from '../../../utils';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
 import type { AuthorizationObject } from '../../../types';
@@ -41,11 +47,15 @@ const { selectOrganization } = ReduxUtils;
 
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
+const { getOrganizationDataSets } = DataSetsApiActions;
+const { getOrganizationDataSetsWorker } = DataSetsApiSagas;
 const {
   getOrganization,
+  getOrganizationEntitySets,
   getOrganizationMembers,
 } = OrganizationsApiActions;
 const {
+  getOrganizationEntitySetsWorker,
   getOrganizationMembersWorker,
   getOrganizationWorker,
 } = OrganizationsApiSagas;
@@ -59,6 +69,8 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     let organization :?Organization = yield select(selectOrganization(organizationId));
     const members :List = yield select(selectOrganizationMembers(organizationId));
+    const atlasDataSetIds :Set<UUID> = yield select(selectOrganizationAtlasDataSetIds(organizationId));
+    const entitySetIds :Set<UUID> = yield select(selectOrganizationEntitySetIds(organizationId));
 
     // TODO - figure out how to "expire" stored data
     let getOrganizationCall = call(() => {});
@@ -70,6 +82,18 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
     let getOrganizationMembersCall = call(() => {});
     if (members.isEmpty()) {
       getOrganizationMembersCall = call(getOrganizationMembersWorker, getOrganizationMembers(organizationId));
+    }
+
+    // TODO - figure out how to "expire" stored data
+    let getOrganizationEntitySetsCall = call(() => {});
+    if (entitySetIds.isEmpty()) {
+      getOrganizationEntitySetsCall = call(getOrganizationEntitySetsWorker, getOrganizationEntitySets(organizationId));
+    }
+
+    // TODO - figure out how to "expire" stored data
+    let getOrganizationDataSetsCall = call(() => {});
+    if (atlasDataSetIds.isEmpty()) {
+      getOrganizationDataSetsCall = call(getOrganizationDataSetsWorker, getOrganizationDataSets({ organizationId }));
     }
 
     const accessChecks :AccessCheck[] = [
@@ -84,10 +108,14 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
     const [
       getOrganizationResponse,
       getOrganizationMembersResponse,
+      getOrganizationEntitySetsResponse,
+      getOrganizationDataSetsResponse,
       getAuthorizationsResponse,
     ] :Array<?WorkerResponse> = yield all([
       getOrganizationCall,
       getOrganizationMembersCall,
+      getOrganizationEntitySetsCall,
+      getOrganizationDataSetsCall,
       getAuthorizationsCall,
     ]);
 
@@ -98,6 +126,14 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
     if (getOrganizationMembersResponse && getOrganizationMembersResponse.error) {
       throw getOrganizationMembersResponse.error;
+    }
+
+    if (getOrganizationEntitySetsResponse) {
+      if (getOrganizationEntitySetsResponse.error) throw getOrganizationEntitySetsResponse.error;
+    }
+
+    if (getOrganizationDataSetsResponse) {
+      if (getOrganizationDataSetsResponse.error) throw getOrganizationDataSetsResponse.error;
     }
 
     let isOwner = false;
