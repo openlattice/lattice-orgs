@@ -62,16 +62,16 @@ const OrgDataSetContainer = ({
   const getDataSetMetaDataRS :?RequestState = useRequestState([EDM, GET_DATA_SET_METADATA]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
+  const dataSetMetaData :Map = useSelector(selectDataSetMetaData(dataSetId));
 
-  const dataSetMetaData = get(metadata, DATA_SET, Map());
-  const description :string = getPropertyValue(dataSetMetaData, [FQNS.OL_DESCRIPTION, 0]);
-  const name :string = getPropertyValue(dataSetMetaData, [FQNS.OL_DATA_SET_NAME, 0]);
-  const title :string = getPropertyValue(dataSetMetaData, [FQNS.OL_TITLE, 0]);
+  const dataSet = get(dataSetMetaData, DATA_SET, Map());
+  const description :string = getPropertyValue(dataSet, [FQNS.OL_DESCRIPTION, 0]);
+  const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
+  const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
 
   const contact :string = useMemo(() => {
-    const contactEmail :string = getPropertyValue(dataSetMetaData, [FQNS.CONTACT_EMAIL, 0]);
-    const contactPhone :string = getPropertyValue(dataSetMetaData, [FQNS.CONTACT_PHONE_NUMBER, 0]);
+    const contactEmail :string = getPropertyValue(dataSet, [FQNS.CONTACT_EMAIL, 0]);
+    const contactPhone :string = getPropertyValue(dataSet, [FQNS.CONTACT_PHONE_NUMBER, 0]);
     let contactString = '';
     if (isNonEmptyString(contactEmail) && isNonEmptyString(contactPhone)) {
       contactString = `${contactEmail} - ${contactPhone}`;
@@ -83,7 +83,7 @@ const OrgDataSetContainer = ({
       contactString = contactPhone;
     }
     return contactString;
-  }, [dataSetMetaData]);
+  }, [dataSet]);
 
   useEffect(() => {
     dispatch(getDataSetMetaData({ dataSetId, organizationId }));
@@ -145,7 +145,7 @@ const OrgDataSetContainer = ({
                 <AppNavigationWrapper borderless>
                   <NavLink exact strict to={dataSetRoute}>About</NavLink>
                   {
-                    !isAtlasDataSet(dataSetMetaData) && (
+                    !isAtlasDataSet(dataSet) && (
                       <NavLink to={dataSetDataRoute}>Data</NavLink>
                     )
                   }

@@ -88,16 +88,16 @@ const DataSetActionButton = ({
   const dispatch = useDispatch();
 
   const [state, stateDispatch] = useReducer(reducer, INITIAL_STATE);
-  const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
+  const dataSetMetaData :Map = useSelector(selectDataSetMetaData(dataSetId));
   const isDataSetOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
   const isOrgOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
   const hasMaterialize :boolean = useSelector(selectCurrentAuthorization(dataSetKey, PermissionTypes.MATERIALIZE));
   const dataSetSchema = useSelector(selectDataSetSchema(dataSetId));
 
-  const dataSetMetaData = get(metadata, DATA_SET, Map());
-  const dataSetName :string = getPropertyValue(dataSetMetaData, [FQNS.OL_DATA_SET_NAME, 0]);
-  const dataSetFlags :List<string> = getPropertyValue(dataSetMetaData, FQNS.OL_FLAGS, List());
-  const isAtlas :boolean = isAtlasDataSet(dataSetMetaData);
+  const dataSet = get(dataSetMetaData, DATA_SET, Map());
+  const dataSetName :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
+  const dataSetFlags :List<string> = getPropertyValue(dataSet, FQNS.OL_FLAGS, List());
+  const isAtlas :boolean = isAtlasDataSet(dataSet);
   const isAssembled = isAtlas ? false : dataSetFlags.includes(EntitySetFlagTypes.TRANSPORTED);
   const isPromoted = dataSetSchema === OPENLATTICE;
 

@@ -7,7 +7,6 @@ import React from 'react';
 import { Typography } from 'lattice-ui-kit';
 import { DataUtils } from 'lattice-utils';
 import type { Map } from 'immutable';
-import type { EntitySet } from 'lattice';
 
 import { AtlasDataSetIcon, EntitySetIcon } from '../../assets/svg/icons';
 import { FQNS } from '../../core/edm/constants';
@@ -23,7 +22,7 @@ const DataSetTitle = ({
   variant,
 } :{
   component ?:string;
-  dataSet :EntitySet | Map;
+  dataSet :Map;
   variant ?:string;
 }) => (
   <GapGrid gap={8}>
