@@ -11,7 +11,6 @@ import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import { Colors, Typography } from 'lattice-ui-kit';
-import { DataUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type {
   Ace,
@@ -24,14 +23,12 @@ import type {
 import { ORDERED_PERMISSIONS } from './constants';
 
 import { DataSetTitle, SpaceBetweenGrid, StackGrid } from '../../components';
-import { FQNS } from '../../core/edm/constants';
 import { selectDataSetProperties, selectPermissionsByPrincipal } from '../../core/redux/selectors';
-import { getDataSetKeys } from '../../utils';
+import { getDataSetField, getDataSetKeys } from '../../utils';
 import type { DataSetPermissionTypeSelection } from '../../types';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { PermissionTypes } = Types;
-const { getPropertyValue } = DataUtils;
 
 const DataSetCard :ComponentType<{}> = styled.div`
   align-items: center;
@@ -76,7 +73,7 @@ const DataSetPermissionsCard = ({
   selection :?DataSetPermissionTypeSelection;
 |}) => {
 
-  const dataSetId :UUID = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_ID, 0]);
+  const dataSetId :UUID = getDataSetField(dataSet, 'id');
 
   const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(dataSetId));
   const keys :List<List<UUID>> = useMemo(() => (
