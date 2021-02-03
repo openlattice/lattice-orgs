@@ -30,6 +30,10 @@ const DeleteOrgModal = ({
   organization,
 } :Props) => {
 
+  const [standbyMessage, updateStandbyMessage] = useState(
+    'Are you sure you want to delete this organization? This action cannot be undone.'
+  );
+
   const dispatch = useDispatch();
 
   const deleteOrgRS :?RequestState = useRequestState([ORGANIZATIONS, DELETE_EXISTING_ORGANIZATION]);
@@ -37,6 +41,9 @@ const DeleteOrgModal = ({
   const handleOnClickPrimary = () => {
     if (isOwner) {
       dispatch(deleteExistingOrganization(organization));
+    }
+    else {
+      updateStandbyMessage('You must be an owner to delete an organization.');
     }
   };
 
@@ -50,7 +57,7 @@ const DeleteOrgModal = ({
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <ModalBody>
-        <span>Are you sure you want to delete this organization? This action cannot be undone.</span>
+        <span>{standbyMessage}</span>
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
