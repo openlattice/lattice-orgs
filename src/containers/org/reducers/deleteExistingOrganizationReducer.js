@@ -14,13 +14,10 @@ export default function reducer(state :Map, action :SequenceAction) {
     REQUEST: () => state
       .setIn([DELETE_EXISTING_ORGANIZATION, REQUEST_STATE], RequestStates.PENDING)
       .setIn([DELETE_EXISTING_ORGANIZATION, action.id], action),
-    SUCCESS: () => {
-      const orgId = action.value.id;
-      return state
-        .setIn([DELETE_EXISTING_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS)
-        .deleteIn([ORGS, orgId])
-        .deleteIn([ORGS, IS_OWNER, orgId]);
-    },
+    SUCCESS: () => state
+      .setIn([DELETE_EXISTING_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS)
+      .deleteIn([ORGS, action.value])
+      .deleteIn([ORGS, IS_OWNER, action.value]),
     FAILURE: () => state.setIn([DELETE_EXISTING_ORGANIZATION, REQUEST_STATE], RequestStates.FAILURE),
     FINALLY: () => state.deleteIn([DELETE_EXISTING_ORGANIZATION, action.id]),
   });

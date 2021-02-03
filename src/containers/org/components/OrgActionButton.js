@@ -167,7 +167,7 @@ const OrgActionButton = ({
           isOwner={isOwner}
           isVisible={state.deleteOpen}
           onClose={handleCloseDelete}
-          organization={organization} />
+          organizationId={organizationId} />
     </>
   );
 };

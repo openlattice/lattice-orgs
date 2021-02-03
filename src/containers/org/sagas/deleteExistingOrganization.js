@@ -22,9 +22,9 @@ function* deleteExistingOrganizationWorker(action :SequenceAction) :Saga<void> {
   try {
     yield put(deleteExistingOrganization.request(action.id, action.value));
 
-    const org = action.value;
+    const organizationId = action.value;
 
-    const response :WorkerResponse = yield call(deleteOrganizationWorker, deleteOrganization(org.id));
+    const response :WorkerResponse = yield call(deleteOrganizationWorker, deleteOrganization(organizationId));
     if (response.error) throw response.error;
 
     yield put(deleteExistingOrganization.success(action.id, action.value));

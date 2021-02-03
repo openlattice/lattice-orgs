@@ -8,7 +8,7 @@ import { ActionModal } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { Organization } from 'lattice';
+import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody } from '../../../components';
@@ -22,14 +22,14 @@ type Props = {
   isOwner :boolean;
   isVisible :boolean;
   onClose :() => void;
-  organization :Organization;
+  organizationId :UUID;
 };
 
 const DeleteOrgModal = ({
   isOwner,
   isVisible,
   onClose,
-  organization,
+  organizationId,
 } :Props) => {
 
   const [standbyMessage, updateStandbyMessage] = useState(
@@ -42,7 +42,7 @@ const DeleteOrgModal = ({
 
   const handleOnClickPrimary = () => {
     if (isOwner) {
-      dispatch(deleteExistingOrganization(organization));
+      dispatch(deleteExistingOrganization(organizationId));
     }
     else {
       updateStandbyMessage('You must be an owner to delete an organization.');
