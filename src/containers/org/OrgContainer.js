@@ -35,6 +35,7 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
+import { resetRequestState } from '../../core/redux/actions';
 import {
   ATLAS_DATA_SET_IDS,
   ENTITY_SET_IDS,
@@ -125,6 +126,9 @@ const OrgContainer = ({
 
   useEffect(() => {
     if (isSuccess(deleteOrgRS)) {
+      setTimeout(() => {
+        dispatch(resetRequestState([DELETE_EXISTING_ORGANIZATION]));
+      }, 1000);
       goToRoot();
     }
   });
