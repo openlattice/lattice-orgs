@@ -155,7 +155,7 @@ const OrgActionButton = ({
         <MenuItem onClick={goToManageDataSources}>
           Manage Data Sources
         </MenuItem>
-        <MenuItem onClick={handleOpenDelete}>
+        <MenuItem disabled={!isOwner} onClick={handleOpenDelete}>
           Delete Organization
         </MenuItem>
       </Menu>
