@@ -2,10 +2,10 @@
  * @flow
  */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { ActionModal } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { Organization } from 'lattice';
@@ -15,6 +15,8 @@ import { ModalBody } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { DELETE_EXISTING_ORGANIZATION, deleteExistingOrganization } from '../actions';
+
+const { isSuccess } = ReduxUtils;
 
 type Props = {
   isOwner :boolean;
@@ -53,6 +55,10 @@ const DeleteOrgModal = ({
       dispatch(resetRequestState([DELETE_EXISTING_ORGANIZATION]));
     }, 1000);
   };
+
+  useEffect(() => {
+    if (isSuccess(deleteOrgRS)) handleOnClose();
+  });
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
