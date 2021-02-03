@@ -10,7 +10,7 @@ import type { Map } from 'immutable';
 
 import { AtlasDataSetIcon, EntitySetIcon } from '../../assets/svg/icons';
 import { FQNS } from '../../core/edm/constants';
-import { isAtlasDataSet } from '../../utils';
+import { getDataSetField, isAtlasDataSet } from '../../utils';
 import { GapGrid } from '../grids';
 
 const { getPropertyValue } = DataUtils;
@@ -33,7 +33,9 @@ const DataSetTitle = ({
     }
     <Typography component={component} variant={variant}>
       {
-        getPropertyValue(dataSet, [FQNS.OL_TITLE, 0])
+        getDataSetField(dataSet, 'title')
+        || getDataSetField(dataSet, 'name')
+        || getPropertyValue(dataSet, [FQNS.OL_TITLE, 0])
         || getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0])
       }
     </Typography>
