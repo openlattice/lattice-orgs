@@ -95,8 +95,7 @@ function* getDataSetMetaDataWorker(action :SequenceAction) :Saga<WorkerResponse>
         constraints: [{
           constraints: [{
             fuzzy: false,
-            // NOTE: unfortunately, we can't search by the data set id because UUIDs are not indexed in elasticsearch
-            searchTerm: `entity.${propertyTypeIds.get(FQNS.OL_DATA_SET_NAME)}:${JSON.stringify(dataSetName)}`,
+            searchTerm: `entity.${propertyTypeIds.get(FQNS.OL_DATA_SET_ID)}:${JSON.stringify(dataSetId)}`,
           }],
         }],
         entitySetIds: [organization.metadataEntitySetIds.columns],

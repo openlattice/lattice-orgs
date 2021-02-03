@@ -22,6 +22,7 @@ const FQNS = {
   OL_DATA_TYPE: FQN.of('ol.datatype'),
   OL_DATE_TIME: FQN.of('ol.datetime'),
   OL_DESCRIPTION: FQN.of('ol.description'),
+  OL_FLAGS: FQN.of('ol.flags'),
   OL_ID: FQN.of('ol.id'),
   OL_PERMISSIONS: FQN.of('ol.permissions'),
   OL_REQUEST_DATE_TIME: FQN.of('ol.requestdatetime'),

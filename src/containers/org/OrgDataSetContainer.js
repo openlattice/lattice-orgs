@@ -15,7 +15,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import type { EntitySet, Organization, UUID } from 'lattice';
+import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import DataSetActionButton from './components/dataset/DataSetActionButton';
@@ -31,23 +31,13 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import {
-  GET_DATA_SET_METADATA,
-  GET_OR_SELECT_DATA_SET,
-  getDataSetMetaData,
-  getOrSelectDataSet,
-} from '../../core/edm/actions';
+import { GET_DATA_SET_METADATA, getDataSetMetaData } from '../../core/edm/actions';
 import { FQNS } from '../../core/edm/constants';
 import { getOwnerStatus } from '../../core/permissions/actions';
 import { DATA_SET, EDM } from '../../core/redux/constants';
-import {
-  selectAtlasDataSets,
-  selectDataSetMetaData,
-  selectEntitySets,
-  selectHasOwnerPermission,
-  selectOrganization,
-} from '../../core/redux/selectors';
+import { selectDataSetMetaData, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
+import { isAtlasDataSet } from '../../utils';
 
 const { getPropertyValue } = DataUtils;
 const { isNonEmptyString } = LangUtils;
@@ -70,18 +60,9 @@ const OrgDataSetContainer = ({
   const dispatch = useDispatch();
 
   const getDataSetMetaDataRS :?RequestState = useRequestState([EDM, GET_DATA_SET_METADATA]);
-  const getOrSelectDataSetRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_DATA_SET]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const isOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
   const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
-
-  // TODO: remove once "ol.dataset" has properties for all EntitySet fields
-  const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets([dataSetId]));
-  const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets([dataSetId]));
-  const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
-  const entitySet :?EntitySet = entitySets.get(dataSetId);
-  const dataSet = atlasDataSet || entitySet;
 
   const dataSetMetaData = get(metadata, DATA_SET, Map());
   const description :string = getPropertyValue(dataSetMetaData, [FQNS.OL_DESCRIPTION, 0]);
@@ -106,7 +87,6 @@ const OrgDataSetContainer = ({
 
   useEffect(() => {
     dispatch(getDataSetMetaData({ dataSetId, organizationId }));
-    dispatch(getOrSelectDataSet({ dataSetId, organizationId }));
     dispatch(getOwnerStatus(dataSetId));
   }, [dispatch, dataSetId, organizationId]);
 
@@ -117,7 +97,7 @@ const OrgDataSetContainer = ({
     );
 
     const renderDataSetMetaContainer = () => (
-      <DataSetMetaDataContainer dataSetId={dataSetId} isOwner={isOwner} organizationId={organizationId} />
+      <DataSetMetaDataContainer dataSetId={dataSetId} organizationId={organizationId} />
     );
 
     return (
@@ -128,7 +108,7 @@ const OrgDataSetContainer = ({
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
           {
-            (isPending(getOrSelectDataSetRS) || isPending(getDataSetMetaDataRS)) && (
+            isPending(getDataSetMetaDataRS) && (
               <Spinner />
             )
           }
@@ -138,11 +118,7 @@ const OrgDataSetContainer = ({
                 <StackGrid>
                   <SpaceBetweenGrid>
                     <Typography variant="h1">{title || name}</Typography>
-                    <DataSetActionButton
-                        dataSet={dataSet}
-                        dataSetId={dataSetId}
-                        isOwner={isOwner}
-                        organizationId={organizationId} />
+                    <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
                   </SpaceBetweenGrid>
                   <Typography>{description || name}</Typography>
                 </StackGrid>
@@ -163,13 +139,13 @@ const OrgDataSetContainer = ({
           }
         </AppContentWrapper>
         {
-          (isSuccess(getOrSelectDataSetRS) || isSuccess(getDataSetMetaDataRS)) && (
+          isSuccess(getDataSetMetaDataRS) && (
             <>
               <NavContentWrapper bgColor="white">
                 <AppNavigationWrapper borderless>
                   <NavLink exact strict to={dataSetRoute}>About</NavLink>
                   {
-                    entitySet && (
+                    !isAtlasDataSet(dataSetMetaData) && (
                       <NavLink to={dataSetDataRoute}>Data</NavLink>
                     )
                   }

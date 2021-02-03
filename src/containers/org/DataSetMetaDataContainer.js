@@ -20,7 +20,7 @@ import EditableMetadataRow from './components/EditableMetadataRow';
 
 import { FQNS } from '../../core/edm/constants';
 import { DATA_SET_COLUMNS } from '../../core/redux/constants';
-import { selectDataSetMetaData } from '../../core/redux/selectors';
+import { selectDataSetMetaData, selectHasOwnerPermission } from '../../core/redux/selectors';
 
 const { getEntityKeyId, getPropertyValue } = DataUtils;
 
@@ -61,17 +61,16 @@ const reducer = (state, action) => {
 
 const DataSetMetaDataContainer = ({
   dataSetId,
-  isOwner,
   organizationId,
 } :{|
   dataSetId :UUID;
-  isOwner :boolean;
   organizationId :UUID;
 |}) => {
 
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_MODAL_STATE);
   const [tableData, setTableData] = useState([]);
 
+  const isDataSetOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
   const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
 
   useEffect(() => {
@@ -91,11 +90,11 @@ const DataSetMetaDataContainer = ({
           components={innerComponents}
           data={data}
           headers={headers}
-          isOwner={isOwner}
+          isOwner={isDataSetOwner}
           key={data.id}
           onClick={() => modalDispatch({ type: OPEN, payload: data })} />
     )
-  }), [isOwner]);
+  }), [isDataSetOwner]);
 
   return (
     <AppContentWrapper>
