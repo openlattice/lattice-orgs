@@ -32,7 +32,7 @@ const DeleteOrgModal = ({
 
   const dispatch = useDispatch();
 
-  const createOrganizationRS :?RequestState = useRequestState([ORGANIZATIONS, DELETE_ORGANIZATION]);
+  const deleteOrgRS :?RequestState = useRequestState([ORGANIZATIONS, DELETE_EXISTING_ORGANIZATION]);
 
   const handleOnClickPrimary = () => {
     if (isOwner) {
@@ -70,7 +70,7 @@ const DeleteOrgModal = ({
         isVisible={isVisible}
         onClickPrimary={handleOnClickPrimary}
         onClose={handleOnClose}
-        requestState={createOrganizationRS}
+        requestState={deleteOrgRS}
         requestStateComponents={rsComponents}
         shouldStretchButtons
         textPrimary="Delete"
