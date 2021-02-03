@@ -164,6 +164,7 @@ const OrgActionButton = ({
           onClose={handleCloseDescription}
           organization={organization} />
       <DeleteOrgModal
+          isOwner={isOwner}
           isVisible={state.deleteOpen}
           onClose={handleCloseDelete}
           organization={organization} />

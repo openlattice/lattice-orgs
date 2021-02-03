@@ -17,19 +17,27 @@ import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { DELETE_ORGANIZATION, deleteOrganization } from '../actions';
 
 type Props = {
+  isOwner :boolean;
   isVisible :boolean;
   onClose :() => void;
   organization :Organization;
 };
 
-const DeleteOrgModal = ({ isVisible, onClose, organization } :Props) => {
+const DeleteOrgModal = ({
+  isOwner,
+  isVisible,
+  onClose,
+  organization,
+} :Props) => {
 
   const dispatch = useDispatch();
 
   const createOrganizationRS :?RequestState = useRequestState([ORGANIZATIONS, DELETE_ORGANIZATION]);
 
   const handleOnClickPrimary = () => {
-    dispatch(deleteOrganization(organization));
+    if (isOwner) {
+      dispatch(deleteExistingOrganization(organization));
+    }
   };
 
   const handleOnClose = () => {
