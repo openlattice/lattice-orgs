@@ -14,7 +14,7 @@ import type { RequestState } from 'redux-reqseq';
 import { ModalBody } from '../../../components';
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
-import { DELETE_ORGANIZATION, deleteOrganization } from '../actions';
+import { DELETE_EXISTING_ORGANIZATION, deleteExistingOrganization } from '../actions';
 
 type Props = {
   isOwner :boolean;
@@ -50,7 +50,7 @@ const DeleteOrgModal = ({
   const handleOnClose = () => {
     onClose();
     setTimeout(() => {
-      dispatch(resetRequestState([DELETE_ORGANIZATION]));
+      dispatch(resetRequestState([DELETE_EXISTING_ORGANIZATION]));
     }, 1000);
   };
 
