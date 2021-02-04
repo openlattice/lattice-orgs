@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { ComponentType } from 'react';
 
 import _capitalize from 'lodash/capitalize';
@@ -11,7 +11,7 @@ import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import { Colors, Typography } from 'lattice-ui-kit';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type {
   Ace,
   EntitySet,
@@ -27,6 +27,7 @@ import { DataSetTitle, SpaceBetweenGrid, StackGrid } from '../../components';
 import { selectDataSetProperties, selectPermissionsByPrincipal } from '../../core/redux/selectors';
 import { getDataSetField, getDataSetKeys } from '../../utils';
 import type { DataSetPermissionTypeSelection } from '../../types';
+import { getCurrentDataSetAuthorizations } from '../../core/permissions/actions';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { PermissionTypes } = Types;
@@ -74,7 +75,17 @@ const DataSetPermissionsCard = ({
   selection :?DataSetPermissionTypeSelection;
 |}) => {
 
+  const dispatch = useDispatch();
   const dataSetId :UUID = getDataSetField(dataSet, 'id');
+  useEffect(() => {
+    if (isOpen && dataSetId) {
+      dispatch(getCurrentDataSetAuthorizations({
+        aclKey: [dataSetId],
+        permissions: [PermissionTypes.OWNER],
+        withProperties: true
+      }));
+    }
+  }, [dispatch, isOpen, dataSetId]);
 
   const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(dataSetId));
   const keys :List<List<UUID>> = useMemo(() => (
