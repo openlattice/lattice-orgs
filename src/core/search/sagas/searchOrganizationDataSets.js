@@ -8,8 +8,7 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { Set } from 'immutable';
-import { DataUtils, Logger, ValidationUtils } from 'lattice-utils';
+import { Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { Organization, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
@@ -17,10 +16,7 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { searchDataWorker } from './searchData';
 
-import { getOrSelectDataSets } from '../../edm/actions';
-import { FQNS } from '../../edm/constants';
-import { getOrSelectDataSetsWorker } from '../../edm/sagas';
-import { HITS } from '../../redux/constants';
+import { ERR_MISSING_ORG } from '../../../utils/constants/errors';
 import { selectOrganization } from '../../redux/selectors';
 import {
   SEARCH_ORGANIZATION_DATA_SETS,
@@ -31,10 +27,9 @@ import { MAX_HITS_10 } from '../constants';
 
 const LOG = new Logger('SearchSagas');
 
-const { getPropertyValue } = DataUtils;
-const { isValidUUID } = ValidationUtils;
+function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerResponse> {
 
-function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<*> {
+  let workerResponse :WorkerResponse;
 
   try {
     yield put(searchOrganizationDataSets.request(action.id, action.value));
@@ -54,10 +49,14 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<*> {
     |} = action.value;
 
     const organization :?Organization = yield select(selectOrganization(organizationId));
-    let response :WorkerResponse = yield call(
+    if (!organization) {
+      throw new Error(ERR_MISSING_ORG);
+    }
+
+    const response :WorkerResponse = yield call(
       searchDataWorker,
       searchData({
-        entitySetId: organization?.metadataEntitySetIds.datasets,
+        entitySetId: organization.metadataEntitySetIds.datasets,
         maxHits,
         page,
         query,
@@ -66,35 +65,19 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<*> {
     );
     if (response.error) throw response.error;
 
-    const entitySetIdsHits :UUID[] = response.data[HITS]
-      .filter((hit) => getPropertyValue(hit, [FQNS.OL_STANDARDIZED, 0]) === true)
-      .map((hit) => getPropertyValue(hit, [FQNS.OL_ID, 0]))
-      .filter((id :UUID) => isValidUUID(id));
-
-    const entitySetIds :Set<UUID> = Set(entitySetIdsHits);
-
-    const atlasDataSetIdsHits :UUID[] = response.data[HITS]
-      .filter((hit) => getPropertyValue(hit, [FQNS.OL_STANDARDIZED, 0]) === false)
-      .map((hit) => getPropertyValue(hit, [FQNS.OL_ID, 0]))
-      .filter((id :UUID) => isValidUUID(id));
-
-    const atlasDataSetIds :Set<UUID> = Set(atlasDataSetIdsHits);
-
-    response = yield call(
-      getOrSelectDataSetsWorker,
-      getOrSelectDataSets({ atlasDataSetIds, entitySetIds, organizationId })
-    );
-    if (response.error) throw response.error;
-
-    yield put(searchOrganizationDataSets.success(action.id));
+    workerResponse = { data: response.data };
+    yield put(searchOrganizationDataSets.success(action.id, workerResponse.data));
   }
   catch (error) {
+    workerResponse = { error };
     LOG.error(action.type, error);
     yield put(searchOrganizationDataSets.failure(action.id, error));
   }
   finally {
     yield put(searchOrganizationDataSets.finally(action.id));
   }
+
+  return workerResponse;
 }
 
 function* searchOrganizationDataSetsWatcher() :Saga<*> {

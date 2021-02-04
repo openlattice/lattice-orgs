@@ -40,13 +40,16 @@ const ORG_DATA_SET_DATA :'/orgs/:organizationId/dataSets/:dataSetId/data' = `${O
 const ORG_DATA_SET_ACCESS_REQUEST :'/orgs/:organizationId/dataSets/:dataSetId/access' = `${ORG_DATA_SET}/access`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_DATA_SET_ACCESS_REQUESTS :'/orgs/:organizationId/dataSets/:dataSetId/requests' = `${ORG_DATA_SET}/requests`;
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_DATA_SOURCES :'/orgs/:organizationId/dataSources' = `${ORG}/dataSources`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ORG_MEMBERS :'/orgs/:organizationId/members' = `${ORG}/members`;
+const ORG_PEOPLE :'/orgs/:organizationId/people' = `${ORG}/people`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ORG_MEMBER :'/orgs/:organizationId/members/:principalId' = `${ORG_MEMBERS}/${PRINCIPAL_ID_PARAM}`;
+const ORG_MEMBER :'/orgs/:organizationId/people/:principalId' = `${ORG_PEOPLE}/${PRINCIPAL_ID_PARAM}`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_OBJECT_PERMISSIONS :'/orgs/:organizationId/permissions' = `${ORG}/permissions`;
@@ -70,12 +73,13 @@ export {
   ORG_DATA_SET,
   ORG_DATA_SETS,
   ORG_DATA_SET_ACCESS_REQUEST,
+  ORG_DATA_SET_ACCESS_REQUESTS,
   ORG_DATA_SET_DATA,
   ORG_DATA_SET_OBJECT_PERMISSIONS,
   ORG_DATA_SOURCES,
   ORG_MEMBER,
-  ORG_MEMBERS,
   ORG_OBJECT_PERMISSIONS,
+  ORG_PEOPLE,
   ORG_ROLE,
   ORG_ROLES,
   ORG_ROLE_OBJECT_PERMISSIONS,

@@ -6,11 +6,7 @@ import { Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  ACCESS_REQUEST_DATA_SCHEMA,
-  ACCESS_REQUEST_UI_SCHEMA,
-  REQUEST_STATE,
-} from '../../../core/redux/constants';
+import { ACCESS_REQUEST_DATA_SCHEMA, ACCESS_REQUEST_UI_SCHEMA, REQUEST_STATE } from '../../../core/redux/constants';
 import { INITIALIZE_DATA_SET_ACCESS_REQUEST, initializeDataSetAccessRequest } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {

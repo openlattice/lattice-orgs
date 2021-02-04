@@ -63,9 +63,12 @@ export default function* sagas() :Saga<*> {
     fork(OrganizationsApiSagas.updateOrganizationDescriptionWatcher),
     fork(OrganizationsApiSagas.updateOrganizationTitleWatcher),
     fork(OrganizationsApiSagas.updateRoleGrantWatcher),
+
+    // PrincipalsApiSagas
     fork(PrincipalsApiSagas.getAllUsersWatcher),
     fork(PrincipalsApiSagas.getAtlasCredentialsWatcher),
     fork(PrincipalsApiSagas.getSecurablePrincipalWatcher),
+    fork(PrincipalsApiSagas.regenerateCredentialWatcher),
     fork(PrincipalsApiSagas.searchAllUsersWatcher),
 
     // AppSagas
@@ -82,7 +85,9 @@ export default function* sagas() :Saga<*> {
     fork(EDMSagas.updateDataSetMetaDataWatcher),
 
     // OrgSagas
+    fork(OrgSagas.addMembersToOrganizationWatcher),
     fork(OrgSagas.addRoleToOrganizationWatcher),
+    fork(OrgSagas.assignRolesToMembersWatcher),
     fork(OrgSagas.createNewOrganizationWatcher),
     fork(OrgSagas.editOrganizationDetailsWatcher),
     fork(OrgSagas.editRoleDetailsWatcher),
@@ -94,6 +99,7 @@ export default function* sagas() :Saga<*> {
     // PermissionsSagas
     fork(PermissionsSagas.assignPermissionsToDataSetWatcher),
     fork(PermissionsSagas.getCurrentDataSetAuthorizationsWatcher),
+    fork(PermissionsSagas.getCurrentRoleAuthorizationsWatcher),
     fork(PermissionsSagas.getDataSetPermissionsWatcher),
     fork(PermissionsSagas.getOrgDataSetObjectPermissionsWatcher),
     fork(PermissionsSagas.getOrgObjectPermissionsWatcher),
@@ -107,17 +113,16 @@ export default function* sagas() :Saga<*> {
     fork(PermissionsSagas.updatePermissionsWatcher),
 
     // RequestsSagas
+    fork(RequestsSagas.getDataSetAccessRequestsWatcher),
     fork(RequestsSagas.initializeDataSetAccessRequestWatcher),
     fork(RequestsSagas.submitDataSetAccessRequestWatcher),
+    fork(RequestsSagas.submitDataSetAccessResponseWatcher),
 
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),
     fork(RoutingSagas.goToRouteWatcher),
 
     // SearchSagas
-    fork(SearchSagas.searchDataSetsToAssignPermissionsWatcher),
-    fork(SearchSagas.searchDataSetsToFilterWatcher),
-    fork(SearchSagas.searchDataSetsWatcher),
     fork(SearchSagas.searchDataWatcher),
     fork(SearchSagas.searchOrganizationDataSetsWatcher),
   ]);

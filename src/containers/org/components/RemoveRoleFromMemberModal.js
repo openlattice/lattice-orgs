@@ -12,14 +12,17 @@ import { RequestStates } from 'redux-reqseq';
 import type { Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import ResetOnUnmount from './ResetOnUnmount';
+
 import { ModalBody } from '../../../components';
-import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserTitle } from '../../../utils';
 
 const { getUserId } = PersonUtils;
 
 const { REMOVE_ROLE_FROM_MEMBER, removeRoleFromMember } = OrganizationsApiActions;
+
+const resetStatePath = [REMOVE_ROLE_FROM_MEMBER];
 
 type Props = {
   isVisible :boolean;
@@ -47,20 +50,14 @@ const RemoveRoleFromMemberModal = ({
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <ModalBody>
-        <span>Are you sure you want to unassign this role from the following member?</span>
-        <br />
-        <span>{memberLabel}</span>
+        <span>{`Are you sure you want to delete the ${roleTitle} role from ${memberLabel}?`}</span>
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
-      <ModalBody>
-        <span>Success!</span>
-      </ModalBody>
+      <ResetOnUnmount path={resetStatePath} message="Success!" />
     ),
     [RequestStates.FAILURE]: (
-      <ModalBody>
-        <span>Failed to remove role. Please try again.</span>
-      </ModalBody>
+      <ResetOnUnmount path={resetStatePath} message="Failed to delete role. Please try again." />
     ),
   };
 
@@ -74,22 +71,16 @@ const RemoveRoleFromMemberModal = ({
     );
   };
 
-  const handleOnClose = () => {
-    onClose();
-    // the timeout avoids rendering the modal with new state before the transition animation finishes
-    setTimeout(() => {
-      dispatch(resetRequestState([REMOVE_ROLE_FROM_MEMBER]));
-    }, 1000);
-  };
-
   return (
     <ActionModal
         isVisible={isVisible}
         onClickPrimary={handleOnClickPrimary}
-        onClose={handleOnClose}
+        onClose={onClose}
         requestState={removeRoleRS}
         requestStateComponents={rsComponents}
-        textTitle={`Unassign Role: ${roleTitle}`} />
+        shouldStretchButtons
+        textPrimary="Delete"
+        textTitle="Delete Role" />
   );
 };
 

@@ -46,10 +46,13 @@ export default function reducer(state :Map, action :SequenceAction) {
         if (isColumn) {
           const columns :List<Map> = state.getIn([METADATA, dataSetId, DATA_SET_COLUMNS], List());
           const targetIndex :number = columns.findIndex((column :Map) => getEntityKeyId(column) === entityKeyId);
-          return state
-            .setIn([METADATA, dataSetId, DATA_SET_COLUMNS, targetIndex, FQNS.OL_DESCRIPTION], List([description]))
-            .setIn([METADATA, dataSetId, DATA_SET_COLUMNS, targetIndex, FQNS.OL_TITLE], List([title]))
-            .setIn([UPDATE_DATA_SET_METADATA, REQUEST_STATE], RequestStates.SUCCESS);
+          if (targetIndex >= 0) {
+            return state
+              .setIn([METADATA, dataSetId, DATA_SET_COLUMNS, targetIndex, FQNS.OL_DESCRIPTION], List([description]))
+              .setIn([METADATA, dataSetId, DATA_SET_COLUMNS, targetIndex, FQNS.OL_TITLE], List([title]))
+              .setIn([UPDATE_DATA_SET_METADATA, REQUEST_STATE], RequestStates.SUCCESS);
+          }
+          return state;
         }
         return state
           .setIn([METADATA, dataSetId, DATA_SET, FQNS.OL_DESCRIPTION], List([description]))

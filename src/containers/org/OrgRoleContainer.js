@@ -76,7 +76,7 @@ const OrgRoleContainer = ({
 
   useEffect(() => {
     if (organization && !role) {
-      const membersPath = Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId);
+      const membersPath = Routes.ORG_PEOPLE.replace(Routes.ORG_ID_PARAM, organizationId);
       dispatch(goToRoute(membersPath));
     }
   }, [dispatch, organization, organizationId, role]);

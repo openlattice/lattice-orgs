@@ -21,7 +21,7 @@ import { ModalBody, StepsController } from '../../../components';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../../core/permissions/actions';
 import { resetRequestState } from '../../../core/redux/actions';
 import { PERMISSIONS } from '../../../core/redux/constants';
-import { SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS, clearSearchState } from '../../../core/search/actions';
+import { SEARCH_ORGANIZATION_DATA_SETS, clearSearchState } from '../../../core/search/actions';
 
 const ModalFooter = styled(LUKModalFooter)`
   padding: 30px 0;
@@ -47,7 +47,7 @@ const AssignPermissionsToDataSetModalBody = ({
   const assignPermissionsToDataSetRS :?RequestState = useRequestState([PERMISSIONS, ASSIGN_PERMISSIONS_TO_DATA_SET]);
 
   useEffect(() => () => {
-    dispatch(clearSearchState(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
+    dispatch(clearSearchState(SEARCH_ORGANIZATION_DATA_SETS));
     dispatch(resetRequestState([ASSIGN_PERMISSIONS_TO_DATA_SET]));
   }, [dispatch]);
 
@@ -123,8 +123,8 @@ const AssignPermissionsToDataSetModalBody = ({
                 <>
                   <ModalBody>
                     <StepConfirm
-                        assignPermissionsRS={assignPermissionsToDataSetRS}
-                        confirmText={confirmText} />
+                        confirmText={confirmText}
+                        requestState={assignPermissionsToDataSetRS} />
                   </ModalBody>
                   <ModalFooter
                       isPendingPrimary={assignPermissionsToDataSetRS === RequestStates.PENDING}

@@ -20,14 +20,14 @@ import EditableMetadataRow from './components/EditableMetadataRow';
 
 import { FQNS } from '../../core/edm/constants';
 import { DATA_SET_COLUMNS } from '../../core/redux/constants';
-import { selectDataSetMetaData } from '../../core/redux/selectors';
+import { selectDataSetMetaData, selectHasOwnerPermission } from '../../core/redux/selectors';
 
 const { getEntityKeyId, getPropertyValue } = DataUtils;
 
 const TABLE_HEADERS = [
   { key: 'title', label: 'TITLE' },
   { key: 'description', label: 'DESCRIPTION' },
-  { key: 'type', label: 'DATA TYPE' },
+  { key: 'dataType', label: 'DATA TYPE' },
   {
     cellStyle: { width: '56px' }, // 36px icon width + 10px left/right padding
     key: 'action',
@@ -61,26 +61,25 @@ const reducer = (state, action) => {
 
 const DataSetMetaDataContainer = ({
   dataSetId,
-  isOwner,
   organizationId,
 } :{|
   dataSetId :UUID;
-  isOwner :boolean;
   organizationId :UUID;
 |}) => {
 
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_MODAL_STATE);
   const [tableData, setTableData] = useState([]);
 
+  const isDataSetOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
   const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
 
   useEffect(() => {
     // NOTE: the column EntityType is ol.column
     const data :List = get(metadata, DATA_SET_COLUMNS, List()).map((column :Map) => ({
+      dataType: getPropertyValue(column, [FQNS.OL_DATA_TYPE, 0]),
       description: getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]),
       id: getEntityKeyId(column),
       title: getPropertyValue(column, [FQNS.OL_TITLE, 0]),
-      type: getPropertyValue(column, [FQNS.OL_TYPE, 0]),
     }));
     setTableData(data.toJS());
   }, [metadata]);
@@ -91,11 +90,11 @@ const DataSetMetaDataContainer = ({
           components={innerComponents}
           data={data}
           headers={headers}
-          isOwner={isOwner}
+          isOwner={isDataSetOwner}
           key={data.id}
           onClick={() => modalDispatch({ type: OPEN, payload: data })} />
     )
-  }), [isOwner]);
+  }), [isDataSetOwner]);
 
   return (
     <AppContentWrapper>

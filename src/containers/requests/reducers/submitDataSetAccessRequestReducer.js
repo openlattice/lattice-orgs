@@ -7,10 +7,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { REQUEST_STATE } from '../../../core/redux/constants';
-import {
-  SUBMIT_DATA_SET_ACCESS_REQUEST,
-  submitDataSetAccessRequest,
-} from '../actions';
+import { SUBMIT_DATA_SET_ACCESS_REQUEST, submitDataSetAccessRequest } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {
 

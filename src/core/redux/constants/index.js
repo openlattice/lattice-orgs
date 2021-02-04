@@ -30,6 +30,7 @@ export const {
   USERS,
 } = ReduxConstants;
 
+export const ACCESS_REQUESTS :'accessRequests' = 'accessRequests';
 export const ACCESS_REQUEST_DATA_SCHEMA :'accessRequestDataSchema' = 'accessRequestDataSchema';
 export const ACCESS_REQUEST_UI_SCHEMA :'accessRequestUISchema' = 'accessRequestUISchema';
 export const ACCOUNT :'account' = 'account';
@@ -40,6 +41,7 @@ export const ATLAS_DATA_SET_IDS :'atlasDataSetIds' = 'atlasDataSetIds';
 export const DATA_SET :'dataSet' = 'dataSet';
 export const DATA_SET_COLUMNS :'dataSetColumns' = 'dataSetColumns';
 export const CURRENT :'current' = 'current';
+export const CURRENT_ROLE_AUTHORIZATIONS :'currentRoleAuthorizations' = 'currentRoleAuthorizations';
 export const DATABASE_NAME :'databaseName' = 'databaseName';
 export const DATA_SET_SCHEMA :'dataSetSchema' = 'dataSetSchema';
 export const DATA_SOURCES :'dataSources' = 'dataSources';
