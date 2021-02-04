@@ -91,6 +91,7 @@ const PermissionsPanel = ({
 
   const dispatch = useDispatch();
   const [isPermissionAssignedToAll, setIsPermissionAssignedToAll] = useState(false);
+  const [isPermissionAssignedToAllDisabled, setIsPermissionAssignedToAllDisabled] = useState(false);
   const [isPermissionAssignedToDataSet, setIsPermissionAssignedToDataSet] = useState(false);
   const [isPermissionAssignedToOnlyNonPII, setIsPermissionAssignedToOnlyNonPII] = useState(false);
   const [localPermissions, setLocalPermissions] = useState(Map());
@@ -118,6 +119,19 @@ const PermissionsPanel = ({
   useEffect(() => {
     setLocalPermissions(principalPermissions);
   }, [principalPermissionsHash]);
+
+  useEffect(() => {
+    const ownerOnAllProperties = properties.every((property :PropertyType | Map) => {
+      const propertyId :UUID = property.id || get(property, 'id');
+      const key :List<UUID> = List([dataSetId, propertyId]);
+      const isOwner = currentDataSetPermissions
+        .getIn([key, PermissionTypes.OWNER], false);
+      return isOwner;
+    });
+    if (ownerOnAllProperties) {
+      setIsPermissionAssignedToAllDisabled(true);
+    }
+  }, [currentDataSetPermissions, dataSetId, setIsPermissionAssignedToAllDisabled, properties]);
 
   useEffect(() => {
 
@@ -307,6 +321,7 @@ const PermissionsPanel = ({
             <Typography>All properties</Typography>
             <IconButton
                 aria-label="permissions toggle for all properties"
+                disabled={!isPermissionAssignedToAllDisabled}
                 onClick={togglePermissionAssignmentAll}>
               <FontAwesomeIcon
                   color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
@@ -322,6 +337,7 @@ const PermissionsPanel = ({
             <Typography>Only non-pii properties</Typography>
             <IconButton
                 aria-label="permissions toggle for only non-pii properties"
+                disabled={!isPermissionAssignedToAllDisabled}
                 onClick={togglePermissionAssignmentOnlyNonPII}>
               <FontAwesomeIcon
                   color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
