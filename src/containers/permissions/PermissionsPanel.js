@@ -16,7 +16,7 @@ import {
   Set,
   get,
 } from 'immutable';
-import { Models } from 'lattice';
+import { Models, Types } from 'lattice';
 import {
   Button,
   CardSegment,
@@ -39,15 +39,18 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import { PropertyPermissionsCheckbox } from './components';
+
 import { Divider, SpaceBetweenGrid } from '../../components';
 import { SET_PERMISSIONS, setPermissions } from '../../core/permissions/actions';
-import { PERMISSIONS } from '../../core/redux/constants';
+import { CURRENT, PERMISSIONS } from '../../core/redux/constants';
 import { selectDataSetProperties, selectPermissionsByPrincipal } from '../../core/redux/selectors';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { APP_CONTENT_PADDING } = Sizes;
 const { media } = StyleUtils;
 const { AceBuilder } = Models;
+const { PermissionTypes } = Types;
 
 const Panel = styled.div`
   background-color: white;
@@ -95,6 +98,8 @@ const PermissionsPanel = ({
   const setPermissionsRS :?RequestState = useRequestState([PERMISSIONS, SET_PERMISSIONS]);
 
   const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(dataSetId));
+  const currentDataSetPermissions :Map = useSelector((state) => state.getIn([PERMISSIONS, CURRENT]));
+
   const propertiesHash = properties.hashCode();
 
   const keys :List<List<UUID>> = useMemo(() => (
@@ -334,7 +339,8 @@ const PermissionsPanel = ({
             const propertyTypeFQN :?string = property?.type?.toString() || '';
             const key :List<UUID> = List([dataSetId, propertyId]);
             const ace :?Ace = localPermissions.get(key);
-            const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
+            const currentUserIsOwner :boolean = currentDataSetPermissions
+              .getIn([key, PermissionTypes.OWNER], false);
             return (
               <CardSegment key={propertyId} padding="8px 0">
                 <SpaceBetweenGrid>
@@ -346,10 +352,12 @@ const PermissionsPanel = ({
                       )
                     }
                   </div>
-                  <Checkbox
-                      checked={isPermissionAssigned}
-                      data-property-id={propertyId}
-                      onChange={handleOnChangePermission} />
+                  <PropertyPermissionsCheckbox
+                      ace={ace}
+                      isLocked={!currentUserIsOwner}
+                      onChange={handleOnChangePermission}
+                      permissionType={permissionType}
+                      propertyId={propertyId} />
                 </SpaceBetweenGrid>
               </CardSegment>
             );
