@@ -6,6 +6,7 @@ import React from 'react';
 
 import { faLock } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// $FlowFixMe
 import { Checkbox, Tooltip } from 'lattice-ui-kit';
 import type {
   Ace,
