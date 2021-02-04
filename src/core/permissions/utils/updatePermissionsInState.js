@@ -21,7 +21,7 @@ function updatePermissionsInState(
 ) {
   return stateAces.withMutations((mutableAces :Map<List<UUID>, List<Ace>>) => {
     permissions.forEach((ace :Ace, key :List<UUID>) => {
-      mutableAces.update(key, (storedAces :List<Ace>) => {
+      mutableAces.update(key, (storedAces :List<Ace> = List()) => {
 
         const targetIndex :number = storedAces.findIndex((storedAce :Ace) => (
           storedAce.principal.id === ace.principal.id && storedAce.principal.type === ace.principal.type

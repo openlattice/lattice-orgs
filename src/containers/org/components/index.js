@@ -6,6 +6,7 @@ export { default as AddRoleToOrgModal } from './AddRoleToOrgModal';
 export { default as CreateOrgModal } from './CreateOrgModal';
 export { default as DataSetSearchResultCard } from './DataSetSearchResultCard';
 export { default as EditRoleDetailsBody } from './EditRoleDetailsBody';
+export { default as OrgActionButton } from './OrgActionButton';
 export { default as OrgDataSourceModal } from './OrgDataSourceModal';
 export { default as RemoveMemberFromOrgModal } from './RemoveMemberFromOrgModal';
 export { default as RemoveRoleFromMemberModal } from './RemoveRoleFromMemberModal';

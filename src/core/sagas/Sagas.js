@@ -16,6 +16,8 @@ import * as RoutingSagas from '../router/RoutingSagas';
 import { AppSagas } from '../../containers/app';
 import { OrgSagas } from '../../containers/org';
 import { OrgsSagas } from '../../containers/orgs';
+import { RequestsSagas } from '../../containers/requests';
+import { DataSagas } from '../data';
 import { EDMSagas } from '../edm';
 import { PermissionsSagas } from '../permissions';
 import { SearchSagas } from '../search';
@@ -61,27 +63,35 @@ export default function* sagas() :Saga<*> {
     fork(OrganizationsApiSagas.updateOrganizationDescriptionWatcher),
     fork(OrganizationsApiSagas.updateOrganizationTitleWatcher),
     fork(OrganizationsApiSagas.updateRoleGrantWatcher),
+
+    // PrincipalsApiSagas
     fork(PrincipalsApiSagas.getAllUsersWatcher),
     fork(PrincipalsApiSagas.getAtlasCredentialsWatcher),
     fork(PrincipalsApiSagas.getSecurablePrincipalWatcher),
+    fork(PrincipalsApiSagas.regenerateCredentialWatcher),
     fork(PrincipalsApiSagas.searchAllUsersWatcher),
 
     // AppSagas
     fork(AppSagas.initializeApplicationWatcher),
 
+    // DataSagas
+    fork(DataSagas.submitDataGraphWatcher),
+
     // EDMSagas
+    fork(EDMSagas.getDataSetMetaDataWatcher),
     fork(EDMSagas.getEntityDataModelTypesWatcher),
     fork(EDMSagas.getOrSelectDataSetWatcher),
     fork(EDMSagas.getOrSelectDataSetsWatcher),
+    fork(EDMSagas.updateDataSetMetaDataWatcher),
 
     // OrgSagas
+    fork(OrgSagas.addMembersToOrganizationWatcher),
     fork(OrgSagas.addRoleToOrganizationWatcher),
+    fork(OrgSagas.assignRolesToMembersWatcher),
     fork(OrgSagas.createNewOrganizationWatcher),
-    fork(OrgSagas.editMetadataWatcher),
     fork(OrgSagas.editOrganizationDetailsWatcher),
     fork(OrgSagas.editRoleDetailsWatcher),
     fork(OrgSagas.getOrganizationIntegrationDetailsWatcher),
-    fork(OrgSagas.getShiproomMetadataWatcher),
     fork(OrgSagas.initializeOrganizationWatcher),
     fork(OrgSagas.removeRoleFromOrganizationWatcher),
     fork(OrgsSagas.getOrganizationsAndAuthorizationsWatcher),
@@ -89,6 +99,7 @@ export default function* sagas() :Saga<*> {
     // PermissionsSagas
     fork(PermissionsSagas.assignPermissionsToDataSetWatcher),
     fork(PermissionsSagas.getCurrentDataSetAuthorizationsWatcher),
+    fork(PermissionsSagas.getCurrentRoleAuthorizationsWatcher),
     fork(PermissionsSagas.getDataSetPermissionsWatcher),
     fork(PermissionsSagas.getOrgDataSetObjectPermissionsWatcher),
     fork(PermissionsSagas.getOrgObjectPermissionsWatcher),
@@ -101,14 +112,17 @@ export default function* sagas() :Saga<*> {
     fork(PermissionsSagas.setPermissionsWatcher),
     fork(PermissionsSagas.updatePermissionsWatcher),
 
+    // RequestsSagas
+    fork(RequestsSagas.getDataSetAccessRequestsWatcher),
+    fork(RequestsSagas.initializeDataSetAccessRequestWatcher),
+    fork(RequestsSagas.submitDataSetAccessRequestWatcher),
+    fork(RequestsSagas.submitDataSetAccessResponseWatcher),
+
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),
     fork(RoutingSagas.goToRouteWatcher),
 
     // SearchSagas
-    fork(SearchSagas.searchDataSetsToAssignPermissionsWatcher),
-    fork(SearchSagas.searchDataSetsToFilterWatcher),
-    fork(SearchSagas.searchDataSetsWatcher),
     fork(SearchSagas.searchDataWatcher),
     fork(SearchSagas.searchOrganizationDataSetsWatcher),
   ]);

@@ -1,58 +1,71 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React, { useEffect, useState } from 'react';
 
-import { Map } from 'immutable';
 import { ActionModal } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
+import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import EditMetadataBody from './EditMetadataBody';
 import ResetOnUnmount from './ResetOnUnmount';
 
-import { SHIPROOM } from '../../../core/redux/constants';
-import { EDIT_METADATA, editMetadata } from '../actions';
+import { UPDATE_DATA_SET_METADATA, updateDataSetMetaData } from '../../../core/edm/actions';
+import { EDM } from '../../../core/redux/constants';
 
-const resetStatePath = [EDIT_METADATA];
-
-type Props = {
-  isVisible :boolean;
-  metadata ?:Map;
-  onClose :() => void;
-  property :Object;
-};
+const resetStatePath = [UPDATE_DATA_SET_METADATA];
 
 const EditMetadataModal = ({
+  data,
+  dataSetId,
+  isColumn,
   isVisible,
-  metadata,
   onClose,
-  property,
-} :Props) => {
+  organizationId,
+} :{|
+  data :{
+    description ?:string;
+    id ?:UUID;
+    title ?:string;
+  };
+  dataSetId :UUID;
+  isColumn :boolean;
+  isVisible :boolean;
+  onClose :() => void;
+  organizationId :UUID;
+|}) => {
+
   const dispatch = useDispatch();
-  const requestState :?RequestState = useRequestState([SHIPROOM, EDIT_METADATA]);
-  const [inputState, setInputState] = useState({
-    description: '',
-    title: '',
-  });
+  const [inputState, setInputState] = useState({ description: '', title: '' });
+
+  const updateDataSetMetaDataRS :?RequestState = useRequestState([EDM, UPDATE_DATA_SET_METADATA]);
 
   useEffect(() => {
     setInputState({
-      description: property?.description || '',
-      title: property?.title || '',
+      description: data?.description || '',
+      title: data?.title || '',
     });
-  }, [property]);
+  }, [data]);
 
   const handleChangeInputs = (e :SyntheticEvent<HTMLInputElement>) => {
     setInputState({ ...inputState, [e.currentTarget.name]: e.currentTarget.value });
   };
 
   const handleSubmit = () => {
-    dispatch(editMetadata({
-      inputState,
-      metadata,
-      property,
-    }));
+    dispatch(
+      updateDataSetMetaData({
+        dataSetId,
+        description: inputState.description,
+        entityKeyId: data.id,
+        isColumn,
+        organizationId,
+        title: inputState.title,
+      })
+    );
   };
 
   const rsComponents = {
@@ -72,17 +85,13 @@ const EditMetadataModal = ({
         isVisible={isVisible}
         onClickPrimary={handleSubmit}
         onClose={onClose}
-        requestState={requestState}
+        requestState={updateDataSetMetaDataRS}
         requestStateComponents={rsComponents}
         shouldStretchButtons
         textPrimary="Save Changes"
         textSecondary=""
         textTitle="Edit Property" />
   );
-};
-
-EditMetadataModal.defaultProps = {
-  metadata: Map()
 };
 
 export default EditMetadataModal;

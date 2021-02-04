@@ -16,29 +16,14 @@ const clearSearchState = (action :string) => ({
 const SEARCH_DATA :'SEARCH_DATA' = 'SEARCH_DATA';
 const searchData :RequestSequence = newRequestSequence(SEARCH_DATA);
 
-const SEARCH_DATA_SETS :'SEARCH_DATA_SETS' = 'SEARCH_DATA_SETS';
-const searchDataSets :RequestSequence = newRequestSequence(SEARCH_DATA_SETS);
-
-const SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS :'SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS' = 'SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS';
-const searchDataSetsToAssignPermissions :RequestSequence = newRequestSequence(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS);
-
-const SEARCH_DATA_SETS_TO_FILTER :'SEARCH_DATA_SETS_TO_FILTER' = 'SEARCH_DATA_SETS_TO_FILTER';
-const searchDataSetsToFilter :RequestSequence = newRequestSequence(SEARCH_DATA_SETS_TO_FILTER);
-
 const SEARCH_ORGANIZATION_DATA_SETS :'SEARCH_ORGANIZATION_DATA_SETS' = 'SEARCH_ORGANIZATION_DATA_SETS';
 const searchOrganizationDataSets :RequestSequence = newRequestSequence(SEARCH_ORGANIZATION_DATA_SETS);
 
 export {
   CLEAR_SEARCH_STATE,
   SEARCH_DATA,
-  SEARCH_DATA_SETS,
-  SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS,
-  SEARCH_DATA_SETS_TO_FILTER,
   SEARCH_ORGANIZATION_DATA_SETS,
   clearSearchState,
   searchData,
-  searchDataSets,
-  searchDataSetsToAssignPermissions,
-  searchDataSetsToFilter,
   searchOrganizationDataSets,
 };

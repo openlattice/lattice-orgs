@@ -16,7 +16,7 @@ import type { OrganizationObject } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { AxiosUtils } from '../../../utils';
+import { toSagaError } from '../../../utils';
 import { GET_ORGANIZATIONS_AND_AUTHORIZATIONS, getOrganizationsAndAuthorizations } from '../actions';
 import type { AuthorizationObject } from '../../../types';
 
@@ -65,7 +65,7 @@ function* getOrganizationsAndAuthorizationsWorker(action :SequenceAction) :Saga<
   catch (error) {
     workerResponse = { error };
     LOG.error(action.type, error);
-    yield put(getOrganizationsAndAuthorizations.failure(action.id, AxiosUtils.toSagaError(error)));
+    yield put(getOrganizationsAndAuthorizations.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(getOrganizationsAndAuthorizations.finally(action.id));

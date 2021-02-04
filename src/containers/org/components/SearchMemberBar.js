@@ -12,23 +12,29 @@ import React, {
 import debounce from 'lodash/debounce';
 import { faSearch } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { List, Map } from 'immutable';
 import { PrincipalsApiActions } from 'lattice-sagas';
 import { Select } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 
 import { USERS, USER_SEARCH_RESULTS } from '../../../core/redux/constants';
-import { getUserTitle } from '../../../utils';
+import { resetUserSearchResults } from '../../../core/users/actions';
+import { getUserProfile, getUserTitle } from '../../../utils';
 import type { ReactSelectOption } from '../../../types';
 
+const { isPending } = ReduxUtils;
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 type Props = {
-  onChange :(option :?ReactSelectOption<string>) => void;
+  onChange :(option ?:ReactSelectOption<Map>) => void;
+  existingMembers ?:List;
 };
 
-const SearchMemberBar = ({ onChange } :Props) => {
+const SearchMemberBar = ({
+  onChange,
+  existingMembers
+} :Props) => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const searchRequestState = useRequestState([USERS, SEARCH_ALL_USERS]);
@@ -36,36 +42,61 @@ const SearchMemberBar = ({ onChange } :Props) => {
 
   const options = useMemo(() => {
     const selectOptions = [];
-    userSearchResults.forEach((user, userId) => {
-      selectOptions.push({
-        label: getUserTitle(user),
-        value: userId,
+    userSearchResults.forEach((user) => {
+      const { id } = getUserProfile(user);
+      const exists = !!existingMembers?.find((member) => {
+        const { id: existingMemberId } = getUserProfile(member);
+        return id === existingMemberId;
       });
+
+      if (!exists) {
+        selectOptions.push({
+          label: getUserTitle(user),
+          value: user,
+        });
+      }
     }, [userSearchResults]);
 
     return selectOptions;
-  }, [userSearchResults]);
+  }, [existingMembers, userSearchResults]);
 
   const debounceDispatchSearch = useCallback(debounce((value) => {
-    dispatch(searchAllUsers(value));
+    if (value) {
+      dispatch(searchAllUsers(value));
+    }
+    else {
+      dispatch(resetUserSearchResults());
+    }
   }, 250), []);
 
   useEffect(() => {
     debounceDispatchSearch(searchTerm.trim());
   }, [debounceDispatchSearch, searchTerm]);
 
+  const handleInputChange = (query, { action }) => {
+    if (action === 'input-change') {
+      setSearchTerm(query);
+    }
+  };
+
   return (
     <Select
+        closeMenuOnSelect={false}
         hideDropdownIcon
         inputIcon={<FontAwesomeIcon icon={faSearch} />}
-        isClearable
-        isLoading={searchRequestState === RequestStates.PENDING}
-        onChange={onChange}
-        onInputChange={setSearchTerm}
         inputValue={searchTerm}
+        isClearable
+        isLoading={isPending(searchRequestState)}
+        onChange={onChange}
+        onInputChange={handleInputChange}
         options={options}
-        placeholder="Search members" />
+        placeholder="Search members"
+        value={null} />
   );
+};
+
+SearchMemberBar.defaultProps = {
+  existingMembers: List()
 };
 
 export default SearchMemberBar;

@@ -30,7 +30,7 @@ import {
   selectOrganizationEntitySetIds,
   selectOrganizationMembers,
 } from '../../../core/redux/selectors';
-import { AxiosUtils } from '../../../utils';
+import { toSagaError } from '../../../utils';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
 import type { AuthorizationObject } from '../../../types';
 
@@ -147,7 +147,7 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(initializeOrganization.failure(action.id, AxiosUtils.toSagaError(error)));
+    yield put(initializeOrganization.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(initializeOrganization.finally(action.id));

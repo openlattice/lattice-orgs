@@ -14,7 +14,13 @@ export const {
 export { default as selectAtlasCredentials } from './selectAtlasCredentials';
 export { default as selectAtlasDataSets } from './selectAtlasDataSets';
 export { default as selectCurrentAuthorization } from './selectCurrentAuthorization';
+export { default as selectCurrentRoleAuthorizations } from './selectCurrentRoleAuthorizations';
 export { default as selectCurrentUserIsOrgOwner } from './selectCurrentUserIsOrgOwner';
+export { default as selectDataSet } from './selectDataSet';
+export { default as selectDataSetAccessRequestDataSchema } from './selectDataSetAccessRequestDataSchema';
+export { default as selectDataSetAccessRequestUISchema } from './selectDataSetAccessRequestUISchema';
+export { default as selectDataSetAccessRequests } from './selectDataSetAccessRequests';
+export { default as selectDataSetMetaData } from './selectDataSetMetaData';
 export { default as selectDataSetProperties } from './selectDataSetProperties';
 export { default as selectDataSetSchema } from './selectDataSetSchema';
 export { default as selectEntitySetEntityType } from './selectEntitySetEntityType';

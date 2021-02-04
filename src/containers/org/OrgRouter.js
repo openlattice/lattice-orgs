@@ -20,7 +20,6 @@ import type { RequestState } from 'redux-reqseq';
 import OrgContainer from './OrgContainer';
 import OrgDataSetContainer from './OrgDataSetContainer';
 import OrgDataSetObjectPermissionsContainer from './OrgDataSetObjectPermissionsContainer';
-import OrgDataSetsContainer from './OrgDataSetsContainer';
 import OrgDataSourcesContainer from './OrgDataSourcesContainer';
 import OrgObjectPermissionsContainer from './OrgObjectPermissionsContainer';
 import OrgRoleContainer from './OrgRoleContainer';
@@ -28,7 +27,7 @@ import OrgRoleObjectPermissionsContainer from './OrgRoleObjectPermissionsContain
 import OrgRolesContainer from './OrgRolesContainer';
 import OrgSettingsContainer from './settings/OrgSettingsContainer';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from './actions';
-import { OrgMemberContainer, OrgMembersContainer } from './members';
+import { OrgMemberContainer, OrgPeopleContainer } from './people';
 
 import { BasicErrorComponent, Spinner } from '../../components';
 import { resetRequestState } from '../../core/redux/actions';
@@ -36,13 +35,11 @@ import { ORGANIZATIONS } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
 import {
   SEARCH_DATA,
-  SEARCH_DATA_SETS,
-  SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS,
-  SEARCH_DATA_SETS_TO_FILTER,
   SEARCH_ORGANIZATION_DATA_SETS,
   clearSearchState,
 } from '../../core/search/actions';
 import { ERR_INVALID_UUID } from '../../utils/constants/errors';
+import { DataSetAccessRequestContainer, DataSetAccessRequestsContainer } from '../requests';
 
 const { isValidUUID } = ValidationUtils;
 const { getParamFromMatch } = RoutingUtils;
@@ -62,6 +59,7 @@ const OrgRouter = () => {
 
   const matchOrganization = useRouteMatch(Routes.ORG);
   const matchOrganizationDataSet = useRouteMatch(Routes.ORG_DATA_SET);
+  const matchOrganizationDataSetAccessRequest = useRouteMatch(Routes.ORG_DATA_SET_ACCESS_REQUEST);
   const matchOrganizationDataSets = useRouteMatch(Routes.ORG_DATA_SETS);
   const matchOrganizationDataSources = useRouteMatch(Routes.ORG_DATA_SOURCES);
   const matchOrganizationMember = useRouteMatch(Routes.ORG_MEMBER);
@@ -74,6 +72,10 @@ const OrgRouter = () => {
   if (matchOrgDataSetObjectPermissions) {
     organizationId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.ORG_ID_PARAM);
     dataSetId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.DATA_SET_ID_PARAM);
+  }
+  else if (matchOrganizationDataSetAccessRequest) {
+    organizationId = getParamFromMatch(matchOrganizationDataSetAccessRequest, Routes.ORG_ID_PARAM);
+    dataSetId = getParamFromMatch(matchOrganizationDataSetAccessRequest, Routes.DATA_SET_ID_PARAM);
   }
   else if (matchOrganizationDataSet) {
     organizationId = getParamFromMatch(matchOrganizationDataSet, Routes.ORG_ID_PARAM);
@@ -116,9 +118,6 @@ const OrgRouter = () => {
     dispatch(initializeOrganization(organizationId));
     return () => {
       dispatch(clearSearchState(SEARCH_DATA));
-      dispatch(clearSearchState(SEARCH_DATA_SETS));
-      dispatch(clearSearchState(SEARCH_DATA_SETS_TO_ASSIGN_PERMISSIONS));
-      dispatch(clearSearchState(SEARCH_DATA_SETS_TO_FILTER));
       dispatch(clearSearchState(SEARCH_ORGANIZATION_DATA_SETS));
       dispatch(resetRequestState([INITIALIZE_ORGANIZATION]));
     };
@@ -156,9 +155,9 @@ const OrgRouter = () => {
     return NO_ROUTE;
   }, [dataSetId, organizationId]);
 
-  const membersRoute = useMemo(() => {
+  const peopleRoute = useMemo(() => {
     if (organizationId) {
-      return Routes.ORG_MEMBERS.replace(Routes.ORG_ID_PARAM, organizationId);
+      return Routes.ORG_PEOPLE.replace(Routes.ORG_ID_PARAM, organizationId);
     }
     return NO_ROUTE;
   }, [organizationId]);
@@ -208,6 +207,18 @@ const OrgRouter = () => {
               dataSetDataRoute={dataSetDataRoute}
               dataSetId={dataSetId}
               dataSetRoute={dataSetRoute}
+              organizationId={organizationId}
+              organizationRoute={organizationRoute} />
+        )
+        : null
+    );
+
+    const renderOrgDataSetAccessRequestContainer = () => (
+      (organizationId && dataSetId)
+        ? (
+          <DataSetAccessRequestContainer
+              dataSetId={dataSetId}
+              dataSetRoute={dataSetRoute}
               dataSetsRoute={dataSetsRoute}
               organizationId={organizationId}
               organizationRoute={organizationRoute} />
@@ -215,9 +226,16 @@ const OrgRouter = () => {
         : null
     );
 
-    const renderOrgDataSetsContainer = () => (
-      (organizationId)
-        ? <OrgDataSetsContainer organizationId={organizationId} organizationRoute={organizationRoute} />
+    const renderOrgDataSetAccessRequestsContainer = () => (
+      (organizationId && dataSetId)
+        ? (
+          <DataSetAccessRequestsContainer
+              dataSetId={dataSetId}
+              dataSetRoute={dataSetRoute}
+              dataSetsRoute={dataSetsRoute}
+              organizationId={organizationId}
+              organizationRoute={organizationRoute} />
+        )
         : null
     );
 
@@ -245,22 +263,22 @@ const OrgRouter = () => {
         ? (
           <OrgMemberContainer
               memberPrincipalId={memberPrincipalId}
-              membersRoute={membersRoute}
+              peopleRoute={peopleRoute}
               organizationId={organizationId}
               organizationRoute={organizationRoute} />
         )
         : null
     );
 
-    const renderOrgMembersContainer = () => (
-      (organizationId)
-        ? <OrgMembersContainer organizationId={organizationId} organizationRoute={organizationRoute} />
-        : null
-    );
-
     const renderOrgObjectPermissionsContainer = () => (
       (organizationId)
         ? <OrgObjectPermissionsContainer organizationId={organizationId} organizationRoute={organizationRoute} />
+        : null
+    );
+
+    const renderOrgPeopleContainer = () => (
+      (organizationId)
+        ? <OrgPeopleContainer organizationId={organizationId} organizationRoute={organizationRoute} />
         : null
     );
 
@@ -303,12 +321,13 @@ const OrgRouter = () => {
 
     return (
       <Switch>
+        <Route path={Routes.ORG_DATA_SET_ACCESS_REQUEST} render={renderOrgDataSetAccessRequestContainer} />
+        <Route path={Routes.ORG_DATA_SET_ACCESS_REQUESTS} render={renderOrgDataSetAccessRequestsContainer} />
         <Route path={Routes.ORG_DATA_SET_OBJECT_PERMISSIONS} render={renderOrgDataSetObjectPermissionsContainer} />
         <Route path={Routes.ORG_DATA_SET} render={renderOrgDataSetContainer} />
-        <Route path={Routes.ORG_DATA_SETS} render={renderOrgDataSetsContainer} />
         <Route path={Routes.ORG_DATA_SOURCES} render={renderOrgDataSourcesContainer} />
         <Route path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
-        <Route path={Routes.ORG_MEMBERS} render={renderOrgMembersContainer} />
+        <Route path={Routes.ORG_PEOPLE} render={renderOrgPeopleContainer} />
         <Route path={Routes.ORG_ROLE_OBJECT_PERMISSIONS} render={renderOrgRoleObjectPermissionsContainer} />
         <Route path={Routes.ORG_ROLE} render={renderOrgRoleContainer} />
         <Route path={Routes.ORG_ROLES} render={renderOrgRolesContainer} />

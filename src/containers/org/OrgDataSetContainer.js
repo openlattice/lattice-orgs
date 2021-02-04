@@ -2,21 +2,25 @@
  * @flow
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
-import { Map } from 'immutable';
+import { Map, get } from 'immutable';
 import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
-import { ReduxUtils, useRequestState } from 'lattice-utils';
+import {
+  DataUtils,
+  LangUtils,
+  ReduxUtils,
+  useRequestState,
+} from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import type { EntitySet, Organization, UUID } from 'lattice';
+import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import DataSetActionButton from './components/dataset/DataSetActionButton';
 import DataSetDataContainer from './DataSetDataContainer';
-import DataSetMetaContainer from './DataSetMetaContainer';
-import { getShiproomMetadata } from './actions';
+import DataSetMetaDataContainer from './DataSetMetaDataContainer';
 
 import {
   CrumbItem,
@@ -27,69 +31,73 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { GET_OR_SELECT_DATA_SET, getOrSelectDataSet } from '../../core/edm/actions';
-import { EDM } from '../../core/redux/constants';
-import {
-  selectAtlasDataSets,
-  selectEntitySets,
-  selectHasOwnerPermission,
-  selectOrganization,
-} from '../../core/redux/selectors';
+import { GET_DATA_SET_METADATA, getDataSetMetaData } from '../../core/edm/actions';
+import { FQNS } from '../../core/edm/constants';
+import { getOwnerStatus } from '../../core/permissions/actions';
+import { DATA_SET, EDM } from '../../core/redux/constants';
+import { selectDataSetMetaData, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-import { getDataSetField } from '../../utils';
+import { isAtlasDataSet } from '../../utils';
 
+const { getPropertyValue } = DataUtils;
+const { isNonEmptyString } = LangUtils;
 const { isPending, isSuccess } = ReduxUtils;
 
 const OrgDataSetContainer = ({
   dataSetDataRoute,
   dataSetId,
   dataSetRoute,
-  dataSetsRoute,
   organizationId,
   organizationRoute,
 } :{|
   dataSetDataRoute :string;
   dataSetId :UUID;
   dataSetRoute :string;
-  dataSetsRoute :string;
   organizationId :UUID;
   organizationRoute :string;
 |}) => {
 
   const dispatch = useDispatch();
 
-  const getOrSelectDataSetRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_DATA_SET]);
+  const getDataSetMetaDataRS :?RequestState = useRequestState([EDM, GET_DATA_SET_METADATA]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets([dataSetId]));
-  const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets([dataSetId]));
-  const isOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
+  const dataSetMetaData :Map = useSelector(selectDataSetMetaData(dataSetId));
 
-  const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
-  const entitySet :?EntitySet = entitySets.get(dataSetId);
-  const dataSet = atlasDataSet || entitySet;
+  const dataSet = get(dataSetMetaData, DATA_SET, Map());
+  const description :string = getPropertyValue(dataSet, [FQNS.OL_DESCRIPTION, 0]);
+  const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
+  const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
 
-  const description :string = getDataSetField(dataSet, 'description');
-  const name :string = getDataSetField(dataSet, 'name');
-  const title :string = getDataSetField(dataSet, 'title');
-  const contacts :string[] = getDataSetField(dataSet, 'contacts') || [];
+  const contact :string = useMemo(() => {
+    const contactEmail :string = getPropertyValue(dataSet, [FQNS.CONTACT_EMAIL, 0]);
+    const contactPhone :string = getPropertyValue(dataSet, [FQNS.CONTACT_PHONE_NUMBER, 0]);
+    let contactString = '';
+    if (isNonEmptyString(contactEmail) && isNonEmptyString(contactPhone)) {
+      contactString = `${contactEmail} - ${contactPhone}`;
+    }
+    else if (isNonEmptyString(contactEmail)) {
+      contactString = contactEmail;
+    }
+    else if (isNonEmptyString(contactPhone)) {
+      contactString = contactPhone;
+    }
+    return contactString;
+  }, [dataSet]);
 
   useEffect(() => {
-    dispatch(getOrSelectDataSet({ dataSetId, organizationId }));
-  }, [dispatch, dataSetId, organizationId]);
-
-  useEffect(() => {
-    dispatch(getShiproomMetadata({ dataSetId, organizationId }));
+    dispatch(getDataSetMetaData({ dataSetId, organizationId }));
+    dispatch(getOwnerStatus(dataSetId));
   }, [dispatch, dataSetId, organizationId]);
 
   if (organization) {
 
     const renderDataSetDataContainer = () => (
-      <DataSetDataContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} />
+      <DataSetDataContainer dataSetId={dataSetId} />
     );
 
     const renderDataSetMetaContainer = () => (
-      <DataSetMetaContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} isOwner={isOwner} />
+      <DataSetMetaDataContainer dataSetId={dataSetId} organizationId={organizationId} />
     );
 
     return (
@@ -97,37 +105,33 @@ const OrgDataSetContainer = ({
         <AppContentWrapper>
           <Crumbs>
             <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
-            <CrumbLink to={dataSetsRoute}>Data Sets</CrumbLink>
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
           {
-            isPending(getOrSelectDataSetRS) && (
+            isPending(getDataSetMetaDataRS) && (
               <Spinner />
             )
           }
           {
-            isSuccess(getOrSelectDataSetRS) && (
+            isSuccess(getDataSetMetaDataRS) && (
               <StackGrid gap={48}>
                 <StackGrid>
                   <SpaceBetweenGrid>
                     <Typography variant="h1">{title || name}</Typography>
-                    <DataSetActionButton dataSet={dataSet} isOwner={isOwner} organizationId={organizationId} />
+                    <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
                   </SpaceBetweenGrid>
                   <Typography>{description || name}</Typography>
                 </StackGrid>
                 <StackGrid>
                   <Typography variant="h4">Contact</Typography>
                   {
-                    contacts.length === 0 && (
-                      <Typography>No contact information is available.</Typography>
-                    )
-                  }
-                  {
-                    contacts.length > 0 && (
-                      contacts.map((contact :string) => (
-                        <Typography key={contact}>{contact}</Typography>
-                      ))
-                    )
+                    isNonEmptyString(contact)
+                      ? (
+                        <Typography>{contact}</Typography>
+                      )
+                      : (
+                        <Typography>No contact information is available.</Typography>
+                      )
                   }
                 </StackGrid>
               </StackGrid>
@@ -135,13 +139,13 @@ const OrgDataSetContainer = ({
           }
         </AppContentWrapper>
         {
-          isSuccess(getOrSelectDataSetRS) && (
+          isSuccess(getDataSetMetaDataRS) && (
             <>
               <NavContentWrapper bgColor="white">
                 <AppNavigationWrapper borderless>
                   <NavLink exact strict to={dataSetRoute}>About</NavLink>
                   {
-                    entitySet && (
+                    !isAtlasDataSet(dataSet) && (
                       <NavLink to={dataSetDataRoute}>Data</NavLink>
                     )
                   }

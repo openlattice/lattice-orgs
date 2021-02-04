@@ -3,6 +3,7 @@
  */
 
 import { call, put, takeEvery } from '@redux-saga/core/effects';
+import { fromJS } from 'immutable';
 import { SearchApiActions, SearchApiSagas } from 'lattice-sagas';
 import { Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
@@ -28,8 +29,8 @@ function* searchDataWorker(action :SequenceAction) :Saga<WorkerResponse> {
 
     const {
       entitySetId,
-      query,
       maxHits = MAX_HITS_10,
+      query,
       start = 0,
     } :{|
       entitySetId :UUID;
@@ -58,7 +59,7 @@ function* searchDataWorker(action :SequenceAction) :Saga<WorkerResponse> {
 
     workerResponse = {
       data: {
-        [HITS]: response.data.hits || [],
+        [HITS]: fromJS(response.data.hits || []),
         [TOTAL_HITS]: response.data.numHits || 0,
       },
     };

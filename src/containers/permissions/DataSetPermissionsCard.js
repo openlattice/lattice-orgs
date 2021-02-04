@@ -14,7 +14,6 @@ import { Colors, Typography } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type {
   Ace,
-  EntitySet,
   PermissionType,
   Principal,
   PropertyType,
@@ -66,7 +65,7 @@ const DataSetPermissionsCard = ({
   principal,
   selection,
 } :{|
-  dataSet :EntitySet | Map;
+  dataSet :Map;
   isOpen :boolean;
   onClick :(dataSetId :UUID) => void;
   onSelect :(selection :DataSetPermissionTypeSelection) => void;
