@@ -17,6 +17,8 @@ import getEntitySetReducer from './getEntitySetReducer';
 import getEntitySetsReducer from './getEntitySetsReducer';
 import getOrSelectDataSetReducer from './getOrSelectDataSetReducer';
 import getOrSelectDataSetsReducer from './getOrSelectDataSetsReducer';
+import getOrgDataSetColumnsFromMetaReducer from './getOrgDataSetColumnsFromMetaReducer';
+import getOrgDataSetsFromMetaReducer from './getOrgDataSetsFromMetaReducer';
 import getOrganizationDataSetSchemaReducer from './getOrganizationDataSetSchemaReducer';
 import getOrganizationDataSetsReducer from './getOrganizationDataSetsReducer';
 import promoteStagingTableReducer from './promoteStagingTableReducer';
@@ -33,6 +35,8 @@ import {
   ENTITY_TYPES,
   ENTITY_TYPES_INDEX_MAP,
   METADATA,
+  ORG_DATA_SETS,
+  ORG_DATA_SET_COLUMNS,
   PROPERTY_TYPES,
   PROPERTY_TYPES_INDEX_MAP,
   RS_INITIAL_STATE,
@@ -41,6 +45,8 @@ import { resetRequestStateReducer } from '../../redux/reducers';
 import {
   GET_DATA_SET_METADATA,
   GET_EDM_TYPES,
+  GET_ORG_DATA_SETS_FROM_META,
+  GET_ORG_DATA_SET_COLUMNS_FROM_META,
   GET_OR_SELECT_DATA_SET,
   GET_OR_SELECT_DATA_SETS,
   UPDATE_DATA_SET_METADATA,
@@ -48,6 +54,8 @@ import {
   getEntityDataModelTypes,
   getOrSelectDataSet,
   getOrSelectDataSets,
+  getOrgDataSetColumnsFromMeta,
+  getOrgDataSetsFromMeta,
   updateDataSetMetaData,
 } from '../actions';
 
@@ -88,6 +96,8 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ENTITY_SET]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SET_SCHEMA]: RS_INITIAL_STATE,
+  [GET_ORG_DATA_SETS_FROM_META]: RS_INITIAL_STATE,
+  [GET_ORG_DATA_SET_COLUMNS_FROM_META]: RS_INITIAL_STATE,
   [GET_OR_SELECT_DATA_SETS]: RS_INITIAL_STATE,
   [GET_OR_SELECT_DATA_SET]: RS_INITIAL_STATE,
   [PROMOTE_STAGING_TABLE]: RS_INITIAL_STATE,
@@ -96,13 +106,17 @@ const INITIAL_STATE :Map = fromJS({
   [UPDATE_DATA_SET_METADATA]: RS_INITIAL_STATE,
 
   // data
+  // TODO - remove ATLAS_DATA_SETS
   [ATLAS_DATA_SETS]: Map(),
   [DATA_SET_SCHEMA]: Map(),
   [ENTITY_SETS]: List(),
   [ENTITY_SETS_INDEX_MAP]: Map(),
   [ENTITY_TYPES]: List(),
   [ENTITY_TYPES_INDEX_MAP]: Map(),
+  // TODO - remove METADATA
   [METADATA]: Map(),
+  [ORG_DATA_SETS]: Map(),
+  [ORG_DATA_SET_COLUMNS]: Map(),
   [PROPERTY_TYPES]: List(),
   [PROPERTY_TYPES_INDEX_MAP]: Map(),
 });
@@ -137,6 +151,12 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getOrganizationDataSets.case(action.type):
       return getOrganizationDataSetsReducer(state, action);
+
+    case getOrgDataSetColumnsFromMeta.case(action.type):
+      return getOrgDataSetColumnsFromMetaReducer(state, action);
+
+    case getOrgDataSetsFromMeta.case(action.type):
+      return getOrgDataSetsFromMetaReducer(state, action);
 
     case getOrganizationDataSetSchema.case(action.type):
       return getOrganizationDataSetSchemaReducer(state, action);

@@ -14,17 +14,15 @@ import { Colors, Typography } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type {
   Ace,
+  FQN,
   PermissionType,
-  Principal,
-  PropertyType,
   UUID,
 } from 'lattice';
 
 import { ORDERED_PERMISSIONS } from './constants';
 
 import { DataSetTitle, SpaceBetweenGrid, StackGrid } from '../../components';
-import { selectDataSetProperties, selectPermissionsByPrincipal } from '../../core/redux/selectors';
-import { getDataSetField, getDataSetKeys } from '../../utils';
+import { selectOrgDataSets } from '../../core/redux/selectors';
 import type { DataSetPermissionTypeSelection } from '../../types';
 
 const { NEUTRAL, PURPLE } = Colors;
@@ -58,44 +56,38 @@ const PermissionTypeCard :ComponentType<{
 `;
 
 const DataSetPermissionsCard = ({
-  dataSet,
+  dataSetId,
+  dataSetPermissions,
   isOpen,
   onClick,
   onSelect,
-  principal,
+  organizationId,
   selection,
 } :{|
-  dataSet :Map;
+  dataSetId :UUID;
+  dataSetPermissions :Map<List<UUID>, Ace>;
   isOpen :boolean;
   onClick :(dataSetId :UUID) => void;
   onSelect :(selection :DataSetPermissionTypeSelection) => void;
-  principal :Principal;
+  organizationId :UUID;
   selection :?DataSetPermissionTypeSelection;
 |}) => {
 
-  const dataSetId :UUID = getDataSetField(dataSet, 'id');
-
-  const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(dataSetId));
-  const keys :List<List<UUID>> = useMemo(() => (
-    getDataSetKeys(dataSetId, properties.keySeq().toSet())
-  ), [dataSetId, properties]);
-
-  const permissions :Map<Principal, Map<List<UUID>, Ace>> = useSelector(selectPermissionsByPrincipal(keys));
-  const principalPermissions :Map<List<UUID>, Ace> = permissions.get(principal) || Map();
-  const principalPermissionsHash :number = principalPermissions.hashCode();
+  const dataSets = useSelector(selectOrgDataSets(organizationId, [dataSetId]));
+  const dataSet :Map<FQN, List> = dataSets.get(dataSetId) || Map();
 
   const permissionTypeSummaryString = useMemo(() => {
-    const dataSetAce :?Ace = principalPermissions.get(List([dataSetId]));
+    const dataSetAce :?Ace = dataSetPermissions.get(List([dataSetId]));
     return ORDERED_PERMISSIONS
       .filter((permissionType :PermissionType) => dataSetAce?.permissions.includes(permissionType))
       .map((permissionType :PermissionType) => permissionType.toLowerCase())
       .join(', ');
-  }, [dataSetId, principalPermissionsHash]);
+  }, [dataSetId, dataSetPermissions]);
 
   const summaryStringsMap :Map<PermissionType, string> = useMemo(() => {
-    const dataSetAce :?Ace = principalPermissions.get(List([dataSetId]));
+    const dataSetAce :?Ace = dataSetPermissions.get(List([dataSetId]));
     const counts :Map<PermissionType, number> = Map().withMutations((mutableMap) => (
-      principalPermissions.forEach((ace :Ace) => {
+      dataSetPermissions.forEach((ace :Ace) => {
         ace.permissions.forEach((permission :PermissionType) => {
           mutableMap.update(permission, (count :number = 0) => count + 1);
         });
@@ -114,7 +106,7 @@ const DataSetPermissionsCard = ({
         mutableMap.set(permissionType, summaryString);
       });
     });
-  }, [dataSetId, principalPermissionsHash]);
+  }, [dataSetId, dataSetPermissions]);
 
   const handleOnClickDataSetCard = () => {
     if (_isFunction(onClick)) {

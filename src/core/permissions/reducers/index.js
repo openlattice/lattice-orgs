@@ -7,14 +7,13 @@ import { Map, fromJS } from 'immutable';
 import assignPermissionsToDataSetReducer from './assignPermissionsToDataSetReducer';
 import getCurrentDataSetAuthorizationsReducer from './getCurrentDataSetAuthorizationsReducer';
 import getCurrentRoleAuthorizationsReducer from './getCurrentRoleAuthorizationsReducer';
+import getDataSetPermissionsPageReducer from './getDataSetPermissionsPageReducer';
 import getDataSetPermissionsReducer from './getDataSetPermissionsReducer';
 import getOrgDataSetObjectPermissionsReducer from './getOrgDataSetObjectPermissionsReducer';
 import getOrgObjectPermissionsReducer from './getOrgObjectPermissionsReducer';
 import getOrgRoleObjectPermissionsReducer from './getOrgRoleObjectPermissionsReducer';
 import getOwnerStatusReducer from './getOwnerStatusReducer';
-import getPageDataSetPermissionsReducer from './getPageDataSetPermissionsReducer';
 import getPermissionsReducer from './getPermissionsReducer';
-import initializeDataSetPermissionsReducer from './initializeDataSetPermissionsReducer';
 import initializeObjectPermissionsReducer from './initializeObjectPermissionsReducer';
 import setPermissionsReducer from './setPermissionsReducer';
 import updatePermissionsReducer from './updatePermissionsReducer';
@@ -24,6 +23,7 @@ import {
   ACES,
   CURRENT,
   CURRENT_ROLE_AUTHORIZATIONS,
+  DATA_SET_PERMISSIONS_PAGE,
   IS_OWNER,
   RS_INITIAL_STATE,
 } from '../../redux/constants';
@@ -33,13 +33,12 @@ import {
   GET_CURRENT_DATA_SET_AUTHORIZATIONS,
   GET_CURRENT_ROLE_AUTHORIZATIONS,
   GET_DATA_SET_PERMISSIONS,
+  GET_DATA_SET_PERMISSIONS_PAGE,
   GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
   GET_ORG_OBJECT_PERMISSIONS,
   GET_ORG_ROLE_OBJECT_PERMISSIONS,
   GET_OWNER_STATUS,
-  GET_PAGE_DATA_SET_PERMISSIONS,
   GET_PERMISSIONS,
-  INITIALIZE_DATA_SET_PERMISSIONS,
   INITIALIZE_OBJECT_PERMISSIONS,
   RESET_CURRENT_ROLE_AUTHORIZATIONS,
   SET_PERMISSIONS,
@@ -48,13 +47,12 @@ import {
   getCurrentDataSetAuthorizations,
   getCurrentRoleAuthorizations,
   getDataSetPermissions,
+  getDataSetPermissionsPage,
   getOrgDataSetObjectPermissions,
   getOrgObjectPermissions,
   getOrgRoleObjectPermissions,
   getOwnerStatus,
-  getPageDataSetPermissions,
   getPermissions,
-  initializeDataSetPermissions,
   initializeObjectPermissions,
   setPermissions,
   updatePermissions,
@@ -66,13 +64,12 @@ const INITIAL_STATE :Map = fromJS({
   [GET_CURRENT_DATA_SET_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_CURRENT_ROLE_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_DATA_SET_PERMISSIONS]: RS_INITIAL_STATE,
+  [GET_DATA_SET_PERMISSIONS_PAGE]: RS_INITIAL_STATE,
   [GET_ORG_DATA_SET_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
   [GET_ORG_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
   [GET_ORG_ROLE_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
   [GET_OWNER_STATUS]: RS_INITIAL_STATE,
-  [GET_PAGE_DATA_SET_PERMISSIONS]: RS_INITIAL_STATE,
   [GET_PERMISSIONS]: RS_INITIAL_STATE,
-  [INITIALIZE_DATA_SET_PERMISSIONS]: RS_INITIAL_STATE,
   [INITIALIZE_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
   [SET_PERMISSIONS]: RS_INITIAL_STATE,
   [UPDATE_PERMISSIONS]: RS_INITIAL_STATE,
@@ -80,6 +77,7 @@ const INITIAL_STATE :Map = fromJS({
   [ACES]: Map(),
   [CURRENT]: Map(),
   [CURRENT_ROLE_AUTHORIZATIONS]: Map(),
+  [DATA_SET_PERMISSIONS_PAGE]: Map(),
   [IS_OWNER]: Map(),
 });
 
@@ -111,6 +109,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return getDataSetPermissionsReducer(state, action);
     }
 
+    case getDataSetPermissionsPage.case(action.type): {
+      return getDataSetPermissionsPageReducer(state, action);
+    }
+
     case getOrgDataSetObjectPermissions.case(action.type): {
       return getOrgDataSetObjectPermissionsReducer(state, action);
     }
@@ -127,16 +129,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return getOwnerStatusReducer(state, action);
     }
 
-    case getPageDataSetPermissions.case(action.type): {
-      return getPageDataSetPermissionsReducer(state, action);
-    }
-
     case getPermissions.case(action.type): {
       return getPermissionsReducer(state, action);
-    }
-
-    case initializeDataSetPermissions.case(action.type): {
-      return initializeDataSetPermissionsReducer(state, action);
     }
 
     case initializeObjectPermissions.case(action.type): {

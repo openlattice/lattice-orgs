@@ -22,6 +22,7 @@ export default function reducer(state :Map, action :SequenceAction) {
       const storedAction = state.getIn([GET_DATA_SET_METADATA, action.id]);
       if (storedAction) {
         const { dataSetId } = storedAction.value;
+        // TODO: wrong location, need to refactor
         return state
           .setIn([METADATA, dataSetId], action.value)
           .setIn([GET_DATA_SET_METADATA, REQUEST_STATE], RequestStates.SUCCESS);

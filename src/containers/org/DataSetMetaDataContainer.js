@@ -9,18 +9,17 @@ import React, {
   useState
 } from 'react';
 
-import { List, Map, get } from 'immutable';
+import { List, Map } from 'immutable';
 import { AppContentWrapper, Table } from 'lattice-ui-kit';
 import { DataUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
-import type { UUID } from 'lattice';
+import type { FQN, UUID } from 'lattice';
 
 import EditMetadataModal from './components/EditMetadataModal';
 import EditableMetadataRow from './components/EditableMetadataRow';
 
 import { FQNS } from '../../core/edm/constants';
-import { DATA_SET_COLUMNS } from '../../core/redux/constants';
-import { selectDataSetMetaData, selectHasOwnerPermission } from '../../core/redux/selectors';
+import { selectHasOwnerPermission, selectOrgDataSetColumns } from '../../core/redux/selectors';
 
 const { getEntityKeyId, getPropertyValue } = DataUtils;
 
@@ -70,19 +69,19 @@ const DataSetMetaDataContainer = ({
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_MODAL_STATE);
   const [tableData, setTableData] = useState([]);
 
+  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const isDataSetOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
-  const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
 
   useEffect(() => {
-    // NOTE: the column EntityType is ol.column
-    const data :List = get(metadata, DATA_SET_COLUMNS, List()).map((column :Map) => ({
+    // NOTE: the column is ol.column
+    const data :List = dataSetColumns.map((column :Map<FQN, List>) => ({
       dataType: getPropertyValue(column, [FQNS.OL_DATA_TYPE, 0]),
       description: getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]),
       id: getEntityKeyId(column),
       title: getPropertyValue(column, [FQNS.OL_TITLE, 0]),
     }));
     setTableData(data.toJS());
-  }, [metadata]);
+  }, [dataSetColumns]);
 
   const components = useMemo(() => ({
     Row: ({ data, components: innerComponents, headers } :any) => (
