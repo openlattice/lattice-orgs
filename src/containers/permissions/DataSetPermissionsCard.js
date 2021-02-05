@@ -22,7 +22,7 @@ import type {
 import { ORDERED_PERMISSIONS } from './constants';
 
 import { DataSetTitle, SpaceBetweenGrid, StackGrid } from '../../components';
-import { selectOrgDataSets } from '../../core/redux/selectors';
+import { selectOrgDataSet } from '../../core/redux/selectors';
 import type { DataSetPermissionTypeSelection } from '../../types';
 
 const { NEUTRAL, PURPLE } = Colors;
@@ -73,8 +73,7 @@ const DataSetPermissionsCard = ({
   selection :?DataSetPermissionTypeSelection;
 |}) => {
 
-  const dataSets = useSelector(selectOrgDataSets(organizationId, [dataSetId]));
-  const dataSet :Map<FQN, List> = dataSets.get(dataSetId) || Map();
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
 
   const permissionTypeSummaryString = useMemo(() => {
     const dataSetAce :?Ace = dataSetPermissions.get(List([dataSetId]));
