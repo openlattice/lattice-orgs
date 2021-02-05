@@ -4,6 +4,7 @@
 
 import React, { useMemo, useReducer } from 'react';
 
+import styled from 'styled-components';
 import { Map } from 'immutable';
 import { PaginationToolbar, SearchInput, Typography } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
@@ -22,6 +23,10 @@ import {
   PAGE,
   paginationReducer,
 } from '../../utils/stateReducers/pagination';
+
+const Flex = styled.div`
+  display: flex;
+`;
 
 const INITIAL_STATE :{ isVisible :boolean, selectedRole ?:Role } = {
   isVisible: false,
@@ -97,16 +102,18 @@ const MemberRolesContainer = ({
           onPageChange={handleOnPageChange}
           page={paginationState.page}
           rowsPerPage={MAX_HITS_10} />
-      {
-        pagedRoles.map((role) => (
-          <MemberRoleCard
-              key={role.id}
-              onClick={handleOpen}
-              organizationId={organizationId}
-              role={role}
-              isUnassignable={isOwner} />
-        ))
-      }
+      <Flex>
+        {
+          pagedRoles.map((role) => (
+            <MemberRoleCard
+                key={role.id}
+                onClick={handleOpen}
+                organizationId={organizationId}
+                role={role}
+                isUnassignable={isOwner} />
+          ))
+        }
+      </Flex>
       {
         isOwner && (
           <RemoveRoleFromMemberModal
