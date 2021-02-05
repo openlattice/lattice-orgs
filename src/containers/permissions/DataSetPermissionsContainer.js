@@ -192,6 +192,7 @@ const DataSetPermissionsContainer = ({
                   key={dataSetId}
                   onClick={toggleOpenDataSetCard}
                   onSelect={onSelect}
+                  organizationId={organizationId}
                   principal={principal}
                   selection={selection} />
             );

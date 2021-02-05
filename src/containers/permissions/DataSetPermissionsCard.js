@@ -64,6 +64,7 @@ const DataSetPermissionsCard = ({
   isOpen,
   onClick,
   onSelect,
+  organizationId,
   principal,
   selection,
 } :{|
@@ -72,6 +73,7 @@ const DataSetPermissionsCard = ({
   onClick :(dataSetId :UUID) => void;
   onSelect :(selection :DataSetPermissionTypeSelection) => void;
   principal :Principal;
+  organizationId :UUID;
   selection :?DataSetPermissionTypeSelection;
 |}) => {
 
@@ -81,11 +83,12 @@ const DataSetPermissionsCard = ({
     if (isOpen && dataSetId) {
       dispatch(getCurrentDataSetAuthorizations({
         aclKey: [dataSetId],
+        organizationId,
         permissions: [PermissionTypes.OWNER],
         withProperties: true
       }));
     }
-  }, [dispatch, isOpen, dataSetId]);
+  }, [dispatch, isOpen, dataSetId, organizationId]);
 
   const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(dataSetId));
   const keys :List<List<UUID>> = useMemo(() => (

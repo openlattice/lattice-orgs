@@ -78,11 +78,13 @@ const DataSetMetaContainer = ({
   dataSetId,
   entitySet,
   isOwner,
+  organizationId
 } :{|
   atlasDataSet :?Map;
   dataSetId :UUID;
   entitySet :?EntitySet;
   isOwner :boolean;
+  organizationId :UUID;
 |}) => {
 
   const dispatch = useDispatch();
@@ -116,9 +118,10 @@ const DataSetMetaContainer = ({
     dispatch(getOwnerStatus(dataSetId));
     dispatch(getCurrentDataSetAuthorizations({
       aclKey: [dataSetId],
+      organizationId,
       permissions: [PermissionTypes.MATERIALIZE]
     }));
-  }, [dispatch, dataSetId]);
+  }, [dispatch, dataSetId, organizationId]);
 
   useEffect(() => {
     if (parsedColumnInfo) {

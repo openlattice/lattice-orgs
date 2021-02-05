@@ -125,11 +125,12 @@ const ObjectPermissionsContainer = ({
     if (dataSetId) {
       dispatch(getCurrentDataSetAuthorizations({
         aclKey: [dataSetId],
+        organizationId,
         permissions: [PermissionTypes.OWNER],
         withProperties: true
       }));
     }
-  }, [dispatch, dataSetId]);
+  }, [dispatch, dataSetId, organizationId]);
 
   const handleOnPageChange = (state :PaginationState) => {
     paginationDispatch({
