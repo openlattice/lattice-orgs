@@ -10,7 +10,6 @@ import { FQNS } from '../core/edm/constants';
 
 const { getPropertyValue } = DataUtils;
 
-// TODO: delete
 export default function getDataSetKeys(dataSet :Map, dataSetColumns :List) :List<List<UUID>> {
 
   return List().withMutations((keys :List<List<UUID>>) => {

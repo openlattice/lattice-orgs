@@ -37,6 +37,7 @@ export { default as selectOrganizationEntitySetIds } from './selectOrganizationE
 export { default as selectOrganizationIntegrationDetails } from './selectOrganizationIntegrationDetails';
 export { default as selectOrganizationMembers } from './selectOrganizationMembers';
 export { default as selectPermissionsByPrincipal } from './selectPermissionsByPrincipal';
+export { default as selectPrincipalPermissions } from './selectPrincipalPermissions';
 export { default as selectSearchHits } from './selectSearchHits';
 export { default as selectSearchPage } from './selectSearchPage';
 export { default as selectSearchQuery } from './selectSearchQuery';

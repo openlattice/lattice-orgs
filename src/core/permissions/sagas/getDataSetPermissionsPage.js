@@ -31,10 +31,10 @@ import { FQNS } from '../../edm/constants';
 import { getOrgDataSetColumnsFromMetaWorker } from '../../edm/sagas';
 import { PAGE_PERMISSIONS_BY_DATA_SET, TOTAL_PERMISSIONS } from '../../redux/constants';
 import {
-  selectOrgDataSetsColumns,
   selectOrgDataSets,
+  selectOrgDataSetsColumns,
   selectOrganization,
-  selectPermissionsByPrincipal,
+  selectPrincipalPermissions,
   selectPropertyTypes,
 } from '../../redux/selectors';
 import { GET_DATA_SET_PERMISSIONS_PAGE, getDataSetPermissionsPage, getPermissions } from '../actions';
@@ -89,10 +89,9 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
     response = yield call(getPermissionsWorker, getPermissions(dataSetKeys));
     if (response.error) throw response.error;
 
-    const permissions :Map<Principal, Map<List<UUID>, Ace>> = yield select(selectPermissionsByPrincipal(dataSetKeys));
-    let filteredPermissions :Map<List<UUID>, Ace> = permissions.get(principal) || Map();
+    let permissions :Map<List<UUID>, Ace> = yield select(selectPrincipalPermissions(dataSetKeys, principal));
     if (isNonEmptyString(filterByQuery) || isNonEmptyArray(filterByPermissionTypes)) {
-      filteredPermissions = filteredPermissions.filter((ace :Ace, key :List<UUID>) => {
+      permissions = permissions.filter((ace :Ace, key :List<UUID>) => {
         const dataSetId :UUID = key.get(0);
         const dataSet :Map = dataSets.get(dataSetId);
         const dataSetTitle :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
@@ -104,7 +103,7 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
     }
 
     // NOTE: these are the data set ids for this page
-    const pageDataSetIds :Set<UUID> = filteredPermissions
+    const pageDataSetIds :Set<UUID> = permissions
       .slice(start, start + pageSize)
       .keySeq()
       .flatten()
@@ -135,8 +134,7 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
     const pageDataSetKeys :List<List<UUID>> = pageDataSetIds.map((dataSetId :UUID) => List([dataSetId])).toList();
     const pageKeys :List<List<UUID>> = pageDataSetKeys.concat(pageDataSetColumnKeys);
 
-    const permissions2 :Map<Principal, Map<List<UUID>, Ace>> = yield select(selectPermissionsByPrincipal(pageKeys));
-    const pagePermissions :Map<List<UUID>, Ace> = permissions2.get(principal) || Map();
+    const pagePermissions :Map<List<UUID>, Ace> = yield select(selectPrincipalPermissions(pageKeys, principal));
     const pagePermissionsByDataSet :Map<UUID, Map<List<UUID>, Ace>> = Map().withMutations((mutableMap) => {
       pagePermissions.forEach((ace :Ace, key) => {
         const dataSetId :UUID = key.get(0);
@@ -146,7 +144,7 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
 
     yield put(getDataSetPermissionsPage.success(action.id, Map({
       [PAGE_PERMISSIONS_BY_DATA_SET]: pagePermissionsByDataSet,
-      [TOTAL_PERMISSIONS]: filteredPermissions.count(),
+      [TOTAL_PERMISSIONS]: permissions.count(),
     })));
   }
   catch (error) {
