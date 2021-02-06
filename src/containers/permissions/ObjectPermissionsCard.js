@@ -14,7 +14,7 @@ import _capitalize from 'lodash/capitalize';
 import styled from 'styled-components';
 import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List, Map, get } from 'immutable';
+import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import {
@@ -24,14 +24,14 @@ import {
   IconButton,
   Typography,
 } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { DataUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type {
   Ace,
+  FQN,
   PermissionType,
   Principal,
-  PropertyType,
   UUID,
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -39,6 +39,7 @@ import type { RequestState } from 'redux-reqseq';
 import { ORDERED_PERMISSIONS } from './constants';
 
 import { SpaceBetweenGrid, Spinner, StackGrid } from '../../components';
+import { FQNS } from '../../core/edm/constants';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectUser } from '../../core/redux/selectors';
@@ -47,6 +48,7 @@ import { getPrincipalTitle } from '../../utils';
 const { NEUTRAL } = Colors;
 const { AceBuilder } = Models;
 const { ActionTypes, PermissionTypes } = Types;
+const { getPropertyValue } = DataUtils;
 
 const PermissionTypeWrapper :ComponentType<{|
   children :any;
@@ -58,7 +60,7 @@ const PermissionTypeWrapper :ComponentType<{|
   padding: ${({ isDataSet }) => (isDataSet ? '2px 2px 2px 16px' : '0 12px 0 0')};
 `;
 
-const PropertiesWrapper = styled.div`
+const ColumnsWrapper = styled.div`
   margin: 8px 12px 8px 96px;
 `;
 
@@ -69,24 +71,24 @@ const SpinnerWrapper = styled.div`
 `;
 
 const ObjectPermissionsCard = ({
+  dataSetColumns,
   isDataSet,
   objectKey,
   permissions,
   principal,
-  properties,
 } :{|
+  dataSetColumns :List<Map<FQN, List>>;
   isDataSet :boolean;
   objectKey :List<UUID>;
   permissions :Map<List<UUID>, Ace>;
   principal :Principal;
-  properties :Map<UUID, PropertyType | Map>;
 |}) => {
 
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
   const [openPermissionType, setOpenPermissionType] = useState('');
-  const [targetPropertyId, setTargetPropertyId] = useState('');
+  const [targetColumnId, setTargetColumnId] = useState('');
 
   const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
 
@@ -97,7 +99,7 @@ const ObjectPermissionsCard = ({
 
   useEffect(() => {
     if (updatePermissionsRS !== RequestStates.PENDING) {
-      setTargetPropertyId('');
+      setTargetColumnId('');
     }
   }, [updatePermissionsRS]);
 
@@ -112,20 +114,20 @@ const ObjectPermissionsCard = ({
 
   const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
 
-    const { propertyId } = event.currentTarget.dataset;
+    const { columnId } = event.currentTarget.dataset;
     const permissionType :?PermissionType = PermissionTypes[event.currentTarget.dataset.permissionType];
 
     if (permissionType && updatePermissionsRS !== RequestStates.PENDING) {
       const aceForUpdate = (new AceBuilder()).setPermissions([permissionType]).setPrincipal(principal).build();
-      const targetKey :List<UUID> = propertyId ? List([objectKey.get(0), propertyId]) : objectKey;
+      const targetKey :List<UUID> = columnId ? List([objectKey.get(0), columnId]) : objectKey;
       dispatch(
         updatePermissions({
           actionType: event.currentTarget.checked ? ActionTypes.ADD : ActionTypes.REMOVE,
           permissions: Map().set(targetKey, aceForUpdate),
         })
       );
-      if (propertyId) {
-        setTargetPropertyId(propertyId);
+      if (columnId) {
+        setTargetColumnId(columnId);
       }
     }
   };
@@ -190,7 +192,7 @@ const ObjectPermissionsCard = ({
                   </PermissionTypeWrapper>
                   {
                     isOpenPermissionType && (
-                      <PropertiesWrapper key={permissionType}>
+                      <ColumnsWrapper key={permissionType}>
                         <StackGrid>
                           <div>
                             <Typography gutterBottom variant="body2">Object</Typography>
@@ -203,21 +205,21 @@ const ObjectPermissionsCard = ({
                             </SpaceBetweenGrid>
                           </div>
                           <div>
-                            <Typography gutterBottom variant="body2">Properties</Typography>
+                            <Typography gutterBottom variant="body2">Columns</Typography>
                             {
-                              properties.valueSeq().map((property :PropertyType | Map) => {
-                                const propertyId :UUID = property.id || get(property, 'id');
-                                const propertyTitle :UUID = property.title || get(property, 'title');
-                                const propertyTypeFQN :?string = property?.type?.toString() || '';
-                                const key :List<UUID> = List([objectKey.get(0), propertyId]);
+                              dataSetColumns.map((column :Map<FQN, List>) => {
+                                const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
+                                const columnTitle :UUID = getPropertyValue(column, [FQNS.OL_TITLE, 0]);
+                                const columnType :string = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
+                                const key :List<UUID> = List([objectKey.get(0), columnId]);
                                 const ace :?Ace = permissions.get(key);
                                 return (
-                                  <SpaceBetweenGrid key={propertyId}>
-                                    <Typography data-property-id={propertyId} title={propertyTypeFQN}>
-                                      {propertyTitle}
+                                  <SpaceBetweenGrid key={columnId}>
+                                    <Typography data-column-id={columnId} title={columnType}>
+                                      {columnTitle}
                                     </Typography>
                                     {
-                                      updatePermissionsRS === RequestStates.PENDING && targetPropertyId === propertyId
+                                      updatePermissionsRS === RequestStates.PENDING && targetColumnId === columnId
                                         ? (
                                           <SpinnerWrapper>
                                             <Spinner size="lg" />
@@ -226,7 +228,7 @@ const ObjectPermissionsCard = ({
                                         : (
                                           <Checkbox
                                               data-permission-type={permissionType}
-                                              data-property-id={propertyId}
+                                              data-column-id={columnId}
                                               checked={ace?.permissions.includes(permissionType)}
                                               onChange={handleOnChangePermission} />
                                         )
@@ -237,7 +239,7 @@ const ObjectPermissionsCard = ({
                             }
                           </div>
                         </StackGrid>
-                      </PropertiesWrapper>
+                      </ColumnsWrapper>
                     )
                   }
                 </Fragment>

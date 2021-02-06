@@ -10,12 +10,7 @@ import styled from 'styled-components';
 import { faTimes, faUndo } from '@fortawesome/pro-light-svg-icons';
 import { faToggleOn } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  List,
-  Map,
-  Set,
-  get,
-} from 'immutable';
+import { List, Map, Set } from 'immutable';
 import { Models } from 'lattice';
 import {
   Button,

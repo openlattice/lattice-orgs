@@ -46,7 +46,7 @@ const { isValidUUID } = ValidationUtils;
 const { getUsers } = PrincipalsApiActions;
 const { getUsersWorker } = PrincipalsApiSagas;
 
-const LOG = new Logger('initializeObjectPermissions');
+const LOG = new Logger('PermissionsSagas');
 
 function* initializeObjectPermissionsWorker(action :SequenceAction) :Saga<*> {
 
