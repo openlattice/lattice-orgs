@@ -126,7 +126,7 @@ const StepSelectRoleOrUser = ({
                       </div>
                       <Radio
                           checked={
-                            targetRoleOrUserPrincipal && principalMatches(targetRoleOrUserPrincipal, role.principal)
+                            !!targetRoleOrUserPrincipal && principalMatches(targetRoleOrUserPrincipal, role.principal)
                           }
                           id={role.principal.id}
                           value={role.principal.type}
