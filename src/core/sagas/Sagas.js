@@ -103,7 +103,6 @@ export default function* sagas() :Saga<*> {
     fork(PermissionsSagas.getCurrentDataSetAuthorizationsWatcher),
     fork(PermissionsSagas.getCurrentRoleAuthorizationsWatcher),
     fork(PermissionsSagas.getDataSetPermissionsPageWatcher),
-    fork(PermissionsSagas.getDataSetPermissionsWatcher),
     fork(PermissionsSagas.getOrgDataSetObjectPermissionsWatcher),
     fork(PermissionsSagas.getOrgObjectPermissionsWatcher),
     fork(PermissionsSagas.getOrgRoleObjectPermissionsWatcher),

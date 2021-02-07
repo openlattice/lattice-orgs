@@ -8,7 +8,6 @@ import assignPermissionsToDataSetReducer from './assignPermissionsToDataSetReduc
 import getCurrentDataSetAuthorizationsReducer from './getCurrentDataSetAuthorizationsReducer';
 import getCurrentRoleAuthorizationsReducer from './getCurrentRoleAuthorizationsReducer';
 import getDataSetPermissionsPageReducer from './getDataSetPermissionsPageReducer';
-import getDataSetPermissionsReducer from './getDataSetPermissionsReducer';
 import getOrgDataSetObjectPermissionsReducer from './getOrgDataSetObjectPermissionsReducer';
 import getOrgObjectPermissionsReducer from './getOrgObjectPermissionsReducer';
 import getOrgRoleObjectPermissionsReducer from './getOrgRoleObjectPermissionsReducer';
@@ -32,7 +31,6 @@ import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   GET_CURRENT_DATA_SET_AUTHORIZATIONS,
   GET_CURRENT_ROLE_AUTHORIZATIONS,
-  GET_DATA_SET_PERMISSIONS,
   GET_DATA_SET_PERMISSIONS_PAGE,
   GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
   GET_ORG_OBJECT_PERMISSIONS,
@@ -46,7 +44,6 @@ import {
   assignPermissionsToDataSet,
   getCurrentDataSetAuthorizations,
   getCurrentRoleAuthorizations,
-  getDataSetPermissions,
   getDataSetPermissionsPage,
   getOrgDataSetObjectPermissions,
   getOrgObjectPermissions,
@@ -63,7 +60,6 @@ const INITIAL_STATE :Map = fromJS({
   [ASSIGN_PERMISSIONS_TO_DATA_SET]: RS_INITIAL_STATE,
   [GET_CURRENT_DATA_SET_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_CURRENT_ROLE_AUTHORIZATIONS]: RS_INITIAL_STATE,
-  [GET_DATA_SET_PERMISSIONS]: RS_INITIAL_STATE,
   [GET_DATA_SET_PERMISSIONS_PAGE]: RS_INITIAL_STATE,
   [GET_ORG_DATA_SET_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
   [GET_ORG_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
@@ -103,10 +99,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getCurrentRoleAuthorizations.case(action.type): {
       return getCurrentRoleAuthorizationsReducer(state, action);
-    }
-
-    case getDataSetPermissions.case(action.type): {
-      return getDataSetPermissionsReducer(state, action);
     }
 
     case getDataSetPermissionsPage.case(action.type): {
