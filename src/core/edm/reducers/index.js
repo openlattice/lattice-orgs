@@ -14,8 +14,6 @@ import destroyTransportedOrganizationEntitySetReducer from './destroyTransported
 import getEntityDataModelTypesReducer from './getEntityDataModelTypesReducer';
 import getEntitySetReducer from './getEntitySetReducer';
 import getEntitySetsReducer from './getEntitySetsReducer';
-import getOrSelectDataSetReducer from './getOrSelectDataSetReducer';
-import getOrSelectDataSetsReducer from './getOrSelectDataSetsReducer';
 import getOrgDataSetColumnsFromMetaReducer from './getOrgDataSetColumnsFromMetaReducer';
 import getOrgDataSetsFromMetaReducer from './getOrgDataSetsFromMetaReducer';
 import getOrganizationDataSetSchemaReducer from './getOrganizationDataSetSchemaReducer';
@@ -45,13 +43,9 @@ import {
   GET_EDM_TYPES,
   GET_ORG_DATA_SETS_FROM_META,
   GET_ORG_DATA_SET_COLUMNS_FROM_META,
-  GET_OR_SELECT_DATA_SET,
-  GET_OR_SELECT_DATA_SETS,
   INITIALIZE_ORGANIZATION_DATA_SET,
   UPDATE_ORGANIZATION_DATA_SET,
   getEntityDataModelTypes,
-  getOrSelectDataSet,
-  getOrSelectDataSets,
   getOrgDataSetColumnsFromMeta,
   getOrgDataSetsFromMeta,
   initializeOrganizationDataSet,
@@ -96,8 +90,6 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORGANIZATION_DATA_SET_SCHEMA]: RS_INITIAL_STATE,
   [GET_ORG_DATA_SETS_FROM_META]: RS_INITIAL_STATE,
   [GET_ORG_DATA_SET_COLUMNS_FROM_META]: RS_INITIAL_STATE,
-  [GET_OR_SELECT_DATA_SETS]: RS_INITIAL_STATE,
-  [GET_OR_SELECT_DATA_SET]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
   [PROMOTE_STAGING_TABLE]: RS_INITIAL_STATE,
   [SEARCH_ENTITY_SET_METADATA]: RS_INITIAL_STATE,
@@ -136,12 +128,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getEntitySets.case(action.type):
       return getEntitySetsReducer(state, action);
-
-    case getOrSelectDataSet.case(action.type):
-      return getOrSelectDataSetReducer(state, action);
-
-    case getOrSelectDataSets.case(action.type):
-      return getOrSelectDataSetsReducer(state, action);
 
     case getOrganizationDataSets.case(action.type):
       return getOrganizationDataSetsReducer(state, action);

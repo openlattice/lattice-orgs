@@ -79,8 +79,6 @@ export default function* sagas() :Saga<*> {
 
     // EDMSagas
     fork(EDMSagas.getEntityDataModelTypesWatcher),
-    fork(EDMSagas.getOrSelectDataSetWatcher),
-    fork(EDMSagas.getOrSelectDataSetsWatcher),
     fork(EDMSagas.getOrgDataSetColumnsFromMetaWatcher),
     fork(EDMSagas.getOrgDataSetsFromMetaWatcher),
     fork(EDMSagas.initializeOrganizationDataSetWatcher),
