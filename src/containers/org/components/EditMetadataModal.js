@@ -42,7 +42,7 @@ const EditMetadataModal = ({
   const dispatch = useDispatch();
   const [inputState, setInputState] = useState({ description: '', title: '' });
 
-  const updateDataSetMetaDataRS :?RequestState = useRequestState([EDM, UPDATE_ORGANIZATION_DATA_SET]);
+  const updateDataSetRS :?RequestState = useRequestState([EDM, UPDATE_ORGANIZATION_DATA_SET]);
 
   useEffect(() => {
     setInputState({
@@ -85,7 +85,7 @@ const EditMetadataModal = ({
         isVisible={isVisible}
         onClickPrimary={handleSubmit}
         onClose={onClose}
-        requestState={updateDataSetMetaDataRS}
+        requestState={updateDataSetRS}
         requestStateComponents={rsComponents}
         shouldStretchButtons
         textPrimary="Save Changes"
