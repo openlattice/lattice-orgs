@@ -97,10 +97,10 @@ const DataSetPermissionsCard = ({
         const count :number = counts.get(permissionType, 0);
         let summaryString = '';
         if (dataSetAce?.permissions.includes(permissionType)) {
-          summaryString = (count > 1) ? 'object, properties' : 'object';
+          summaryString = (count > 1) ? 'object, columns' : 'object';
         }
         else if (count > 0) {
-          summaryString = 'properties';
+          summaryString = 'columns';
         }
         mutableMap.set(permissionType, summaryString);
       });

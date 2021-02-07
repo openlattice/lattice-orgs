@@ -313,9 +313,9 @@ const PermissionsPanel = ({
         </CardSegment>
         <CardSegment padding="8px 0">
           <SpaceBetweenGrid>
-            <Typography>All properties</Typography>
+            <Typography>All columns</Typography>
             <IconButton
-                aria-label="permissions toggle for all properties"
+                aria-label="permissions toggle for all columns"
                 onClick={togglePermissionAssignmentAll}>
               <FontAwesomeIcon
                   color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
@@ -328,9 +328,9 @@ const PermissionsPanel = ({
         </CardSegment>
         <CardSegment padding="8px 0">
           <SpaceBetweenGrid>
-            <Typography>Only non-pii properties</Typography>
+            <Typography>Only non-pii columns</Typography>
             <IconButton
-                aria-label="permissions toggle for only non-pii properties"
+                aria-label="permissions toggle for only non-pii columns"
                 onClick={togglePermissionAssignmentOnlyNonPII}>
               <FontAwesomeIcon
                   color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}

@@ -71,7 +71,7 @@ const AssignPermissionsToDataSetModalBody = ({
     .join(', ');
 
   const confirmText = assignPermissionsToAllProperties
-    ? `Please confirm you want to assign ${permissions} to "${targetDataSetTitle}" and all its properties.`
+    ? `Please confirm you want to assign ${permissions} to "${targetDataSetTitle}" and all its columns.`
     : `Please confirm you want to assign ${permissions} to "${targetDataSetTitle}".`;
 
   return (

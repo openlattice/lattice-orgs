@@ -71,21 +71,23 @@ const ObjectPermissionsContainer = ({
   const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
   const thisUserId = thisUserInfo.id;
 
-  const dataSetId :UUID = objectKey.get(0); // NOTE: maybe it's a data set id, depends on isDataSet
-  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
-  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const maybeDataSetId :UUID = isDataSet ? objectKey.get(0) : '';
+  const maybeDataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, maybeDataSetId));
+  const maybeDataSetColumns :List<Map<FQN, List>> = useSelector(
+    selectOrgDataSetColumns(organizationId, maybeDataSetId)
+  );
 
   const keys :List<List<UUID>> = useMemo(() => {
     if (isDataSet) {
       // data set object
-      return getDataSetKeys(dataSet, dataSetColumns);
+      return getDataSetKeys(maybeDataSet, maybeDataSetColumns);
     }
     // organization / role object
     return List().push(objectKey);
   }, [
-    dataSet,
-    dataSetColumns,
     isDataSet,
+    maybeDataSet,
+    maybeDataSetColumns,
     objectKey,
   ]);
 
@@ -144,7 +146,7 @@ const ObjectPermissionsContainer = ({
         initializeRS === RequestStates.SUCCESS && filteredPermissionsCount !== 0 && (
           pagePermissions.map((principalPermissions :Map<List<UUID>, Ace>, principal :Principal) => (
             <ObjectPermissionsCard
-                dataSetColumns={dataSetColumns}
+                dataSetColumns={maybeDataSetColumns}
                 isDataSet={isDataSet}
                 key={principal.id}
                 objectKey={objectKey}
@@ -170,10 +172,10 @@ const ObjectPermissionsContainer = ({
           viewportScrolling
           withFooter={false}>
         <AssignPermissionsToObjectModalBody
-            dataSetId={dataSetId}
             existingPermissions={permissions}
-            onClose={onClosePermissionsModal}
+            isDataSet={isDataSet}
             objectKey={objectKey}
+            onClose={onClosePermissionsModal}
             organizationId={organizationId} />
       </Modal>
     </StackGrid>
