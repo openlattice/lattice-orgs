@@ -4,7 +4,7 @@
 
 import { List, Map, fromJS } from 'immutable';
 import { Models, Types } from 'lattice';
-import { DataSetsApiActions, OrganizationsApiActions } from 'lattice-sagas';
+import { OrganizationsApiActions } from 'lattice-sagas';
 import { PersonUtils } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { OrganizationObject, UUID } from 'lattice';
@@ -18,7 +18,6 @@ import {
 import assignRolesToMembersReducer from '../org/reducers/assignRolesToMembersReducer';
 import { RESET_REQUEST_STATE } from '../../core/redux/actions';
 import {
-  ATLAS_DATA_SET_IDS,
   DATA_SOURCES,
   ENTITY_SET_IDS,
   ERROR,
@@ -52,7 +51,6 @@ import {
 import {
   addMembersToOrganizationReducer,
   editRoleDetailsReducer,
-  getOrganizationDataSetsReducer,
   getOrganizationDataSourcesReducer,
   getOrganizationIntegrationDetailsReducer,
   registerOrganizationDataSourceReducer,
@@ -71,10 +69,6 @@ const {
 } = Models;
 const { PermissionTypes, PrincipalTypes } = Types;
 
-const {
-  GET_ORGANIZATION_DATA_SETS,
-  getOrganizationDataSets,
-} = DataSetsApiActions;
 const {
   ADD_MEMBER_TO_ORGANIZATION,
   ADD_ROLE_TO_MEMBER,
@@ -111,7 +105,6 @@ const INITIAL_STATE :Map = fromJS({
   [EDIT_ORGANIZATION_DETAILS]: RS_INITIAL_STATE,
   [EDIT_ROLE_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
-  [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SOURCES]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_INTEGRATION_DETAILS]: RS_INITIAL_STATE,
@@ -124,7 +117,6 @@ const INITIAL_STATE :Map = fromJS({
   [RENAME_ORGANIZATION_DATABASE]: RS_INITIAL_STATE,
   [UPDATE_ORGANIZATION_DATA_SOURCE]: RS_INITIAL_STATE,
   // data
-  [ATLAS_DATA_SET_IDS]: Map(),
   [DATA_SOURCES]: Map(),
   [ENTITY_SET_IDS]: Map(),
   [INTEGRATION_DETAILS]: Map(),
@@ -145,10 +137,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   if (action.type === editRoleDetails.case(action.type)) {
     return editRoleDetailsReducer(state, action);
-  }
-
-  if (action.type === getOrganizationDataSets.case(action.type)) {
-    return getOrganizationDataSetsReducer(state, action);
   }
 
   if (action.type === getOrganizationDataSources.case(action.type)) {

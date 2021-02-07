@@ -17,7 +17,6 @@ import getEntitySetsReducer from './getEntitySetsReducer';
 import getOrgDataSetColumnsFromMetaReducer from './getOrgDataSetColumnsFromMetaReducer';
 import getOrgDataSetsFromMetaReducer from './getOrgDataSetsFromMetaReducer';
 import getOrganizationDataSetSchemaReducer from './getOrganizationDataSetSchemaReducer';
-import getOrganizationDataSetsReducer from './getOrganizationDataSetsReducer';
 import initializeOrganizationDataSetReducer from './initializeOrganizationDataSetReducer';
 import promoteStagingTableReducer from './promoteStagingTableReducer';
 import searchEntitySetMetaDataReducer from './searchEntitySetMetaDataReducer';
@@ -26,7 +25,6 @@ import updateOrganizationDataSetReducer from './updateOrganizationDataSetReducer
 
 import { RESET_REQUEST_STATE } from '../../redux/actions';
 import {
-  ATLAS_DATA_SETS,
   DATA_SET_SCHEMA,
   ENTITY_SETS,
   ENTITY_SETS_INDEX_MAP,
@@ -53,10 +51,8 @@ import {
 } from '../actions';
 
 const {
-  GET_ORGANIZATION_DATA_SETS,
   GET_ORGANIZATION_DATA_SET_SCHEMA,
   getOrganizationDataSetSchema,
-  getOrganizationDataSets,
 } = DataSetsApiActions;
 
 const {
@@ -86,7 +82,6 @@ const INITIAL_STATE :Map = fromJS({
   [GET_EDM_TYPES]: RS_INITIAL_STATE,
   [GET_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ENTITY_SET]: RS_INITIAL_STATE,
-  [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SET_SCHEMA]: RS_INITIAL_STATE,
   [GET_ORG_DATA_SETS_FROM_META]: RS_INITIAL_STATE,
   [GET_ORG_DATA_SET_COLUMNS_FROM_META]: RS_INITIAL_STATE,
@@ -97,8 +92,6 @@ const INITIAL_STATE :Map = fromJS({
   [UPDATE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
 
   // data
-  // TODO - remove ATLAS_DATA_SETS
-  [ATLAS_DATA_SETS]: Map(),
   [DATA_SET_SCHEMA]: Map(),
   [ENTITY_SETS]: List(),
   [ENTITY_SETS_INDEX_MAP]: Map(),
@@ -128,9 +121,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getEntitySets.case(action.type):
       return getEntitySetsReducer(state, action);
-
-    case getOrganizationDataSets.case(action.type):
-      return getOrganizationDataSetsReducer(state, action);
 
     case getOrgDataSetColumnsFromMeta.case(action.type):
       return getOrgDataSetColumnsFromMetaReducer(state, action);
