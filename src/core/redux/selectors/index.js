@@ -21,7 +21,6 @@ export { default as selectDataSetAccessRequestDataSchema } from './selectDataSet
 export { default as selectDataSetAccessRequestUISchema } from './selectDataSetAccessRequestUISchema';
 export { default as selectDataSetAccessRequests } from './selectDataSetAccessRequests';
 export { default as selectDataSetPermissionsPage } from './selectDataSetPermissionsPage';
-export { default as selectDataSetProperties } from './selectDataSetProperties';
 export { default as selectDataSetSchema } from './selectDataSetSchema';
 export { default as selectEntitySetEntityType } from './selectEntitySetEntityType';
 export { default as selectEntitySetPropertyTypes } from './selectEntitySetPropertyTypes';
