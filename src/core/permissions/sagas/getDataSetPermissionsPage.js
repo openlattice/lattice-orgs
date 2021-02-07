@@ -109,43 +109,51 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
       .flatten()
       .toSet();
 
-    // NOTE: this will propulate the redux store so we don't need the response
-    yield call(
-      getOrgDataSetColumnsFromMetaWorker,
-      getOrgDataSetColumnsFromMeta({ dataSetIds: pageDataSetIds, organizationId }),
-    );
+    if (pageDataSetIds.isEmpty()) {
+      yield put(getDataSetPermissionsPage.success(action.id, Map({
+        [PAGE_PERMISSIONS_BY_DATA_SET]: Map(),
+        [TOTAL_PERMISSIONS]: 0,
+      })));
+    }
+    else {
+      // NOTE: this will propulate the redux store so we don't need the response
+      yield call(
+        getOrgDataSetColumnsFromMetaWorker,
+        getOrgDataSetColumnsFromMeta({ dataSetIds: pageDataSetIds, organizationId }),
+      );
 
-    const pageDataSetColumns :Map<UUID, List<Map<FQN, List>>> = yield select(
-      selectOrgDataSetsColumns(organizationId, pageDataSetIds)
-    );
-    const pageDataSetColumnKeys :List<List<UUID>> = List().withMutations((mutableList) => {
-      pageDataSetColumns.forEach((dataSetColumns :List<Map<FQN, List>>, dataSetId :UUID) => {
-        dataSetColumns.forEach((dataSetColumn :Map<FQN, List>) => {
-          mutableList.push(
-            List([dataSetId, getPropertyValue(dataSetColumn, [FQNS.OL_ID, 0])])
-          );
+      const pageDataSetColumns :Map<UUID, List<Map<FQN, List>>> = yield select(
+        selectOrgDataSetsColumns(organizationId, pageDataSetIds)
+      );
+      const pageDataSetColumnKeys :List<List<UUID>> = List().withMutations((mutableList) => {
+        pageDataSetColumns.forEach((dataSetColumns :List<Map<FQN, List>>, dataSetId :UUID) => {
+          dataSetColumns.forEach((dataSetColumn :Map<FQN, List>) => {
+            mutableList.push(
+              List([dataSetId, getPropertyValue(dataSetColumn, [FQNS.OL_ID, 0])])
+            );
+          });
         });
       });
-    });
 
-    response = yield call(getPermissionsWorker, getPermissions(pageDataSetColumnKeys));
-    if (response.error) throw response.error;
+      response = yield call(getPermissionsWorker, getPermissions(pageDataSetColumnKeys));
+      if (response.error) throw response.error;
 
-    const pageDataSetKeys :List<List<UUID>> = pageDataSetIds.map((dataSetId :UUID) => List([dataSetId])).toList();
-    const pageKeys :List<List<UUID>> = pageDataSetKeys.concat(pageDataSetColumnKeys);
+      const pageDataSetKeys :List<List<UUID>> = pageDataSetIds.map((dataSetId :UUID) => List([dataSetId])).toList();
+      const pageKeys :List<List<UUID>> = pageDataSetKeys.concat(pageDataSetColumnKeys);
 
-    const pagePermissions :Map<List<UUID>, Ace> = yield select(selectPrincipalPermissions(pageKeys, principal));
-    const pagePermissionsByDataSet :Map<UUID, Map<List<UUID>, Ace>> = Map().withMutations((mutableMap) => {
-      pagePermissions.forEach((ace :Ace, key) => {
-        const dataSetId :UUID = key.get(0);
-        mutableMap.mergeIn([dataSetId], Map([[key, ace]]));
+      const pagePermissions :Map<List<UUID>, Ace> = yield select(selectPrincipalPermissions(pageKeys, principal));
+      const pagePermissionsByDataSet :Map<UUID, Map<List<UUID>, Ace>> = Map().withMutations((mutableMap) => {
+        pagePermissions.forEach((ace :Ace, key) => {
+          const dataSetId :UUID = key.get(0);
+          mutableMap.mergeIn([dataSetId], Map([[key, ace]]));
+        });
       });
-    });
 
-    yield put(getDataSetPermissionsPage.success(action.id, Map({
-      [PAGE_PERMISSIONS_BY_DATA_SET]: pagePermissionsByDataSet,
-      [TOTAL_PERMISSIONS]: permissions.count(),
-    })));
+      yield put(getDataSetPermissionsPage.success(action.id, Map({
+        [PAGE_PERMISSIONS_BY_DATA_SET]: pagePermissionsByDataSet,
+        [TOTAL_PERMISSIONS]: permissions.count(),
+      })));
+    }
   }
   catch (error) {
     LOG.error(action.type, error);
