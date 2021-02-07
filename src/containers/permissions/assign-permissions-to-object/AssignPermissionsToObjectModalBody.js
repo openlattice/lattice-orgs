@@ -87,9 +87,10 @@ const AssignPermissionsToObjectModalBody = ({
     if (dataSetId) {
       dispatch(
         assignPermissionsToDataSet({
-          principal: targetRoleOrUserPrincipal,
           dataSetId,
+          organizationId,
           permissionTypes: targetPermissionOptions.map((option) => option.value),
+          principal: targetRoleOrUserPrincipal,
           withColumns: assignPermissionsToAllProperties,
         })
       );

@@ -54,9 +54,10 @@ const AssignPermissionsToDataSetModalBody = ({
   const onConfirm = () => {
     dispatch(
       assignPermissionsToDataSet({
-        principal,
         dataSetId: targetDataSetId,
+        organizationId,
         permissionTypes: targetPermissionOptions.map((option) => option.value),
+        principal,
         withColumns: assignPermissionsToAllProperties,
       })
     );
