@@ -4,13 +4,16 @@
 
 import { List, Map } from 'immutable';
 import { DataUtils } from 'lattice-utils';
-import type { UUID } from 'lattice';
+import type { FQN, UUID } from 'lattice';
 
 import { FQNS } from '../core/edm/constants';
 
 const { getPropertyValue } = DataUtils;
 
-export default function getDataSetKeys(dataSet :Map, dataSetColumns :List) :List<List<UUID>> {
+export default function getDataSetKeys(
+  dataSet :Map<UUID, Map>,
+  dataSetColumns :List<Map<FQN, List>>,
+) :List<List<UUID>> {
 
   return List().withMutations((keys :List<List<UUID>>) => {
 
