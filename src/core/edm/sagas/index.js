@@ -8,4 +8,4 @@ export * from './getOrSelectDataSets';
 export * from './getOrgDataSetColumnsFromMeta';
 export * from './getOrgDataSetsFromMeta';
 export * from './initializeOrganizationDataSet';
-export * from './updateDataSetMetaData';
+export * from './updateOrganizationDataSet';

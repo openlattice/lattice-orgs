@@ -23,8 +23,8 @@ const getOrgDataSetColumnsFromMeta :RequestSequence = newRequestSequence(GET_ORG
 const INITIALIZE_ORGANIZATION_DATA_SET :'INITIALIZE_ORGANIZATION_DATA_SET' = 'INITIALIZE_ORGANIZATION_DATA_SET';
 const initializeOrganizationDataSet :RequestSequence = newRequestSequence(INITIALIZE_ORGANIZATION_DATA_SET);
 
-const UPDATE_DATA_SET_METADATA :'UPDATE_DATA_SET_METADATA' = 'UPDATE_DATA_SET_METADATA';
-const updateDataSetMetaData :RequestSequence = newRequestSequence(UPDATE_DATA_SET_METADATA);
+const UPDATE_ORGANIZATION_DATA_SET :'UPDATE_ORGANIZATION_DATA_SET' = 'UPDATE_ORGANIZATION_DATA_SET';
+const updateOrganizationDataSet :RequestSequence = newRequestSequence(UPDATE_ORGANIZATION_DATA_SET);
 
 export {
   GET_EDM_TYPES,
@@ -33,12 +33,12 @@ export {
   GET_OR_SELECT_DATA_SET,
   GET_OR_SELECT_DATA_SETS,
   INITIALIZE_ORGANIZATION_DATA_SET,
-  UPDATE_DATA_SET_METADATA,
+  UPDATE_ORGANIZATION_DATA_SET,
   getEntityDataModelTypes,
   getOrSelectDataSet,
   getOrSelectDataSets,
   getOrgDataSetColumnsFromMeta,
   getOrgDataSetsFromMeta,
   initializeOrganizationDataSet,
-  updateDataSetMetaData,
+  updateOrganizationDataSet,
 };

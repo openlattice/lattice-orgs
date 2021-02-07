@@ -14,10 +14,10 @@ import type { RequestState } from 'redux-reqseq';
 import EditMetadataBody from './EditMetadataBody';
 import ResetOnUnmount from './ResetOnUnmount';
 
-import { UPDATE_DATA_SET_METADATA, updateDataSetMetaData } from '../../../core/edm/actions';
+import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../../core/edm/actions';
 import { EDM } from '../../../core/redux/constants';
 
-const resetStatePath = [UPDATE_DATA_SET_METADATA];
+const resetStatePath = [UPDATE_ORGANIZATION_DATA_SET];
 
 const EditMetadataModal = ({
   data,
@@ -42,7 +42,7 @@ const EditMetadataModal = ({
   const dispatch = useDispatch();
   const [inputState, setInputState] = useState({ description: '', title: '' });
 
-  const updateDataSetMetaDataRS :?RequestState = useRequestState([EDM, UPDATE_DATA_SET_METADATA]);
+  const updateDataSetMetaDataRS :?RequestState = useRequestState([EDM, UPDATE_ORGANIZATION_DATA_SET]);
 
   useEffect(() => {
     setInputState({
@@ -57,7 +57,7 @@ const EditMetadataModal = ({
 
   const handleSubmit = () => {
     dispatch(
-      updateDataSetMetaData({
+      updateOrganizationDataSet({
         dataSetId,
         description: inputState.description,
         entityKeyId: data.id,

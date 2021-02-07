@@ -23,21 +23,23 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { ERR_MISSING_ORG, ERR_MISSING_PROPERTY_TYPE } from '../../../utils/constants/errors';
 import { selectOrganization, selectPropertyTypes } from '../../redux/selectors';
-import {
-  UPDATE_DATA_SET_METADATA,
-  updateDataSetMetaData,
-} from '../actions';
+import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../actions';
 import { FQNS } from '../constants';
-
-const LOG = new Logger('EDMSagas');
 
 const { updateEntityData } = DataApiActions;
 const { updateEntityDataWorker } = DataApiSagas;
 
-function* updateDataSetMetaDataWorker(action :SequenceAction) :Saga<void> {
+const REQUIRED_PROPERTY_TYPES :FQN[] = [
+  FQNS.OL_DESCRIPTION,
+  FQNS.OL_TITLE,
+];
+
+const LOG = new Logger('EDMSagas');
+
+function* updateOrganizationDataSetWorker(action :SequenceAction) :Saga<*> {
 
   try {
-    yield put(updateDataSetMetaData.request(action.id, action.value));
+    yield put(updateOrganizationDataSet.request(action.id, action.value));
 
     const {
       // dataSetId,
@@ -60,14 +62,9 @@ function* updateDataSetMetaDataWorker(action :SequenceAction) :Saga<void> {
       throw new Error(ERR_MISSING_ORG);
     }
 
-    const propertyTypes :Map<UUID, PropertyType> = yield select(
-      selectPropertyTypes([
-        FQNS.OL_DESCRIPTION,
-        FQNS.OL_TITLE,
-      ])
-    );
+    const propertyTypes :Map<UUID, PropertyType> = yield select(selectPropertyTypes(REQUIRED_PROPERTY_TYPES));
     const propertyTypeIds :Map<FQN, UUID> = propertyTypes.map((propertyType) => propertyType.type).flip();
-    if (propertyTypeIds.count() !== 2) {
+    if (propertyTypeIds.count() !== REQUIRED_PROPERTY_TYPES.length) {
       throw new Error(ERR_MISSING_PROPERTY_TYPE);
     }
 
@@ -89,23 +86,23 @@ function* updateDataSetMetaDataWorker(action :SequenceAction) :Saga<void> {
     );
     if (response.error) throw response.error;
 
-    yield put(updateDataSetMetaData.success(action.id));
+    yield put(updateOrganizationDataSet.success(action.id));
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(updateDataSetMetaData.failure(action.id, error));
+    yield put(updateOrganizationDataSet.failure(action.id, error));
   }
   finally {
-    yield put(updateDataSetMetaData.finally(action.id));
+    yield put(updateOrganizationDataSet.finally(action.id));
   }
 }
 
-function* updateDataSetMetaDataWatcher() :Saga<void> {
+function* updateOrganizationDataSetWatcher() :Saga<*> {
 
-  yield takeEvery(UPDATE_DATA_SET_METADATA, updateDataSetMetaDataWorker);
+  yield takeEvery(UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSetWorker);
 }
 
 export {
-  updateDataSetMetaDataWatcher,
-  updateDataSetMetaDataWorker,
+  updateOrganizationDataSetWatcher,
+  updateOrganizationDataSetWorker,
 };

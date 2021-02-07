@@ -24,7 +24,7 @@ import initializeOrganizationDataSetReducer from './initializeOrganizationDataSe
 import promoteStagingTableReducer from './promoteStagingTableReducer';
 import searchEntitySetMetaDataReducer from './searchEntitySetMetaDataReducer';
 import transportOrganizationEntitySetReducer from './transportOrganizationEntitySetReducer';
-import updateDataSetMetaDataReducer from './updateDataSetMetaDataReducer';
+import updateOrganizationDataSetReducer from './updateOrganizationDataSetReducer';
 
 import { RESET_REQUEST_STATE } from '../../redux/actions';
 import {
@@ -48,14 +48,14 @@ import {
   GET_OR_SELECT_DATA_SET,
   GET_OR_SELECT_DATA_SETS,
   INITIALIZE_ORGANIZATION_DATA_SET,
-  UPDATE_DATA_SET_METADATA,
+  UPDATE_ORGANIZATION_DATA_SET,
   getEntityDataModelTypes,
   getOrSelectDataSet,
   getOrSelectDataSets,
   getOrgDataSetColumnsFromMeta,
   getOrgDataSetsFromMeta,
   initializeOrganizationDataSet,
-  updateDataSetMetaData,
+  updateOrganizationDataSet,
 } from '../actions';
 
 const {
@@ -102,7 +102,7 @@ const INITIAL_STATE :Map = fromJS({
   [PROMOTE_STAGING_TABLE]: RS_INITIAL_STATE,
   [SEARCH_ENTITY_SET_METADATA]: RS_INITIAL_STATE,
   [TRANSPORT_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
-  [UPDATE_DATA_SET_METADATA]: RS_INITIAL_STATE,
+  [UPDATE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
 
   // data
   // TODO - remove ATLAS_DATA_SETS
@@ -167,8 +167,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
     case transportOrganizationEntitySet.case(action.type):
       return transportOrganizationEntitySetReducer(state, action);
 
-    case updateDataSetMetaData.case(action.type):
-      return updateDataSetMetaDataReducer(state, action);
+    case updateOrganizationDataSet.case(action.type):
+      return updateOrganizationDataSetReducer(state, action);
 
     default:
       return state;
