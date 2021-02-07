@@ -28,7 +28,6 @@ export { default as selectOrgDataSet } from './selectOrgDataSet';
 export { default as selectOrgDataSetColumns } from './selectOrgDataSetColumns';
 export { default as selectOrgDataSets } from './selectOrgDataSets';
 export { default as selectOrgDataSetsColumns } from './selectOrgDataSetsColumns';
-export { default as selectOrganizationAtlasDataSetIds } from './selectOrganizationAtlasDataSetIds';
 export { default as selectOrganizationDataSources } from './selectOrganizationDataSources';
 export { default as selectOrganizationEntitySetIds } from './selectOrganizationEntitySetIds';
 export { default as selectOrganizationIntegrationDetails } from './selectOrganizationIntegrationDetails';
