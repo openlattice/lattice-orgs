@@ -57,7 +57,7 @@ const AssignPermissionsToDataSetModalBody = ({
         principal,
         dataSetId: targetDataSetId,
         permissionTypes: targetPermissionOptions.map((option) => option.value),
-        withProperties: assignPermissionsToAllProperties,
+        withColumns: assignPermissionsToAllProperties,
       })
     );
   };

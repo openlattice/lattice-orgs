@@ -90,7 +90,7 @@ const AssignPermissionsToObjectModalBody = ({
           principal: targetRoleOrUserPrincipal,
           dataSetId,
           permissionTypes: targetPermissionOptions.map((option) => option.value),
-          withProperties: assignPermissionsToAllProperties,
+          withColumns: assignPermissionsToAllProperties,
         })
       );
     }
