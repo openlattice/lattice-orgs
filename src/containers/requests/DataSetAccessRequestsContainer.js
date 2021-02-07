@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 
 import { faExpandAlt } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List, Map, get } from 'immutable';
+import { List, Map } from 'immutable';
 import {
   AppContentWrapper,
   CardSegment,
@@ -23,7 +23,7 @@ import {
 } from 'lattice-utils';
 import { DateTime } from 'luxon';
 import { useDispatch, useSelector } from 'react-redux';
-import type { Organization, UUID } from 'lattice';
+import type { FQN, Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import { GET_DATA_SET_ACCESS_REQUESTS, getDataSetAccessRequests } from './actions';
@@ -40,12 +40,11 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { GET_DATA_SET_METADATA, getDataSetMetaData } from '../../core/edm/actions';
 import { FQNS } from '../../core/edm/constants';
-import { DATA_SET, EDM, REQUESTS } from '../../core/redux/constants';
+import { REQUESTS } from '../../core/redux/constants';
 import {
   selectDataSetAccessRequests,
-  selectDataSetMetaData,
+  selectOrgDataSet,
   selectOrganization,
 } from '../../core/redux/selectors';
 
@@ -53,7 +52,7 @@ const { NEUTRAL } = Colors;
 // const { PermissionTypes } = Types;
 const { getEntityKeyId, getPropertyValue } = DataUtils;
 const { formatDateTime } = DateTimeUtils;
-const { isPending, isSuccess, reduceRequestStates } = ReduxUtils;
+const { isPending, isSuccess } = ReduxUtils;
 
 const DataSetAccessRequestsContainer = ({
   dataSetId,
@@ -74,22 +73,17 @@ const DataSetAccessRequestsContainer = ({
   const [targetRequest, setTargetRequest] = useState();
 
   const getDataSetAccessRequestsRS :?RequestState = useRequestState([REQUESTS, GET_DATA_SET_ACCESS_REQUESTS]);
-  const getDataSetMetaDataRS :?RequestState = useRequestState([EDM, GET_DATA_SET_METADATA]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
   const requests :List = useSelector(selectDataSetAccessRequests(dataSetId));
 
-  const dataSetMetaData = get(metadata, DATA_SET, Map());
-  const name :string = getPropertyValue(dataSetMetaData, [FQNS.OL_DATA_SET_NAME, 0]);
-  const title :string = getPropertyValue(dataSetMetaData, [FQNS.OL_TITLE, 0]);
+  const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
+  const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
 
   useEffect(() => {
-    dispatch(getDataSetMetaData({ dataSetId, organizationId }));
     dispatch(getDataSetAccessRequests({ dataSetId, organizationId }));
   }, [dispatch, dataSetId, organizationId]);
-
-  const requestState :?RequestState = reduceRequestStates([getDataSetAccessRequestsRS, getDataSetMetaDataRS]);
 
   const getStatusTagMode = (status :RequestStatusType) => {
     if (status === RequestStatusTypes.APPROVED) {
@@ -116,18 +110,18 @@ const DataSetAccessRequestsContainer = ({
             <Typography>Manage data set access requests.</Typography>
           </StackGrid>
           {
-            isPending(requestState) && (
+            isPending(getDataSetAccessRequestsRS) && (
               <Spinner />
             )
           }
           {
-            isSuccess(requestState) && requests.isEmpty() && (
+            isSuccess(getDataSetAccessRequestsRS) && requests.isEmpty() && (
               <Typography>There are no requests for access.</Typography>
             )
           }
           <div>
             {
-              isSuccess(requestState) && !requests.isEmpty() && (
+              isSuccess(getDataSetAccessRequestsRS) && !requests.isEmpty() && (
                 requests.map((request :Map) => {
                   const status = getPropertyValue(request, [FQNS.OL_STATUS, 0]) || RequestStatusTypes.PENDING;
                   return (
