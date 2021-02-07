@@ -14,7 +14,6 @@ export default function selectPrincipalPermissions(keys :List<List<UUID>>, princ
       keys.forEach((key :List<UUID>) => {
         const aces :List<Ace> = getIn(state, [PERMISSIONS, ACES, key]) || List();
         aces.forEach((ace :Ace) => {
-          // TODO: ace.principal.equals(principal)
           if (ace.principal.valueOf() === principal.valueOf()) {
             mutableMap.set(key, ace);
           }
