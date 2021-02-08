@@ -49,16 +49,11 @@ const DeleteOrgModal = ({
     }
   };
 
-  const handleOnClose = () => {
-    onClose();
-    setTimeout(() => {
-      dispatch(resetRequestState([DELETE_EXISTING_ORGANIZATION]));
-    }, 1000);
-  };
-
   useEffect(() => {
-    if (isSuccess(deleteOrgRS)) handleOnClose();
+    if (isSuccess(deleteOrgRS)) onClose();
   });
+
+  useEffect(() => () => dispatch(resetRequestState([DELETE_EXISTING_ORGANIZATION])));
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
@@ -82,7 +77,7 @@ const DeleteOrgModal = ({
     <ActionModal
         isVisible={isVisible}
         onClickPrimary={handleOnClickPrimary}
-        onClose={handleOnClose}
+        onClose={onClose}
         requestState={deleteOrgRS}
         requestStateComponents={rsComponents}
         shouldStretchButtons
