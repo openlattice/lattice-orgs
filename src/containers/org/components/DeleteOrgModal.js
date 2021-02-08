@@ -11,12 +11,15 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { ModalBody } from '../../../components';
-import { resetRequestState } from '../../../core/redux/actions';
+import { ModalBody, ResetOnUnmount } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { DELETE_EXISTING_ORGANIZATION, deleteExistingOrganization } from '../actions';
 
 const { isSuccess } = ReduxUtils;
+
+const RESET_PATHS = [
+  [DELETE_EXISTING_ORGANIZATION],
+];
 
 type Props = {
   isOwner :boolean;
@@ -60,14 +63,18 @@ const DeleteOrgModal = ({
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
-      <ModalBody>
-      </ModalBody>
+      <ResetOnUnmount paths={RESET_PATHS}>
+        <ModalBody>
           <Typography>Success!</Typography>
+        </ModalBody>
+      </ResetOnUnmount>
     ),
     [RequestStates.FAILURE]: (
-      <ModalBody>
-      </ModalBody>
+      <ResetOnUnmount paths={RESET_PATHS}>
+        <ModalBody>
           <Typography>Failed to delete organization. Please try again.</Typography>
+        </ModalBody>
+      </ResetOnUnmount>
     ),
   };
 
