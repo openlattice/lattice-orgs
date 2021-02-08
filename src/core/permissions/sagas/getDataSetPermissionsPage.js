@@ -26,9 +26,9 @@ import type { SequenceAction } from 'redux-reqseq';
 import { getPermissionsWorker } from './getPermissions';
 
 import { ERR_MISSING_ORG, ERR_MISSING_PROPERTY_TYPE } from '../../../utils/constants/errors';
-import { getOrgDataSetColumnsFromMeta } from '../../edm/actions';
+import { getOrgDataSetColumnsFromMeta, getOrgDataSetsFromMeta } from '../../edm/actions';
 import { FQNS } from '../../edm/constants';
-import { getOrgDataSetColumnsFromMetaWorker } from '../../edm/sagas';
+import { getOrgDataSetColumnsFromMetaWorker, getOrgDataSetsFromMetaWorker } from '../../edm/sagas';
 import { PAGE_PERMISSIONS_BY_DATA_SET, TOTAL_PERMISSIONS } from '../../redux/constants';
 import {
   selectOrgDataSets,
@@ -57,6 +57,7 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
     const {
       filterByPermissionTypes,
       filterByQuery,
+      initialize,
       organizationId,
       pageSize,
       principal,
@@ -64,6 +65,7 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
     } :{|
       filterByPermissionTypes :Array<PermissionType>;
       filterByQuery :string;
+      initialize :boolean;
       organizationId :UUID;
       pageSize :number;
       principal :Principal;
@@ -82,12 +84,22 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
       throw new Error(ERR_MISSING_PROPERTY_TYPE);
     }
 
+    if (initialize === true) {
+      // NOTE: we only want to call getOrgDataSetsFromMeta once, not for every page
+      // NOTE: we don't need response.data because the redux store will be populated
+      response = yield call(getOrgDataSetsFromMetaWorker, getOrgDataSetsFromMeta({ organizationId }));
+      if (response.error) throw response.error;
+    }
+
     const dataSets :Map<UUID, Map> = yield select(selectOrgDataSets(organizationId));
     const dataSetKeys :List<List<UUID>> = dataSets.keySeq().map((dataSetId :UUID) => List([dataSetId])).toList();
 
-    // NOTE: this is always getting permissions for all organization data sets, not ideal
-    response = yield call(getPermissionsWorker, getPermissions(dataSetKeys));
-    if (response.error) throw response.error;
+    if (initialize === true) {
+      // NOTE: we only want to call getPermissions once, not for every page
+      // NOTE: we don't need response.data because the redux store will be populated
+      response = yield call(getPermissionsWorker, getPermissions(dataSetKeys));
+      if (response.error) throw response.error;
+    }
 
     let permissions :Map<List<UUID>, Ace> = yield select(selectPrincipalPermissions(dataSetKeys, principal));
     if (isNonEmptyString(filterByQuery) || isNonEmptyArray(filterByPermissionTypes)) {
@@ -116,11 +128,12 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
       })));
     }
     else {
-      // NOTE: this will propulate the redux store so we don't need the response
-      yield call(
+      // NOTE: we don't need response.data because the redux store will be populated
+      response = yield call(
         getOrgDataSetColumnsFromMetaWorker,
         getOrgDataSetColumnsFromMeta({ dataSetIds: pageDataSetIds, organizationId }),
       );
+      if (response.error) throw response.error;
 
       const pageDataSetColumns :Map<UUID, List<Map<FQN, List>>> = yield select(
         selectOrgDataSetsColumns(organizationId, pageDataSetIds)
@@ -135,6 +148,7 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
         });
       });
 
+      // NOTE: we don't need response.data because the redux store will be populated
       response = yield call(getPermissionsWorker, getPermissions(pageDataSetColumnKeys));
       if (response.error) throw response.error;
 

@@ -2,7 +2,12 @@
  * @flow
  */
 
-import React, { useEffect, useReducer, useState } from 'react';
+import React, {
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 
 import { List, Map } from 'immutable';
 import { PaginationToolbar, Typography } from 'lattice-ui-kit';
@@ -19,10 +24,10 @@ import type { RequestState } from 'redux-reqseq';
 import DataSetPermissionsCard from './DataSetPermissionsCard';
 
 import { Spinner, StackGrid } from '../../components';
-import { GET_ORG_DATA_SETS_FROM_META, getOrgDataSetsFromMeta } from '../../core/edm/actions';
+import { GET_ORG_DATA_SETS_FROM_META, GET_ORG_DATA_SET_COLUMNS_FROM_META } from '../../core/edm/actions';
 import { GET_DATA_SET_PERMISSIONS_PAGE, getDataSetPermissionsPage } from '../../core/permissions/actions';
+import { resetRequestState } from '../../core/redux/actions';
 import {
-  EDM,
   PAGE_PERMISSIONS_BY_DATA_SET,
   PERMISSIONS,
   TOTAL_PERMISSIONS,
@@ -42,7 +47,6 @@ const MAX_PER_PAGE = 10;
 const {
   isPending,
   isSuccess,
-  reduceRequestStates,
 } = ReduxUtils;
 
 const DataSetPermissionsContainer = ({
@@ -63,12 +67,12 @@ const DataSetPermissionsContainer = ({
 
   const dispatch = useDispatch();
 
+  const shouldInitialize = useRef(true);
   const [openDataSetId, setOpenDataSetId] = useState('');
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
   const { page, start } = paginationState;
 
-  const getOrgDataSetsFromMetaRS :?RequestState = useRequestState([EDM, GET_ORG_DATA_SETS_FROM_META]);
-  const getPrincipalPermissionsPageRS :?RequestState = useRequestState([PERMISSIONS, GET_DATA_SET_PERMISSIONS_PAGE]);
+  const getDataSetPermissionsPageRS :?RequestState = useRequestState([PERMISSIONS, GET_DATA_SET_PERMISSIONS_PAGE]);
 
   const dataSetPermissionsPage :Map = useSelector(selectDataSetPermissionsPage());
   const totalPermissions :number = dataSetPermissionsPage.get(TOTAL_PERMISSIONS) || 0;
@@ -76,28 +80,34 @@ const DataSetPermissionsContainer = ({
     dataSetPermissionsPage.get(PAGE_PERMISSIONS_BY_DATA_SET) || Map()
   );
 
-  useEffect(() => {
-    dispatch(getOrgDataSetsFromMeta({ organizationId }));
-  }, [dispatch, organizationId]);
+  useEffect(() => () => {
+    dispatch(resetRequestState([GET_DATA_SET_PERMISSIONS_PAGE]));
+    dispatch(resetRequestState([GET_ORG_DATA_SETS_FROM_META]));
+    dispatch(resetRequestState([GET_ORG_DATA_SET_COLUMNS_FROM_META]));
+  }, [dispatch]);
 
   useEffect(() => {
-    if (isSuccess(getOrgDataSetsFromMetaRS)) {
-      dispatch(
-        getDataSetPermissionsPage({
-          filterByPermissionTypes,
-          filterByQuery,
-          organizationId,
-          pageSize: MAX_PER_PAGE,
-          principal,
-          start,
-        })
-      );
+    if (shouldInitialize.current === true && isSuccess(getDataSetPermissionsPageRS)) {
+      shouldInitialize.current = false;
     }
+  }, [getDataSetPermissionsPageRS]);
+
+  useEffect(() => {
+    dispatch(
+      getDataSetPermissionsPage({
+        filterByPermissionTypes,
+        filterByQuery,
+        initialize: shouldInitialize.current,
+        organizationId,
+        pageSize: MAX_PER_PAGE,
+        principal,
+        start,
+      })
+    );
   }, [
     dispatch,
     filterByPermissionTypes,
     filterByQuery,
-    getOrgDataSetsFromMetaRS,
     organizationId,
     principal,
     start,
@@ -125,25 +135,20 @@ const DataSetPermissionsContainer = ({
     }
   };
 
-  const reducedRequestState :?RequestState = reduceRequestStates([
-    getOrgDataSetsFromMetaRS,
-    getPrincipalPermissionsPageRS,
-  ]);
-
   return (
     <StackGrid gap={8}>
       {
-        isPending(reducedRequestState) && (
+        isPending(getDataSetPermissionsPageRS) && (
           <Spinner />
         )
       }
       {
-        isSuccess(reducedRequestState) && totalPermissions === 0 && (
+        isSuccess(getDataSetPermissionsPageRS) && totalPermissions === 0 && (
           <Typography align="center">No datasets.</Typography>
         )
       }
       {
-        isSuccess(reducedRequestState) && totalPermissions !== 0 && (
+        isSuccess(getDataSetPermissionsPageRS) && totalPermissions !== 0 && (
           pagePermissionsByDataSet.map((permissions :Map<List<UUID>, Ace>, dataSetId :UUID) => (
             <DataSetPermissionsCard
                 dataSetId={dataSetId}
