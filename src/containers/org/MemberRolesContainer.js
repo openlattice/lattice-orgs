@@ -10,7 +10,7 @@ import { PaginationToolbar, SearchInput, Typography } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 
-import MemberRoleCard from './MemberRoleCard';
+import MemberRoleChip from './MemberRoleChip';
 import { RemoveRoleFromMemberModal } from './components';
 import { isRoleAssignedToMember } from './utils';
 
@@ -105,7 +105,7 @@ const MemberRolesContainer = ({
       <Flex>
         {
           pagedRoles.map((role) => (
-            <MemberRoleCard
+            <MemberRoleChip
                 key={role.id}
                 onClick={handleOpen}
                 organizationId={organizationId}

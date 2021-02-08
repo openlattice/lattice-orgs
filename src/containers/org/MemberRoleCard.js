@@ -14,7 +14,7 @@ type Props = {
   isUnassignable :boolean;
 };
 
-const MemberRoleCard = ({
+const MemberRoleChip = ({
   onClick,
   organizationId,
   role,
@@ -39,4 +39,4 @@ const MemberRoleCard = ({
   );
 };
 
-export default MemberRoleCard;
+export default MemberRoleChip;
