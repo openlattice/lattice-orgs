@@ -53,8 +53,6 @@ const DeleteOrgModal = ({
     if (isSuccess(deleteOrgRS)) onClose();
   });
 
-  useEffect(() => () => dispatch(resetRequestState([DELETE_EXISTING_ORGANIZATION])));
-
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <ModalBody>
