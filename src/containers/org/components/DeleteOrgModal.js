@@ -45,7 +45,7 @@ const DeleteOrgModal = ({
       dispatch(deleteExistingOrganization(organizationId));
     }
     else {
-      updateStandbyMessage('You must be an owner to delete an organization.');
+      updateStandbyMessage('You are not authorized to delete this organization.');
     }
   };
 
