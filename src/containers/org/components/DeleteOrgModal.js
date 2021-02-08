@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { ActionModal } from 'lattice-ui-kit';
+import { ActionModal, Typography } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -56,18 +56,18 @@ const DeleteOrgModal = ({
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <ModalBody>
-        <span>{standbyMessage}</span>
+        <Typography>{standbyMessage}</Typography>
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
       <ModalBody>
-        <span>Success!</span>
       </ModalBody>
+          <Typography>Success!</Typography>
     ),
     [RequestStates.FAILURE]: (
       <ModalBody>
-        <span>Failed to delete organization. Please try again.</span>
       </ModalBody>
+          <Typography>Failed to delete organization. Please try again.</Typography>
     ),
   };
 
