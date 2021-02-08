@@ -8,37 +8,26 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { List, Map, Set } from 'immutable';
+import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import { PrincipalsApiActions, PrincipalsApiSagas } from 'lattice-sagas';
 import { Logger, ValidationUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
   Ace,
+  FQN,
   Principal,
-  PropertyType,
   UUID,
 } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { getDataSetPermissionsWorker } from './getDataSetPermissions';
 import { getPermissionsWorker } from './getPermissions';
 
 import { getDataSetKeys } from '../../../utils';
 import { ERR_INVALID_UUID } from '../../../utils/constants/errors';
-import { getOrSelectDataSet } from '../../edm/actions';
-import { getOrSelectDataSetWorker } from '../../edm/sagas';
-import {
-  selectDataSetProperties,
-  selectPermissionsByPrincipal,
-} from '../../redux/selectors';
-import {
-  INITIALIZE_OBJECT_PERMISSIONS,
-  getDataSetPermissions,
-  getPermissions,
-  initializeObjectPermissions
-} from '../actions';
+import { selectOrgDataSet, selectOrgDataSetColumns, selectPermissionsByPrincipal } from '../../redux/selectors';
+import { INITIALIZE_OBJECT_PERMISSIONS, getPermissions, initializeObjectPermissions } from '../actions';
 
 const { PrincipalTypes } = Types;
 const { isValidUUID } = ValidationUtils;
@@ -46,7 +35,7 @@ const { isValidUUID } = ValidationUtils;
 const { getUsers } = PrincipalsApiActions;
 const { getUsersWorker } = PrincipalsApiSagas;
 
-const LOG = new Logger('initializeObjectPermissions');
+const LOG = new Logger('PermissionsSagas');
 
 function* initializeObjectPermissionsWorker(action :SequenceAction) :Saga<*> {
 
@@ -71,21 +60,12 @@ function* initializeObjectPermissionsWorker(action :SequenceAction) :Saga<*> {
     let keys :List<List<UUID>> = List();
 
     if (isDataSet) {
-
       const dataSetId :UUID = objectKey.get(0);
-      response = yield call(getOrSelectDataSetWorker, getOrSelectDataSet({ dataSetId, organizationId }));
+      const dataSet :Map<UUID, Map> = yield select(selectOrgDataSet(organizationId, dataSetId));
+      const dataSetColumns :List<Map<FQN, List>> = yield select(selectOrgDataSetColumns(organizationId, dataSetId));
+      keys = getDataSetKeys(dataSet, dataSetColumns);
+      response = yield call(getPermissionsWorker, getPermissions(keys));
       if (response.error) throw response.error;
-
-      response = yield call(getDataSetPermissionsWorker, getDataSetPermissions({
-        atlasDataSetIds: Set([dataSetId]),
-        entitySetIds: Set([dataSetId]),
-        organizationId,
-        withProperties: true,
-      }));
-      if (response.error) throw response.error;
-
-      const properties :Map<UUID, PropertyType | Map> = yield select(selectDataSetProperties(dataSetId));
-      keys = getDataSetKeys(dataSetId, properties.keySeq().toSet());
     }
     else {
       keys = List().push(objectKey);
@@ -100,8 +80,10 @@ function* initializeObjectPermissionsWorker(action :SequenceAction) :Saga<*> {
       .map((principal :Principal) => principal.id)
       .toJS();
 
-    // NOTE: not sure if we should throw if this fails... the fallback is to show the principal id
-    yield call(getUsersWorker, getUsers(userIds));
+    if (userIds.length !== 0) {
+      // NOTE: not sure if we should throw if this fails... the fallback is to show the principal id
+      yield call(getUsersWorker, getUsers(userIds));
+    }
 
     yield put(initializeObjectPermissions.success(action.id));
   }

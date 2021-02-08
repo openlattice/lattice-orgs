@@ -2,21 +2,16 @@
  * @flow
  */
 
-import {
-  call,
-  put,
-  takeEvery,
-} from '@redux-saga/core/effects';
-import { List, Map, get } from 'immutable';
+import { put, select, takeEvery } from '@redux-saga/core/effects';
+import { List, Map } from 'immutable';
 import { DataUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
-import type { UUID } from 'lattice';
+import type { FQN, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { getDataSetMetaData } from '../../../core/edm/actions';
 import { FQNS } from '../../../core/edm/constants';
-import { getDataSetMetaDataWorker } from '../../../core/edm/sagas';
 import { DATA_SET_COLUMNS } from '../../../core/redux/constants';
+import { selectOrgDataSetColumns } from '../../../core/redux/selectors';
 import { toSagaError } from '../../../utils';
 import { INITIALIZE_DATA_SET_ACCESS_REQUEST, initializeDataSetAccessRequest } from '../actions';
 import { DataSetAccessRequestSchema } from '../schemas';
@@ -43,11 +38,7 @@ function* initializeDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> 
       organizationId :UUID;
     } = action.value;
 
-    // TODO: getOrSelectDataSetMetaData
-    const response = yield call(getDataSetMetaDataWorker, getDataSetMetaData({ dataSetId, organizationId }));
-    if (response.error) throw response.error;
-
-    const metadata :Map = response.data;
+    const dataSetColumns :List<Map<FQN, List>> = yield select(selectOrgDataSetColumns(organizationId, dataSetId));
 
     const dataSchema = JSON.parse(JSON.stringify(DataSetAccessRequestSchema.dataSchema));
     dataSchema
@@ -55,8 +46,8 @@ function* initializeDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> 
       .properties[ACCESS_REQUEST_EAK]
       .properties[DATA_SET_COLUMNS]
       .items
-      .enum = get(metadata, DATA_SET_COLUMNS, List())
-        .map((column :Map) => getPropertyValue(column, [FQNS.OL_ID, 0]))
+      .enum = dataSetColumns
+        .map((column :Map<FQN, List>) => getPropertyValue(column, [FQNS.OL_ID, 0]))
         .toJS();
 
     dataSchema
@@ -64,8 +55,8 @@ function* initializeDataSetAccessRequestWorker(action :SequenceAction) :Saga<*> 
       .properties[ACCESS_REQUEST_EAK]
       .properties[DATA_SET_COLUMNS]
       .items
-      .enumNames = get(metadata, DATA_SET_COLUMNS, List())
-        .map((column :Map) => (
+      .enumNames = dataSetColumns
+        .map((column :Map<FQN, List>) => (
           getPropertyValue(column, [FQNS.OL_TITLE, 0]) || getPropertyValue(column, [FQNS.OL_ID, 0])
         ))
         .toJS();

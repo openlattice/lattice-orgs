@@ -91,6 +91,7 @@ const OrgRoleObjectPermissionsContainer = ({
           <ObjectPermissionsContainer
               filterByPermissionTypes={filterByPermissionTypes}
               filterByQuery={filterByQuery}
+              isDataSet={false}
               isVisibleAssignPermissionsModal={isVisibleAssignPermissionsModal}
               objectKey={objectKey}
               onClosePermissionsModal={onClosePermissionsModal}

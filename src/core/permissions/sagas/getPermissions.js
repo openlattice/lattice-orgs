@@ -68,7 +68,7 @@ function* getPermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> {
     if (response.error) throw response.error;
 
     workerResponse = { data: response.data };
-    yield put(getPermissions.success(action.id, response.data));
+    yield put(getPermissions.success(action.id, workerResponse.data));
   }
   catch (error) {
     workerResponse = { error };

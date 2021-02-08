@@ -7,13 +7,13 @@ import React, { useEffect, useMemo } from 'react';
 import { AppContentWrapper } from 'lattice-ui-kit';
 import {
   Logger,
+  ReduxUtils,
   RoutingUtils,
   ValidationUtils,
   useRequestState,
 } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { Route, Switch, useRouteMatch } from 'react-router';
-import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
@@ -30,19 +30,22 @@ import { INITIALIZE_ORGANIZATION, initializeOrganization } from './actions';
 import { OrgMemberContainer, OrgPeopleContainer } from './people';
 
 import { BasicErrorComponent, Spinner } from '../../components';
+import { INITIALIZE_ORGANIZATION_DATA_SET, initializeOrganizationDataSet } from '../../core/edm/actions';
 import { resetRequestState } from '../../core/redux/actions';
-import { ORGANIZATIONS } from '../../core/redux/constants';
+import { EDM, ORGANIZATIONS } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
-import {
-  SEARCH_DATA,
-  SEARCH_ORGANIZATION_DATA_SETS,
-  clearSearchState,
-} from '../../core/search/actions';
+import { SEARCH_DATA, SEARCH_ORGANIZATION_DATA_SETS, clearSearchState } from '../../core/search/actions';
 import { ERR_INVALID_UUID } from '../../utils/constants/errors';
 import { DataSetAccessRequestContainer, DataSetAccessRequestsContainer } from '../requests';
 
-const { isValidUUID } = ValidationUtils;
+const {
+  isFailure,
+  isPending,
+  isStandby,
+  isSuccess,
+} = ReduxUtils;
 const { getParamFromMatch } = RoutingUtils;
+const { isValidUUID } = ValidationUtils;
 
 const NO_ROUTE :'#' = '#';
 
@@ -111,6 +114,7 @@ const OrgRouter = () => {
   }
 
   const initializeOrganizationRS :?RequestState = useRequestState([ORGANIZATIONS, INITIALIZE_ORGANIZATION]);
+  const initializeOrgDataSetRS :?RequestState = useRequestState([EDM, INITIALIZE_ORGANIZATION_DATA_SET]);
 
   useEffect(() => {
     // reset INITIALIZE_ORGANIZATION RequestState when the org id changes
@@ -122,6 +126,19 @@ const OrgRouter = () => {
       dispatch(resetRequestState([INITIALIZE_ORGANIZATION]));
     };
   }, [dispatch, organizationId]);
+
+  useEffect(() => {
+    // reset INITIALIZE_ORGANIZATION_DATA_SET RequestState when the data set id changes
+    dispatch(resetRequestState([INITIALIZE_ORGANIZATION_DATA_SET]));
+    if (isSuccess(initializeOrganizationRS) && isValidUUID(dataSetId)) {
+      dispatch(initializeOrganizationDataSet({ dataSetId, organizationId }));
+    }
+  }, [
+    dispatch,
+    dataSetId,
+    initializeOrganizationRS,
+    organizationId,
+  ]);
 
   const organizationRoute = useMemo(() => {
     if (organizationId) {
@@ -176,7 +193,11 @@ const OrgRouter = () => {
     return NO_ROUTE;
   }, [organizationId]);
 
-  if (initializeOrganizationRS === RequestStates.STANDBY || initializeOrganizationRS === RequestStates.PENDING) {
+  const orgSpinner = isStandby(initializeOrganizationRS) || isPending(initializeOrganizationRS);
+  const dataSetSpinner = isValidUUID(dataSetId) && (
+    isStandby(initializeOrgDataSetRS) || isPending(initializeOrgDataSetRS)
+  );
+  if (orgSpinner || dataSetSpinner) {
     return (
       <AppContentWrapper>
         <Spinner />
@@ -184,7 +205,7 @@ const OrgRouter = () => {
     );
   }
 
-  if (initializeOrganizationRS === RequestStates.FAILURE) {
+  if (isFailure(initializeOrganizationRS) || isFailure(initializeOrgDataSetRS)) {
     return (
       <AppContentWrapper>
         <BasicErrorComponent />
@@ -192,7 +213,7 @@ const OrgRouter = () => {
     );
   }
 
-  if (initializeOrganizationRS === RequestStates.SUCCESS) {
+  if (isSuccess(initializeOrganizationRS)) {
 
     const renderOrgContainer = () => (
       (organizationId)

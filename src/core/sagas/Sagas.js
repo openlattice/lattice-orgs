@@ -78,11 +78,11 @@ export default function* sagas() :Saga<*> {
     fork(DataSagas.submitDataGraphWatcher),
 
     // EDMSagas
-    fork(EDMSagas.getDataSetMetaDataWatcher),
     fork(EDMSagas.getEntityDataModelTypesWatcher),
-    fork(EDMSagas.getOrSelectDataSetWatcher),
-    fork(EDMSagas.getOrSelectDataSetsWatcher),
-    fork(EDMSagas.updateDataSetMetaDataWatcher),
+    fork(EDMSagas.getOrgDataSetColumnsFromMetaWatcher),
+    fork(EDMSagas.getOrgDataSetsFromMetaWatcher),
+    fork(EDMSagas.initializeOrganizationDataSetWatcher),
+    fork(EDMSagas.updateOrganizationDataSetWatcher),
 
     // OrgSagas
     fork(OrgSagas.addMembersToOrganizationWatcher),
@@ -100,14 +100,12 @@ export default function* sagas() :Saga<*> {
     fork(PermissionsSagas.assignPermissionsToDataSetWatcher),
     fork(PermissionsSagas.getCurrentDataSetAuthorizationsWatcher),
     fork(PermissionsSagas.getCurrentRoleAuthorizationsWatcher),
-    fork(PermissionsSagas.getDataSetPermissionsWatcher),
+    fork(PermissionsSagas.getDataSetPermissionsPageWatcher),
     fork(PermissionsSagas.getOrgDataSetObjectPermissionsWatcher),
     fork(PermissionsSagas.getOrgObjectPermissionsWatcher),
     fork(PermissionsSagas.getOrgRoleObjectPermissionsWatcher),
     fork(PermissionsSagas.getOwnerStatusWatcher),
-    fork(PermissionsSagas.getPageDataSetPermissionsWatcher),
     fork(PermissionsSagas.getPermissionsWatcher),
-    fork(PermissionsSagas.initializeDataSetPermissionsWatcher),
     fork(PermissionsSagas.initializeObjectPermissionsWatcher),
     fork(PermissionsSagas.setPermissionsWatcher),
     fork(PermissionsSagas.updatePermissionsWatcher),

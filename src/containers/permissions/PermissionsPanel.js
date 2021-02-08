@@ -10,12 +10,7 @@ import styled from 'styled-components';
 import { faTimes, faUndo } from '@fortawesome/pro-light-svg-icons';
 import { faToggleOn } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  List,
-  Map,
-  Set,
-  get,
-} from 'immutable';
+import { List, Map, Set } from 'immutable';
 import { Models } from 'lattice';
 import {
   Button,
@@ -27,7 +22,7 @@ import {
   StyleUtils,
   Typography,
 } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { DataUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type {
@@ -40,14 +35,22 @@ import type {
 import type { RequestState } from 'redux-reqseq';
 
 import { Divider, SpaceBetweenGrid } from '../../components';
+import { FQNS } from '../../core/edm/constants';
 import { SET_PERMISSIONS, setPermissions } from '../../core/permissions/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
-import { selectDataSetProperties, selectPermissionsByPrincipal } from '../../core/redux/selectors';
+import {
+  selectOrgDataSet,
+  selectOrgDataSetColumns,
+  selectPrincipalPermissions,
+  selectPropertyTypes,
+} from '../../core/redux/selectors';
+import { getDataSetKeys } from '../../utils';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { APP_CONTENT_PADDING } = Sizes;
 const { media } = StyleUtils;
-const { AceBuilder } = Models;
+const { AceBuilder, FQN } = Models;
+const { getPropertyValue } = DataUtils;
 
 const Panel = styled.div`
   background-color: white;
@@ -77,13 +80,15 @@ const ButtonsWrapper = styled.div`
 const PermissionsPanel = ({
   dataSetId,
   onClose,
+  organizationId,
   permissionType,
   principal,
 } :{|
   dataSetId :UUID;
   onClose :() => void;
-  principal :Principal;
+  organizationId :UUID;
   permissionType :PermissionType;
+  principal :Principal;
 |}) => {
 
   const dispatch = useDispatch();
@@ -94,39 +99,38 @@ const PermissionsPanel = ({
 
   const setPermissionsRS :?RequestState = useRequestState([PERMISSIONS, SET_PERMISSIONS]);
 
-  const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(dataSetId));
-  const propertiesHash = properties.hashCode();
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
 
-  const keys :List<List<UUID>> = useMemo(() => (
-    List().withMutations((mutableList) => {
-      mutableList.push(List([dataSetId]));
-      properties.keySeq().forEach((id :UUID) => {
-        mutableList.push(List([dataSetId, id]));
-      });
-    })
-  ), [dataSetId, propertiesHash]);
-
-  const permissions :Map<Principal, Map<List<UUID>, Ace>> = useSelector(selectPermissionsByPrincipal(keys));
-  const principalPermissions :Map<List<UUID>, Ace> = permissions.get(principal) || Map();
-  const principalPermissionsHash = principalPermissions.hashCode();
+  const keys :List<List<UUID>> = useMemo(() => getDataSetKeys(dataSet, dataSetColumns), [dataSet, dataSetColumns]);
+  const permissions :Map<List<UUID>, Ace> = useSelector(selectPrincipalPermissions(keys, principal));
+  const permissionsHash :number = permissions.hashCode();
 
   useEffect(() => {
-    setLocalPermissions(principalPermissions);
-  }, [principalPermissionsHash]);
+    setLocalPermissions(permissions);
+  }, [permissionsHash]);
+
+  const columnIds :List<UUID> = useMemo(() => (
+    dataSetColumns.map((column :Map<FQN, List>) => getPropertyValue(column, [FQNS.OL_ID, 0]))
+  ), [dataSetColumns]);
+  const maybePropertyTypes :Map<UUID, PropertyType> = useSelector(selectPropertyTypes(columnIds));
+  const propertyTypesHash :number = maybePropertyTypes.hashCode();
 
   useEffect(() => {
 
     let isAssignedToAll = true;
     let isAssignedToOnlyNonPII = true;
-    properties.forEach((property :PropertyType | Map) => {
-      const propertyId :UUID = property.id || get(property, 'id');
-      const key :List<UUID> = List([dataSetId, propertyId]);
+    dataSetColumns.forEach((column :Map<FQN, List>) => {
+      const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
+      const propertyType :?PropertyType = maybePropertyTypes.get(columnId);
+      const pii :boolean = propertyType?.pii || false;
+      const key :List<UUID> = List([dataSetId, columnId]);
       const ace :?Ace = localPermissions.get(key);
       const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
       isAssignedToAll = isAssignedToAll && isPermissionAssigned;
       if (
-        (isPermissionAssigned && property.pii === true)
-        || (!isPermissionAssigned && property.pii === false)
+        (isPermissionAssigned && pii === true)
+        || (!isPermissionAssigned && pii === false)
       ) {
         isAssignedToOnlyNonPII = false;
       }
@@ -138,7 +142,13 @@ const PermissionsPanel = ({
     const isAssignedToDataSet = ace ? ace.permissions.includes(permissionType) : false;
     setIsPermissionAssignedToDataSet(isAssignedToDataSet);
 
-  }, [dataSetId, localPermissions, permissionType, propertiesHash]);
+  }, [
+    dataSetColumns,
+    dataSetId,
+    localPermissions,
+    permissionType,
+    propertyTypesHash,
+  ]);
 
   // TODO: update Ace model to use Set for immutable equality to be able to use .equals()
   // const equalPermissions :boolean = permissions.equals(localPermissions);
@@ -159,9 +169,9 @@ const PermissionsPanel = ({
   const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
 
     let key :List<UUID> = List([dataSetId]);
-    if (event?.currentTarget?.dataset?.propertyId) {
-      const propertyId :UUID = event.currentTarget.dataset.propertyId;
-      key = List([dataSetId, propertyId]);
+    if (event?.currentTarget?.dataset?.columnId) {
+      const columnId :UUID = event.currentTarget.dataset.columnId;
+      key = List([dataSetId, columnId]);
     }
 
     // add permission
@@ -214,8 +224,9 @@ const PermissionsPanel = ({
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
         const dataSetKey = List([dataSetId]);
         mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
-        properties.keySeq().forEach((id :UUID) => {
-          const key = List([dataSetId, id]);
+        dataSetColumns.forEach((column :Map<FQN, List>) => {
+          const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
+          const key = List([dataSetId, columnId]);
           const localAce :?Ace = localPermissions.get(key);
           const updatedAcePermissions = Set(localAce?.permissions).delete(permissionType);
           const updatedAce = (new AceBuilder())
@@ -232,8 +243,9 @@ const PermissionsPanel = ({
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
         const dataSetKey = List([dataSetId]);
         mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
-        properties.keySeq().forEach((id :UUID) => {
-          const key = List([dataSetId, id]);
+        dataSetColumns.forEach((column :Map<FQN, List>) => {
+          const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
+          const key = List([dataSetId, columnId]);
           const localAce :?Ace = localPermissions.get(key);
           const updatedAcePermissions = Set(localAce?.permissions).add(permissionType);
           const updatedAce = (new AceBuilder())
@@ -255,13 +267,15 @@ const PermissionsPanel = ({
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
         const dataSetKey = List([dataSetId]);
         mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
-        properties.valueSeq().forEach((property :PropertyType | Map) => {
-          if (_isBoolean(property.pii)) {
-            const propertyId :UUID = property.id || get(property, 'id');
-            const key :List<List<UUID>> = List([dataSetId, propertyId]);
+        dataSetColumns.forEach((column :Map<FQN, List>) => {
+          const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
+          const propertyType :?PropertyType = maybePropertyTypes.get(columnId);
+          const pii :?boolean = propertyType?.pii;
+          if (_isBoolean(pii)) {
+            const key :List<List<UUID>> = List([dataSetId, columnId]);
             const localAce :?Ace = localPermissions.get(key);
             let updatedAcePermissions :Set<PermissionType> = Set(localAce?.permissions);
-            if (property.pii === false) {
+            if (pii === false) {
               updatedAcePermissions = updatedAcePermissions.add(permissionType);
             }
             else {
@@ -299,9 +313,9 @@ const PermissionsPanel = ({
         </CardSegment>
         <CardSegment padding="8px 0">
           <SpaceBetweenGrid>
-            <Typography>All properties</Typography>
+            <Typography>All columns</Typography>
             <IconButton
-                aria-label="permissions toggle for all properties"
+                aria-label="permissions toggle for all columns"
                 onClick={togglePermissionAssignmentAll}>
               <FontAwesomeIcon
                   color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
@@ -314,9 +328,9 @@ const PermissionsPanel = ({
         </CardSegment>
         <CardSegment padding="8px 0">
           <SpaceBetweenGrid>
-            <Typography>Only non-pii properties</Typography>
+            <Typography>Only non-pii columns</Typography>
             <IconButton
-                aria-label="permissions toggle for only non-pii properties"
+                aria-label="permissions toggle for only non-pii columns"
                 onClick={togglePermissionAssignmentOnlyNonPII}>
               <FontAwesomeIcon
                   color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
@@ -328,27 +342,27 @@ const PermissionsPanel = ({
           </SpaceBetweenGrid>
         </CardSegment>
         {
-          properties.valueSeq().map((property :PropertyType | Map) => {
-            const propertyId :UUID = property.id || get(property, 'id');
-            const propertyTitle :UUID = property.title || get(property, 'title');
-            const propertyTypeFQN :?string = property?.type?.toString() || '';
-            const key :List<UUID> = List([dataSetId, propertyId]);
+          dataSetColumns.map((column :Map<FQN, List>) => {
+            const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
+            const columnTitle :UUID = getPropertyValue(column, [FQNS.OL_TITLE, 0]);
+            const columnType :string = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
+            const key :List<UUID> = List([dataSetId, columnId]);
             const ace :?Ace = localPermissions.get(key);
             const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
             return (
-              <CardSegment key={propertyId} padding="8px 0">
+              <CardSegment key={columnId} padding="8px 0">
                 <SpaceBetweenGrid>
                   <div>
-                    <Typography>{propertyTitle}</Typography>
+                    <Typography>{columnTitle}</Typography>
                     {
-                      propertyTypeFQN && (
-                        <Typography variant="caption">{propertyTypeFQN}</Typography>
+                      FQN.isValid(columnType) && (
+                        <Typography variant="caption">{columnType}</Typography>
                       )
                     }
                   </div>
                   <Checkbox
                       checked={isPermissionAssigned}
-                      data-property-id={propertyId}
+                      data-column-id={columnId}
                       onChange={handleOnChangePermission} />
                 </SpaceBetweenGrid>
               </CardSegment>

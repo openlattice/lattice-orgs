@@ -34,8 +34,10 @@ import { getPrincipal, getUserTitle } from '../../../utils';
 
 const { getUserId } = PersonUtils;
 
-const principalMatches = (principal1 :?Principal, principal2 :?Principal) :boolean => principal1?.id === principal2?.id
-  && principal1?.type === principal2?.type;
+const principalEquals = (principal1 :?Principal, principal2 :?Principal) :boolean => (
+  // NOTE: forcing a boolean result using !! to avoid returning undefined
+  !!(principal1?.valueOf() === principal2?.valueOf())
+);
 
 const stringsMatchQuery = (searchQuery :string, values :string[]) => values
   .some((value) => value && value.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -69,7 +71,7 @@ const StepSelectRoleOrUser = ({
   const userRoleOptions = useMemo(() => {
     const options = [];
     const permissionsExistOnRole = (optionPrincipal :?Principal) => existingPermissions
-      .some(({ principal } :Ace) => optionPrincipal && principalMatches(principal, optionPrincipal));
+      .some(({ principal } :Ace) => optionPrincipal && principalEquals(principal, optionPrincipal));
     // add org members that don't already have permissions on object to options
     orgMembers.toJS().forEach((member :Object) => {
       const label = getUserTitle(member, thisUserId);
@@ -125,9 +127,7 @@ const StepSelectRoleOrUser = ({
                         <Typography variant="span">{role.label}</Typography>
                       </div>
                       <Radio
-                          checked={
-                            targetRoleOrUserPrincipal && principalMatches(targetRoleOrUserPrincipal, role.principal)
-                          }
+                          checked={principalEquals(role.principal, targetRoleOrUserPrincipal)}
                           id={role.principal.id}
                           value={role.principal.type}
                           title={role.label}

@@ -6,24 +6,23 @@ import React, { useEffect, useReducer, useRef } from 'react';
 
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List, Map, get } from 'immutable';
+import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import { DataSetsApiActions } from 'lattice-sagas';
 // $FlowFixMe
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { DataUtils, useGoToRoute } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { UUID } from 'lattice';
+import type { FQN, UUID } from 'lattice';
 
 import AssembleMenuItem from './AssembleMenuItem';
 import PromoteTableModal from './PromoteTableModal';
 
 import { FQNS } from '../../../../core/edm/constants';
-import { DATA_SET } from '../../../../core/redux/constants';
 import {
   selectCurrentAuthorization,
   selectCurrentUserIsOrgOwner,
-  selectDataSetMetaData,
+  selectOrgDataSet,
   selectDataSetSchema,
   selectHasOwnerPermission,
 } from '../../../../core/redux/selectors';
@@ -88,13 +87,12 @@ const DataSetActionButton = ({
   const dispatch = useDispatch();
 
   const [state, stateDispatch] = useReducer(reducer, INITIAL_STATE);
-  const dataSetMetaData :Map = useSelector(selectDataSetMetaData(dataSetId));
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
   const isDataSetOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
   const isOrgOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
   const hasMaterialize :boolean = useSelector(selectCurrentAuthorization(dataSetKey, PermissionTypes.MATERIALIZE));
   const dataSetSchema = useSelector(selectDataSetSchema(dataSetId));
 
-  const dataSet = get(dataSetMetaData, DATA_SET, Map());
   const dataSetName :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
   const dataSetFlags :List<string> = getPropertyValue(dataSet, FQNS.OL_FLAGS, List());
   const isAtlas :boolean = isAtlasDataSet(dataSet);

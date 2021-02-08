@@ -7,7 +7,6 @@ import React, { useEffect, useState } from 'react';
 import {
   List,
   Map,
-  get,
   setIn,
 } from 'immutable';
 import { Types } from 'lattice';
@@ -15,7 +14,7 @@ import { Form } from 'lattice-fabricate';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { DataUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { Organization, UUID } from 'lattice';
+import type { FQN, Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import {
@@ -34,11 +33,12 @@ import {
 } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { resetRequestState } from '../../core/redux/actions';
-import { DATA_SET, DATA_SET_COLUMNS, REQUESTS } from '../../core/redux/constants';
+import { DATA_SET_COLUMNS, REQUESTS } from '../../core/redux/constants';
 import {
   selectDataSetAccessRequestDataSchema,
   selectDataSetAccessRequestUISchema,
-  selectDataSetMetaData,
+  selectOrgDataSet,
+  selectOrgDataSetColumns,
   selectOrganization,
 } from '../../core/redux/selectors';
 
@@ -74,14 +74,13 @@ const DataSetAccessRequestContainer = ({
   const submitRS :?RequestState = useRequestState([REQUESTS, SUBMIT_DATA_SET_ACCESS_REQUEST]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const dataSchema = useSelector(selectDataSetAccessRequestDataSchema());
   const uiSchema = useSelector(selectDataSetAccessRequestUISchema());
 
-  const dataSetMetaData = get(metadata, DATA_SET, Map());
-  const dataSetColumnsMetaData = get(metadata, DATA_SET_COLUMNS, List());
-  const name :string = getPropertyValue(dataSetMetaData, [FQNS.OL_DATA_SET_NAME, 0]);
-  const title :string = getPropertyValue(dataSetMetaData, [FQNS.OL_TITLE, 0]);
+  const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
+  const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
 
   useEffect(() => () => {
     dispatch(resetRequestState([INITIALIZE_DATA_SET_ACCESS_REQUEST]));
@@ -100,7 +99,7 @@ const DataSetAccessRequestContainer = ({
         newData = setIn(
           newData,
           [ACCESS_REQUEST_PSK, ACCESS_REQUEST_EAK, DATA_SET_COLUMNS],
-          dataSetColumnsMetaData.map((column :Map) => getPropertyValue(column, [FQNS.OL_ID, 0])).toJS(),
+          dataSetColumns.map((column) => getPropertyValue(column, [FQNS.OL_ID, 0])).toJS(),
         );
         // NOTE: initialize data with OWNER, READ, WRITE selected by default
         newData = setIn(
@@ -111,7 +110,7 @@ const DataSetAccessRequestContainer = ({
         return newData;
       });
     }
-  }, [initRS, dataSetColumnsMetaData]);
+  }, [initRS, dataSetColumns]);
 
   if (organization) {
 

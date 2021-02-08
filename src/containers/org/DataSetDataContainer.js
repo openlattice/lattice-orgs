@@ -4,12 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import {
-  List,
-  Map,
-  get,
-  set,
-} from 'immutable';
+import { List, Map, set } from 'immutable';
 import {
   AppContentWrapper,
   PaginationToolbar,
@@ -19,7 +14,7 @@ import {
 import { DataUtils, LangUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { UUID } from 'lattice';
+import type { FQN, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import {
@@ -29,9 +24,9 @@ import {
   StackGrid,
 } from '../../components';
 import { FQNS } from '../../core/edm/constants';
-import { DATA_SET_COLUMNS, SEARCH } from '../../core/redux/constants';
+import { SEARCH } from '../../core/redux/constants';
 import {
-  selectDataSetMetaData,
+  selectOrgDataSetColumns,
   selectSearchHits,
   selectSearchPage,
   selectSearchQuery,
@@ -45,8 +40,10 @@ const { isNonEmptyString } = LangUtils;
 
 const DataSetDataContainer = ({
   dataSetId,
+  organizationId,
 } :{|
   dataSetId :UUID;
+  organizationId :UUID;
 |}) => {
 
   const dispatch = useDispatch();
@@ -55,7 +52,7 @@ const DataSetDataContainer = ({
 
   const searchDataSetDataRS :?RequestState = useRequestState([SEARCH, SEARCH_DATA]);
 
-  const metadata :Map = useSelector(selectDataSetMetaData(dataSetId));
+  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const searchHits :List = useSelector(selectSearchHits(SEARCH_DATA));
   const searchPage :number = useSelector(selectSearchPage(SEARCH_DATA));
   const searchQuery :string = useSelector(selectSearchQuery(SEARCH_DATA));
@@ -63,7 +60,7 @@ const DataSetDataContainer = ({
 
   useEffect(() => {
     const data :List = searchHits.map((entity :Map) => set(entity, 'id', getEntityKeyId(entity)));
-    const headers :List = get(metadata, DATA_SET_COLUMNS, List()).map((column :Map) => {
+    const headers :List = dataSetColumns.map((column :Map<FQN, List>) => {
       // TODO: these will have to change because the mapping is inconsistent, for example, "ol.column_name" is actually
       // the FQN for some reason
       const fqn :string = getPropertyValue(column, [FQNS.OL_COLUMN_NAME, 0]);
@@ -72,7 +69,7 @@ const DataSetDataContainer = ({
     });
     setTableData(data.toJS());
     setTableHeaders(headers.toJS());
-  }, [metadata, searchHits]);
+  }, [dataSetColumns, searchHits]);
 
   useEffect(() => () => {
     dispatch(clearSearchState(SEARCH_DATA));

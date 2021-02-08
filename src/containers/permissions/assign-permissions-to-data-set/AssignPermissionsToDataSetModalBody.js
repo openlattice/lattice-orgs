@@ -54,10 +54,11 @@ const AssignPermissionsToDataSetModalBody = ({
   const onConfirm = () => {
     dispatch(
       assignPermissionsToDataSet({
-        principal,
         dataSetId: targetDataSetId,
+        organizationId,
         permissionTypes: targetPermissionOptions.map((option) => option.value),
-        withProperties: assignPermissionsToAllProperties,
+        principal,
+        withColumns: assignPermissionsToAllProperties,
       })
     );
   };
@@ -70,7 +71,7 @@ const AssignPermissionsToDataSetModalBody = ({
     .join(', ');
 
   const confirmText = assignPermissionsToAllProperties
-    ? `Please confirm you want to assign ${permissions} to "${targetDataSetTitle}" and all its properties.`
+    ? `Please confirm you want to assign ${permissions} to "${targetDataSetTitle}" and all its columns.`
     : `Please confirm you want to assign ${permissions} to "${targetDataSetTitle}".`;
 
   return (
