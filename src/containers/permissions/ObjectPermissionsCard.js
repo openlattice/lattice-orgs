@@ -36,12 +36,13 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import { PropertyPermissionsCheckbox } from './components';
 import { ORDERED_PERMISSIONS } from './constants';
 
 import { SpaceBetweenGrid, Spinner, StackGrid } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
-import { PERMISSIONS } from '../../core/redux/constants';
+import { CURRENT, PERMISSIONS } from '../../core/redux/constants';
 import { selectUser } from '../../core/redux/selectors';
 import { getPrincipalTitle } from '../../utils';
 
@@ -93,6 +94,7 @@ const ObjectPermissionsCard = ({
   const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
 
   const user :Map = useSelector(selectUser(principal.id));
+  const currentDataSetPermissions :Map = useSelector((state) => state.getIn([PERMISSIONS, CURRENT]));
   const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
   const thisUserId = thisUserInfo.id;
   const title :string = getPrincipalTitle(principal, user, thisUserId);
@@ -213,6 +215,7 @@ const ObjectPermissionsCard = ({
                                 const columnType :string = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
                                 const key :List<UUID> = List([objectKey.get(0), columnId]);
                                 const ace :?Ace = permissions.get(key);
+                                const currentUserIsOwner :boolean = currentDataSetPermissions.getIn([key, PermissionTypes.OWNER], false);
                                 return (
                                   <SpaceBetweenGrid key={columnId}>
                                     <Typography data-column-id={columnId} title={columnType}>
@@ -226,11 +229,12 @@ const ObjectPermissionsCard = ({
                                           </SpinnerWrapper>
                                         )
                                         : (
-                                          <Checkbox
-                                              data-permission-type={permissionType}
-                                              data-column-id={columnId}
-                                              checked={ace?.permissions.includes(permissionType)}
-                                              onChange={handleOnChangePermission} />
+                                          <PropertyPermissionsCheckbox
+                                              ace={ace}
+                                              isLocked={!currentUserIsOwner}
+                                              onChange={handleOnChangePermission}
+                                              permissionType={permissionType}
+                                              propertyId={propertyId} />
                                         )
                                     }
                                   </SpaceBetweenGrid>

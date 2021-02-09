@@ -19,6 +19,9 @@ const assignRolesToMembers :RequestSequence = newRequestSequence(ASSIGN_ROLES_TO
 const CREATE_NEW_ORGANIZATION :'CREATE_NEW_ORGANIZATION' = 'CREATE_NEW_ORGANIZATION';
 const createNewOrganization :RequestSequence = newRequestSequence(CREATE_NEW_ORGANIZATION);
 
+const DELETE_EXISTING_ORGANIZATION :'DELETE_EXISTING_ORGANIZATION' = 'DELETE_EXISTING_ORGANIZATION';
+const deleteExistingOrganization :RequestSequence = newRequestSequence(DELETE_EXISTING_ORGANIZATION);
+
 const EDIT_ORGANIZATION_DETAILS :'EDIT_ORGANIZATION_DETAILS' = 'EDIT_ORGANIZATION_DETAILS';
 const editOrganizationDetails :RequestSequence = newRequestSequence(EDIT_ORGANIZATION_DETAILS);
 
@@ -39,6 +42,7 @@ export {
   ADD_ROLE_TO_ORGANIZATION,
   ASSIGN_ROLES_TO_MEMBERS,
   CREATE_NEW_ORGANIZATION,
+  DELETE_EXISTING_ORGANIZATION,
   EDIT_ORGANIZATION_DETAILS,
   EDIT_ROLE_DETAILS,
   GET_ORGANIZATION_INTEGRATION_DETAILS,
@@ -48,6 +52,7 @@ export {
   addRoleToOrganization,
   assignRolesToMembers,
   createNewOrganization,
+  deleteExistingOrganization,
   editOrganizationDetails,
   editRoleDetails,
   getOrganizationIntegrationDetails,

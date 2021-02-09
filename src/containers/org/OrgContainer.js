@@ -17,12 +17,14 @@ import {
   DataUtils,
   LangUtils,
   ReduxUtils,
+  useGoToRoute,
   useRequestState,
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import { DELETE_EXISTING_ORGANIZATION } from './actions';
 import { DataSetSearchResultCard, OrgActionButton } from './components';
 
 import { BadgeCheckIcon } from '../../assets';
@@ -34,7 +36,8 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { SEARCH } from '../../core/redux/constants';
+import { resetRequestState } from '../../core/redux/actions';
+import { ORGANIZATIONS, SEARCH } from '../../core/redux/constants';
 import {
   selectOrganization,
   selectSearchHits,
@@ -67,6 +70,7 @@ const OrgContainer = ({
 
   const dispatch = useDispatch();
 
+  const deleteOrgRS :?RequestState = useRequestState([ORGANIZATIONS, DELETE_EXISTING_ORGANIZATION]);
   const searchOrgDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_ORGANIZATION_DATA_SETS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
@@ -104,6 +108,17 @@ const OrgContainer = ({
       dispatch(clearSearchState(SEARCH_ORGANIZATION_DATA_SETS));
     }
   };
+
+  const goToRoot = useGoToRoute(Routes.ROOT);
+
+  useEffect(() => {
+    if (isSuccess(deleteOrgRS)) {
+      setTimeout(() => {
+        dispatch(resetRequestState([DELETE_EXISTING_ORGANIZATION]));
+      }, 1000);
+      goToRoot();
+    }
+  });
 
   const peoplePath = useMemo(() => (
     Routes.ORG_PEOPLE.replace(Routes.ORG_ID_PARAM, organizationId)

@@ -9,11 +9,11 @@ import React, {
 } from 'react';
 
 import { List, Map } from 'immutable';
+import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { Modal, PaginationToolbar, Typography } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 import type {
   Ace,
   FQN,
@@ -27,7 +27,11 @@ import ObjectPermissionsCard from './ObjectPermissionsCard';
 import { AssignPermissionsToObjectModalBody } from './assign-permissions-to-object';
 
 import { Spinner, StackGrid } from '../../components';
-import { INITIALIZE_OBJECT_PERMISSIONS, initializeObjectPermissions } from '../../core/permissions/actions';
+import {
+  INITIALIZE_OBJECT_PERMISSIONS,
+  getCurrentDataSetAuthorizations,
+  initializeObjectPermissions
+} from '../../core/permissions/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import {
   selectOrgDataSet,
@@ -38,6 +42,10 @@ import {
 import { getDataSetKeys, getPrincipalTitle } from '../../utils';
 import { INITIAL_PAGINATION_STATE, PAGE, paginationReducer } from '../../utils/stateReducers/pagination';
 import type { State as PaginationState } from '../../utils/stateReducers/pagination';
+
+const { isPending, isSuccess } = ReduxUtils;
+
+const { PermissionTypes } = Types;
 
 const MAX_PER_PAGE = 10;
 
@@ -65,6 +73,8 @@ const ObjectPermissionsContainer = ({
   const { page, start } = paginationState;
 
   const initializeRS :?RequestState = useRequestState([PERMISSIONS, INITIALIZE_OBJECT_PERMISSIONS]);
+  const requestIsPending :boolean = isPending(initializeRS);
+  const requestIsSuccess :boolean = isSuccess(initializeRS);
 
   const users :Map<string, Map> = useSelector(selectUsers());
   const usersHash :number = users.hashCode();
@@ -122,6 +132,17 @@ const ObjectPermissionsContainer = ({
     dispatch(initializeObjectPermissions({ isDataSet, objectKey, organizationId }));
   }, [dispatch, isDataSet, objectKey, organizationId]);
 
+  useEffect(() => {
+    if (dataSetId) {
+      dispatch(getCurrentDataSetAuthorizations({
+        aclKey: [dataSetId],
+        organizationId,
+        permissions: [PermissionTypes.OWNER],
+        withProperties: true
+      }));
+    }
+  }, [dispatch, dataSetId, organizationId]);
+
   const handleOnPageChange = (state :PaginationState) => {
     paginationDispatch({
       page: state.page,
@@ -133,17 +154,17 @@ const ObjectPermissionsContainer = ({
   return (
     <StackGrid gap={0}>
       {
-        initializeRS === RequestStates.PENDING && (
+        requestIsPending && (
           <Spinner />
         )
       }
       {
-        initializeRS === RequestStates.SUCCESS && filteredPermissionsCount === 0 && (
+        requestIsSuccess && filteredPermissionsCount === 0 && (
           <Typography align="center">No permissions assigned.</Typography>
         )
       }
       {
-        initializeRS === RequestStates.SUCCESS && filteredPermissionsCount !== 0 && (
+        requestIsSuccess && filteredPermissionsCount !== 0 && (
           pagePermissions.map((principalPermissions :Map<List<UUID>, Ace>, principal :Principal) => (
             <ObjectPermissionsCard
                 dataSetColumns={maybeDataSetColumns}

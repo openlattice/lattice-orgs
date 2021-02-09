@@ -34,10 +34,12 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import { PropertyPermissionsCheckbox } from './components';
+
 import { Divider, SpaceBetweenGrid } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { SET_PERMISSIONS, setPermissions } from '../../core/permissions/actions';
-import { PERMISSIONS } from '../../core/redux/constants';
+import { CURRENT, PERMISSIONS } from '../../core/redux/constants';
 import {
   selectOrgDataSet,
   selectOrgDataSetColumns,
@@ -50,6 +52,7 @@ const { NEUTRAL, PURPLE } = Colors;
 const { APP_CONTENT_PADDING } = Sizes;
 const { media } = StyleUtils;
 const { AceBuilder, FQN } = Models;
+const { PermissionTypes } = Types;
 const { getPropertyValue } = DataUtils;
 
 const Panel = styled.div`
@@ -93,6 +96,7 @@ const PermissionsPanel = ({
 
   const dispatch = useDispatch();
   const [isPermissionAssignedToAll, setIsPermissionAssignedToAll] = useState(false);
+  const [isPermissionAssignedToAllDisabled, setIsPermissionAssignedToAllDisabled] = useState(false);
   const [isPermissionAssignedToDataSet, setIsPermissionAssignedToDataSet] = useState(false);
   const [isPermissionAssignedToOnlyNonPII, setIsPermissionAssignedToOnlyNonPII] = useState(false);
   const [localPermissions, setLocalPermissions] = useState(Map());
@@ -101,6 +105,8 @@ const PermissionsPanel = ({
 
   const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
   const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+
+  const currentDataSetPermissions :Map = useSelector((state) => state.getIn([PERMISSIONS, CURRENT]));
 
   const keys :List<List<UUID>> = useMemo(() => getDataSetKeys(dataSet, dataSetColumns), [dataSet, dataSetColumns]);
   const permissions :Map<List<UUID>, Ace> = useSelector(selectPrincipalPermissions(keys, principal));
@@ -115,6 +121,19 @@ const PermissionsPanel = ({
   ), [dataSetColumns]);
   const maybePropertyTypes :Map<UUID, PropertyType> = useSelector(selectPropertyTypes(columnIds));
   const propertyTypesHash :number = maybePropertyTypes.hashCode();
+
+  useEffect(() => {
+    const ownerOnAllProperties = properties.every((property :PropertyType | Map) => {
+      const propertyId :UUID = property.id || get(property, 'id');
+      const key :List<UUID> = List([dataSetId, propertyId]);
+      const isOwner = currentDataSetPermissions
+        .getIn([key, PermissionTypes.OWNER], false);
+      return isOwner;
+    });
+    if (ownerOnAllProperties) {
+      setIsPermissionAssignedToAllDisabled(true);
+    }
+  }, [currentDataSetPermissions, dataSetId, setIsPermissionAssignedToAllDisabled, properties]);
 
   useEffect(() => {
 
@@ -316,6 +335,7 @@ const PermissionsPanel = ({
             <Typography>All columns</Typography>
             <IconButton
                 aria-label="permissions toggle for all columns"
+                disabled={!isPermissionAssignedToAllDisabled}
                 onClick={togglePermissionAssignmentAll}>
               <FontAwesomeIcon
                   color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
@@ -331,6 +351,7 @@ const PermissionsPanel = ({
             <Typography>Only non-pii columns</Typography>
             <IconButton
                 aria-label="permissions toggle for only non-pii columns"
+                disabled={!isPermissionAssignedToAllDisabled}
                 onClick={togglePermissionAssignmentOnlyNonPII}>
               <FontAwesomeIcon
                   color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
@@ -348,7 +369,7 @@ const PermissionsPanel = ({
             const columnType :string = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
             const key :List<UUID> = List([dataSetId, columnId]);
             const ace :?Ace = localPermissions.get(key);
-            const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
+            const currentUserIsOwner :boolean = currentDataSetPermissions.getIn([key, PermissionTypes.OWNER], false);
             return (
               <CardSegment key={columnId} padding="8px 0">
                 <SpaceBetweenGrid>
@@ -360,10 +381,12 @@ const PermissionsPanel = ({
                       )
                     }
                   </div>
-                  <Checkbox
-                      checked={isPermissionAssigned}
-                      data-column-id={columnId}
-                      onChange={handleOnChangePermission} />
+                  <PropertyPermissionsCheckbox
+                      ace={ace}
+                      isLocked={!currentUserIsOwner}
+                      onChange={handleOnChangePermission}
+                      permissionType={permissionType}
+                      propertyId={propertyId} />
                 </SpaceBetweenGrid>
               </CardSegment>
             );

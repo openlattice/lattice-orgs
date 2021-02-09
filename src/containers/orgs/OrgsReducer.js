@@ -33,6 +33,7 @@ import {
   ADD_ROLE_TO_ORGANIZATION,
   ASSIGN_ROLES_TO_MEMBERS,
   CREATE_NEW_ORGANIZATION,
+  DELETE_EXISTING_ORGANIZATION,
   EDIT_ORGANIZATION_DETAILS,
   EDIT_ROLE_DETAILS,
   GET_ORGANIZATION_INTEGRATION_DETAILS,
@@ -42,6 +43,7 @@ import {
   addRoleToOrganization,
   assignRolesToMembers,
   createNewOrganization,
+  deleteExistingOrganization,
   editOrganizationDetails,
   editRoleDetails,
   getOrganizationIntegrationDetails,
@@ -50,6 +52,7 @@ import {
 } from '../org/actions';
 import {
   addMembersToOrganizationReducer,
+  deleteExistingOrganizationReducer,
   editRoleDetailsReducer,
   getOrganizationDataSourcesReducer,
   getOrganizationIntegrationDetailsReducer,
@@ -102,6 +105,7 @@ const INITIAL_STATE :Map = fromJS({
   [ADD_ROLE_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [ASSIGN_ROLES_TO_MEMBERS]: RS_INITIAL_STATE,
   [CREATE_NEW_ORGANIZATION]: RS_INITIAL_STATE,
+  [DELETE_EXISTING_ORGANIZATION]: RS_INITIAL_STATE,
   [EDIT_ORGANIZATION_DETAILS]: RS_INITIAL_STATE,
   [EDIT_ROLE_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
@@ -133,6 +137,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   if (action.type === assignRolesToMembers.case(action.type)) {
     return assignRolesToMembersReducer(state, action);
+  }
+
+  if (action.type === deleteExistingOrganization.case(action.type)) {
+    return deleteExistingOrganizationReducer(state, action);
   }
 
   if (action.type === editRoleDetails.case(action.type)) {
