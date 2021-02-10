@@ -2,47 +2,71 @@
  * @flow
  */
 
-import React, { useMemo, useReducer } from 'react';
+import React, { useMemo, useReducer, useState } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
-import { PaginationToolbar, SearchInput, Typography } from 'lattice-ui-kit';
+import {
+  Colors,
+  SearchInput,
+  Typography
+} from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Role, UUID } from 'lattice';
-
+import { getUserProfile } from '../../utils';
 import MemberRoleChip from './MemberRoleChip';
-import { RemoveRoleFromMemberModal } from './components';
+import { CirclePlusButton, StackGrid } from '../../components';
+import { AssignRolesToMembersModal, RemoveRoleFromMemberModal } from './components';
 import { isRoleAssignedToMember } from './utils';
 
-import { StackGrid } from '../../components';
 import { selectCurrentUserIsOrgOwner } from '../../core/redux/selectors';
-import { MAX_HITS_10 } from '../../core/search/constants';
-import {
-  FILTER,
-  INITIAL_PAGINATION_STATE,
-  PAGE,
-  paginationReducer,
-} from '../../utils/stateReducers/pagination';
+
+const { NEUTRAL } = Colors;
 
 const Flex = styled.div`
   display: flex;
+  align-items: center;
 `;
 
-const INITIAL_STATE :{ isVisible :boolean, selectedRole ?:Role } = {
-  isVisible: false,
+const INITIAL_STATE :{
+  addRoleIsVisible :boolean,
+  removeRoleIsVisible :boolean,
+  selectedRole ?:Role
+} = {
+  addRoleIsVisible: false,
+  removeRoleIsVisible: false,
   selectedRole: undefined,
 };
 
+const CLOSE_ADD_ROLE = 'CLOSE_ADD_ROLE';
+const CLOSE_REMOVE_ROLE = 'CLOSE_REMOVE_ROLE';
+const OPEN_ADD_ROLE = 'OPEN_ADD_ROLE';
+const OPEN_REMOVE_ROLE = 'OPEN_REMOVE_ROLE';
+
 const reducer = (state, action) => {
   switch (action.type) {
-    case 'open': {
+    case CLOSE_ADD_ROLE:
       return {
-        selectedRole: action.payload,
-        isVisible: true
+        ...state,
+        addRoleIsVisible: false,
       };
-    }
-    case 'close':
-      return INITIAL_STATE;
+    case CLOSE_REMOVE_ROLE:
+      return {
+        ...state,
+        selectedRole: undefined,
+        removeRoleIsVisible: false,
+      };
+    case OPEN_ADD_ROLE:
+      return {
+        ...state,
+        addRoleIsVisible: true,
+      };
+    case OPEN_REMOVE_ROLE:
+      return {
+        ...state,
+        selectedRole: action.payload,
+        removeRoleIsVisible: true,
+      };
     default:
       return state;
   }
@@ -59,69 +83,86 @@ const MemberRolesContainer = ({
   organizationId,
   roles,
 } :Props) => {
-
+  const memberProfile = getUserProfile(member);
+  const members = Map().set(memberProfile.id, memberProfile);
   const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
-  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredRoles :Role[] = useMemo(() => (
+  const assignedRoles :Role[] = useMemo(() => (
     roles.filter((role) => (
       isRoleAssignedToMember(member, role.id)
-      && role.title.toLowerCase().includes(paginationState.query.toLowerCase())
+      && (!searchQuery.length || role.title.toLowerCase().includes(searchQuery.toLowerCase()))
     ))
   ), [
     member,
-    paginationState.query,
+    searchQuery,
     roles,
   ]);
 
-  if (filteredRoles.length === 0) {
-    return (
-      <Typography>No roles are assigned to this member.</Typography>
-    );
-  }
-
-  const pagedRoles :Role[] = filteredRoles.slice(paginationState.start, paginationState.start + MAX_HITS_10);
+  const unassignedRoles :Role[] = useMemo(() => (
+    roles.filter((role) => !isRoleAssignedToMember(member, role.id))
+  ), [
+    member,
+    roles,
+  ]);
 
   const handleOnChangeFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    paginationDispatch({ type: FILTER, query: event.target.value || '' });
+    setSearchQuery(event.target.value || '');
   };
 
-  const handleOnPageChange = ({ page, start }) => {
-    paginationDispatch({ type: PAGE, page, start });
-  };
-
-  const handleOpen = (payload) => modalDispatch({ type: 'open', payload });
-  const handleClose = () => modalDispatch({ type: 'close' });
+  const handleOpenRemoveRole = (payload) => modalDispatch({ type: OPEN_REMOVE_ROLE, payload });
+  const handleCloseRemoveRole = () => modalDispatch({ type: CLOSE_REMOVE_ROLE });
+  const handleOpenAddRole = () => modalDispatch({ type: OPEN_ADD_ROLE });
+  const handleCloseAddRole = () => modalDispatch({ type: CLOSE_ADD_ROLE });
 
   return (
     <StackGrid>
       <SearchInput onChange={handleOnChangeFilterQuery} placeholder="Filter roles" />
-      <PaginationToolbar
-          count={filteredRoles.length}
-          onPageChange={handleOnPageChange}
-          page={paginationState.page}
-          rowsPerPage={MAX_HITS_10} />
       <Flex>
         {
-          pagedRoles.map((role) => (
-            <MemberRoleChip
-                key={role.id}
-                onClick={handleOpen}
-                organizationId={organizationId}
-                role={role}
-                isUnassignable={isOwner} />
-          ))
+          (assignedRoles.length === 0)
+            ? (
+              <Typography>No roles are assigned to this member.</Typography>
+            )
+            : (
+              assignedRoles.map((role) => (
+                <MemberRoleChip
+                    key={role.id}
+                    onClick={handleOpenRemoveRole}
+                    organizationId={organizationId}
+                    role={role}
+                    isUnassignable={isOwner} />
+              ))
+            )
+        }
+        {
+          (unassignedRoles.length > 0 && isOwner) && (
+            <CirclePlusButton
+                color={NEUTRAL.N400}
+                onClick={handleOpenAddRole}
+                variant="text" />
+          )
         }
       </Flex>
       {
         isOwner && (
           <RemoveRoleFromMemberModal
-              isVisible={modalState.isVisible}
+              isVisible={modalState.removeRoleIsVisible}
               member={member}
-              onClose={handleClose}
+              onClose={handleCloseRemoveRole}
               organizationId={organizationId}
               role={modalState.selectedRole} />
+        )
+      }
+      {
+        isOwner && (
+          <AssignRolesToMembersModal
+              isVisible={modalState.addRoleIsVisible}
+              members={members}
+              onClose={handleCloseAddRole}
+              organizationId={organizationId}
+              roles={unassignedRoles} />
         )
       }
     </StackGrid>
