@@ -5,6 +5,7 @@
 import { Map, Set, fromJS } from 'immutable';
 
 import assignPermissionsToDataSetReducer from './assignPermissionsToDataSetReducer';
+import createNewOrganizationReducer from './createNewOrganizationReducer';
 import deleteExistingOrganizationReducer from './deleteExistingOrganizationReducer';
 import getCurrentRoleAuthorizationsReducer from './getCurrentRoleAuthorizationsReducer';
 import getDataSetPermissionsPageReducer from './getDataSetPermissionsPageReducer';
@@ -19,7 +20,11 @@ import initializeOrganizationReducer from './initializeOrganizationReducer';
 import setPermissionsReducer from './setPermissionsReducer';
 import updatePermissionsReducer from './updatePermissionsReducer';
 
-import { deleteExistingOrganization, initializeOrganization } from '../../../containers/org/actions';
+import {
+  createNewOrganization,
+  deleteExistingOrganization,
+  initializeOrganization,
+} from '../../../containers/org/actions';
 import { initializeOrganizationDataSet } from '../../edm/actions';
 import { RESET_REQUEST_STATE } from '../../redux/actions';
 import {
@@ -92,6 +97,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case assignPermissionsToDataSet.case(action.type): {
       return assignPermissionsToDataSetReducer(state, action);
+    }
+
+    case createNewOrganization.case(action.type): {
+      return createNewOrganizationReducer(state, action);
     }
 
     case deleteExistingOrganization.case(action.type): {
