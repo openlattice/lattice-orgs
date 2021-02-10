@@ -25,7 +25,8 @@ const MemberRoleChip = ({
     .replace(ORG_ID_PARAM, organizationId)
     .replace(ROLE_ID_PARAM, roleId);
 
-  const handleClick = () => {
+  const handleClick = (e :SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
     onClick(role);
   };
 
