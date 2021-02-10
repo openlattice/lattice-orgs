@@ -16,6 +16,7 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { AxiosUtils } from '../../../utils';
 import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails } from '../actions';
 
 const { getOrganizationDatabaseName, getOrganizationIntegrationAccount } = OrganizationsApiActions;
@@ -57,7 +58,7 @@ function* getOrganizationIntegrationDetailsWorker(action :SequenceAction) :Saga<
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(getOrganizationIntegrationDetails.failure(action.id));
+    yield put(getOrganizationIntegrationDetails.failure(action.id, AxiosUtils.toSagaError(error)));
   }
   finally {
     yield put(getOrganizationIntegrationDetails.finally(action.id));

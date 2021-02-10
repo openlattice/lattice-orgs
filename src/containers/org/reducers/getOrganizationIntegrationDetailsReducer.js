@@ -8,6 +8,7 @@ import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
+  ERROR,
   INTEGRATION_DETAILS,
   REQUEST_STATE,
 } from '../../../core/redux/constants';
@@ -31,7 +32,9 @@ export default function reducer(state :Map, action :SequenceAction) {
     },
     FAILURE: () => {
       if (state.hasIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id])) {
-        return state.setIn([GET_ORGANIZATION_INTEGRATION_DETAILS, REQUEST_STATE], RequestStates.FAILURE);
+        return state
+          .setIn([GET_ORGANIZATION_INTEGRATION_DETAILS, ERROR], action.value)
+          .setIn([GET_ORGANIZATION_INTEGRATION_DETAILS, REQUEST_STATE], RequestStates.FAILURE);
       }
       return state;
     },
