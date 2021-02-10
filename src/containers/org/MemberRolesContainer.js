@@ -4,7 +4,7 @@
 
 import React, { useMemo, useReducer } from 'react';
 
-import { Map } from 'immutable';
+import { List, Map, Set } from 'immutable';
 import { PaginationToolbar, SearchInput, Typography } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Role, UUID } from 'lattice';
@@ -14,7 +14,7 @@ import { RemoveRoleFromMemberModal } from './components';
 import { isRoleAssignedToMember } from './utils';
 
 import { StackGrid } from '../../components';
-import { selectCurrentUserIsOrgOwner } from '../../core/redux/selectors';
+import { selectMyKeys } from '../../core/redux/selectors';
 import { MAX_HITS_10 } from '../../core/search/constants';
 import {
   FILTER,
@@ -55,7 +55,8 @@ const MemberRolesContainer = ({
   roles,
 } :Props) => {
 
-  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isOwner :boolean = myKeys.has(List([organizationId]));
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
 

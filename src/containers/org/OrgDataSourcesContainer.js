@@ -4,7 +4,12 @@
 
 import React, { useEffect, useReducer, useState } from 'react';
 
-import { Map, get } from 'immutable';
+import {
+  List,
+  Map,
+  Set,
+  get,
+} from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
@@ -27,7 +32,7 @@ import {
   StackGrid,
 } from '../../components';
 import {
-  selectCurrentUserIsOrgOwner,
+  selectMyKeys,
   selectOrganization,
   selectOrganizationDataSources,
 } from '../../core/redux/selectors';
@@ -57,7 +62,8 @@ const OrgDataSourcesContainer = ({
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSources :Map<UUID, Map> = useSelector(selectOrganizationDataSources(organizationId));
-  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isOwner :boolean = myKeys.has(List([organizationId]));
 
   useEffect(() => {
     dispatch(getOrganizationDataSources(organizationId));

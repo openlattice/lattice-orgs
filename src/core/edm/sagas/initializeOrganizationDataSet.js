@@ -3,17 +3,28 @@
  */
 
 import {
+  all,
   call,
   put,
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
 import { List, Map, fromJS } from 'immutable';
-import { Models } from 'lattice';
-import { SearchApiActions, SearchApiSagas } from 'lattice-sagas';
+import { Models, Types } from 'lattice';
+import {
+  AuthorizationsApiActions,
+  AuthorizationsApiSagas,
+  SearchApiActions,
+  SearchApiSagas,
+} from 'lattice-sagas';
 import { DataUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
-import type { Organization, PropertyType, UUID } from 'lattice';
+import type {
+  AccessCheck,
+  Organization,
+  PropertyType,
+  UUID,
+} from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -23,13 +34,21 @@ import {
   ERR_MISSING_PROPERTY_TYPE,
   ERR_UNEXPECTED_SEARCH_RESULTS,
 } from '../../../utils/constants/errors';
-import { DATA_SET, DATA_SET_COLUMNS, HITS } from '../../redux/constants';
+import {
+  DATA_SET,
+  DATA_SET_COLUMNS,
+  HITS,
+  IS_OWNER,
+} from '../../redux/constants';
 import { selectOrganization, selectPropertyTypes } from '../../redux/selectors';
 import { MAX_HITS_10000 } from '../../search/constants';
 import { INITIALIZE_ORGANIZATION_DATA_SET, initializeOrganizationDataSet } from '../actions';
 import { FQNS } from '../constants';
 
-const { FQN } = Models;
+const { AccessCheckBuilder, FQN } = Models;
+const { PermissionTypes } = Types;
+const { getAuthorizations } = AuthorizationsApiActions;
+const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 const { searchEntitySetData } = SearchApiActions;
 const { searchEntitySetDataWorker } = SearchApiSagas;
 const { getPropertyValue } = DataUtils;
@@ -67,7 +86,15 @@ function* initializeOrganizationDataSetWorker(action :SequenceAction) :Saga<Work
       throw new Error(ERR_MISSING_PROPERTY_TYPE);
     }
 
-    const dataSetSearchResponse :WorkerResponse = yield call(
+    const accessChecks :AccessCheck[] = [
+      (new AccessCheckBuilder())
+        .setAclKey([dataSetId])
+        .setPermissions([PermissionTypes.OWNER])
+        .build()
+    ];
+    const authorizationsCall = call(getAuthorizationsWorker, getAuthorizations(accessChecks));
+
+    const dataSetSearchCall = call(
       searchEntitySetDataWorker,
       searchEntitySetData({
         constraints: [{
@@ -80,6 +107,12 @@ function* initializeOrganizationDataSetWorker(action :SequenceAction) :Saga<Work
         start: 0,
       }),
     );
+
+    const [
+      authorizationsResponse,
+      dataSetSearchResponse
+    ] :WorkerResponse[] = yield all([authorizationsCall, dataSetSearchCall]);
+
     if (dataSetSearchResponse.error) throw dataSetSearchResponse.error;
 
     if (dataSetSearchResponse.data[HITS].length > 1) {
@@ -116,10 +149,16 @@ function* initializeOrganizationDataSetWorker(action :SequenceAction) :Saga<Work
         && getPropertyValue(dataSetColumn, [FQNS.OL_DATA_SET_NAME, 0]) === dataSetName
       ));
 
+    let isOwner :boolean = false;
+    if (!authorizationsResponse.error) {
+      isOwner = authorizationsResponse.data[0].permissions[PermissionTypes.OWNER] === true;
+    }
+
     workerResponse = {
       data: {
         [DATA_SET]: dataSet,
         [DATA_SET_COLUMNS]: dataSetColumns,
+        [IS_OWNER]: isOwner,
       },
     };
     yield put(initializeOrganizationDataSet.success(action.id, workerResponse.data));

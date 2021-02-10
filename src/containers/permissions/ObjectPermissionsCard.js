@@ -14,19 +14,17 @@ import _capitalize from 'lodash/capitalize';
 import styled from 'styled-components';
 import { faChevronDown, faChevronUp } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List, Map } from 'immutable';
+import { List, Map, Set } from 'immutable';
 import { Models, Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import {
   CardSegment,
-  Checkbox,
   Colors,
   IconButton,
   Typography,
 } from 'lattice-ui-kit';
-import { DataUtils, useRequestState } from 'lattice-utils';
+import { DataUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 import type {
   Ace,
   FQN,
@@ -36,20 +34,21 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { PropertyPermissionsCheckbox } from './components';
+import { ObjectPermissionCheckbox } from './components';
 import { ORDERED_PERMISSIONS } from './constants';
 
 import { SpaceBetweenGrid, Spinner, StackGrid } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
-import { CURRENT, PERMISSIONS } from '../../core/redux/constants';
-import { selectUser } from '../../core/redux/selectors';
+import { PERMISSIONS } from '../../core/redux/constants';
+import { selectMyKeys, selectUser } from '../../core/redux/selectors';
 import { getPrincipalTitle } from '../../utils';
 
 const { NEUTRAL } = Colors;
 const { AceBuilder } = Models;
-const { ActionTypes, PermissionTypes } = Types;
+const { ActionTypes } = Types;
 const { getPropertyValue } = DataUtils;
+const { isPending } = ReduxUtils;
 
 const PermissionTypeWrapper :ComponentType<{|
   children :any;
@@ -93,14 +92,14 @@ const ObjectPermissionsCard = ({
 
   const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
 
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
   const user :Map = useSelector(selectUser(principal.id));
-  const currentDataSetPermissions :Map = useSelector((state) => state.getIn([PERMISSIONS, CURRENT]));
   const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
   const thisUserId = thisUserInfo.id;
   const title :string = getPrincipalTitle(principal, user, thisUserId);
 
   useEffect(() => {
-    if (updatePermissionsRS !== RequestStates.PENDING) {
+    if (!isPending(updatePermissionsRS)) {
       setTargetColumnId('');
     }
   }, [updatePermissionsRS]);
@@ -114,22 +113,17 @@ const ObjectPermissionsCard = ({
       .join(', ')
   ), [objectAce]);
 
-  const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
-
-    const { columnId } = event.currentTarget.dataset;
-    const permissionType :?PermissionType = PermissionTypes[event.currentTarget.dataset.permissionType];
-
-    if (permissionType && updatePermissionsRS !== RequestStates.PENDING) {
+  const handleOnChangePermission = (targetKey :List<UUID>, permissionType :PermissionType, isChecked :boolean) => {
+    if (!isPending(updatePermissionsRS)) {
       const aceForUpdate = (new AceBuilder()).setPermissions([permissionType]).setPrincipal(principal).build();
-      const targetKey :List<UUID> = columnId ? List([objectKey.get(0), columnId]) : objectKey;
       dispatch(
         updatePermissions({
-          actionType: event.currentTarget.checked ? ActionTypes.ADD : ActionTypes.REMOVE,
+          actionType: isChecked ? ActionTypes.ADD : ActionTypes.REMOVE,
           permissions: Map().set(targetKey, aceForUpdate),
         })
       );
-      if (columnId) {
-        setTargetColumnId(columnId);
+      if (targetKey.has(1)) {
+        setTargetColumnId(targetKey.get(1));
       }
     }
   };
@@ -176,18 +170,20 @@ const ObjectPermissionsCard = ({
                         )
                       }
                       {
-                        !isDataSet && updatePermissionsRS === RequestStates.PENDING && (
+                        !isDataSet && isPending(updatePermissionsRS) && (
                           <SpinnerWrapper>
                             <Spinner size="lg" />
                           </SpinnerWrapper>
                         )
                       }
                       {
-                        !isDataSet && updatePermissionsRS !== RequestStates.PENDING && (
-                          <Checkbox
-                              data-permission-type={permissionType}
-                              checked={objectAce?.permissions.includes(permissionType)}
-                              onChange={handleOnChangePermission} />
+                        !isDataSet && !isPending(updatePermissionsRS) && (
+                          <ObjectPermissionCheckbox
+                              ace={objectAce}
+                              isAuthorized={myKeys.has(objectKey)}
+                              objectKey={objectKey}
+                              onChange={handleOnChangePermission}
+                              permissionType={permissionType} />
                         )
                       }
                     </SpaceBetweenGrid>
@@ -200,10 +196,12 @@ const ObjectPermissionsCard = ({
                             <Typography gutterBottom variant="body2">Object</Typography>
                             <SpaceBetweenGrid>
                               <Typography component="span">Data Set Object</Typography>
-                              <Checkbox
-                                  data-permission-type={permissionType}
-                                  checked={objectAce?.permissions.includes(permissionType)}
-                                  onChange={handleOnChangePermission} />
+                              <ObjectPermissionCheckbox
+                                  ace={objectAce}
+                                  isAuthorized={myKeys.has(objectKey)}
+                                  objectKey={objectKey}
+                                  onChange={handleOnChangePermission}
+                                  permissionType={permissionType} />
                             </SpaceBetweenGrid>
                           </div>
                           <div>
@@ -215,26 +213,25 @@ const ObjectPermissionsCard = ({
                                 const columnType :string = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
                                 const key :List<UUID> = List([objectKey.get(0), columnId]);
                                 const ace :?Ace = permissions.get(key);
-                                const currentUserIsOwner :boolean = currentDataSetPermissions.getIn([key, PermissionTypes.OWNER], false);
                                 return (
                                   <SpaceBetweenGrid key={columnId}>
                                     <Typography data-column-id={columnId} title={columnType}>
                                       {columnTitle}
                                     </Typography>
                                     {
-                                      updatePermissionsRS === RequestStates.PENDING && targetColumnId === columnId
+                                      isPending(updatePermissionsRS) && targetColumnId === columnId
                                         ? (
                                           <SpinnerWrapper>
                                             <Spinner size="lg" />
                                           </SpinnerWrapper>
                                         )
                                         : (
-                                          <PropertyPermissionsCheckbox
+                                          <ObjectPermissionCheckbox
                                               ace={ace}
-                                              isLocked={!currentUserIsOwner}
+                                              isAuthorized={myKeys.has(key)}
+                                              objectKey={key}
                                               onChange={handleOnChangePermission}
-                                              permissionType={permissionType}
-                                              propertyId={propertyId} />
+                                              permissionType={permissionType} />
                                         )
                                     }
                                   </SpaceBetweenGrid>

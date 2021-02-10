@@ -2,10 +2,9 @@
  * @flow
  */
 
-import { Map, fromJS } from 'immutable';
+import { Map, Set, fromJS } from 'immutable';
 
 import assignPermissionsToDataSetReducer from './assignPermissionsToDataSetReducer';
-import getCurrentDataSetAuthorizationsReducer from './getCurrentDataSetAuthorizationsReducer';
 import getCurrentRoleAuthorizationsReducer from './getCurrentRoleAuthorizationsReducer';
 import getDataSetPermissionsPageReducer from './getDataSetPermissionsPageReducer';
 import getOrgDataSetObjectPermissionsReducer from './getOrgDataSetObjectPermissionsReducer';
@@ -14,22 +13,25 @@ import getOrgRoleObjectPermissionsReducer from './getOrgRoleObjectPermissionsRed
 import getOwnerStatusReducer from './getOwnerStatusReducer';
 import getPermissionsReducer from './getPermissionsReducer';
 import initializeObjectPermissionsReducer from './initializeObjectPermissionsReducer';
+import initializeOrganizationDataSetReducer from './initializeOrganizationDataSetReducer';
+import initializeOrganizationReducer from './initializeOrganizationReducer';
 import setPermissionsReducer from './setPermissionsReducer';
 import updatePermissionsReducer from './updatePermissionsReducer';
 
+import { initializeOrganization } from '../../../containers/org/actions';
+import { initializeOrganizationDataSet } from '../../edm/actions';
 import { RESET_REQUEST_STATE } from '../../redux/actions';
 import {
   ACES,
   CURRENT,
   CURRENT_ROLE_AUTHORIZATIONS,
   DATA_SET_PERMISSIONS_PAGE,
-  IS_OWNER,
+  MY_KEYS,
   RS_INITIAL_STATE,
 } from '../../redux/constants';
 import { resetRequestStateReducer } from '../../redux/reducers';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
-  GET_CURRENT_DATA_SET_AUTHORIZATIONS,
   GET_CURRENT_ROLE_AUTHORIZATIONS,
   GET_DATA_SET_PERMISSIONS_PAGE,
   GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
@@ -42,7 +44,6 @@ import {
   SET_PERMISSIONS,
   UPDATE_PERMISSIONS,
   assignPermissionsToDataSet,
-  getCurrentDataSetAuthorizations,
   getCurrentRoleAuthorizations,
   getDataSetPermissionsPage,
   getOrgDataSetObjectPermissions,
@@ -58,7 +59,6 @@ import {
 const INITIAL_STATE :Map = fromJS({
   // actions
   [ASSIGN_PERMISSIONS_TO_DATA_SET]: RS_INITIAL_STATE,
-  [GET_CURRENT_DATA_SET_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_CURRENT_ROLE_AUTHORIZATIONS]: RS_INITIAL_STATE,
   [GET_DATA_SET_PERMISSIONS_PAGE]: RS_INITIAL_STATE,
   [GET_ORG_DATA_SET_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
@@ -74,7 +74,7 @@ const INITIAL_STATE :Map = fromJS({
   [CURRENT]: Map(),
   [CURRENT_ROLE_AUTHORIZATIONS]: Map(),
   [DATA_SET_PERMISSIONS_PAGE]: Map(),
-  [IS_OWNER]: Map(),
+  [MY_KEYS]: Set(),
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
@@ -91,10 +91,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case assignPermissionsToDataSet.case(action.type): {
       return assignPermissionsToDataSetReducer(state, action);
-    }
-
-    case getCurrentDataSetAuthorizations.case(action.type): {
-      return getCurrentDataSetAuthorizationsReducer(state, action);
     }
 
     case getCurrentRoleAuthorizations.case(action.type): {
@@ -127,6 +123,14 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case initializeObjectPermissions.case(action.type): {
       return initializeObjectPermissionsReducer(state, action);
+    }
+
+    case initializeOrganization.case(action.type): {
+      return initializeOrganizationReducer(state, action);
+    }
+
+    case initializeOrganizationDataSet.case(action.type): {
+      return initializeOrganizationDataSetReducer(state, action);
     }
 
     case setPermissions.case(action.type): {

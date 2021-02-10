@@ -19,7 +19,7 @@ import EditMetadataModal from './components/EditMetadataModal';
 import EditableMetadataRow from './components/EditableMetadataRow';
 
 import { FQNS } from '../../core/edm/constants';
-import { selectHasOwnerPermission, selectOrgDataSetColumns } from '../../core/redux/selectors';
+import { selectMyKeys, selectOrgDataSetColumns } from '../../core/redux/selectors';
 
 const { getEntityKeyId, getPropertyValue } = DataUtils;
 
@@ -70,7 +70,8 @@ const DataSetMetaDataContainer = ({
   const [tableData, setTableData] = useState([]);
 
   const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
-  const isDataSetOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isDataSetOwner :boolean = myKeys.has(List([dataSetId]));
 
   useEffect(() => {
     // NOTE: the column is ol.column

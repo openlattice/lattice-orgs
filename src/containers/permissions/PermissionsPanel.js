@@ -15,7 +15,6 @@ import { Models } from 'lattice';
 import {
   Button,
   CardSegment,
-  Checkbox,
   Colors,
   IconButton,
   Sizes,
@@ -34,13 +33,14 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { PropertyPermissionsCheckbox } from './components';
+import { ObjectPermissionCheckbox } from './components';
 
 import { Divider, SpaceBetweenGrid } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { SET_PERMISSIONS, setPermissions } from '../../core/permissions/actions';
-import { CURRENT, PERMISSIONS } from '../../core/redux/constants';
+import { PERMISSIONS } from '../../core/redux/constants';
 import {
+  selectMyKeys,
   selectOrgDataSet,
   selectOrgDataSetColumns,
   selectPrincipalPermissions,
@@ -52,7 +52,6 @@ const { NEUTRAL, PURPLE } = Colors;
 const { APP_CONTENT_PADDING } = Sizes;
 const { media } = StyleUtils;
 const { AceBuilder, FQN } = Models;
-const { PermissionTypes } = Types;
 const { getPropertyValue } = DataUtils;
 
 const Panel = styled.div`
@@ -96,8 +95,6 @@ const PermissionsPanel = ({
 
   const dispatch = useDispatch();
   const [isPermissionAssignedToAll, setIsPermissionAssignedToAll] = useState(false);
-  const [isPermissionAssignedToAllDisabled, setIsPermissionAssignedToAllDisabled] = useState(false);
-  const [isPermissionAssignedToDataSet, setIsPermissionAssignedToDataSet] = useState(false);
   const [isPermissionAssignedToOnlyNonPII, setIsPermissionAssignedToOnlyNonPII] = useState(false);
   const [localPermissions, setLocalPermissions] = useState(Map());
 
@@ -105,9 +102,9 @@ const PermissionsPanel = ({
 
   const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
   const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
 
-  const currentDataSetPermissions :Map = useSelector((state) => state.getIn([PERMISSIONS, CURRENT]));
-
+  const dataSetKey :List<UUID> = useMemo(() => List([dataSetId]), [dataSetId]);
   const keys :List<List<UUID>> = useMemo(() => getDataSetKeys(dataSet, dataSetColumns), [dataSet, dataSetColumns]);
   const permissions :Map<List<UUID>, Ace> = useSelector(selectPrincipalPermissions(keys, principal));
   const permissionsHash :number = permissions.hashCode();
@@ -123,48 +120,34 @@ const PermissionsPanel = ({
   const propertyTypesHash :number = maybePropertyTypes.hashCode();
 
   useEffect(() => {
-    const ownerOnAllProperties = properties.every((property :PropertyType | Map) => {
-      const propertyId :UUID = property.id || get(property, 'id');
-      const key :List<UUID> = List([dataSetId, propertyId]);
-      const isOwner = currentDataSetPermissions
-        .getIn([key, PermissionTypes.OWNER], false);
-      return isOwner;
-    });
-    if (ownerOnAllProperties) {
-      setIsPermissionAssignedToAllDisabled(true);
-    }
-  }, [currentDataSetPermissions, dataSetId, setIsPermissionAssignedToAllDisabled, properties]);
-
-  useEffect(() => {
 
     let isAssignedToAll = true;
     let isAssignedToOnlyNonPII = true;
     dataSetColumns.forEach((column :Map<FQN, List>) => {
       const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
-      const propertyType :?PropertyType = maybePropertyTypes.get(columnId);
-      const pii :boolean = propertyType?.pii || false;
       const key :List<UUID> = List([dataSetId, columnId]);
-      const ace :?Ace = localPermissions.get(key);
-      const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
-      isAssignedToAll = isAssignedToAll && isPermissionAssigned;
-      if (
-        (isPermissionAssigned && pii === true)
-        || (!isPermissionAssigned && pii === false)
-      ) {
-        isAssignedToOnlyNonPII = false;
+      const isOwner = myKeys.has(key);
+      if (isOwner) {
+        const propertyType :?PropertyType = maybePropertyTypes.get(columnId);
+        const pii :boolean = propertyType?.pii || false;
+        const ace :?Ace = localPermissions.get(key);
+        const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
+        isAssignedToAll = isAssignedToAll && isPermissionAssigned;
+        if (
+          (isPermissionAssigned && pii === true)
+          || (!isPermissionAssigned && pii === false)
+        ) {
+          isAssignedToOnlyNonPII = false;
+        }
       }
     });
     setIsPermissionAssignedToAll(isAssignedToAll);
     setIsPermissionAssignedToOnlyNonPII(isAssignedToOnlyNonPII);
-
-    const ace :?Ace = localPermissions.get(List([dataSetId]));
-    const isAssignedToDataSet = ace ? ace.permissions.includes(permissionType) : false;
-    setIsPermissionAssignedToDataSet(isAssignedToDataSet);
-
   }, [
     dataSetColumns,
     dataSetId,
     localPermissions,
+    myKeys,
     permissionType,
     propertyTypesHash,
   ]);
@@ -185,17 +168,10 @@ const PermissionsPanel = ({
     );
   }, true);
 
-  const handleOnChangePermission = (event :SyntheticEvent<HTMLInputElement>) => {
-
-    let key :List<UUID> = List([dataSetId]);
-    if (event?.currentTarget?.dataset?.columnId) {
-      const columnId :UUID = event.currentTarget.dataset.columnId;
-      key = List([dataSetId, columnId]);
-    }
-
+  const handleOnChangePermission = (targetKey :List<UUID>, _ :PermissionType, isChecked :boolean) => {
     // add permission
-    if (event.currentTarget.checked) {
-      const updatedPermissions :Map<List<UUID>, Ace> = localPermissions.update(key, (ace :Ace) => {
+    if (isChecked) {
+      const updatedPermissions :Map<List<UUID>, Ace> = localPermissions.update(targetKey, (ace :Ace) => {
         const updatedAcePermissions = Set(ace?.permissions).add(permissionType);
         return (new AceBuilder()).setPermissions(updatedAcePermissions).setPrincipal(principal).build();
       });
@@ -203,7 +179,7 @@ const PermissionsPanel = ({
     }
     // remove permission
     else {
-      const updatedPermissions :Map<List<UUID>, Ace> = localPermissions.update(key, (ace :Ace) => {
+      const updatedPermissions :Map<List<UUID>, Ace> = localPermissions.update(targetKey, (ace :Ace) => {
         const updatedAcePermissions = Set(ace?.permissions).delete(permissionType);
         return (new AceBuilder()).setPermissions(updatedAcePermissions).setPrincipal(principal).build();
       });
@@ -239,39 +215,43 @@ const PermissionsPanel = ({
 
   const togglePermissionAssignmentAll = () => {
     if (isPermissionAssignedToAll) {
-      // remove permission from all properties
+      // remove permission from all columns
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
-        const dataSetKey = List([dataSetId]);
         mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
         dataSetColumns.forEach((column :Map<FQN, List>) => {
           const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
           const key = List([dataSetId, columnId]);
-          const localAce :?Ace = localPermissions.get(key);
-          const updatedAcePermissions = Set(localAce?.permissions).delete(permissionType);
-          const updatedAce = (new AceBuilder())
-            .setPermissions(updatedAcePermissions)
-            .setPrincipal(principal)
-            .build();
-          mutableMap.set(key, updatedAce);
+          const isOwner = myKeys.has(key);
+          if (isOwner) {
+            const localAce :?Ace = localPermissions.get(key);
+            const updatedAcePermissions = Set(localAce?.permissions).delete(permissionType);
+            const updatedAce = (new AceBuilder())
+              .setPermissions(updatedAcePermissions)
+              .setPrincipal(principal)
+              .build();
+            mutableMap.set(key, updatedAce);
+          }
         });
       });
       setLocalPermissions(updatedPermissions);
     }
     else {
-      // add permission to all properties
+      // add permission to all columns
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
-        const dataSetKey = List([dataSetId]);
         mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
         dataSetColumns.forEach((column :Map<FQN, List>) => {
           const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
           const key = List([dataSetId, columnId]);
-          const localAce :?Ace = localPermissions.get(key);
-          const updatedAcePermissions = Set(localAce?.permissions).add(permissionType);
-          const updatedAce = (new AceBuilder())
-            .setPermissions(updatedAcePermissions)
-            .setPrincipal(principal)
-            .build();
-          mutableMap.set(key, updatedAce);
+          const isOwner = myKeys.has(key);
+          if (isOwner) {
+            const localAce :?Ace = localPermissions.get(key);
+            const updatedAcePermissions = Set(localAce?.permissions).add(permissionType);
+            const updatedAce = (new AceBuilder())
+              .setPermissions(updatedAcePermissions)
+              .setPrincipal(principal)
+              .build();
+            mutableMap.set(key, updatedAce);
+          }
         });
       });
       setLocalPermissions(updatedPermissions);
@@ -284,27 +264,29 @@ const PermissionsPanel = ({
     }
     else {
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
-        const dataSetKey = List([dataSetId]);
         mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
         dataSetColumns.forEach((column :Map<FQN, List>) => {
           const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
-          const propertyType :?PropertyType = maybePropertyTypes.get(columnId);
-          const pii :?boolean = propertyType?.pii;
-          if (_isBoolean(pii)) {
-            const key :List<List<UUID>> = List([dataSetId, columnId]);
-            const localAce :?Ace = localPermissions.get(key);
-            let updatedAcePermissions :Set<PermissionType> = Set(localAce?.permissions);
-            if (pii === false) {
-              updatedAcePermissions = updatedAcePermissions.add(permissionType);
+          const key :List<List<UUID>> = List([dataSetId, columnId]);
+          const isOwner = myKeys.has(key);
+          if (isOwner) {
+            const propertyType :?PropertyType = maybePropertyTypes.get(columnId);
+            const pii :?boolean = propertyType?.pii;
+            if (_isBoolean(pii)) {
+              const localAce :?Ace = localPermissions.get(key);
+              let updatedAcePermissions :Set<PermissionType> = Set(localAce?.permissions);
+              if (pii === false) {
+                updatedAcePermissions = updatedAcePermissions.add(permissionType);
+              }
+              else {
+                updatedAcePermissions = updatedAcePermissions.delete(permissionType);
+              }
+              const updatedAce = (new AceBuilder())
+                .setPermissions(updatedAcePermissions)
+                .setPrincipal(principal)
+                .build();
+              mutableMap.set(key, updatedAce);
             }
-            else {
-              updatedAcePermissions = updatedAcePermissions.delete(permissionType);
-            }
-            const updatedAce = (new AceBuilder())
-              .setPermissions(updatedAcePermissions)
-              .setPrincipal(principal)
-              .build();
-            mutableMap.set(key, updatedAce);
           }
         });
       });
@@ -327,7 +309,12 @@ const PermissionsPanel = ({
         <CardSegment padding="8px 0">
           <SpaceBetweenGrid>
             <Typography>Data Set</Typography>
-            <Checkbox checked={isPermissionAssignedToDataSet} onChange={handleOnChangePermission} />
+            <ObjectPermissionCheckbox
+                ace={localPermissions.get(dataSetKey)}
+                isAuthorized={myKeys.has(dataSetKey)}
+                objectKey={dataSetKey}
+                onChange={handleOnChangePermission}
+                permissionType={permissionType} />
           </SpaceBetweenGrid>
         </CardSegment>
         <CardSegment padding="8px 0">
@@ -335,7 +322,6 @@ const PermissionsPanel = ({
             <Typography>All columns</Typography>
             <IconButton
                 aria-label="permissions toggle for all columns"
-                disabled={!isPermissionAssignedToAllDisabled}
                 onClick={togglePermissionAssignmentAll}>
               <FontAwesomeIcon
                   color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
@@ -351,7 +337,6 @@ const PermissionsPanel = ({
             <Typography>Only non-pii columns</Typography>
             <IconButton
                 aria-label="permissions toggle for only non-pii columns"
-                disabled={!isPermissionAssignedToAllDisabled}
                 onClick={togglePermissionAssignmentOnlyNonPII}>
               <FontAwesomeIcon
                   color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
@@ -369,7 +354,6 @@ const PermissionsPanel = ({
             const columnType :string = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
             const key :List<UUID> = List([dataSetId, columnId]);
             const ace :?Ace = localPermissions.get(key);
-            const currentUserIsOwner :boolean = currentDataSetPermissions.getIn([key, PermissionTypes.OWNER], false);
             return (
               <CardSegment key={columnId} padding="8px 0">
                 <SpaceBetweenGrid>
@@ -381,12 +365,12 @@ const PermissionsPanel = ({
                       )
                     }
                   </div>
-                  <PropertyPermissionsCheckbox
+                  <ObjectPermissionCheckbox
                       ace={ace}
-                      isLocked={!currentUserIsOwner}
+                      isAuthorized={myKeys.has(key)}
+                      objectKey={key}
                       onChange={handleOnChangePermission}
-                      permissionType={permissionType}
-                      propertyId={propertyId} />
+                      permissionType={permissionType} />
                 </SpaceBetweenGrid>
               </CardSegment>
             );

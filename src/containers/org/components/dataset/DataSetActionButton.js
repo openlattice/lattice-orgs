@@ -21,10 +21,9 @@ import PromoteTableModal from './PromoteTableModal';
 import { FQNS } from '../../../../core/edm/constants';
 import {
   selectCurrentAuthorization,
-  selectCurrentUserIsOrgOwner,
-  selectOrgDataSet,
   selectDataSetSchema,
-  selectHasOwnerPermission,
+  selectMyKeys,
+  selectOrgDataSet,
 } from '../../../../core/redux/selectors';
 import { Routes } from '../../../../core/router';
 import { isAtlasDataSet } from '../../../../utils';
@@ -87,12 +86,15 @@ const DataSetActionButton = ({
   const dispatch = useDispatch();
 
   const [state, stateDispatch] = useReducer(reducer, INITIAL_STATE);
-  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
-  const isDataSetOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
-  const isOrgOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+
   const hasMaterialize :boolean = useSelector(selectCurrentAuthorization(dataSetKey, PermissionTypes.MATERIALIZE));
   const dataSetSchema = useSelector(selectDataSetSchema(dataSetId));
 
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isDataSetOwner :boolean = myKeys.has(dataSetKey);
+  const isOrgOwner :boolean = myKeys.has(List([organizationId]));
+
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
   const dataSetName :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
   const dataSetFlags :List<string> = getPropertyValue(dataSet, FQNS.OL_FLAGS, List());
   const isAtlas :boolean = isAtlasDataSet(dataSet);

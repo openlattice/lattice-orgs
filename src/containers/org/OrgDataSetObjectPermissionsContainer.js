@@ -28,13 +28,11 @@ const { getPropertyValue } = DataUtils;
 const OrgDataSetObjectPermissionsContainer = ({
   dataSetId,
   dataSetRoute,
-  dataSetsRoute,
   organizationId,
   organizationRoute,
 } :{|
   dataSetId :UUID;
   dataSetRoute :string;
-  dataSetsRoute :string;
   organizationId :UUID;
   organizationRoute :string;
 |}) => {
@@ -62,7 +60,6 @@ const OrgDataSetObjectPermissionsContainer = ({
     <AppContentWrapper>
       <Crumbs>
         <CrumbLink to={organizationRoute}>{organization?.title || 'Organization'}</CrumbLink>
-        <CrumbLink to={dataSetsRoute}>Data Sets</CrumbLink>
         <CrumbLink to={dataSetRoute}>{title || name}</CrumbLink>
         <CrumbItem>Permissions</CrumbItem>
       </Crumbs>

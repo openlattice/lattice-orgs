@@ -272,7 +272,6 @@ const OrgRouter = () => {
           <OrgDataSetObjectPermissionsContainer
               dataSetId={dataSetId}
               dataSetRoute={dataSetRoute}
-              dataSetsRoute={dataSetsRoute}
               organizationId={organizationId}
               organizationRoute={organizationRoute} />
         )

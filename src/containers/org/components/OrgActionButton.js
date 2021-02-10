@@ -6,6 +6,7 @@ import React, { useReducer, useRef } from 'react';
 
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { List, Set } from 'immutable';
 // $FlowFixMe
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { useGoToRoute } from 'lattice-utils';
@@ -15,7 +16,7 @@ import type { Organization, UUID } from 'lattice';
 import DeleteOrgModal from './DeleteOrgModal';
 import OrgDescriptionModal from './OrgDescriptionModal';
 
-import { selectCurrentUserIsOrgOwner } from '../../../core/redux/selectors';
+import { selectMyKeys } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 
 const CLOSE_DELETE = 'CLOSE_DELETE';
@@ -83,7 +84,8 @@ const OrgActionButton = ({
   const organizationId :UUID = (organization.id :any);
 
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
-  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isOwner :boolean = myKeys.has(List([organizationId]));
   const anchorRef = useRef(null);
 
   const goToManagePermissions = useGoToRoute(

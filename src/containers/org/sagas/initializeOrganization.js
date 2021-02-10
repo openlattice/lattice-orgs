@@ -23,6 +23,7 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { IS_OWNER, ORGANIZATION } from '../../../core/redux/constants';
 import { selectOrganizationMembers } from '../../../core/redux/selectors';
 import { toSagaError } from '../../../utils';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
@@ -107,7 +108,10 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       isOwner = authorizations[0].permissions[PermissionTypes.OWNER] === true;
     }
 
-    yield put(initializeOrganization.success(action.id, { isOwner, organization }));
+    yield put(initializeOrganization.success(action.id, {
+      [IS_OWNER]: isOwner,
+      [ORGANIZATION]: organization,
+    }));
   }
   catch (error) {
     LOG.error(action.type, error);
