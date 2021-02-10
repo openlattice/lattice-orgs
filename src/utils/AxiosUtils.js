@@ -7,6 +7,8 @@ import type { $AxiosError } from 'axios';
 
 import type { SagaError } from '../types';
 
+const isUnauthorized = (error :SagaError) => error.status === 401;
+
 function toSagaError(error :any) :SagaError {
 
   const axiosError :$AxiosError<*> = error;
@@ -23,5 +25,6 @@ function toSagaError(error :any) :SagaError {
 }
 
 export {
+  isUnauthorized,
   toSagaError,
 };
