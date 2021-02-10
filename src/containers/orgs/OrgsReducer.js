@@ -22,8 +22,8 @@ import {
   ENTITY_SET_IDS,
   ERROR,
   INTEGRATION_DETAILS,
-  IS_OWNER,
   MEMBERS,
+  ORGANIZATION,
   ORGS,
   REQUEST_STATE,
   RS_INITIAL_STATE,
@@ -124,7 +124,6 @@ const INITIAL_STATE :Map = fromJS({
   [DATA_SOURCES]: Map(),
   [ENTITY_SET_IDS]: Map(),
   [INTEGRATION_DETAILS]: Map(),
-  [IS_OWNER]: Map(),
   [MEMBERS]: Map(),
   [ORGS]: Map(),
 });
@@ -308,7 +307,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           if (state.hasIn([CREATE_NEW_ORGANIZATION, seqAction.id])) {
             const org = (new OrganizationBuilder(seqAction.value)).build();
             return state
-              .setIn([IS_OWNER, org.id], true)
               .setIn([ORGS, org.id], org)
               .setIn([CREATE_NEW_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
           }
@@ -369,7 +367,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
             });
 
             return state
-              .set(IS_OWNER, isOwnerMap.asImmutable())
               .set(ORGS, organizationsMap.asImmutable())
               .setIn([GET_ORGANIZATIONS_AND_AUTHORIZATIONS, REQUEST_STATE], RequestStates.SUCCESS);
           }
@@ -456,9 +453,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           .setIn([INITIALIZE_ORGANIZATION, seqAction.id], seqAction),
         SUCCESS: () => {
           if (state.hasIn([INITIALIZE_ORGANIZATION, seqAction.id])) {
-            const organization = (new OrganizationBuilder(seqAction.value.organization)).build();
+            const organization = (new OrganizationBuilder(seqAction.value[ORGANIZATION])).build();
             return state
-              .setIn([IS_OWNER, organization.id], seqAction.value.isOwner)
               .setIn([ORGS, organization.id], organization)
               .setIn([INITIALIZE_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
           }
