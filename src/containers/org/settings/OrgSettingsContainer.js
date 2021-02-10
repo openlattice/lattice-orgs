@@ -20,6 +20,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import type { SagaError } from '../../../types';
 import {
   ActionsGrid,
   CopyButton,
@@ -35,10 +36,11 @@ import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import {
   selectCurrentUserIsOrgOwner,
+  selectError,
   selectOrganization,
   selectOrganizationIntegrationDetails,
 } from '../../../core/redux/selectors';
-import { clipboardWriteText } from '../../../utils';
+import { AxiosUtils, clipboardWriteText } from '../../../utils';
 import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails } from '../actions';
 import { RenameOrgDatabaseModal } from '../components';
 import { DBMS_TYPES } from '../constants';
@@ -117,6 +119,9 @@ const OrgSettingsContainer = ({
   const [isVisibleRenameModal, setIsVisibleRenameModal] = useState(false);
 
   const getIntegrationDetailsRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_DETAILS]);
+  const getIntegrationDetailsError :SagaError = useSelector(
+    selectError([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_DETAILS])
+  );
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
@@ -129,6 +134,8 @@ const OrgSettingsContainer = ({
   const jdbcURL = useMemo(() => (
     `jdbc:postgresql://atlas.openlattice.com:30001/org_${organizationId.replace(/-/g, '')}`
   ), [organizationId]);
+
+  const isUnauthorized :boolean = AxiosUtils.isUnauthorized(getIntegrationDetailsError);
 
   useEffect(() => {
     dispatch(getOrganizationIntegrationDetails(organizationId));
@@ -197,28 +204,44 @@ const OrgSettingsContainer = ({
                 onClick={() => clipboardWriteText(organizationId)} />
           </ActionsGrid>
         </div>
-        <div>
-          <Typography component="h2" variant="body2">DATABASE NAME</Typography>
-          <ActionsGrid align={{ v: 'center' }} fit>
-            <Pre>{databaseName}</Pre>
-            <CopyButton
-                aria-label="copy database name"
-                onClick={() => clipboardWriteText(databaseName)} />
-            <EditButton
-                aria-label="edit database name"
-                color="default"
-                onClick={() => setIsVisibleRenameModal(true)} />
-          </ActionsGrid>
-        </div>
-        <div>
-          <Typography component="h2" variant="body2">JDBC URL</Typography>
-          <ActionsGrid align={{ v: 'center' }} fit>
-            <Pre>{jdbcURL}</Pre>
-            <CopyButton
-                aria-label="copy jdbc url"
-                onClick={() => clipboardWriteText(jdbcURL)} />
-          </ActionsGrid>
-        </div>
+        {
+          isUnauthorized
+            ? (
+              <Typography color="error" variant="overline">
+                You are not authorized to view database credetials.
+              </Typography>
+            )
+            : (
+              <>
+                <div>
+                  <Typography component="h2" variant="body2">DATABASE NAME</Typography>
+                  <ActionsGrid align={{ v: 'center' }} fit>
+                    <Pre>{databaseName}</Pre>
+                    <CopyButton
+                        aria-label="copy database name"
+                        onClick={() => clipboardWriteText(databaseName)} />
+                    {
+                      isOwner && (
+                        <EditButton
+                            aria-label="edit database name"
+                            color="default"
+                            onClick={() => setIsVisibleRenameModal(true)} />
+                      )
+                    }
+                  </ActionsGrid>
+                </div>
+                <div>
+                  <Typography component="h2" variant="body2">JDBC URL</Typography>
+                  <ActionsGrid align={{ v: 'center' }} fit>
+                    <Pre>{jdbcURL}</Pre>
+                    <CopyButton
+                        aria-label="copy jdbc url"
+                        onClick={() => clipboardWriteText(jdbcURL)} />
+                  </ActionsGrid>
+                </div>
+              </>
+            )
+        }
         {
           isOwner && getIntegrationDetailsRS === RequestStates.SUCCESS && (
             <>
