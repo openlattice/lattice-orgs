@@ -2,12 +2,12 @@
  * @flow
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { List, Map } from 'immutable';
 import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
 import { DataUtils, LangUtils } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import type { FQN, Organization, UUID } from 'lattice';
@@ -25,7 +25,6 @@ import {
   StackGrid,
 } from '../../components';
 import { FQNS } from '../../core/edm/constants';
-import { getOwnerStatus } from '../../core/permissions/actions';
 import { selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { isAtlasDataSet } from '../../utils';
@@ -46,8 +45,6 @@ const OrgDataSetContainer = ({
   organizationId :UUID;
   organizationRoute :string;
 |}) => {
-
-  const dispatch = useDispatch();
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
@@ -71,10 +68,6 @@ const OrgDataSetContainer = ({
     }
     return contactString;
   }, [dataSet]);
-
-  useEffect(() => {
-    dispatch(getOwnerStatus(dataSetId));
-  }, [dispatch, dataSetId, organizationId]);
 
   if (organization) {
 

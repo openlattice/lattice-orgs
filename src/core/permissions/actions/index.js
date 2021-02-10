@@ -28,9 +28,6 @@ const getOrgObjectPermissions :RequestSequence = newRequestSequence(GET_ORG_OBJE
 const GET_ORG_ROLE_OBJECT_PERMISSIONS :'GET_ORG_ROLE_OBJECT_PERMISSIONS' = 'GET_ORG_ROLE_OBJECT_PERMISSIONS';
 const getOrgRoleObjectPermissions :RequestSequence = newRequestSequence(GET_ORG_ROLE_OBJECT_PERMISSIONS);
 
-const GET_OWNER_STATUS :'GET_OWNER_STATUS' = 'GET_OWNER_STATUS';
-const getOwnerStatus :RequestSequence = newRequestSequence(GET_OWNER_STATUS);
-
 const GET_PERMISSIONS :'GET_PERMISSIONS' = 'GET_PERMISSIONS';
 const getPermissions :RequestSequence = newRequestSequence(GET_PERMISSIONS);
 
@@ -56,7 +53,6 @@ export {
   GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
   GET_ORG_OBJECT_PERMISSIONS,
   GET_ORG_ROLE_OBJECT_PERMISSIONS,
-  GET_OWNER_STATUS,
   GET_PERMISSIONS,
   INITIALIZE_OBJECT_PERMISSIONS,
   RESET_CURRENT_ROLE_AUTHORIZATIONS,
@@ -69,7 +65,6 @@ export {
   getOrgDataSetObjectPermissions,
   getOrgObjectPermissions,
   getOrgRoleObjectPermissions,
-  getOwnerStatus,
   getPermissions,
   initializeObjectPermissions,
   resetCurrentRoleAuthorizations,

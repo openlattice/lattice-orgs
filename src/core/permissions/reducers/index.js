@@ -12,7 +12,6 @@ import getDataSetPermissionsPageReducer from './getDataSetPermissionsPageReducer
 import getOrgDataSetObjectPermissionsReducer from './getOrgDataSetObjectPermissionsReducer';
 import getOrgObjectPermissionsReducer from './getOrgObjectPermissionsReducer';
 import getOrgRoleObjectPermissionsReducer from './getOrgRoleObjectPermissionsReducer';
-import getOwnerStatusReducer from './getOwnerStatusReducer';
 import getPermissionsReducer from './getPermissionsReducer';
 import initializeObjectPermissionsReducer from './initializeObjectPermissionsReducer';
 import initializeOrganizationDataSetReducer from './initializeOrganizationDataSetReducer';
@@ -43,7 +42,6 @@ import {
   GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
   GET_ORG_OBJECT_PERMISSIONS,
   GET_ORG_ROLE_OBJECT_PERMISSIONS,
-  GET_OWNER_STATUS,
   GET_PERMISSIONS,
   INITIALIZE_OBJECT_PERMISSIONS,
   RESET_CURRENT_ROLE_AUTHORIZATIONS,
@@ -55,7 +53,6 @@ import {
   getOrgDataSetObjectPermissions,
   getOrgObjectPermissions,
   getOrgRoleObjectPermissions,
-  getOwnerStatus,
   getPermissions,
   initializeObjectPermissions,
   setPermissions,
@@ -70,7 +67,6 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORG_DATA_SET_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
   [GET_ORG_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
   [GET_ORG_ROLE_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
-  [GET_OWNER_STATUS]: RS_INITIAL_STATE,
   [GET_PERMISSIONS]: RS_INITIAL_STATE,
   [INITIALIZE_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
   [SET_PERMISSIONS]: RS_INITIAL_STATE,
@@ -125,10 +121,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getOrgRoleObjectPermissions.case(action.type): {
       return getOrgRoleObjectPermissionsReducer(state, action);
-    }
-
-    case getOwnerStatus.case(action.type): {
-      return getOwnerStatusReducer(state, action);
     }
 
     case getPermissions.case(action.type): {
