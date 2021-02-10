@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 
-// $FlowFixMe
+// $FlowFixMe[missing-export]
 import { Chip } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
 
@@ -20,7 +20,8 @@ const MemberRoleChip = ({
   organizationId,
   role,
 } :Props) => {
-  const roleId :UUID = role.id || '';
+  const roleId :UUID | string = role?.id || '';
+  const roleTitle :string = role?.title || '';
   const rolePath = ORG_ROLE
     .replace(ORG_ID_PARAM, organizationId)
     .replace(ROLE_ID_PARAM, roleId);
@@ -35,7 +36,7 @@ const MemberRoleChip = ({
         clickable
         component="a"
         href={`#${rolePath}`}
-        label={role.title}
+        label={roleTitle}
         onDelete={authorized ? handleClick : undefined} />
   );
 };
