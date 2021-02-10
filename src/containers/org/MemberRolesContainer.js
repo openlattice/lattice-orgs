@@ -6,11 +6,7 @@ import React, { useMemo, useReducer, useState } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
-import {
-  Colors,
-  SearchInput,
-  Typography
-} from 'lattice-ui-kit';
+import { SearchInput, Typography } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 import { getUserProfile } from '../../utils';
@@ -20,8 +16,6 @@ import { AssignRolesToMembersModal, RemoveRoleFromMemberModal } from './componen
 import { isRoleAssignedToMember } from './utils';
 
 import { selectCurrentUserIsOrgOwner } from '../../core/redux/selectors';
-
-const { NEUTRAL } = Colors;
 
 const Flex = styled.div`
   display: flex;
@@ -139,7 +133,6 @@ const MemberRolesContainer = ({
         {
           (unassignedRoles.length > 0 && isOwner) && (
             <CirclePlusButton
-                color={NEUTRAL.N400}
                 onClick={handleOpenAddRole}
                 variant="text" />
           )
