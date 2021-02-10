@@ -61,7 +61,6 @@ import {
   updateOrganizationDataSourceReducer,
 } from '../org/reducers';
 import { sortOrganizationMembers } from '../org/utils';
-import type { AuthorizationObject } from '../../types';
 
 const {
   Organization,
@@ -70,7 +69,7 @@ const {
   PrincipalBuilder,
   Role,
 } = Models;
-const { PermissionTypes, PrincipalTypes } = Types;
+const { PrincipalTypes } = Types;
 
 const {
   ADD_MEMBER_TO_ORGANIZATION,
@@ -351,21 +350,11 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           .setIn([GET_ORGANIZATIONS_AND_AUTHORIZATIONS, seqAction.id], seqAction),
         SUCCESS: () => {
           if (state.hasIn([GET_ORGANIZATIONS_AND_AUTHORIZATIONS, seqAction.id])) {
-
-            const isOwnerMap :Map<UUID, boolean> = Map().asMutable();
-            seqAction.value.authorizations.forEach((authorization :AuthorizationObject) => {
-              isOwnerMap.set(
-                authorization.aclKey[0], // organization id
-                authorization.permissions[PermissionTypes.OWNER] === true,
-              );
-            });
-
             const organizationsMap :Map<UUID, Organization> = Map().asMutable();
             seqAction.value.organizations.forEach((o :OrganizationObject) => {
               const org = (new OrganizationBuilder(o)).build();
               organizationsMap.set(org.id, org);
             });
-
             return state
               .set(ORGS, organizationsMap.asImmutable())
               .setIn([GET_ORGANIZATIONS_AND_AUTHORIZATIONS, REQUEST_STATE], RequestStates.SUCCESS);
