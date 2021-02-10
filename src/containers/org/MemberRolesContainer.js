@@ -18,8 +18,13 @@ import { isRoleAssignedToMember } from './utils';
 import { selectCurrentUserIsOrgOwner } from '../../core/redux/selectors';
 
 const Flex = styled.div`
-  display: flex;
   align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+
+  > a {
+    margin-right: 5px;
+  }
 `;
 
 const INITIAL_STATE :{
