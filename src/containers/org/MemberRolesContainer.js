@@ -126,7 +126,7 @@ const MemberRolesContainer = ({
                     onClick={handleOpenRemoveRole}
                     organizationId={organizationId}
                     role={role}
-                    isUnassignable={isOwner} />
+                    authorized={isOwner} />
               ))
             )
         }

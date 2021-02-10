@@ -11,14 +11,14 @@ type Props = {
   onClick :(role :Role) => void;
   organizationId :UUID;
   role :Role;
-  isUnassignable :boolean;
+  authorized :boolean;
 };
 
 const MemberRoleChip = ({
+  authorized,
   onClick,
   organizationId,
   role,
-  isUnassignable,
 } :Props) => {
   const roleId :UUID = role.id || '';
   const rolePath = ORG_ROLE
@@ -36,7 +36,7 @@ const MemberRoleChip = ({
         component="a"
         href={`#${rolePath}`}
         label={role.title}
-        onDelete={isUnassignable ? handleClick : undefined} />
+        onDelete={authorized ? handleClick : undefined} />
   );
 };
 
