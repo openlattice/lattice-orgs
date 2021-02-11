@@ -26,7 +26,7 @@ const MemberRoleChip = ({
     .replace(ORG_ID_PARAM, organizationId)
     .replace(ROLE_ID_PARAM, roleId);
 
-  const handleClick = (e :SyntheticEvent<HTMLFormElement>) => {
+  const handleDelete = (e :SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     onClick(role);
   };
@@ -37,7 +37,7 @@ const MemberRoleChip = ({
         component="a"
         href={`#${rolePath}`}
         label={roleTitle}
-        onDelete={authorized ? handleClick : undefined} />
+        onDelete={authorized ? handleDelete : undefined} />
   );
 };
 
