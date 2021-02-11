@@ -14,7 +14,7 @@ import {
   Modal,
   Typography,
 } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { useError, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
@@ -36,7 +36,6 @@ import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import {
   selectCurrentUserIsOrgOwner,
-  selectError,
   selectOrganization,
   selectOrganizationIntegrationDetails,
 } from '../../../core/redux/selectors';
@@ -119,9 +118,7 @@ const OrgSettingsContainer = ({
   const [isVisibleRenameModal, setIsVisibleRenameModal] = useState(false);
 
   const getIntegrationDetailsRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_DETAILS]);
-  const getIntegrationDetailsError :SagaError = useSelector(
-    selectError([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_DETAILS])
-  );
+  const getIntegrationDetailsError :?SagaError = useError([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_DETAILS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
@@ -135,7 +132,7 @@ const OrgSettingsContainer = ({
     `jdbc:postgresql://atlas.openlattice.com:30001/org_${organizationId.replace(/-/g, '')}`
   ), [organizationId]);
 
-  const isUnauthorized :boolean = getIntegrationDetailsError.status === 401;
+  const isUnauthorized :boolean = getIntegrationDetailsError?.status === 401;
 
   useEffect(() => {
     dispatch(getOrganizationIntegrationDetails(organizationId));
