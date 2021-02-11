@@ -10,18 +10,18 @@ import {
 } from '@redux-saga/core/effects';
 import { fromJS } from 'immutable';
 import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
-import { Logger, ValidationUtils } from 'lattice-utils';
+import { AxiosUtils, Logger, ValidationUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { AxiosUtils } from '../../../utils';
 import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails } from '../actions';
 
 const { getOrganizationDatabaseName, getOrganizationIntegrationAccount } = OrganizationsApiActions;
 const { getOrganizationDatabaseNameWorker, getOrganizationIntegrationAccountWorker } = OrganizationsApiSagas;
 const { isValidUUID } = ValidationUtils;
+const { toSagaError } = AxiosUtils;
 
 const LOG = new Logger('OrgsSagas');
 
@@ -58,7 +58,7 @@ function* getOrganizationIntegrationDetailsWorker(action :SequenceAction) :Saga<
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(getOrganizationIntegrationDetails.failure(action.id, AxiosUtils.toSagaError(error)));
+    yield put(getOrganizationIntegrationDetails.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(getOrganizationIntegrationDetails.finally(action.id));

@@ -19,7 +19,7 @@ import {
   OrganizationsApiActions,
   OrganizationsApiSagas,
 } from 'lattice-sagas';
-import { Logger, ReduxUtils } from 'lattice-utils';
+import { AxiosUtils, Logger, ReduxUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
@@ -30,10 +30,10 @@ import {
   selectOrganizationEntitySetIds,
   selectOrganizationMembers,
 } from '../../../core/redux/selectors';
-import { AxiosUtils } from '../../../utils';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
 import type { AuthorizationObject } from '../../../types';
 
+const { toSagaError } = AxiosUtils;
 const LOG = new Logger('OrgsSagas');
 
 const {
@@ -147,7 +147,7 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(initializeOrganization.failure(action.id, AxiosUtils.toSagaError(error)));
+    yield put(initializeOrganization.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(initializeOrganization.finally(action.id));
