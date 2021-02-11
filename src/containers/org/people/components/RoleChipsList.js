@@ -55,7 +55,7 @@ const RoleChipsList = ({
   };
 
   const { id } = getUserProfile(member);
-  const getHandleDelete = (role :Role) => {
+  const handleDelete = (role :Role) => {
     handleClose();
     onUnassign(member, role);
   };
@@ -73,7 +73,7 @@ const RoleChipsList = ({
               <MemberRoleChip
                   authorized={authorized}
                   key={key}
-                  onClick={getHandleDelete}
+                  onClick={handleDelete}
                   organizationId={organizationId}
                   role={role} />
             );
@@ -90,7 +90,7 @@ const RoleChipsList = ({
               <RoleOverflowPopover
                   anchorEl={overflowAnchorEl}
                   currentRoleAuthorizations={currentRoleAuthorizations}
-                  handleDelete={getHandleDelete}
+                  handleDelete={handleDelete}
                   onClose={handleClose}
                   open={!!overflowAnchorEl}
                   organizationId={organizationId}
