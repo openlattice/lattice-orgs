@@ -40,7 +40,7 @@ import {
   selectOrganization,
   selectOrganizationIntegrationDetails,
 } from '../../../core/redux/selectors';
-import { AxiosUtils, clipboardWriteText } from '../../../utils';
+import { clipboardWriteText } from '../../../utils';
 import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails } from '../actions';
 import { RenameOrgDatabaseModal } from '../components';
 import { DBMS_TYPES } from '../constants';
@@ -135,7 +135,7 @@ const OrgSettingsContainer = ({
     `jdbc:postgresql://atlas.openlattice.com:30001/org_${organizationId.replace(/-/g, '')}`
   ), [organizationId]);
 
-  const isUnauthorized :boolean = AxiosUtils.isUnauthorized(getIntegrationDetailsError);
+  const isUnauthorized :boolean = getIntegrationDetailsError.status === 401;
 
   useEffect(() => {
     dispatch(getOrganizationIntegrationDetails(organizationId));
