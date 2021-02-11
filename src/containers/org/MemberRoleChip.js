@@ -8,10 +8,10 @@ import type { Role, UUID } from 'lattice';
 import { ORG_ID_PARAM, ORG_ROLE, ROLE_ID_PARAM } from '../../core/router/Routes';
 
 type Props = {
+  authorized :boolean;
   onClick :(role :Role) => void;
   organizationId :UUID;
   role :Role;
-  authorized :boolean;
 };
 
 const MemberRoleChip = ({
