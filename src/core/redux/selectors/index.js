@@ -20,7 +20,6 @@ export { default as selectDataSetProperties } from './selectDataSetProperties';
 export { default as selectDataSetSchema } from './selectDataSetSchema';
 export { default as selectEntitySetEntityType } from './selectEntitySetEntityType';
 export { default as selectEntitySetPropertyTypes } from './selectEntitySetPropertyTypes';
-export { default as selectError } from './selectError';
 export { default as selectHasOwnerPermission } from './selectHasOwnerPermission';
 export { default as selectOrganizationAtlasDataSetIds } from './selectOrganizationAtlasDataSetIds';
 export { default as selectOrganizationDataSources } from './selectOrganizationDataSources';
