@@ -16,6 +16,9 @@ const getCurrentDataSetAuthorizations :RequestSequence = newRequestSequence(GET_
 const GET_CURRENT_ROLE_AUTHORIZATIONS :'GET_CURRENT_ROLE_AUTHORIZATIONS' = 'GET_CURRENT_ROLE_AUTHORIZATIONS';
 const getCurrentRoleAuthorizations :RequestSequence = newRequestSequence(GET_CURRENT_ROLE_AUTHORIZATIONS);
 
+const GET_DATA_SET_KEYS :'GET_DATA_SET_KEYS' = 'GET_DATA_SET_KEYS';
+const getDataSetKeys :RequestSequence = newRequestSequence(GET_DATA_SET_KEYS);
+
 const GET_DATA_SET_PERMISSIONS :'GET_DATA_SET_PERMISSIONS' = 'GET_DATA_SET_PERMISSIONS';
 const getDataSetPermissions :RequestSequence = newRequestSequence(GET_DATA_SET_PERMISSIONS);
 
@@ -58,6 +61,7 @@ export {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   GET_CURRENT_DATA_SET_AUTHORIZATIONS,
   GET_CURRENT_ROLE_AUTHORIZATIONS,
+  GET_DATA_SET_KEYS,
   GET_DATA_SET_PERMISSIONS,
   GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
   GET_ORG_OBJECT_PERMISSIONS,
@@ -73,6 +77,7 @@ export {
   assignPermissionsToDataSet,
   getCurrentDataSetAuthorizations,
   getCurrentRoleAuthorizations,
+  getDataSetKeys,
   getDataSetPermissions,
   getOrgDataSetObjectPermissions,
   getOrgObjectPermissions,

@@ -12,19 +12,27 @@ import { useGoToRoute } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
+import DeleteOrgModal from './DeleteOrgModal';
 import OrgDescriptionModal from './OrgDescriptionModal';
 
 import { selectCurrentUserIsOrgOwner } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 
+const CLOSE_DELETE = 'CLOSE_DELETE';
 const CLOSE_DESCRIPTION = 'CLOSE_DESCRIPTION';
 const CLOSE_MENU = 'CLOSE_MENU';
+const OPEN_DELETE = 'OPEN_DELETE';
 const OPEN_DESCRIPTION = 'OPEN_DESCRIPTION';
 const OPEN_MENU = 'OPEN_MENU';
 
-const INITIAL_STATE = {
-  menuOpen: false,
+const INITIAL_STATE :{|
+  deleteOpen :boolean;
+  descriptionOpen :boolean;
+  menuOpen :boolean;
+|} = {
+  deleteOpen: false,
   descriptionOpen: false,
+  menuOpen: false,
 };
 
 const reducer = (state, action) => {
@@ -46,8 +54,20 @@ const reducer = (state, action) => {
       };
     case OPEN_DESCRIPTION:
       return {
-        menuOpen: false,
+        ...state,
         descriptionOpen: true,
+        menuOpen: false,
+      };
+    case CLOSE_DELETE:
+      return {
+        ...state,
+        deleteOpen: false,
+      };
+    case OPEN_DELETE:
+      return {
+        ...state,
+        deleteOpen: true,
+        menuOpen: false,
       };
     default:
       return state;
@@ -94,6 +114,14 @@ const OrgActionButton = ({
     dispatch({ type: CLOSE_DESCRIPTION });
   };
 
+  const handleOpenDelete = () => {
+    dispatch({ type: OPEN_DELETE });
+  };
+
+  const handleCloseDelete = () => {
+    dispatch({ type: CLOSE_DELETE });
+  };
+
   return (
     <>
       <IconButton
@@ -133,11 +161,19 @@ const OrgActionButton = ({
         <MenuItem onClick={goToManageDataSources}>
           Manage Data Sources
         </MenuItem>
+        <MenuItem disabled={!isOwner} onClick={handleOpenDelete}>
+          Delete Organization
+        </MenuItem>
       </Menu>
       <OrgDescriptionModal
           isVisible={state.descriptionOpen}
           onClose={handleCloseDescription}
           organization={organization} />
+      <DeleteOrgModal
+          isOwner={isOwner}
+          isVisible={state.deleteOpen}
+          onClose={handleCloseDelete}
+          organizationId={organizationId} />
     </>
   );
 };
