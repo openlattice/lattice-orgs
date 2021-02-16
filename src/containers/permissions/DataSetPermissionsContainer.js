@@ -13,7 +13,6 @@ import { List, Map, Set } from 'immutable';
 import { PaginationToolbar, Typography } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 import type {
   Ace,
   EntitySet,
@@ -47,7 +46,7 @@ import type { State as PaginationState } from '../../utils/stateReducers/paginat
 
 const MAX_PER_PAGE = 10;
 
-const { reduceRequestStates } = ReduxUtils;
+const { isPending, isSuccess, reduceRequestStates } = ReduxUtils;
 
 const DataSetPermissionsContainer = ({
   filterByPermissionTypes,
@@ -163,22 +162,27 @@ const DataSetPermissionsContainer = ({
     }
   };
 
-  const reducedRS :?RequestState = reduceRequestStates([getPermissionsRS, initializePermissionsRS]);
+  const reducedRS :?RequestState = reduceRequestStates([
+    getPermissionsRS,
+    initializePermissionsRS
+  ]);
+  const requestIsPending = isPending(reducedRS);
+  const requestIsSuccess = isSuccess(reducedRS);
 
   return (
     <StackGrid gap={8}>
       {
-        reducedRS === RequestStates.PENDING && (
+        requestIsPending && (
           <Spinner />
         )
       }
       {
-        reducedRS === RequestStates.SUCCESS && filteredPermissionsCount === 0 && (
+        requestIsSuccess && filteredPermissionsCount === 0 && (
           <Typography align="center">No datasets.</Typography>
         )
       }
       {
-        reducedRS === RequestStates.SUCCESS && filteredPermissionsCount !== 0 && (
+        requestIsSuccess && filteredPermissionsCount !== 0 && (
           pageDataSets.valueSeq().map((dataSet :EntitySet | Map) => {
             const dataSetId :UUID = getDataSetField(dataSet, 'id');
             return (
@@ -188,6 +192,7 @@ const DataSetPermissionsContainer = ({
                   key={dataSetId}
                   onClick={toggleOpenDataSetCard}
                   onSelect={onSelect}
+                  organizationId={organizationId}
                   principal={principal}
                   selection={selection} />
             );
