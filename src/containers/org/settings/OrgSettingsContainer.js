@@ -201,6 +201,23 @@ const OrgSettingsContainer = ({
                 onClick={() => clipboardWriteText(organizationId)} />
           </ActionsGrid>
         </div>
+        <div>
+          <Typography component="h2" variant="body2">DATABASE NAME</Typography>
+          <ActionsGrid align={{ v: 'center' }} fit>
+            <Pre>{databaseName}</Pre>
+            <CopyButton
+                aria-label="copy database name"
+                onClick={() => clipboardWriteText(databaseName)} />
+            {
+              isOwner && (
+                <EditButton
+                    aria-label="edit database name"
+                    color="default"
+                    onClick={() => setIsVisibleRenameModal(true)} />
+              )
+            }
+          </ActionsGrid>
+        </div>
         {
           isUnauthorized
             ? (
@@ -209,34 +226,15 @@ const OrgSettingsContainer = ({
               </Typography>
             )
             : (
-              <>
-                <div>
-                  <Typography component="h2" variant="body2">DATABASE NAME</Typography>
-                  <ActionsGrid align={{ v: 'center' }} fit>
-                    <Pre>{databaseName}</Pre>
-                    <CopyButton
-                        aria-label="copy database name"
-                        onClick={() => clipboardWriteText(databaseName)} />
-                    {
-                      isOwner && (
-                        <EditButton
-                            aria-label="edit database name"
-                            color="default"
-                            onClick={() => setIsVisibleRenameModal(true)} />
-                      )
-                    }
-                  </ActionsGrid>
-                </div>
-                <div>
-                  <Typography component="h2" variant="body2">JDBC URL</Typography>
-                  <ActionsGrid align={{ v: 'center' }} fit>
-                    <Pre>{jdbcURL}</Pre>
-                    <CopyButton
-                        aria-label="copy jdbc url"
-                        onClick={() => clipboardWriteText(jdbcURL)} />
-                  </ActionsGrid>
-                </div>
-              </>
+              <div>
+                <Typography component="h2" variant="body2">JDBC URL</Typography>
+                <ActionsGrid align={{ v: 'center' }} fit>
+                  <Pre>{jdbcURL}</Pre>
+                  <CopyButton
+                      aria-label="copy jdbc url"
+                      onClick={() => clipboardWriteText(jdbcURL)} />
+                </ActionsGrid>
+              </div>
             )
         }
         {
