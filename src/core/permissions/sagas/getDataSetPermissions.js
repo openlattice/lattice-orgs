@@ -5,29 +5,24 @@
 import {
   call,
   put,
-  select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import {
-  List,
-  Map,
-  Set,
-  get,
-} from 'immutable';
-import { Logger, ReduxUtils } from 'lattice-utils';
+import { Set } from 'immutable';
+import { Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
-import type { EntitySet, EntityType, UUID } from 'lattice';
+import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { getPermissionsWorker } from './getPermissions';
 
-import { getOrSelectDataSets } from '../../edm/actions';
-import { getOrSelectDataSetsWorker } from '../../edm/sagas';
-import { selectAtlasDataSets } from '../../redux/selectors';
-import { GET_DATA_SET_PERMISSIONS, getDataSetPermissions, getPermissions } from '../actions';
-
-const { selectEntitySets, selectEntityTypes } = ReduxUtils;
+import { getDataSetKeysWorker } from './getDataSetKeys';
+import {
+  GET_DATA_SET_PERMISSIONS,
+  getDataSetKeys,
+  getDataSetPermissions,
+  getPermissions
+} from '../actions';
 
 const LOG = new Logger('PermissionsSagas');
 
@@ -50,50 +45,15 @@ function* getDataSetPermissionsWorker(action :SequenceAction) :Saga<WorkerRespon
       withProperties :boolean;
     |} = action.value;
 
-    // NOTE: call getOrSelectDataSets() to populate redux store
-    yield call(getOrSelectDataSetsWorker, getOrSelectDataSets({
+    const keysResponse :WorkerResponse = yield call(getDataSetKeysWorker, getDataSetKeys({
       atlasDataSetIds,
       entitySetIds,
       organizationId,
+      withProperties,
     }));
+    if (keysResponse.error) throw keysResponse.error;
 
-    let atlasDataSets :Map<UUID, Map> = Map();
-    let entitySets :Map<UUID, EntitySet> = Map();
-    let entityTypes :Map<UUID, EntityType> = Map();
-    if (withProperties) {
-      atlasDataSets = yield select(selectAtlasDataSets(atlasDataSetIds));
-      entitySets = yield select(selectEntitySets(entitySetIds));
-      entityTypes = yield select(
-        selectEntityTypes(
-          entitySets.valueSeq().map((entitySet :EntitySet) => entitySet.entityTypeId)
-        )
-      );
-    }
-
-    const keys :List<List<UUID>> = List().withMutations((mutableKeys :List<List<UUID>>) => {
-
-      Set(atlasDataSetIds).forEach((id :UUID) => {
-        mutableKeys.push(List([id]));
-      });
-
-      Set(entitySetIds).forEach((id :UUID) => {
-        mutableKeys.push(List([id]));
-      });
-
-      if (withProperties) {
-        atlasDataSets.forEach((atlasDataSet :Map, atlasDataSetId :UUID) => {
-          get(atlasDataSet, 'columns', List()).forEach((column :Map) => {
-            mutableKeys.push(List([atlasDataSetId, get(column, 'id')]));
-          });
-        });
-        entitySets.forEach((entitySet :EntitySet, entitySetId :UUID) => {
-          const entityType :EntityType = entityTypes.get(entitySet.entityTypeId);
-          entityType.properties.forEach((propertyTypeId :UUID) => {
-            mutableKeys.push(List([entitySetId, propertyTypeId]));
-          });
-        });
-      }
-    });
+    const { keys } = keysResponse.data;
 
     if (!keys.isEmpty()) {
       const response :WorkerResponse = yield call(getPermissionsWorker, getPermissions(keys));

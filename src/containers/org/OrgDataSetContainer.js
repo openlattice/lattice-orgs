@@ -87,7 +87,12 @@ const OrgDataSetContainer = ({
     );
 
     const renderDataSetMetaContainer = () => (
-      <DataSetMetaContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} isOwner={isOwner} />
+      <DataSetMetaContainer
+          atlasDataSet={atlasDataSet}
+          dataSetId={dataSetId}
+          entitySet={entitySet}
+          isOwner={isOwner}
+          organizationId={organizationId} />
     );
 
     return (
