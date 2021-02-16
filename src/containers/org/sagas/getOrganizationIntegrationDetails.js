@@ -8,7 +8,7 @@ import {
   put,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { fromJS } from 'immutable';
+import { Map } from 'immutable';
 import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
 import { AxiosUtils, Logger, ValidationUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
@@ -27,6 +27,8 @@ const LOG = new Logger('OrgsSagas');
 
 function* getOrganizationIntegrationDetailsWorker(action :SequenceAction) :Saga<*> {
 
+  let integrationDetails = Map();
+
   try {
     yield put(getOrganizationIntegrationDetails.request(action.id, action.value));
 
@@ -44,29 +46,27 @@ function* getOrganizationIntegrationDetailsWorker(action :SequenceAction) :Saga<
     ]);
 
     if (getOrganizationDatabaseNameResponse.error) throw getOrganizationDatabaseNameResponse.error;
-    if (getOrganizationIntegrationAccountResponse.error) throw getOrganizationIntegrationAccountResponse.error;
-
     const databaseName = getOrganizationDatabaseNameResponse.data;
-    const integrationAccount = getOrganizationIntegrationAccountResponse.data;
-    const integrationDetails = fromJS({
-      databaseName,
-      credential: integrationAccount.credential,
-      userName: integrationAccount.user,
-    });
+    integrationDetails = integrationDetails.set('databaseName', databaseName);
 
-    yield put(getOrganizationIntegrationDetails.success(action.id, integrationDetails));
+    if (getOrganizationIntegrationAccountResponse.error) throw getOrganizationIntegrationAccountResponse.error;
+    const integrationAccount = getOrganizationIntegrationAccountResponse.data;
+    integrationDetails = integrationDetails
+      .set('credential', integrationAccount.credential)
+      .set('userName', integrationAccount.user);
+
+    yield put(getOrganizationIntegrationDetails.success(action.id));
   }
   catch (error) {
     LOG.error(action.type, error);
     yield put(getOrganizationIntegrationDetails.failure(action.id, toSagaError(error)));
   }
   finally {
-    yield put(getOrganizationIntegrationDetails.finally(action.id));
+    yield put(getOrganizationIntegrationDetails.finally(action.id, integrationDetails));
   }
 }
 
 function* getOrganizationIntegrationDetailsWatcher() :Saga<*> {
-
   yield takeEvery(GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetailsWorker);
 }
 
