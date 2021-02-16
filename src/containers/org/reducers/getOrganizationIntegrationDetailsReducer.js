@@ -38,6 +38,15 @@ export default function reducer(state :Map, action :SequenceAction) {
       }
       return state;
     },
-    FINALLY: () => state.deleteIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id]),
+    FINALLY: () => {
+      const storedAction = state.getIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id]);
+      if (storedAction) {
+        const organizationId :UUID = storedAction.value;
+        return state
+          .setIn([INTEGRATION_DETAILS, organizationId], action.value)
+          .deleteIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id]);
+      }
+      return state.deleteIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id]);
+    }
   });
 }
