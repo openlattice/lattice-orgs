@@ -8,22 +8,22 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
+import { fromJS } from 'immutable';
+import { SearchApiActions, SearchApiSagas } from 'lattice-sagas';
 import { Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { Organization, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { searchDataWorker } from './searchData';
-
 import { ERR_MISSING_ORG } from '../../../utils/constants/errors';
+import { HITS, TOTAL_HITS } from '../../redux/constants';
 import { selectOrganization } from '../../redux/selectors';
-import {
-  SEARCH_ORGANIZATION_DATA_SETS,
-  searchData,
-  searchOrganizationDataSets,
-} from '../actions';
+import { SEARCH_ORGANIZATION_DATA_SETS, searchOrganizationDataSets } from '../actions';
 import { MAX_HITS_10 } from '../constants';
+
+const { searchEntitySetData } = SearchApiActions;
+const { searchEntitySetDataWorker } = SearchApiSagas;
 
 const LOG = new Logger('SearchSagas');
 
@@ -37,15 +37,14 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
     const {
       maxHits = MAX_HITS_10,
       organizationId,
-      page,
       query,
-      start,
+      start = 0,
     } :{|
-      maxHits :number;
+      maxHits ?:number;
       organizationId :UUID;
-      page :number;
+      page ?:number;
       query :string;
-      start :number;
+      start ?:number;
     |} = action.value;
 
     const organization :?Organization = yield select(selectOrganization(organizationId));
@@ -54,18 +53,26 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
     }
 
     const response :WorkerResponse = yield call(
-      searchDataWorker,
-      searchData({
-        entitySetId: organization.metadataEntitySetIds.datasets,
+      searchEntitySetDataWorker,
+      searchEntitySetData({
+        constraints: [{
+          constraints: [{
+            searchTerm: query,
+          }],
+        }],
+        entitySetIds: [organization.metadataEntitySetIds.datasets],
         maxHits,
-        page,
-        query,
         start,
-      })
+      }),
     );
     if (response.error) throw response.error;
 
-    workerResponse = { data: response.data };
+    workerResponse = {
+      data: {
+        [HITS]: fromJS(response.data.hits || []),
+        [TOTAL_HITS]: response.data.numHits || 0,
+      },
+    };
     yield put(searchOrganizationDataSets.success(action.id, workerResponse.data));
   }
   catch (error) {

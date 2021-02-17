@@ -83,9 +83,10 @@ const OrgContainer = ({
     if (isStandby(searchOrgDataSetsRS)) {
       dispatch(
         searchOrganizationDataSets({
-          organizationId,
           maxHits: MAX_HITS_10,
+          organizationId,
           query: '*',
+          start: 0,
         })
       );
     }
