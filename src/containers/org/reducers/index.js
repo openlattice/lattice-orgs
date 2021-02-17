@@ -4,6 +4,7 @@
 
 export { default as ShiproomReducer } from './ShiproomReducer';
 export { default as addMembersToOrganizationReducer } from './addMembersToOrganizationReducer';
+export { default as deleteExistingOrganizationReducer } from './deleteExistingOrganizationReducer';
 export { default as editRoleDetailsReducer } from './editRoleDetailsReducer';
 export { default as getOrganizationDataSetsReducer } from './getOrganizationDataSetsReducer';
 export { default as getOrganizationDataSourcesReducer } from './getOrganizationDataSourcesReducer';
