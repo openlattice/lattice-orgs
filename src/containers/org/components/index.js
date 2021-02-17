@@ -3,6 +3,7 @@
  */
 
 export { default as AddRoleToOrgModal } from './AddRoleToOrgModal';
+export { default as AssignRolesToMembersModal } from './AssignRolesToMembersModal';
 export { default as CreateOrgModal } from './CreateOrgModal';
 export { default as DataSetSearchResultCard } from './DataSetSearchResultCard';
 export { default as EditRoleDetailsBody } from './EditRoleDetailsBody';
