@@ -92,10 +92,6 @@ const OrgActionButton = ({
     Routes.ORG_OBJECT_PERMISSIONS.replace(Routes.ORG_ID_PARAM, organizationId)
   );
 
-  const goToManageDataSources = useGoToRoute(
-    Routes.ORG_DATA_SOURCES.replace(Routes.ORG_ID_PARAM, organizationId)
-  );
-
   const goToSettings = useGoToRoute(
     Routes.ORG_SETTINGS.replace(Routes.ORG_ID_PARAM, organizationId)
   );
@@ -159,9 +155,6 @@ const OrgActionButton = ({
         </MenuItem>
         <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
           Manage Permissions
-        </MenuItem>
-        <MenuItem onClick={goToManageDataSources}>
-          Manage Data Sources
         </MenuItem>
         <MenuItem disabled={!isOwner} onClick={handleOpenDelete}>
           Delete Organization

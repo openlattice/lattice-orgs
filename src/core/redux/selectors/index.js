@@ -14,9 +14,6 @@ export const {
 export { default as selectAtlasCredentials } from './selectAtlasCredentials';
 export { default as selectCurrentAuthorization } from './selectCurrentAuthorization';
 export { default as selectCurrentRoleAuthorizations } from './selectCurrentRoleAuthorizations';
-export { default as selectDataSetAccessRequestDataSchema } from './selectDataSetAccessRequestDataSchema';
-export { default as selectDataSetAccessRequestUISchema } from './selectDataSetAccessRequestUISchema';
-export { default as selectDataSetAccessRequests } from './selectDataSetAccessRequests';
 export { default as selectDataSetPermissionsPage } from './selectDataSetPermissionsPage';
 export { default as selectDataSetSchema } from './selectDataSetSchema';
 export { default as selectEntitySetEntityType } from './selectEntitySetEntityType';
@@ -26,7 +23,6 @@ export { default as selectOrgDataSet } from './selectOrgDataSet';
 export { default as selectOrgDataSetColumns } from './selectOrgDataSetColumns';
 export { default as selectOrgDataSets } from './selectOrgDataSets';
 export { default as selectOrgDataSetsColumns } from './selectOrgDataSetsColumns';
-export { default as selectOrganizationDataSources } from './selectOrganizationDataSources';
 export { default as selectOrganizationEntitySetIds } from './selectOrganizationEntitySetIds';
 export { default as selectOrganizationIntegrationDetails } from './selectOrganizationIntegrationDetails';
 export { default as selectOrganizationMembers } from './selectOrganizationMembers';

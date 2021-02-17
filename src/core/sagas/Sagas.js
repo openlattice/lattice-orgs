@@ -16,7 +16,6 @@ import * as RoutingSagas from '../router/RoutingSagas';
 import { AppSagas } from '../../containers/app';
 import { OrgSagas } from '../../containers/org';
 import { OrgsSagas } from '../../containers/orgs';
-import { RequestsSagas } from '../../containers/requests';
 import { DataSagas } from '../data';
 import { EDMSagas } from '../edm';
 import { PermissionsSagas } from '../permissions';
@@ -45,21 +44,18 @@ export default function* sagas() :Saga<*> {
     fork(OrganizationsApiSagas.destroyTransportedOrganizationEntitySetWatcher),
     fork(OrganizationsApiSagas.getAllOrganizationsWatcher),
     fork(OrganizationsApiSagas.getOrganizationDatabaseNameWatcher),
-    fork(OrganizationsApiSagas.getOrganizationDataSourcesWatcher),
     fork(OrganizationsApiSagas.getOrganizationEntitySetsWatcher),
     fork(OrganizationsApiSagas.getOrganizationIntegrationAccountWatcher),
     fork(OrganizationsApiSagas.getOrganizationMembersWatcher),
     fork(OrganizationsApiSagas.getOrganizationWatcher),
     fork(OrganizationsApiSagas.grantTrustToOrganizationWatcher),
     fork(OrganizationsApiSagas.promoteStagingTableWatcher),
-    fork(OrganizationsApiSagas.registerOrganizationDataSourceWatcher),
     fork(OrganizationsApiSagas.removeDomainsFromOrganizationWatcher),
     fork(OrganizationsApiSagas.removeMemberFromOrganizationWatcher),
     fork(OrganizationsApiSagas.removeRoleFromMemberWatcher),
     fork(OrganizationsApiSagas.renameOrganizationDatabaseWatcher),
     fork(OrganizationsApiSagas.revokeTrustFromOrganizationWatcher),
     fork(OrganizationsApiSagas.transportOrganizationEntitySetWatcher),
-    fork(OrganizationsApiSagas.updateOrganizationDataSourceWatcher),
     fork(OrganizationsApiSagas.updateOrganizationDescriptionWatcher),
     fork(OrganizationsApiSagas.updateOrganizationTitleWatcher),
     fork(OrganizationsApiSagas.updateRoleGrantWatcher),
@@ -108,12 +104,6 @@ export default function* sagas() :Saga<*> {
     fork(PermissionsSagas.initializeObjectPermissionsWatcher),
     fork(PermissionsSagas.setPermissionsWatcher),
     fork(PermissionsSagas.updatePermissionsWatcher),
-
-    // RequestsSagas
-    fork(RequestsSagas.getDataSetAccessRequestsWatcher),
-    fork(RequestsSagas.initializeDataSetAccessRequestWatcher),
-    fork(RequestsSagas.submitDataSetAccessRequestWatcher),
-    fork(RequestsSagas.submitDataSetAccessResponseWatcher),
 
     // RoutingSagas
     fork(RoutingSagas.goToRootWatcher),

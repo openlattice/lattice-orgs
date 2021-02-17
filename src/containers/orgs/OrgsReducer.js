@@ -18,7 +18,6 @@ import {
 import assignRolesToMembersReducer from '../org/reducers/assignRolesToMembersReducer';
 import { RESET_REQUEST_STATE } from '../../core/redux/actions';
 import {
-  DATA_SOURCES,
   ENTITY_SET_IDS,
   ERROR,
   INTEGRATION_DETAILS,
@@ -54,11 +53,8 @@ import {
   addMembersToOrganizationReducer,
   deleteExistingOrganizationReducer,
   editRoleDetailsReducer,
-  getOrganizationDataSourcesReducer,
   getOrganizationIntegrationDetailsReducer,
-  registerOrganizationDataSourceReducer,
   renameOrganizationDatabaseReducer,
-  updateOrganizationDataSourceReducer,
 } from '../org/reducers';
 import { sortOrganizationMembers } from '../org/utils';
 
@@ -74,24 +70,18 @@ const { PrincipalTypes } = Types;
 const {
   ADD_MEMBER_TO_ORGANIZATION,
   ADD_ROLE_TO_MEMBER,
-  GET_ORGANIZATION_DATA_SOURCES,
   GET_ORGANIZATION_ENTITY_SETS,
   GET_ORGANIZATION_MEMBERS,
-  REGISTER_ORGANIZATION_DATA_SOURCE,
   REMOVE_MEMBER_FROM_ORGANIZATION,
   REMOVE_ROLE_FROM_MEMBER,
   RENAME_ORGANIZATION_DATABASE,
-  UPDATE_ORGANIZATION_DATA_SOURCE,
   addMemberToOrganization,
   addRoleToMember,
-  getOrganizationDataSources,
   getOrganizationEntitySets,
   getOrganizationMembers,
-  registerOrganizationDataSource,
   removeMemberFromOrganization,
   removeRoleFromMember,
   renameOrganizationDatabase,
-  updateOrganizationDataSource,
 } = OrganizationsApiActions;
 
 const { getUserId } = PersonUtils;
@@ -108,19 +98,15 @@ const INITIAL_STATE :Map = fromJS({
   [EDIT_ORGANIZATION_DETAILS]: RS_INITIAL_STATE,
   [EDIT_ROLE_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
-  [GET_ORGANIZATION_DATA_SOURCES]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_INTEGRATION_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION]: RS_INITIAL_STATE,
-  [REGISTER_ORGANIZATION_DATA_SOURCE]: RS_INITIAL_STATE,
   [REMOVE_MEMBER_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [RENAME_ORGANIZATION_DATABASE]: RS_INITIAL_STATE,
-  [UPDATE_ORGANIZATION_DATA_SOURCE]: RS_INITIAL_STATE,
   // data
-  [DATA_SOURCES]: Map(),
   [ENTITY_SET_IDS]: Map(),
   [INTEGRATION_DETAILS]: Map(),
   [MEMBERS]: Map(),
@@ -145,24 +131,12 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
     return editRoleDetailsReducer(state, action);
   }
 
-  if (action.type === getOrganizationDataSources.case(action.type)) {
-    return getOrganizationDataSourcesReducer(state, action);
-  }
-
   if (action.type === getOrganizationIntegrationDetails.case(action.type)) {
     return getOrganizationIntegrationDetailsReducer(state, action);
   }
 
-  if (action.type === registerOrganizationDataSource.case(action.type)) {
-    return registerOrganizationDataSourceReducer(state, action);
-  }
-
   if (action.type === renameOrganizationDatabase.case(action.type)) {
     return renameOrganizationDatabaseReducer(state, action);
-  }
-
-  if (action.type === updateOrganizationDataSource.case(action.type)) {
-    return updateOrganizationDataSourceReducer(state, action);
   }
 
   // TODO: refactor this reducer

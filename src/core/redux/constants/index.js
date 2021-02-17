@@ -30,9 +30,6 @@ export const {
   USERS,
 } = ReduxConstants;
 
-export const ACCESS_REQUESTS :'accessRequests' = 'accessRequests';
-export const ACCESS_REQUEST_DATA_SCHEMA :'accessRequestDataSchema' = 'accessRequestDataSchema';
-export const ACCESS_REQUEST_UI_SCHEMA :'accessRequestUISchema' = 'accessRequestUISchema';
 export const ACCOUNT :'account' = 'account';
 export const ACES :'aces' = 'aces';
 export const ATLAS_CREDENTIALS :'atlasCredentials' = 'atlasCredentials';
@@ -43,7 +40,6 @@ export const DATA_SET :'dataSet' = 'dataSet';
 export const DATA_SET_COLUMNS :'dataSetColumns' = 'dataSetColumns';
 export const DATA_SET_PERMISSIONS_PAGE :'dataSetPermissionsPage' = 'dataSetPermissionsPage';
 export const DATA_SET_SCHEMA :'dataSetSchema' = 'dataSetSchema';
-export const DATA_SOURCES :'dataSources' = 'dataSources';
 export const ENTITY_SET_IDS :'entitySetIds' = 'entitySetIds';
 export const INTEGRATION_DETAILS :'integrationDetails' = 'integrationDetails';
 export const IS_OWNER :'isOwner' = 'isOwner';
@@ -52,7 +48,6 @@ export const ORGANIZATION :'organization' = 'organization';
 export const ORG_DATA_SETS :'organizationDataSets' = 'organizationDataSets';
 export const ORG_DATA_SET_COLUMNS :'organizationDataSetColumns' = 'organizationDataSetColumns';
 export const PAGE_PERMISSIONS_BY_DATA_SET :'pagePermissionsByDataSet' = 'pagePermissionsByDataSet';
-export const REQUESTS :'requests' = 'requests';
 export const TOTAL_PERMISSIONS :'totalPermissions' = 'totalPermissions';
 export const USER_SEARCH_RESULTS :'userSearchResults' = 'userSearchResults';
 
