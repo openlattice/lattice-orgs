@@ -115,7 +115,7 @@ function* initializeOrganizationDataSetWorker(action :SequenceAction) :Saga<Work
 
     if (dataSetSearchResponse.error) throw dataSetSearchResponse.error;
 
-    if (dataSetSearchResponse.data[HITS].length > 1) {
+    if (dataSetSearchResponse.data[HITS].length !== 1) {
       throw new Error(ERR_UNEXPECTED_SEARCH_RESULTS);
     }
 
