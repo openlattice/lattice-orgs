@@ -180,7 +180,12 @@ const OrgContainer = ({
             )
           }
           {
-            isSuccess(searchOrgDataSetsRS) && (
+            isSuccess(searchOrgDataSetsRS) && searchHits.isEmpty() && (
+              <Typography align="center">No data sets.</Typography>
+            )
+          }
+          {
+            isSuccess(searchOrgDataSetsRS) && !searchHits.isEmpty() && (
               searchHits.valueSeq().map((searchHit :Map) => (
                 <DataSetSearchResultCard
                     key={getEntityKeyId(searchHit)}
