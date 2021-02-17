@@ -2,9 +2,14 @@
  * @flow
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import { List, Map, set } from 'immutable';
+import {
+  List,
+  Map,
+  Set,
+  set,
+} from 'immutable';
 import {
   AppContentWrapper,
   PaginationToolbar,
@@ -22,6 +27,7 @@ import {
   SearchForm,
   Spinner,
   StackGrid,
+  ValueCell,
 } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { SEARCH } from '../../core/redux/constants';
@@ -60,13 +66,16 @@ const DataSetDataContainer = ({
 
   useEffect(() => {
     const data :List = searchHits.map((entity :Map) => set(entity, 'id', getEntityKeyId(entity)));
-    const headers :List = dataSetColumns.map((column :Map<FQN, List>) => {
-      // TODO: these will have to change because the mapping is inconsistent, for example, "ol.column_name" is actually
-      // the FQN for some reason
-      const fqn :string = getPropertyValue(column, [FQNS.OL_COLUMN_NAME, 0]);
-      const title :string = getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]);
-      return { key: fqn, label: `${title} (${fqn})`, sortable: false };
+    const headersSet :Set<string> = Set().withMutations((mutableSet :Set) => {
+      searchHits.forEach((entity :Map) => mutableSet.union(entity.keySeq()));
     });
+    const headers :List = dataSetColumns
+      .filter((column :Map<FQN, List>) => headersSet.has(getPropertyValue(column, [FQNS.OL_TYPE, 0])))
+      .map((column :Map<FQN, List>) => {
+        const fqn :string = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
+        const title :string = getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]);
+        return { key: fqn, label: `${title} (${fqn})`, sortable: false };
+      });
     setTableData(data.toJS());
     setTableHeaders(headers.toJS());
   }, [dataSetColumns, searchHits]);
@@ -92,6 +101,18 @@ const DataSetDataContainer = ({
       dispatch(clearSearchState(SEARCH_DATA));
     }
   };
+
+  const components = useMemo(() => ({
+    Row: ({ data, components: { Cell }, headers } :Object) => (
+      <tr>
+        {
+          headers.map((header) => (
+            <ValueCell component={Cell} key={`${data.id}_cell_${header.key}`} value={data[header.key]} />
+          ))
+        }
+      </tr>
+    )
+  }), []);
 
   return (
     <AppContentWrapper>
@@ -119,7 +140,7 @@ const DataSetDataContainer = ({
         {
           searchDataSetDataRS === RequestStates.SUCCESS && searchHits.count() > 0 && (
             <DataTableWrapper>
-              <Table data={tableData} headers={tableHeaders} />
+              <Table components={components} data={tableData} headers={tableHeaders} />
             </DataTableWrapper>
           )
         }

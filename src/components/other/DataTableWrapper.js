@@ -23,7 +23,6 @@ const DataTableWrapper :ComponentType<{|
   }
 
   table {
-    margin-bottom: -1px;
     min-width: 100%;
     overflow: scroll;
     width: auto;
@@ -40,6 +39,10 @@ const DataTableWrapper :ComponentType<{|
 
   th {
     padding: 15px 10px;
+  }
+
+  tr:not(:last-child) {
+    border-bottom: 1px solid ${NEUTRAL.N100};
   }
 `;
 
