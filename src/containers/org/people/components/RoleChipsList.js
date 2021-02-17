@@ -8,10 +8,10 @@ import { Types } from 'lattice';
 import { Chip } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
 
+import MemberRoleChip from '../../MemberRoleChip';
 import RoleOverflowPopover from './RoleOverflowPopover';
 import usePriorityVisibility from './usePriorityVisibility';
 
-import { Routes } from '../../../../core/router';
 import { getUserProfile } from '../../../../utils';
 
 const { PermissionTypes } = Types;
@@ -55,8 +55,7 @@ const RoleChipsList = ({
   };
 
   const { id } = getUserProfile(member);
-  const getHandleDelete = (role :Role) => (e :SyntheticEvent<HTMLElement>) => {
-    e.preventDefault();
+  const handleDelete = (role :Role) => {
     handleClose();
     onUnassign(member, role);
   };
@@ -69,18 +68,14 @@ const RoleChipsList = ({
             const authorized = currentRoleAuthorizations.getIn([List(role.aclKey), PermissionTypes.OWNER], false);
             const roleId :UUID = role.id || '';
             const key = `${id}-${roleId || index}`;
-            const rolePath = `#${Routes.ORG_ROLE}`
-              .replace(Routes.ORG_ID_PARAM, organizationId)
-              .replace(Routes.ROLE_ID_PARAM, roleId);
 
             return (
-              <Chip
-                  clickable
-                  component="a"
-                  href={rolePath}
+              <MemberRoleChip
+                  authorized={authorized}
                   key={key}
-                  label={role.title}
-                  onDelete={authorized && getHandleDelete(role)} />
+                  onClick={handleDelete}
+                  organizationId={organizationId}
+                  role={role} />
             );
           })
         }
@@ -95,7 +90,7 @@ const RoleChipsList = ({
               <RoleOverflowPopover
                   anchorEl={overflowAnchorEl}
                   currentRoleAuthorizations={currentRoleAuthorizations}
-                  handleDelete={getHandleDelete}
+                  handleDelete={handleDelete}
                   onClose={handleClose}
                   open={!!overflowAnchorEl}
                   organizationId={organizationId}
