@@ -15,7 +15,6 @@ import { GapGrid } from '../grids';
 
 const { getPropertyValue } = DataUtils;
 
-// TODO: this will have to change because we'll no longer be using the data set objects directly
 const DataSetTitle = ({
   component,
   dataSet,
