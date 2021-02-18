@@ -11,7 +11,7 @@ import {
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import { PrincipalsApiActions, PrincipalsApiSagas } from 'lattice-sagas';
-import { Logger, ValidationUtils } from 'lattice-utils';
+import { AxiosUtils, Logger, ValidationUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
   Ace,
@@ -30,10 +30,10 @@ import { selectOrgDataSet, selectOrgDataSetColumns, selectPermissionsByPrincipal
 import { INITIALIZE_OBJECT_PERMISSIONS, getPermissions, initializeObjectPermissions } from '../actions';
 
 const { PrincipalTypes } = Types;
-const { isValidUUID } = ValidationUtils;
-
 const { getUsers } = PrincipalsApiActions;
 const { getUsersWorker } = PrincipalsApiSagas;
+const { toSagaError } = AxiosUtils;
+const { isValidUUID } = ValidationUtils;
 
 const LOG = new Logger('PermissionsSagas');
 
@@ -89,7 +89,7 @@ function* initializeObjectPermissionsWorker(action :SequenceAction) :Saga<*> {
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(initializeObjectPermissions.failure(action.id, error));
+    yield put(initializeObjectPermissions.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(initializeObjectPermissions.finally(action.id));

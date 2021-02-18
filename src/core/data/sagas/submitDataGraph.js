@@ -5,19 +5,19 @@
 import { call, put, takeEvery } from '@redux-saga/core/effects';
 import { Models } from 'lattice';
 import { DataApiActions, DataApiSagas } from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { toSagaError } from '../../../utils';
 import { SUBMIT_DATA_GRAPH, submitDataGraph } from '../actions';
-
-const LOG = new Logger('DataSagas');
 
 const { DataGraphBuilder } = Models;
 const { createEntityAndAssociationData } = DataApiActions;
 const { createEntityAndAssociationDataWorker } = DataApiSagas;
+const { toSagaError } = AxiosUtils;
+
+const LOG = new Logger('DataSagas');
 
 function* submitDataGraphWorker(action :SequenceAction) :Saga<WorkerResponse> {
 

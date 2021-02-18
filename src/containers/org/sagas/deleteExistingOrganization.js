@@ -4,16 +4,16 @@
 
 import { call, put, takeEvery } from '@redux-saga/core/effects';
 import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { toSagaError } from '../../../utils';
 import { DELETE_EXISTING_ORGANIZATION, deleteExistingOrganization } from '../actions';
 
 const { deleteOrganization } = OrganizationsApiActions;
 const { deleteOrganizationWorker } = OrganizationsApiSagas;
+const { toSagaError } = AxiosUtils;
 
 const LOG = new Logger('OrgSagas');
 

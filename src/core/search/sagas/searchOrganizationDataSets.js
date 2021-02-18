@@ -10,7 +10,7 @@ import {
 } from '@redux-saga/core/effects';
 import { fromJS } from 'immutable';
 import { SearchApiActions, SearchApiSagas } from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { Organization, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
@@ -24,6 +24,7 @@ import { MAX_HITS_10 } from '../constants';
 
 const { searchEntitySetData } = SearchApiActions;
 const { searchEntitySetDataWorker } = SearchApiSagas;
+const { toSagaError } = AxiosUtils;
 
 const LOG = new Logger('SearchSagas');
 
@@ -78,7 +79,7 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
   catch (error) {
     workerResponse = { error };
     LOG.error(action.type, error);
-    yield put(searchOrganizationDataSets.failure(action.id, error));
+    yield put(searchOrganizationDataSets.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(searchOrganizationDataSets.finally(action.id));

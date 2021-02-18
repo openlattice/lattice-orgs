@@ -11,7 +11,7 @@ import {
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { PermissionsApiActions, PermissionsApiSagas } from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
   FQN,
@@ -26,12 +26,13 @@ import { selectOrgDataSet, selectOrgDataSetColumns } from '../../redux/selectors
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../actions';
 import { getDataSetKeys } from '../../../utils';
 
-const LOG = new Logger('PermissionsSagas');
-
 const { AceBuilder, AclBuilder, AclDataBuilder } = Models;
 const { ActionTypes } = Types;
 const { updateAcls } = PermissionsApiActions;
 const { updateAclsWorker } = PermissionsApiSagas;
+const { toSagaError } = AxiosUtils;
+
+const LOG = new Logger('PermissionsSagas');
 
 function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
 
@@ -90,7 +91,7 @@ function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(assignPermissionsToDataSet.failure(action.id, error));
+    yield put(assignPermissionsToDataSet.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(assignPermissionsToDataSet.finally(action.id));

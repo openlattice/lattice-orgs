@@ -17,7 +17,7 @@ import {
   SearchApiActions,
   SearchApiSagas,
 } from 'lattice-sagas';
-import { DataUtils, Logger } from 'lattice-utils';
+import { AxiosUtils, DataUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
   AccessCheck,
@@ -28,7 +28,6 @@ import type {
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { toSagaError } from '../../../utils';
 import {
   ERR_MISSING_ORG,
   ERR_MISSING_PROPERTY_TYPE,
@@ -51,6 +50,7 @@ const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 const { searchEntitySetData } = SearchApiActions;
 const { searchEntitySetDataWorker } = SearchApiSagas;
+const { toSagaError } = AxiosUtils;
 const { getPropertyValue } = DataUtils;
 
 const REQUIRED_PROPERTY_TYPES :FQN[] = [

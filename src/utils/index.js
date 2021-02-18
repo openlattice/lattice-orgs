@@ -10,4 +10,3 @@ export { default as getSecurablePrincipalId } from './getSecurablePrincipalId';
 export { default as getUserProfile } from './getUserProfile';
 export { default as getUserTitle } from './getUserTitle';
 export { default as isAtlasDataSet } from './isAtlasDataSet';
-export { default as toSagaError } from './toSagaError';

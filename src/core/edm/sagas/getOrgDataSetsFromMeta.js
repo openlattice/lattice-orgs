@@ -11,7 +11,7 @@ import {
 import { List, Map, fromJS } from 'immutable';
 import { Models } from 'lattice';
 import { DataApiActions, DataApiSagas } from 'lattice-sagas';
-import { DataUtils, Logger } from 'lattice-utils';
+import { AxiosUtils, DataUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { Organization, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
@@ -25,6 +25,7 @@ import { FQNS } from '../constants';
 const { FQN } = Models;
 const { getEntitySetData } = DataApiActions;
 const { getEntitySetDataWorker } = DataApiSagas;
+const { toSagaError } = AxiosUtils;
 const { getPropertyValue } = DataUtils;
 
 const LOG = new Logger('EDMSagas');
@@ -69,7 +70,7 @@ function* getOrgDataSetsFromMetaWorker(action :SequenceAction) :Saga<WorkerRespo
   catch (error) {
     workerResponse = { error };
     LOG.error(action.type, error);
-    yield put(getOrgDataSetsFromMeta.failure(action.id, error));
+    yield put(getOrgDataSetsFromMeta.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(getOrgDataSetsFromMeta.finally(action.id));

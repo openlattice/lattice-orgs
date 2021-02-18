@@ -10,13 +10,12 @@ import {
   OrganizationsApiActions,
   OrganizationsApiSagas,
 } from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { OrganizationObject } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { toSagaError } from '../../../utils';
 import { GET_ORGANIZATIONS_AND_AUTHORIZATIONS, getOrganizationsAndAuthorizations } from '../actions';
 import type { AuthorizationObject } from '../../../types';
 
@@ -27,6 +26,7 @@ const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 const { getAllOrganizations } = OrganizationsApiActions;
 const { getAllOrganizationsWorker } = OrganizationsApiSagas;
+const { toSagaError } = AxiosUtils;
 
 const LOG = new Logger('OrgsSagas');
 

@@ -17,7 +17,7 @@ import {
   PermissionsApiActions,
   PermissionsApiSagas,
 } from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { Ace, AclObject, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
@@ -25,14 +25,15 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { GET_PERMISSIONS, getPermissions } from '../actions';
 
-const LOG = new Logger('PermissionsSagas');
-
 const { AccessCheck, AccessCheckBuilder, AclBuilder } = Models;
 const { PermissionTypes } = Types;
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
 const { getAcls } = PermissionsApiActions;
 const { getAclsWorker } = PermissionsApiSagas;
+const { toSagaError } = AxiosUtils;
+
+const LOG = new Logger('PermissionsSagas');
 
 function* getPermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> {
 
@@ -93,7 +94,7 @@ function* getPermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> {
   catch (error) {
     workerResponse = { error };
     LOG.error(action.type, error);
-    yield put(getPermissions.failure(action.id, error));
+    yield put(getPermissions.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(getPermissions.finally(action.id));

@@ -10,7 +10,12 @@ import {
 } from '@redux-saga/core/effects';
 import { List, Map, Set } from 'immutable';
 import { Models } from 'lattice';
-import { DataUtils, LangUtils, Logger } from 'lattice-utils';
+import {
+  AxiosUtils,
+  DataUtils,
+  LangUtils,
+  Logger,
+} from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
   Ace,
@@ -40,6 +45,7 @@ import {
 import { GET_DATA_SET_PERMISSIONS_PAGE, getDataSetPermissionsPage, getPermissions } from '../actions';
 
 const { FQN } = Models;
+const { toSagaError } = AxiosUtils;
 const { getPropertyValue } = DataUtils;
 const { isNonEmptyArray, isNonEmptyString } = LangUtils;
 
@@ -171,7 +177,7 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(getDataSetPermissionsPage.failure(action.id, error));
+    yield put(getDataSetPermissionsPage.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(getDataSetPermissionsPage.finally(action.id));

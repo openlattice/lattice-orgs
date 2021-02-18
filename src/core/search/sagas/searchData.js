@@ -5,7 +5,7 @@
 import { call, put, takeEvery } from '@redux-saga/core/effects';
 import { fromJS } from 'immutable';
 import { SearchApiActions, SearchApiSagas } from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
@@ -15,10 +15,11 @@ import { HITS, TOTAL_HITS } from '../../redux/constants';
 import { SEARCH_DATA, searchData } from '../actions';
 import { MAX_HITS_10 } from '../constants';
 
-const LOG = new Logger('SearchSagas');
-
 const { searchEntitySetData } = SearchApiActions;
 const { searchEntitySetDataWorker } = SearchApiSagas;
+const { toSagaError } = AxiosUtils;
+
+const LOG = new Logger('SearchSagas');
 
 function* searchDataWorker(action :SequenceAction) :Saga<WorkerResponse> {
 
@@ -69,7 +70,7 @@ function* searchDataWorker(action :SequenceAction) :Saga<WorkerResponse> {
   catch (error) {
     workerResponse = { error };
     LOG.error(action.type, error);
-    yield put(searchData.failure(action.id, error));
+    yield put(searchData.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(searchData.finally(action.id));

@@ -9,7 +9,7 @@ import {
   takeEvery,
 } from '@redux-saga/core/effects';
 import { EntityDataModelApiActions, EntityDataModelApiSagas } from 'lattice-sagas';
-import { LangUtils, Logger } from 'lattice-utils';
+import { AxiosUtils, LangUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -18,11 +18,12 @@ import {
   getEntityDataModelTypes,
 } from '../actions';
 
-const LOG = new Logger('EDMSagas');
-
+const { toSagaError } = AxiosUtils;
 const { isDefined } = LangUtils;
 const { getAllEntityTypes, getAllPropertyTypes } = EntityDataModelApiActions;
 const { getAllEntityTypesWorker, getAllPropertyTypesWorker } = EntityDataModelApiSagas;
+
+const LOG = new Logger('EDMSagas');
 
 function* getEntityDataModelTypesWorker(action :SequenceAction) :Saga<*> {
 
@@ -51,7 +52,7 @@ function* getEntityDataModelTypesWorker(action :SequenceAction) :Saga<*> {
   catch (error) {
     LOG.error(action.type, error);
     workerResponse.error = error;
-    yield put(getEntityDataModelTypes.failure(action.id, error));
+    yield put(getEntityDataModelTypes.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(getEntityDataModelTypes.finally(action.id));

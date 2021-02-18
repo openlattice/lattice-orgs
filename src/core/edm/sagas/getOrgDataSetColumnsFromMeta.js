@@ -16,7 +16,7 @@ import {
 } from 'immutable';
 import { Models } from 'lattice';
 import { SearchApiActions, SearchApiSagas } from 'lattice-sagas';
-import { DataUtils, Logger } from 'lattice-utils';
+import { AxiosUtils, DataUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { Organization, PropertyType, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
@@ -32,6 +32,7 @@ import { FQNS } from '../constants';
 const { FQN } = Models;
 const { searchEntitySetData } = SearchApiActions;
 const { searchEntitySetDataWorker } = SearchApiSagas;
+const { toSagaError } = AxiosUtils;
 const { getPropertyValue } = DataUtils;
 
 const REQUIRED_PROPERTY_TYPES :FQN[] = [
@@ -93,7 +94,7 @@ function* getOrgDataSetColumnsFromMetaWorker(action :SequenceAction) :Saga<Worke
   catch (error) {
     workerResponse = { error };
     LOG.error(action.type, error);
-    yield put(getOrgDataSetColumnsFromMeta.failure(action.id, error));
+    yield put(getOrgDataSetColumnsFromMeta.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(getOrgDataSetColumnsFromMeta.finally(action.id));

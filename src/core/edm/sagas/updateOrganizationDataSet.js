@@ -10,7 +10,7 @@ import {
 } from '@redux-saga/core/effects';
 import { Map } from 'immutable';
 import { DataApiActions, DataApiSagas } from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
   FQN,
@@ -28,6 +28,7 @@ import { FQNS } from '../constants';
 
 const { updateEntityData } = DataApiActions;
 const { updateEntityDataWorker } = DataApiSagas;
+const { toSagaError } = AxiosUtils;
 
 const REQUIRED_PROPERTY_TYPES :FQN[] = [
   FQNS.OL_DESCRIPTION,
@@ -90,7 +91,7 @@ function* updateOrganizationDataSetWorker(action :SequenceAction) :Saga<*> {
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(updateOrganizationDataSet.failure(action.id, error));
+    yield put(updateOrganizationDataSet.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(updateOrganizationDataSet.finally(action.id));

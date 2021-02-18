@@ -17,7 +17,7 @@ import {
   OrganizationsApiActions,
   OrganizationsApiSagas,
 } from 'lattice-sagas';
-import { Logger, ReduxUtils } from 'lattice-utils';
+import { AxiosUtils, Logger, ReduxUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
@@ -25,11 +25,8 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { IS_OWNER, ORGANIZATION } from '../../../core/redux/constants';
 import { selectOrganizationMembers } from '../../../core/redux/selectors';
-import { toSagaError } from '../../../utils';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
 import type { AuthorizationObject } from '../../../types';
-
-const LOG = new Logger('OrgsSagas');
 
 const {
   AccessCheck,
@@ -50,6 +47,9 @@ const {
   getOrganizationMembersWorker,
   getOrganizationWorker,
 } = OrganizationsApiSagas;
+const { toSagaError } = AxiosUtils;
+
+const LOG = new Logger('OrgsSagas');
 
 function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
 
