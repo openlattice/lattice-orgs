@@ -2,4 +2,4 @@
  * @flow
  */
 
-export { default as PropertyPermissionsCheckbox } from './PropertyPermissionsCheckbox';
+export { default as ObjectPermissionCheckbox } from './ObjectPermissionCheckbox';

@@ -5,18 +5,18 @@
 import { call, put, takeEvery } from '@redux-saga/core/effects';
 import { Models, Types } from 'lattice';
 import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { AxiosUtils } from '../../../utils';
 import { CREATE_NEW_ORGANIZATION, createNewOrganization } from '../actions';
 
 const { OrganizationBuilder, PrincipalBuilder } = Models;
 const { PrincipalTypes } = Types;
 const { createOrganization } = OrganizationsApiActions;
 const { createOrganizationWorker } = OrganizationsApiSagas;
+const { toSagaError } = AxiosUtils;
 
 const LOG = new Logger('OrgSagas');
 
@@ -51,7 +51,7 @@ function* createNewOrganizationWorker(action :SequenceAction) :Saga<void> {
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(createNewOrganization.failure(action.id, AxiosUtils.toSagaError(error)));
+    yield put(createNewOrganization.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(createNewOrganization.finally(action.id));

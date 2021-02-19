@@ -5,7 +5,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
-import { Map, fromJS, get } from 'immutable';
+import {
+  List,
+  Map,
+  Set,
+  fromJS,
+  get,
+} from 'immutable';
 import { Form } from 'lattice-fabricate';
 import {
   AppContentWrapper,
@@ -34,7 +40,7 @@ import {
 import { resetRequestState } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import {
-  selectCurrentUserIsOrgOwner,
+  selectMyKeys,
   selectOrganization,
   selectOrganizationIntegrationDetails,
 } from '../../../core/redux/selectors';
@@ -119,7 +125,8 @@ const OrgSettingsContainer = ({
   const getIntegrationDetailsRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_DETAILS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isOwner :boolean = myKeys.has(List([organizationId]));
   const integrationDetails :Map = useSelector(selectOrganizationIntegrationDetails(organizationId));
 
   const databaseName :string = get(integrationDetails, 'databaseName', '');

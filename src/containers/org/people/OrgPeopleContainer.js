@@ -5,7 +5,7 @@
 import React, { useEffect } from 'react';
 
 import styled from 'styled-components';
-import { List, fromJS } from 'immutable';
+import { List, Set, fromJS } from 'immutable';
 import { Types } from 'lattice';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { ReduxUtils } from 'lattice-utils';
@@ -26,7 +26,7 @@ import {
   resetCurrentRoleAuthorizations
 } from '../../../core/permissions/actions';
 import { resetRequestState } from '../../../core/redux/actions';
-import { selectCurrentUserIsOrgOwner, selectOrganizationMembers } from '../../../core/redux/selectors';
+import { selectMyKeys, selectOrganizationMembers } from '../../../core/redux/selectors';
 import { UsersActions } from '../../../core/users';
 
 const { PermissionTypes } = Types;
@@ -56,7 +56,8 @@ const OrgPeopleContainer = ({
   const dispatch = useDispatch();
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isOwner :boolean = myKeys.has(List([organizationId]));
   const orgMembers :List = useSelector(selectOrganizationMembers(organizationId));
 
   const roleAclKeys = fromJS(organization?.roles.reduce((aclKeys, role) => {

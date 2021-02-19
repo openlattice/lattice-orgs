@@ -3,23 +3,17 @@
  */
 
 import { List, Map } from 'immutable';
-import { Models, Types } from 'lattice';
 import { RequestStates } from 'redux-reqseq';
-import type { Ace, AclObject, UUID } from 'lattice';
+import type { Ace, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
   ACES,
   ERROR,
+  MY_KEYS,
   REQUEST_STATE,
 } from '../../redux/constants';
-import {
-  GET_PERMISSIONS,
-  getPermissions,
-} from '../actions';
-
-const { AclBuilder } = Models;
-const { PermissionTypes } = Types;
+import { GET_PERMISSIONS, getPermissions } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {
 
@@ -29,24 +23,11 @@ export default function reducer(state :Map, action :SequenceAction) {
       .setIn([GET_PERMISSIONS, action.id], action),
     SUCCESS: () => {
       if (state.hasIn([GET_PERMISSIONS, action.id])) {
-        const aces = state.get(ACES).withMutations((mutableAces :Map<List<UUID>, List<Ace>>) => {
-          const acls :AclObject[] = action.value;
-          acls.forEach((aclObj :AclObject) => {
-            const acl = (new AclBuilder(aclObj)).build();
-            const filteredAces = List(acl.aces)
-              // NOTE: empty permissions, i.e. [], is effectively the same as not having any permissions, but the ace
-              // is still around. once this bug is fixed, we can probably take out the filter
-              // https://jira.openlattice.com/browse/LATTICE-2648
-              .filter((ace :Ace) => ace.permissions.length > 0)
-              // NOTE: we're ignoring the DISCOVER permission type, i.e. filter out ["DISCOVER"]
-              // https://jira.openlattice.com/browse/LATTICE-2578
-              // https://jira.openlattice.com/browse/APPS-2381
-              .filterNot((ace :Ace) => ace.permissions.length === 1 && ace.permissions[0] === PermissionTypes.DISCOVER);
-            mutableAces.set(List(acl.aclKey), filteredAces);
-          });
-        });
+        const aces :Map<List<UUID>, List<Ace>> = action.value;
+        const keys :List<List<UUID>> = aces.keySeq().toList();
         return state
-          .set(ACES, aces)
+          .mergeIn([ACES], aces)
+          .mergeIn([MY_KEYS], keys)
           .setIn([GET_PERMISSIONS, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;

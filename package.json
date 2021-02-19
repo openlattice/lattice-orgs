@@ -42,7 +42,7 @@
     "lattice-auth": "~0.22.0",
     "lattice-fabricate": "~0.15.0",
     "lattice-sagas": "~0.63.0",
-    "lattice-ui-kit": "~0.41.0",
+    "lattice-ui-kit": "~0.42.0",
     "lattice-utils": "~0.10.0",
     "lodash": "~4.17.10",
     "loglevel": "~1.7.0",
@@ -57,6 +57,7 @@
     "redux-immutable": "4.0.0",
     "redux-reqseq": "~0.5.0",
     "styled-components": "~4.4.0",
+    "uuid": "~8.3.0",
     "validator": "~13.5.1"
   },
   "devDependencies": {
@@ -99,7 +100,6 @@
     "stylelint-config-standard": "~20.0.0",
     "stylelint-config-styled-components": "~0.1.0",
     "stylelint-processor-styled-components": "~1.10.0",
-    "uuid": "~8.3.0",
     "webpack": "~4.44.0",
     "webpack-cli": "~3.3.0",
     "webpack-dev-server": "~3.11.0",

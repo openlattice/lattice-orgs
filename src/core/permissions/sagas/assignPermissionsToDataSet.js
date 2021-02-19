@@ -8,18 +8,13 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import {
-  List,
-  Map,
-  get,
-} from 'immutable';
+import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { PermissionsApiActions, PermissionsApiSagas } from 'lattice-sagas';
-import { Logger, ReduxUtils } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
-  EntitySet,
-  EntityType,
+  FQN,
   PermissionType,
   Principal,
   UUID,
@@ -27,16 +22,17 @@ import type {
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { selectAtlasDataSets } from '../../redux/selectors';
+import { selectOrgDataSet, selectOrgDataSetColumns } from '../../redux/selectors';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../actions';
-
-const LOG = new Logger('PermissionsSagas');
+import { getDataSetKeys } from '../../../utils';
 
 const { AceBuilder, AclBuilder, AclDataBuilder } = Models;
 const { ActionTypes } = Types;
 const { updateAcls } = PermissionsApiActions;
 const { updateAclsWorker } = PermissionsApiSagas;
-const { selectEntitySets, selectEntityTypes } = ReduxUtils;
+const { toSagaError } = AxiosUtils;
+
+const LOG = new Logger('PermissionsSagas');
 
 function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
 
@@ -45,43 +41,24 @@ function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
 
     const {
       dataSetId,
+      organizationId,
       permissionTypes,
       principal,
-      withProperties = false,
+      withColumns = false,
     } :{|
       dataSetId :UUID;
+      organizationId :UUID;
       permissionTypes :PermissionType[];
       principal :Principal;
-      withProperties ?:boolean;
+      withColumns ?:boolean;
     |} = action.value;
 
-    let atlasDataSets :Map<UUID, Map> = Map();
-    let entitySets :Map<UUID, EntitySet> = Map();
-    let entityTypes :Map<UUID, EntityType> = Map();
-    if (withProperties) {
-      atlasDataSets = yield select(selectAtlasDataSets([dataSetId]));
-      entitySets = yield select(selectEntitySets([dataSetId]));
-      entityTypes = yield select(selectEntityTypes([entitySets.get(dataSetId)?.entityTypeId]));
+    let keys :List<List<UUID>> = List().push(List([dataSetId]));
+    if (withColumns) {
+      const dataSet :Map<UUID, Map> = yield select(selectOrgDataSet(organizationId, dataSetId));
+      const dataSetColumns :List<Map<FQN, List>> = yield select(selectOrgDataSetColumns(organizationId, dataSetId));
+      keys = getDataSetKeys(dataSet, dataSetColumns);
     }
-
-    const keys :List<List<UUID>> = List().withMutations((mutableKeys :List<List<UUID>>) => {
-      mutableKeys.push(List([dataSetId]));
-      if (withProperties) {
-        const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
-        const entitySet :?EntitySet = entitySets.get(dataSetId);
-        if (atlasDataSet) {
-          get(atlasDataSet, 'columns', List()).forEach((column :Map) => {
-            mutableKeys.push(List([dataSetId, get(column, 'id')]));
-          });
-        }
-        else if (entitySet) {
-          const entityType :EntityType = entityTypes.get(entitySet.entityTypeId);
-          entityType.properties.forEach((propertyTypeId :UUID) => {
-            mutableKeys.push(List([dataSetId, propertyTypeId]));
-          });
-        }
-      }
-    });
 
     const updates = [];
     const permissions = Map().withMutations((mutableMap) => {
@@ -114,7 +91,7 @@ function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(assignPermissionsToDataSet.failure(action.id, error));
+    yield put(assignPermissionsToDataSet.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(assignPermissionsToDataSet.finally(action.id));

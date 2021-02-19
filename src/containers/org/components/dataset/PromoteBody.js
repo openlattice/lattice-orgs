@@ -1,8 +1,10 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React, { useEffect } from 'react';
 
 import styled from 'styled-components';
-import { Map, getIn } from 'immutable';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import {
   Button,
@@ -25,28 +27,30 @@ const StyledBody = styled(ModalBody)`
   padding-bottom: 30px;
 `;
 
-type Props = {
-  dataSet :Map;
+const PromoteBody = ({
+  dataSetId,
+  dataSetName,
+  organizationId,
+  requestState,
+} :{|
+  dataSetId :UUID;
+  dataSetName :string;
   organizationId :UUID;
   requestState :?RequestState;
-}
+|}) => {
 
-const PromoteBody = ({ dataSet, organizationId, requestState } :Props) => {
   const dispatch = useDispatch();
 
   useEffect(() => () => {
     dispatch(resetRequestState([PROMOTE_STAGING_TABLE]));
   }, [dispatch]);
 
-  const dataSetId = getIn(dataSet, ['table', 'id']);
-  const tableName = getIn(dataSet, ['table', 'name']);
-
   const handleSubmit = (e :SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     dispatch(promoteStagingTable({
       dataSetId,
       organizationId,
-      tableName,
+      tableName: dataSetName,
     }));
   };
 
@@ -55,7 +59,7 @@ const PromoteBody = ({ dataSet, organizationId, requestState } :Props) => {
       <Typography
           color="textSecondary"
           gutterBottom>
-        {`Promote the ${tableName} data set to the OpenLattice schema.`}
+        {`Promote the ${dataSetName} data set to the OpenLattice schema.`}
       </Typography>
       <Button
           color="primary"

@@ -9,11 +9,8 @@ import {
 } from '@redux-saga/core/effects';
 import { List, Map, fromJS } from 'immutable';
 import { Models } from 'lattice';
-import {
-  AuthorizationsApiActions,
-  AuthorizationsApiSagas,
-} from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { AuthorizationsApiActions, AuthorizationsApiSagas } from 'lattice-sagas';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
@@ -22,11 +19,12 @@ import type { SequenceAction } from 'redux-reqseq';
 import { GET_CURRENT_ROLE_AUTHORIZATIONS, getCurrentRoleAuthorizations } from '../actions';
 import type { AuthorizationObject } from '../../../types';
 
-const LOG = new Logger('PermissionsSagas');
-
 const { AccessCheck, AccessCheckBuilder } = Models;
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;
+const { toSagaError } = AxiosUtils;
+
+const LOG = new Logger('PermissionsSagas');
 
 function* getCurrentRoleAuthorizationsWorker(action :SequenceAction) :Saga<WorkerResponse> {
 
@@ -57,7 +55,7 @@ function* getCurrentRoleAuthorizationsWorker(action :SequenceAction) :Saga<Worke
   catch (error) {
     workerResponse = { error };
     LOG.error(action.type, error);
-    yield put(getCurrentRoleAuthorizations.failure(action.id, error));
+    yield put(getCurrentRoleAuthorizations.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(getCurrentRoleAuthorizations.finally(action.id));

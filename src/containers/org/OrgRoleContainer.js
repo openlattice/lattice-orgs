@@ -135,6 +135,7 @@ const OrgRoleContainer = ({
                     dataSetId={selection.dataSetId}
                     key={`${selection.dataSetId}-${selection.permissionType}`}
                     onClose={handleOnClosePermissionsPanel}
+                    organizationId={organizationId}
                     principal={role.principal}
                     permissionType={selection.permissionType} />
               </PanelColumn>

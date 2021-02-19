@@ -4,7 +4,7 @@
 
 import { List, Map, fromJS } from 'immutable';
 import { Models, Types } from 'lattice';
-import { DataSetsApiActions, OrganizationsApiActions } from 'lattice-sagas';
+import { OrganizationsApiActions } from 'lattice-sagas';
 import { PersonUtils } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { OrganizationObject, UUID } from 'lattice';
@@ -18,13 +18,11 @@ import {
 import assignRolesToMembersReducer from '../org/reducers/assignRolesToMembersReducer';
 import { RESET_REQUEST_STATE } from '../../core/redux/actions';
 import {
-  ATLAS_DATA_SET_IDS,
-  DATA_SOURCES,
   ENTITY_SET_IDS,
   ERROR,
   INTEGRATION_DETAILS,
-  IS_OWNER,
   MEMBERS,
+  ORGANIZATION,
   ORGS,
   REQUEST_STATE,
   RS_INITIAL_STATE,
@@ -55,15 +53,10 @@ import {
   addMembersToOrganizationReducer,
   deleteExistingOrganizationReducer,
   editRoleDetailsReducer,
-  getOrganizationDataSetsReducer,
-  getOrganizationDataSourcesReducer,
   getOrganizationIntegrationDetailsReducer,
-  registerOrganizationDataSourceReducer,
   renameOrganizationDatabaseReducer,
-  updateOrganizationDataSourceReducer,
 } from '../org/reducers';
 import { sortOrganizationMembers } from '../org/utils';
-import type { AuthorizationObject } from '../../types';
 
 const {
   Organization,
@@ -72,33 +65,23 @@ const {
   PrincipalBuilder,
   Role,
 } = Models;
-const { PermissionTypes, PrincipalTypes } = Types;
+const { PrincipalTypes } = Types;
 
-const {
-  GET_ORGANIZATION_DATA_SETS,
-  getOrganizationDataSets,
-} = DataSetsApiActions;
 const {
   ADD_MEMBER_TO_ORGANIZATION,
   ADD_ROLE_TO_MEMBER,
-  GET_ORGANIZATION_DATA_SOURCES,
   GET_ORGANIZATION_ENTITY_SETS,
   GET_ORGANIZATION_MEMBERS,
-  REGISTER_ORGANIZATION_DATA_SOURCE,
   REMOVE_MEMBER_FROM_ORGANIZATION,
   REMOVE_ROLE_FROM_MEMBER,
   RENAME_ORGANIZATION_DATABASE,
-  UPDATE_ORGANIZATION_DATA_SOURCE,
   addMemberToOrganization,
   addRoleToMember,
-  getOrganizationDataSources,
   getOrganizationEntitySets,
   getOrganizationMembers,
-  registerOrganizationDataSource,
   removeMemberFromOrganization,
   removeRoleFromMember,
   renameOrganizationDatabase,
-  updateOrganizationDataSource,
 } = OrganizationsApiActions;
 
 const { getUserId } = PersonUtils;
@@ -115,24 +98,17 @@ const INITIAL_STATE :Map = fromJS({
   [EDIT_ORGANIZATION_DETAILS]: RS_INITIAL_STATE,
   [EDIT_ROLE_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
-  [GET_ORGANIZATION_DATA_SETS]: RS_INITIAL_STATE,
-  [GET_ORGANIZATION_DATA_SOURCES]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_INTEGRATION_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION]: RS_INITIAL_STATE,
-  [REGISTER_ORGANIZATION_DATA_SOURCE]: RS_INITIAL_STATE,
   [REMOVE_MEMBER_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [RENAME_ORGANIZATION_DATABASE]: RS_INITIAL_STATE,
-  [UPDATE_ORGANIZATION_DATA_SOURCE]: RS_INITIAL_STATE,
   // data
-  [ATLAS_DATA_SET_IDS]: Map(),
-  [DATA_SOURCES]: Map(),
   [ENTITY_SET_IDS]: Map(),
   [INTEGRATION_DETAILS]: Map(),
-  [IS_OWNER]: Map(),
   [MEMBERS]: Map(),
   [ORGS]: Map(),
 });
@@ -155,28 +131,12 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
     return editRoleDetailsReducer(state, action);
   }
 
-  if (action.type === getOrganizationDataSets.case(action.type)) {
-    return getOrganizationDataSetsReducer(state, action);
-  }
-
-  if (action.type === getOrganizationDataSources.case(action.type)) {
-    return getOrganizationDataSourcesReducer(state, action);
-  }
-
   if (action.type === getOrganizationIntegrationDetails.case(action.type)) {
     return getOrganizationIntegrationDetailsReducer(state, action);
   }
 
-  if (action.type === registerOrganizationDataSource.case(action.type)) {
-    return registerOrganizationDataSourceReducer(state, action);
-  }
-
   if (action.type === renameOrganizationDatabase.case(action.type)) {
     return renameOrganizationDatabaseReducer(state, action);
-  }
-
-  if (action.type === updateOrganizationDataSource.case(action.type)) {
-    return updateOrganizationDataSourceReducer(state, action);
   }
 
   // TODO: refactor this reducer
@@ -320,7 +280,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           if (state.hasIn([CREATE_NEW_ORGANIZATION, seqAction.id])) {
             const org = (new OrganizationBuilder(seqAction.value)).build();
             return state
-              .setIn([IS_OWNER, org.id], true)
               .setIn([ORGS, org.id], org)
               .setIn([CREATE_NEW_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
           }
@@ -365,23 +324,12 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           .setIn([GET_ORGANIZATIONS_AND_AUTHORIZATIONS, seqAction.id], seqAction),
         SUCCESS: () => {
           if (state.hasIn([GET_ORGANIZATIONS_AND_AUTHORIZATIONS, seqAction.id])) {
-
-            const isOwnerMap :Map<UUID, boolean> = Map().asMutable();
-            seqAction.value.authorizations.forEach((authorization :AuthorizationObject) => {
-              isOwnerMap.set(
-                authorization.aclKey[0], // organization id
-                authorization.permissions[PermissionTypes.OWNER] === true,
-              );
-            });
-
             const organizationsMap :Map<UUID, Organization> = Map().asMutable();
             seqAction.value.organizations.forEach((o :OrganizationObject) => {
               const org = (new OrganizationBuilder(o)).build();
               organizationsMap.set(org.id, org);
             });
-
             return state
-              .set(IS_OWNER, isOwnerMap.asImmutable())
               .set(ORGS, organizationsMap.asImmutable())
               .setIn([GET_ORGANIZATIONS_AND_AUTHORIZATIONS, REQUEST_STATE], RequestStates.SUCCESS);
           }
@@ -468,9 +416,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
           .setIn([INITIALIZE_ORGANIZATION, seqAction.id], seqAction),
         SUCCESS: () => {
           if (state.hasIn([INITIALIZE_ORGANIZATION, seqAction.id])) {
-            const organization = (new OrganizationBuilder(seqAction.value.organization)).build();
+            const organization = (new OrganizationBuilder(seqAction.value[ORGANIZATION])).build();
             return state
-              .setIn([IS_OWNER, organization.id], seqAction.value.isOwner)
               .setIn([ORGS, organization.id], organization)
               .setIn([INITIALIZE_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
           }

@@ -14,19 +14,19 @@ import { EDM } from '../../../../core/redux/constants';
 
 const { PROMOTE_STAGING_TABLE } = OrganizationsApiActions;
 
-type Props = {
-  isVisible :boolean;
-  onClose :() => void;
-  dataSet :any;
-  organizationId :UUID;
-};
-
 const PromoteTableModal = ({
-  dataSet,
+  dataSetId,
+  dataSetName,
   isVisible,
   onClose,
   organizationId,
-} :Props) => {
+} :{|
+  dataSetId :UUID;
+  dataSetName :string;
+  isVisible :boolean;
+  onClose :() => void;
+  organizationId :UUID;
+|}) => {
 
   const requestState :?RequestState = useRequestState([EDM, PROMOTE_STAGING_TABLE]);
 
@@ -44,7 +44,8 @@ const PromoteTableModal = ({
         viewportScrolling
         withFooter={false}>
       <PromoteBody
-          dataSet={dataSet}
+          dataSetId={dataSetId}
+          dataSetName={dataSetName}
           organizationId={organizationId}
           requestState={requestState} />
     </Modal>

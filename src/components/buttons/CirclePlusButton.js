@@ -12,7 +12,7 @@ import type { ButtonProps } from './BaseButton';
 
 const PlusIcon = <FontAwesomeIcon fixedWidth icon={faPlus} />;
 
-const Circle = ({ children, ...props } :ButtonProps) => (
+const CirclePlusButton = ({ children, ...props } :ButtonProps) => (
   /* eslint-disable react/jsx-props-no-spreading */
   <IconButton {...props}>
     {PlusIcon}
@@ -20,4 +20,4 @@ const Circle = ({ children, ...props } :ButtonProps) => (
   /* eslint-enable */
 );
 
-export default Circle;
+export default CirclePlusButton;

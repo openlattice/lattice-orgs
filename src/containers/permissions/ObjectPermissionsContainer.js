@@ -9,16 +9,15 @@ import React, {
 } from 'react';
 
 import { List, Map } from 'immutable';
-import { Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import { Modal, PaginationToolbar, Typography } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   Ace,
+  FQN,
   PermissionType,
   Principal,
-  PropertyType,
   UUID,
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -27,14 +26,11 @@ import ObjectPermissionsCard from './ObjectPermissionsCard';
 import { AssignPermissionsToObjectModalBody } from './assign-permissions-to-object';
 
 import { Spinner, StackGrid } from '../../components';
-import {
-  INITIALIZE_OBJECT_PERMISSIONS,
-  getCurrentDataSetAuthorizations,
-  initializeObjectPermissions
-} from '../../core/permissions/actions';
+import { INITIALIZE_OBJECT_PERMISSIONS, initializeObjectPermissions } from '../../core/permissions/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import {
-  selectDataSetProperties,
+  selectOrgDataSet,
+  selectOrgDataSetColumns,
   selectPermissionsByPrincipal,
   selectUsers,
 } from '../../core/redux/selectors';
@@ -44,14 +40,12 @@ import type { State as PaginationState } from '../../utils/stateReducers/paginat
 
 const { isPending, isSuccess } = ReduxUtils;
 
-const { PermissionTypes } = Types;
-
 const MAX_PER_PAGE = 10;
 
 const ObjectPermissionsContainer = ({
   filterByPermissionTypes,
   filterByQuery,
-  dataSetId,
+  isDataSet,
   isVisibleAssignPermissionsModal,
   objectKey,
   onClosePermissionsModal,
@@ -59,7 +53,7 @@ const ObjectPermissionsContainer = ({
 } :{|
   filterByPermissionTypes :Array<PermissionType>;
   filterByQuery :string;
-  dataSetId ?:UUID;
+  isDataSet :boolean;
   isVisibleAssignPermissionsModal :boolean;
   objectKey :List<UUID>;
   onClosePermissionsModal :() => void;
@@ -80,15 +74,25 @@ const ObjectPermissionsContainer = ({
   const thisUserInfo = AuthUtils.getUserInfo() || { id: '' };
   const thisUserId = thisUserInfo.id;
 
-  const properties :Map<UUID, PropertyType | Map> = useSelector(selectDataSetProperties(objectKey.get(0)));
+  const maybeDataSetId :UUID = isDataSet ? objectKey.get(0) : '';
+  const maybeDataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, maybeDataSetId));
+  const maybeDataSetColumns :List<Map<FQN, List>> = useSelector(
+    selectOrgDataSetColumns(organizationId, maybeDataSetId)
+  );
+
   const keys :List<List<UUID>> = useMemo(() => {
-    if (dataSetId) {
+    if (isDataSet) {
       // data set object
-      return getDataSetKeys(objectKey.get(0), properties.keySeq().toSet());
+      return getDataSetKeys(maybeDataSet, maybeDataSetColumns);
     }
     // organization / role object
     return List().push(objectKey);
-  }, [dataSetId, objectKey, properties]);
+  }, [
+    isDataSet,
+    maybeDataSet,
+    maybeDataSetColumns,
+    objectKey,
+  ]);
 
   const permissions :Map<Principal, Map<List<UUID>, Ace>> = useSelector(selectPermissionsByPrincipal(keys));
   const permissionsHash :number = permissions.hashCode();
@@ -118,19 +122,8 @@ const ObjectPermissionsContainer = ({
   const pagePermissions :Map<Principal, Map<List<UUID>, Ace>> = filteredPermissions.slice(start, start + MAX_PER_PAGE);
 
   useEffect(() => {
-    dispatch(initializeObjectPermissions({ isDataSet: !!dataSetId, objectKey, organizationId }));
-  }, [dataSetId, dispatch, objectKey, organizationId]);
-
-  useEffect(() => {
-    if (dataSetId) {
-      dispatch(getCurrentDataSetAuthorizations({
-        aclKey: [dataSetId],
-        organizationId,
-        permissions: [PermissionTypes.OWNER],
-        withProperties: true
-      }));
-    }
-  }, [dispatch, dataSetId, organizationId]);
+    dispatch(initializeObjectPermissions({ isDataSet, objectKey, organizationId }));
+  }, [dispatch, isDataSet, objectKey, organizationId]);
 
   const handleOnPageChange = (state :PaginationState) => {
     paginationDispatch({
@@ -156,12 +149,12 @@ const ObjectPermissionsContainer = ({
         requestIsSuccess && filteredPermissionsCount !== 0 && (
           pagePermissions.map((principalPermissions :Map<List<UUID>, Ace>, principal :Principal) => (
             <ObjectPermissionsCard
-                isDataSet={!!dataSetId}
+                dataSetColumns={maybeDataSetColumns}
+                isDataSet={isDataSet}
                 key={principal.id}
                 objectKey={objectKey}
                 permissions={principalPermissions}
-                principal={principal}
-                properties={properties} />
+                principal={principal} />
           )).valueSeq()
         )
       }
@@ -182,18 +175,14 @@ const ObjectPermissionsContainer = ({
           viewportScrolling
           withFooter={false}>
         <AssignPermissionsToObjectModalBody
-            dataSetId={dataSetId}
             existingPermissions={permissions}
-            onClose={onClosePermissionsModal}
+            isDataSet={isDataSet}
             objectKey={objectKey}
+            onClose={onClosePermissionsModal}
             organizationId={organizationId} />
       </Modal>
     </StackGrid>
   );
-};
-
-ObjectPermissionsContainer.defaultProps = {
-  dataSetId: undefined,
 };
 
 export default ObjectPermissionsContainer;

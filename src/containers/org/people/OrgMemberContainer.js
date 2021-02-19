@@ -170,6 +170,7 @@ const OrgMemberContainer = ({
                     dataSetId={selection.dataSetId}
                     key={`${selection.dataSetId}-${selection.permissionType}`}
                     onClose={handleOnClosePermissionsPanel}
+                    organizationId={organizationId}
                     principal={memberPrincipal}
                     permissionType={selection.permissionType} />
               </PanelColumn>

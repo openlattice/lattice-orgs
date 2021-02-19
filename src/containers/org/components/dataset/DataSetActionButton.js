@@ -11,24 +11,27 @@ import { Types } from 'lattice';
 import { DataSetsApiActions } from 'lattice-sagas';
 // $FlowFixMe
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
-import { useGoToRoute } from 'lattice-utils';
+import { DataUtils, useGoToRoute } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { EntitySet, UUID } from 'lattice';
+import type { FQN, UUID } from 'lattice';
 
 import AssembleMenuItem from './AssembleMenuItem';
 import PromoteTableModal from './PromoteTableModal';
 
+import { FQNS } from '../../../../core/edm/constants';
 import {
   selectCurrentAuthorization,
-  selectCurrentUserIsOrgOwner,
-  selectDataSetSchema
+  selectDataSetSchema,
+  selectMyKeys,
+  selectOrgDataSet,
 } from '../../../../core/redux/selectors';
 import { Routes } from '../../../../core/router';
-import { getDataSetField, isAtlasDataSet } from '../../../../utils';
+import { isAtlasDataSet } from '../../../../utils';
 import { OPENLATTICE } from '../../../../utils/constants';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
 const { EntitySetFlagTypes, PermissionTypes } = Types;
+const { getPropertyValue } = DataUtils;
 
 const CLOSE_PROMOTE_DIALOG = 'CLOSE_PROMOTE_DIALOG';
 const CLOSE_MENU = 'CLOSE_MENU';
@@ -71,26 +74,32 @@ const reducer = (state, action) => {
 };
 
 const DataSetActionButton = ({
-  dataSet,
-  isOwner,
+  dataSetId,
   organizationId,
 } :{|
-  dataSet :EntitySet | Map;
-  isOwner :boolean;
+  dataSetId :UUID;
   organizationId :UUID;
 |}) => {
 
-  const dataSetId :UUID = getDataSetField(dataSet, 'id');
   const dataSetKey :List<UUID> = List([dataSetId]);
-  const isAtlas :boolean = isAtlasDataSet(dataSet);
 
   const dispatch = useDispatch();
+
   const [state, stateDispatch] = useReducer(reducer, INITIAL_STATE);
-  const isOrgOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+
   const hasMaterialize :boolean = useSelector(selectCurrentAuthorization(dataSetKey, PermissionTypes.MATERIALIZE));
   const dataSetSchema = useSelector(selectDataSetSchema(dataSetId));
+
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isDataSetOwner :boolean = myKeys.has(dataSetKey);
+  const isOrgOwner :boolean = myKeys.has(List([organizationId]));
+
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSetName :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
+  const dataSetFlags :List<string> = getPropertyValue(dataSet, FQNS.OL_FLAGS, List());
+  const isAtlas :boolean = isAtlasDataSet(dataSet);
+  const isAssembled = isAtlas ? false : dataSetFlags.includes(EntitySetFlagTypes.TRANSPORTED);
   const isPromoted = dataSetSchema === OPENLATTICE;
-  const isAssembled = isAtlas ? false : !!dataSet?.flags?.includes(EntitySetFlagTypes.TRANSPORTED);
 
   useEffect(() => {
     if (isAtlas) {
@@ -177,21 +186,22 @@ const DataSetActionButton = ({
                 organizationId={organizationId} />
           )
         }
-        <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
-          Manage Permissions
-        </MenuItem>
+        {
+          isDataSetOwner && (
+            <MenuItem onClick={goToManagePermissions}>
+              Manage Permissions
+            </MenuItem>
+          )
+        }
       </Menu>
       <PromoteTableModal
-          dataSet={dataSet}
+          dataSetId={dataSetId}
+          dataSetName={dataSetName}
           isVisible={state.promoteOpen}
           onClose={handleClosePromote}
           organizationId={organizationId} />
     </>
   );
-};
-
-DataSetActionButton.defaultProps = {
-  dataSet: Map(),
 };
 
 export default DataSetActionButton;

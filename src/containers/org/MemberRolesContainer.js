@@ -5,17 +5,18 @@
 import React, { useMemo, useReducer, useState } from 'react';
 
 import styled from 'styled-components';
-import { Map } from 'immutable';
+import { List, Map, Set } from 'immutable';
 import { SearchInput, Typography } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
 import type { Role, UUID } from 'lattice';
-import { getUserProfile } from '../../utils';
+
 import MemberRoleChip from './MemberRoleChip';
-import { CirclePlusButton, StackGrid } from '../../components';
 import { AssignRolesToMembersModal, RemoveRoleFromMemberModal } from './components';
 import { isRoleAssignedToMember } from './utils';
 
-import { selectCurrentUserIsOrgOwner } from '../../core/redux/selectors';
+import { CirclePlusButton, StackGrid } from '../../components';
+import { selectMyKeys } from '../../core/redux/selectors';
+import { getUserProfile } from '../../utils';
 
 const Flex = styled.div`
   align-items: center;
@@ -23,14 +24,15 @@ const Flex = styled.div`
   flex-wrap: wrap;
 
   > a {
-    margin-right: 5px;
+    margin-right: 8px;
+    margin-bottom: 8px;
   }
 `;
 
 const INITIAL_STATE :{
-  addRoleIsVisible :boolean,
-  removeRoleIsVisible :boolean,
-  selectedRole ?:Role
+  addRoleIsVisible :boolean;
+  removeRoleIsVisible :boolean;
+  selectedRole ?:Role;
 } = {
   addRoleIsVisible: false,
   removeRoleIsVisible: false,
@@ -71,20 +73,22 @@ const reducer = (state, action) => {
   }
 };
 
-type Props = {
-  member :Map;
-  organizationId :UUID;
-  roles :Role[];
-};
-
 const MemberRolesContainer = ({
   member,
   organizationId,
   roles,
-} :Props) => {
+} :{|
+  member :Map;
+  organizationId :UUID;
+  roles :Role[];
+|}) => {
+
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isOwner :boolean = myKeys.has(List([organizationId]));
+
   const memberProfile = getUserProfile(member);
   const members = Map().set(memberProfile.id, memberProfile);
-  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
   const [searchQuery, setSearchQuery] = useState('');
 

@@ -2,21 +2,19 @@
  * @flow
  */
 
-import React, { useEffect } from 'react';
+import React, { useMemo } from 'react';
 
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
-import { ReduxUtils, useRequestState } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
+import { DataUtils, LangUtils } from 'lattice-utils';
+import { useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import type { EntitySet, Organization, UUID } from 'lattice';
-import type { RequestState } from 'redux-reqseq';
+import type { FQN, Organization, UUID } from 'lattice';
 
 import DataSetActionButton from './components/dataset/DataSetActionButton';
 import DataSetDataContainer from './DataSetDataContainer';
-import DataSetMetaContainer from './DataSetMetaContainer';
-import { getShiproomMetadata } from './actions';
+import DataSetMetaDataContainer from './DataSetMetaDataContainer';
 
 import {
   CrumbItem,
@@ -24,21 +22,15 @@ import {
   Crumbs,
   NavContentWrapper,
   SpaceBetweenGrid,
-  Spinner,
   StackGrid,
 } from '../../components';
-import { GET_OR_SELECT_DATA_SET, getOrSelectDataSet } from '../../core/edm/actions';
-import { EDM } from '../../core/redux/constants';
-import {
-  selectAtlasDataSets,
-  selectEntitySets,
-  selectHasOwnerPermission,
-  selectOrganization,
-} from '../../core/redux/selectors';
+import { FQNS } from '../../core/edm/constants';
+import { selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-import { getDataSetField } from '../../utils';
+import { isAtlasDataSet } from '../../utils';
 
-const { isPending, isSuccess } = ReduxUtils;
+const { getPropertyValue } = DataUtils;
+const { isNonEmptyString } = LangUtils;
 
 const OrgDataSetContainer = ({
   dataSetDataRoute,
@@ -54,45 +46,37 @@ const OrgDataSetContainer = ({
   organizationRoute :string;
 |}) => {
 
-  const dispatch = useDispatch();
-
-  const getOrSelectDataSetRS :?RequestState = useRequestState([EDM, GET_OR_SELECT_DATA_SET]);
-
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets([dataSetId]));
-  const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets([dataSetId]));
-  const isOwner :boolean = useSelector(selectHasOwnerPermission(dataSetId));
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
 
-  const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
-  const entitySet :?EntitySet = entitySets.get(dataSetId);
-  const dataSet = atlasDataSet || entitySet;
+  const description :string = getPropertyValue(dataSet, [FQNS.OL_DESCRIPTION, 0]);
+  const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
+  const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
 
-  const description :string = getDataSetField(dataSet, 'description');
-  const name :string = getDataSetField(dataSet, 'name');
-  const title :string = getDataSetField(dataSet, 'title');
-  const contacts :string[] = getDataSetField(dataSet, 'contacts') || [];
-
-  useEffect(() => {
-    dispatch(getOrSelectDataSet({ dataSetId, organizationId }));
-  }, [dispatch, dataSetId, organizationId]);
-
-  useEffect(() => {
-    dispatch(getShiproomMetadata({ dataSetId, organizationId }));
-  }, [dispatch, dataSetId, organizationId]);
+  const contact :string = useMemo(() => {
+    const contactEmail :string = getPropertyValue(dataSet, [FQNS.CONTACT_EMAIL, 0]);
+    const contactPhone :string = getPropertyValue(dataSet, [FQNS.CONTACT_PHONE_NUMBER, 0]);
+    let contactString = '';
+    if (isNonEmptyString(contactEmail) && isNonEmptyString(contactPhone)) {
+      contactString = `${contactEmail} - ${contactPhone}`;
+    }
+    else if (isNonEmptyString(contactEmail)) {
+      contactString = contactEmail;
+    }
+    else if (isNonEmptyString(contactPhone)) {
+      contactString = contactPhone;
+    }
+    return contactString;
+  }, [dataSet]);
 
   if (organization) {
 
     const renderDataSetDataContainer = () => (
-      <DataSetDataContainer atlasDataSet={atlasDataSet} dataSetId={dataSetId} entitySet={entitySet} />
+      <DataSetDataContainer dataSetId={dataSetId} organizationId={organizationId} />
     );
 
     const renderDataSetMetaContainer = () => (
-      <DataSetMetaContainer
-          atlasDataSet={atlasDataSet}
-          dataSetId={dataSetId}
-          entitySet={entitySet}
-          isOwner={isOwner}
-          organizationId={organizationId} />
+      <DataSetMetaDataContainer dataSetId={dataSetId} organizationId={organizationId} />
     );
 
     return (
@@ -102,60 +86,42 @@ const OrgDataSetContainer = ({
             <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
-          {
-            isPending(getOrSelectDataSetRS) && (
-              <Spinner />
-            )
-          }
-          {
-            isSuccess(getOrSelectDataSetRS) && (
-              <StackGrid gap={48}>
-                <StackGrid>
-                  <SpaceBetweenGrid>
-                    <Typography variant="h1">{title || name}</Typography>
-                    <DataSetActionButton dataSet={dataSet} isOwner={isOwner} organizationId={organizationId} />
-                  </SpaceBetweenGrid>
-                  <Typography>{description || name}</Typography>
-                </StackGrid>
-                <StackGrid>
-                  <Typography variant="h4">Contact</Typography>
-                  {
-                    contacts.length === 0 && (
-                      <Typography>No contact information is available.</Typography>
-                    )
-                  }
-                  {
-                    contacts.length > 0 && (
-                      contacts.map((contact :string) => (
-                        <Typography key={contact}>{contact}</Typography>
-                      ))
-                    )
-                  }
-                </StackGrid>
-              </StackGrid>
-            )
-          }
+          <StackGrid gap={48}>
+            <StackGrid>
+              <SpaceBetweenGrid>
+                <Typography variant="h1">{title || name}</Typography>
+                <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
+              </SpaceBetweenGrid>
+              <Typography>{description || name}</Typography>
+            </StackGrid>
+            <StackGrid>
+              <Typography variant="h4">Contact</Typography>
+              {
+                isNonEmptyString(contact)
+                  ? (
+                    <Typography>{contact}</Typography>
+                  )
+                  : (
+                    <Typography>No contact information is available.</Typography>
+                  )
+              }
+            </StackGrid>
+          </StackGrid>
         </AppContentWrapper>
-        {
-          isSuccess(getOrSelectDataSetRS) && (
-            <>
-              <NavContentWrapper bgColor="white">
-                <AppNavigationWrapper borderless>
-                  <NavLink exact strict to={dataSetRoute}>About</NavLink>
-                  {
-                    entitySet && (
-                      <NavLink to={dataSetDataRoute}>Data</NavLink>
-                    )
-                  }
-                </AppNavigationWrapper>
-              </NavContentWrapper>
-              <Switch>
-                <Route exact path={Routes.ORG_DATA_SET_DATA} render={renderDataSetDataContainer} />
-                <Route exact path={Routes.ORG_DATA_SET} render={renderDataSetMetaContainer} />
-              </Switch>
-            </>
-          )
-        }
+        <NavContentWrapper bgColor="white">
+          <AppNavigationWrapper borderless>
+            <NavLink exact strict to={dataSetRoute}>About</NavLink>
+            {
+              !isAtlasDataSet(dataSet) && (
+                <NavLink to={dataSetDataRoute}>Data</NavLink>
+              )
+            }
+          </AppNavigationWrapper>
+        </NavContentWrapper>
+        <Switch>
+          <Route exact path={Routes.ORG_DATA_SET_DATA} render={renderDataSetDataContainer} />
+          <Route exact path={Routes.ORG_DATA_SET} render={renderDataSetMetaContainer} />
+        </Switch>
       </>
     );
   }
