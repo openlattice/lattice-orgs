@@ -49,6 +49,10 @@ const UpdateMetaModal = ({
   const resetActions = useMemo(() => [requestStateAction], [requestStateAction]);
 
   useEffect(() => {
+    setData({});
+  }, [schema]);
+
+  useEffect(() => {
     if (isSuccess(requestState)) {
       if (_isFunction(onClose)) {
         onClose();

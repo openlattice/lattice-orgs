@@ -216,15 +216,15 @@ const DataSetActionButton = ({
     stateDispatch({ type: CLOSE_DETAILS });
   };
 
-  const handleOnSubmitUpdate = (data) => {
+  const handleOnSubmitUpdate = ({ description, title }) => {
     dispatch(
       updateOrganizationDataSet({
         dataSetId,
-        description: data.description,
+        description,
         entityKeyId: getEntityKeyId(dataSet),
         isColumn: false,
         organizationId,
-        title: data.title,
+        title,
       })
     );
   };
