@@ -12,14 +12,14 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import ResetOnUnmount from './ResetOnUnmount';
-
-import { ModalBody, StackGrid } from '../../../components';
+import { ModalBody, ResetOnUnmount, StackGrid } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 
 const { RENAME_ORGANIZATION_DATABASE, renameOrganizationDatabase } = OrganizationsApiActions;
 
 const { isNonEmptyString } = LangUtils;
+
+const RESET_ACTIONS = [RENAME_ORGANIZATION_DATABASE];
 
 const RenameOrgDatabaseModal = ({
   isVisible,
@@ -71,14 +71,14 @@ const RenameOrgDatabaseModal = ({
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
-      <ResetOnUnmount
-          message="Success!"
-          path={[RENAME_ORGANIZATION_DATABASE]} />
+      <ResetOnUnmount actions={RESET_ACTIONS}>
+        <Typography>Success!</Typography>
+      </ResetOnUnmount>
     ),
     [RequestStates.FAILURE]: (
-      <ResetOnUnmount
-          message="Failed to rename database. Please try again."
-          path={[RENAME_ORGANIZATION_DATABASE]} />
+      <ResetOnUnmount actions={RESET_ACTIONS}>
+        <Typography>Failed to rename database. Please try again.</Typography>
+      </ResetOnUnmount>
     ),
   };
 

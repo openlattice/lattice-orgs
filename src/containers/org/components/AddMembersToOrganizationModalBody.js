@@ -20,9 +20,8 @@ import AddMemberListItem from './AddMemberListItem';
 import SearchMemberBar from './SearchMemberBar';
 import StyledFooter from './styled/StyledFooter';
 
-import ResetOnUnmount from '../../../components/other/ResetOnUnmount';
 import StepConfirm from '../../permissions/StepConfirm';
-import { ModalBody } from '../../../components';
+import { ModalBody, ResetOnUnmount } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserProfile } from '../../../utils';
 import { ADD_MEMBERS_TO_ORGANIZATION, addMembersToOrganization } from '../actions';
