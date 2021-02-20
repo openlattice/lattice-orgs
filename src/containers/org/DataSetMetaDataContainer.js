@@ -57,9 +57,9 @@ const reducer = (state, action) => {
   switch (action.type) {
     case OPEN: {
       const dataSchema = JSON.parse(JSON.stringify(DATA_SCHEMA));
-      dataSchema.properties.fields.properties.title.default = action.payload.title || '';
+      dataSchema.properties.fields.properties.title.default = action.payload.title;
       dataSchema.properties.fields.properties.title.description = "Update this column's title";
-      dataSchema.properties.fields.properties.description.default = action.payload.description || '';
+      dataSchema.properties.fields.properties.description.default = action.payload.description;
       dataSchema.properties.fields.properties.description.description = "Update this column's description";
       return {
         data: action.payload,
