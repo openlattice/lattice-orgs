@@ -83,14 +83,15 @@ const UpdateMetaModal = ({
     }
   };
 
+  // TODO: figure out why this is throwing that "unique key prop" error if the "key" prop is not set
   const withFooter = (
     <ModalFooter
         isDisabledPrimary={!isValid}
         isPendingPrimary={isPending(requestState)}
+        key="modal-footer"
         onClickPrimary={handleOnClickPrimary}
         shouldStretchButtons
-        textPrimary="Save"
-        withFooter />
+        textPrimary="Save" />
   );
 
   return (
