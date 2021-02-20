@@ -36,7 +36,11 @@ import {
 } from '../../../../core/redux/selectors';
 import { Routes } from '../../../../core/router';
 import { isAtlasDataSet } from '../../../../utils';
-import { OPENLATTICE } from '../../../../utils/constants';
+import {
+  EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+  OPENLATTICE,
+} from '../../../../utils/constants';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
 const { EntitySetFlagTypes, PermissionTypes } = Types;
@@ -94,43 +98,6 @@ const reducer = (state, action) => {
   }
 };
 
-const DATA_SCHEMA = {
-  properties: {
-    fields: {
-      properties: {
-        title: {
-          description: 'Update this data set\'s title',
-          title: 'Title',
-          type: 'string',
-        },
-        description: {
-          description: 'Update this data set\'s description',
-          title: 'Description',
-          type: 'string',
-        },
-      },
-      required: ['title'],
-      title: '',
-      type: 'object',
-    },
-  },
-  title: '',
-  type: 'object',
-};
-
-const UI_SCHEMA = {
-  fields: {
-    classNames: 'column-span-12 grid-container',
-    title: {
-      classNames: 'column-span-12',
-    },
-    description: {
-      classNames: 'column-span-12',
-      'ui:widget': 'textarea',
-    },
-  },
-};
-
 const DataSetActionButton = ({
   dataSetId,
   organizationId,
@@ -181,7 +148,9 @@ const DataSetActionButton = ({
   useEffect(() => {
     const dataSchema = JSON.parse(JSON.stringify(DATA_SCHEMA));
     dataSchema.properties.fields.properties.title.default = dataSetTitle;
+    dataSchema.properties.fields.properties.title.description = "Update this data set's title";
     dataSchema.properties.fields.properties.description.default = dataSetDescription;
+    dataSchema.properties.fields.properties.description.description = "Update this data set's description";
     setSchema({ dataSchema, uiSchema: UI_SCHEMA });
   }, [dataSetDescription, dataSetTitle]);
 

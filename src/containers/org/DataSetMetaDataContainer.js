@@ -23,6 +23,10 @@ import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../c
 import { FQNS } from '../../core/edm/constants';
 import { EDM } from '../../core/redux/constants';
 import { selectMyKeys, selectOrgDataSetColumns } from '../../core/redux/selectors';
+import {
+  EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+} from '../../utils/constants';
 
 const { getEntityKeyId, getPropertyValue } = DataUtils;
 
@@ -37,44 +41,6 @@ const TABLE_HEADERS = [
     sortable: false,
   },
 ];
-
-const DATA_SCHEMA = {
-  properties: {
-    fields: {
-      properties: {
-        title: {
-          description: 'Update this column\'s title',
-          title: 'Title',
-          type: 'string',
-        },
-        description: {
-          description: 'Update this column\'s description',
-          title: 'Description',
-          type: 'string',
-        },
-      },
-      required: ['title'],
-      title: '',
-      type: 'object',
-    },
-  },
-  title: '',
-  type: 'object',
-};
-
-const UI_SCHEMA = {
-  fields: {
-    classNames: 'column-span-12 grid-container',
-    title: {
-      classNames: 'column-span-12',
-    },
-    description: {
-      classNames: 'column-span-12',
-      'ui:widget': 'textarea',
-    },
-  },
-};
-
 const OPEN :'OPEN' = 'OPEN';
 const CLOSE :'CLOSE' = 'CLOSE';
 
@@ -92,7 +58,9 @@ const reducer = (state, action) => {
     case OPEN: {
       const dataSchema = JSON.parse(JSON.stringify(DATA_SCHEMA));
       dataSchema.properties.fields.properties.title.default = action.payload.title || '';
+      dataSchema.properties.fields.properties.title.description = "Update this column's title";
       dataSchema.properties.fields.properties.description.default = action.payload.description || '';
+      dataSchema.properties.fields.properties.description.description = "Update this column's description";
       return {
         data: action.payload,
         isVisible: true,

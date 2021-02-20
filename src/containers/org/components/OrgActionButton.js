@@ -25,6 +25,10 @@ import { UpdateMetaModal } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { selectMyKeys } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
+import {
+  EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+} from '../../../utils/constants';
 import { EDIT_ORGANIZATION_DETAILS, editOrganizationDetails } from '../actions';
 
 const CLOSE_DELETE = 'CLOSE_DELETE';
@@ -83,43 +87,6 @@ const reducer = (state, action) => {
   }
 };
 
-const DATA_SCHEMA = {
-  properties: {
-    fields: {
-      properties: {
-        title: {
-          description: 'Update this organization\'s title',
-          title: 'Title',
-          type: 'string',
-        },
-        description: {
-          description: 'Update this organization\'s description',
-          title: 'Description',
-          type: 'string',
-        },
-      },
-      required: ['title'],
-      title: '',
-      type: 'object',
-    },
-  },
-  title: '',
-  type: 'object',
-};
-
-const UI_SCHEMA = {
-  fields: {
-    classNames: 'column-span-12 grid-container',
-    title: {
-      classNames: 'column-span-12',
-    },
-    description: {
-      classNames: 'column-span-12',
-      'ui:widget': 'textarea',
-    },
-  },
-};
-
 const OrgActionButton = ({
   organization,
 } :{|
@@ -142,7 +109,9 @@ const OrgActionButton = ({
   useEffect(() => {
     const dataSchema = JSON.parse(JSON.stringify(DATA_SCHEMA));
     dataSchema.properties.fields.properties.title.default = organization.title;
+    dataSchema.properties.fields.properties.title.description = "Update this organization's title";
     dataSchema.properties.fields.properties.description.default = organization.description;
+    dataSchema.properties.fields.properties.description.description = "Update this organization's description";
     setSchema({ dataSchema, uiSchema: UI_SCHEMA });
   }, [organization]);
 
