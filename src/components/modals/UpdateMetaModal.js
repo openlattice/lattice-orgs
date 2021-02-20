@@ -53,18 +53,19 @@ const UpdateMetaModal = ({
   }, [schema]);
 
   useEffect(() => {
-    if (isSuccess(requestState)) {
+    // WARNING: this has the potential for an infinite loop if "isVisible" is not in the condition
+    if (isSuccess(requestState) && isVisible) {
       if (_isFunction(onClose)) {
         onClose();
       }
     }
-  }, [onClose, requestState]);
+  }, [isVisible, onClose, requestState]);
 
-  const handleOnChange = ({ formData } :{ formData :FormData }) => {
+  const handleOnChangeForm = ({ formData } :{ formData :FormData }) => {
     setData(formData);
   };
 
-  const handleOnSubmit = () => {
+  const handleOnClickPrimary = () => {
     if (_isFunction(onSubmit)) {
       onSubmit(data.fields);
     }
@@ -84,7 +85,7 @@ const UpdateMetaModal = ({
   return (
     <ActionModal
         isVisible={isVisible}
-        onClickPrimary={handleOnSubmit}
+        onClickPrimary={handleOnClickPrimary}
         onClose={onClose}
         requestState={requestState}
         requestStateComponents={rsComponents}
@@ -97,7 +98,7 @@ const UpdateMetaModal = ({
               formData={data}
               hideSubmit
               noPadding
-              onChange={handleOnChange}
+              onChange={handleOnChangeForm}
               schema={schema.dataSchema}
               uiSchema={schema.uiSchema} />
         </ModalBody>
