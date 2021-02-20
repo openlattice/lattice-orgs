@@ -21,7 +21,7 @@ export const EDIT_TITLE_DESCRIPTION_DATA_SCHEMA = {
           type: 'string',
         },
       },
-      required: ['title'],
+      required: ['title', 'description'],
       title: '',
       type: 'object',
     },
