@@ -71,7 +71,7 @@ const reducer = (state, action) => {
       };
     }
     case CLOSE:
-      return INITIAL_MODAL_STATE;
+      return { ...state, data: {}, isVisible: false };
     default:
       return state;
   }
