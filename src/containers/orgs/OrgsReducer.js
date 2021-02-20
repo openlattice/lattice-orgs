@@ -16,7 +16,7 @@ import {
 } from './actions';
 
 import assignRolesToMembersReducer from '../org/reducers/assignRolesToMembersReducer';
-import { RESET_REQUEST_STATE } from '../../core/redux/actions';
+import { RESET_REQUEST_STATE, RESET_REQUEST_STATES } from '../../core/redux/actions';
 import {
   ENTITY_SET_IDS,
   ERROR,
@@ -27,6 +27,7 @@ import {
   REQUEST_STATE,
   RS_INITIAL_STATE,
 } from '../../core/redux/constants';
+import { resetRequestStatesReducer } from '../../core/redux/reducers';
 import {
   ADD_MEMBERS_TO_ORGANIZATION,
   ADD_ROLE_TO_ORGANIZATION,
@@ -114,6 +115,10 @@ const INITIAL_STATE :Map = fromJS({
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
+
+  if (action.type === RESET_REQUEST_STATES) {
+    return resetRequestStatesReducer(state, action);
+  }
 
   if (action.type === addMembersToOrganization.case(action.type)) {
     return addMembersToOrganizationReducer(state, action);
