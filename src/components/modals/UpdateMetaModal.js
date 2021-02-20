@@ -6,16 +6,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import _isFunction from 'lodash/isFunction';
 import { Form } from 'lattice-fabricate';
-import { ActionModal, Typography } from 'lattice-ui-kit';
+import { Modal, ModalFooter, Typography } from 'lattice-ui-kit';
 import { ReduxUtils } from 'lattice-utils';
-import { RequestStates } from 'redux-reqseq';
 import type { RequestState } from 'redux-reqseq';
 
-import ModalBody from './ModalBody';
+import { ModalBody, ResetOnUnmount, StackGrid } from '..';
 
-import { ResetOnUnmount } from '..';
-
-const { isSuccess } = ReduxUtils;
+const { isFailure, isPending, isSuccess } = ReduxUtils;
 
 type MetaFields = {
   description :string;
@@ -71,39 +68,42 @@ const UpdateMetaModal = ({
     }
   };
 
-  const rsComponents = {
-    // TODO: don't force the user to have to pass null or <></> for the RequestState they don't care about
-    [RequestStates.STANDBY]: <></>,
-    [RequestStates.SUCCESS]: <></>,
-    [RequestStates.FAILURE]: (
-      <ModalBody>
-        <Typography color="error">Failed to save changes. Please try again.</Typography>
-      </ModalBody>
-    ),
-  };
-
-  return (
-    <ActionModal
-        isVisible={isVisible}
+  const withFooter = (
+    <ModalFooter
+        isPendingPrimary={isPending(requestState)}
+        isDisabledSecondary={isPending(requestState)}
         onClickPrimary={handleOnClickPrimary}
-        onClose={onClose}
-        requestState={requestState}
-        requestStateComponents={rsComponents}
+        onClickSecondary={onClose}
         textPrimary="Submit"
         textSecondary="Cancel"
-        textTitle="Edit Details">
+        withFooter />
+  );
+
+  return (
+    <Modal
+        isVisible={isVisible}
+        onClose={onClose}
+        textTitle="Edit Details"
+        withFooter={withFooter}>
       <ResetOnUnmount actions={resetActions}>
         <ModalBody>
-          <Form
-              formData={data}
-              hideSubmit
-              noPadding
-              onChange={handleOnChangeForm}
-              schema={schema.dataSchema}
-              uiSchema={schema.uiSchema} />
+          <StackGrid>
+            <Form
+                formData={data}
+                hideSubmit
+                noPadding
+                onChange={handleOnChangeForm}
+                schema={schema.dataSchema}
+                uiSchema={schema.uiSchema} />
+            {
+              isFailure(requestState) && (
+                <Typography color="error">Failed to save changes. Please try again.</Typography>
+              )
+            }
+          </StackGrid>
         </ModalBody>
       </ResetOnUnmount>
-    </ActionModal>
+    </Modal>
   );
 };
 
