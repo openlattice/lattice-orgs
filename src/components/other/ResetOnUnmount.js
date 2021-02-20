@@ -8,7 +8,6 @@ import { useDispatch } from 'react-redux';
 
 import { resetRequestStates } from '../../core/redux/actions';
 
-// TODO: remove src/containers/org/components/ResetOnUnmount in favor of this component
 const ResetOnUnmount = ({
   actions,
   children,
@@ -21,7 +20,7 @@ const ResetOnUnmount = ({
 
   useEffect(() => () => {
     dispatch(resetRequestStates(actions));
-  }, [dispatch, actions]);
+  }, [actions, dispatch]);
 
   return children;
 };
