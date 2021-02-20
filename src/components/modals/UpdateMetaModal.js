@@ -10,7 +10,10 @@ import { Modal, ModalFooter, Typography } from 'lattice-ui-kit';
 import { ReduxUtils } from 'lattice-utils';
 import type { RequestState } from 'redux-reqseq';
 
-import { ModalBody, ResetOnUnmount, StackGrid } from '..';
+import ModalBody from './ModalBody';
+
+import { StackGrid } from '../grids';
+import { ResetOnUnmount } from '../other';
 
 const { isFailure, isPending, isSuccess } = ReduxUtils;
 
