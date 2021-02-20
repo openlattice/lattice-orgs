@@ -23,7 +23,7 @@ import searchEntitySetMetaDataReducer from './searchEntitySetMetaDataReducer';
 import transportOrganizationEntitySetReducer from './transportOrganizationEntitySetReducer';
 import updateOrganizationDataSetReducer from './updateOrganizationDataSetReducer';
 
-import { RESET_REQUEST_STATE, RESET_REQUEST_STATES } from '../../redux/actions';
+import { RESET_REQUEST_STATES } from '../../redux/actions';
 import {
   DATA_SET_SCHEMA,
   ENTITY_SETS,
@@ -36,7 +36,7 @@ import {
   PROPERTY_TYPES_INDEX_MAP,
   RS_INITIAL_STATE,
 } from '../../redux/constants';
-import { resetRequestStateReducer, resetRequestStatesReducer } from '../../redux/reducers';
+import { resetRequestStatesReducer } from '../../redux/reducers';
 import {
   GET_EDM_TYPES,
   GET_ORG_DATA_SETS_FROM_META,
@@ -106,10 +106,6 @@ const INITIAL_STATE :Map = fromJS({
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
-
-    case RESET_REQUEST_STATE: {
-      return resetRequestStateReducer(state, action);
-    }
 
     case RESET_REQUEST_STATES: {
       return resetRequestStatesReducer(state, action);

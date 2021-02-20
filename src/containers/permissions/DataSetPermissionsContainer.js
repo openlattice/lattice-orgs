@@ -26,7 +26,7 @@ import DataSetPermissionsCard from './DataSetPermissionsCard';
 import { Spinner, StackGrid } from '../../components';
 import { GET_ORG_DATA_SETS_FROM_META, GET_ORG_DATA_SET_COLUMNS_FROM_META } from '../../core/edm/actions';
 import { GET_DATA_SET_PERMISSIONS_PAGE, getDataSetPermissionsPage } from '../../core/permissions/actions';
-import { resetRequestState } from '../../core/redux/actions';
+import { resetRequestStates } from '../../core/redux/actions';
 import {
   PAGE_PERMISSIONS_BY_DATA_SET,
   PERMISSIONS,
@@ -81,9 +81,13 @@ const DataSetPermissionsContainer = ({
   );
 
   useEffect(() => () => {
-    dispatch(resetRequestState([GET_DATA_SET_PERMISSIONS_PAGE]));
-    dispatch(resetRequestState([GET_ORG_DATA_SETS_FROM_META]));
-    dispatch(resetRequestState([GET_ORG_DATA_SET_COLUMNS_FROM_META]));
+    dispatch(
+      resetRequestStates([
+        GET_DATA_SET_PERMISSIONS_PAGE,
+        GET_ORG_DATA_SETS_FROM_META,
+        GET_ORG_DATA_SET_COLUMNS_FROM_META,
+      ])
+    );
   }, [dispatch]);
 
   useEffect(() => {

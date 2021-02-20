@@ -16,7 +16,7 @@ import {
 } from './actions';
 
 import assignRolesToMembersReducer from '../org/reducers/assignRolesToMembersReducer';
-import { RESET_REQUEST_STATE, RESET_REQUEST_STATES } from '../../core/redux/actions';
+import { RESET_REQUEST_STATES } from '../../core/redux/actions';
 import {
   ENTITY_SET_IDS,
   ERROR,
@@ -146,16 +146,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   // TODO: refactor this reducer
   switch (action.type) {
-
-    case RESET_REQUEST_STATE: {
-      const { path } = action;
-      if (path && state.hasIn(path)) {
-        return state
-          .setIn([...path, ERROR], false)
-          .setIn([...path, REQUEST_STATE], RequestStates.STANDBY);
-      }
-      return state;
-    }
 
     case addMemberToOrganization.case(action.type): {
       const seqAction :SequenceAction = action;

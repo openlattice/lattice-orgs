@@ -25,7 +25,7 @@ import {
   assignPermissionsToDataSet,
   updatePermissions
 } from '../../../core/permissions/actions';
-import { resetRequestState } from '../../../core/redux/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
 import { PERMISSIONS } from '../../../core/redux/constants';
 import { getPrincipal } from '../../../utils';
 
@@ -72,8 +72,7 @@ const AssignPermissionsToObjectModalBody = ({
   const flattenedPermissions :List<Ace> = existingPermissions.valueSeq().flatten();
 
   useEffect(() => () => {
-    dispatch(resetRequestState([ASSIGN_PERMISSIONS_TO_DATA_SET]));
-    dispatch(resetRequestState([UPDATE_PERMISSIONS]));
+    dispatch(resetRequestStates([ASSIGN_PERMISSIONS_TO_DATA_SET, UPDATE_PERMISSIONS]));
   }, [dispatch]);
 
   const onConfirm = () => {

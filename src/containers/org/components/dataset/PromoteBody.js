@@ -16,7 +16,7 @@ import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody } from '../../../../components';
-import { resetRequestState } from '../../../../core/redux/actions';
+import { resetRequestStates } from '../../../../core/redux/actions';
 
 const {
   promoteStagingTable,
@@ -42,7 +42,7 @@ const PromoteBody = ({
   const dispatch = useDispatch();
 
   useEffect(() => () => {
-    dispatch(resetRequestState([PROMOTE_STAGING_TABLE]));
+    dispatch(resetRequestStates([PROMOTE_STAGING_TABLE]));
   }, [dispatch]);
 
   const handleSubmit = (e :SyntheticEvent<HTMLFormElement>) => {

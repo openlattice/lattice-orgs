@@ -28,7 +28,7 @@ import {
   getCurrentRoleAuthorizations,
   resetCurrentRoleAuthorizations
 } from '../../../core/permissions/actions';
-import { resetRequestState } from '../../../core/redux/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
 import { selectOrganizationMembers } from '../../../core/redux/selectors';
 import { getPrincipal, getSecurablePrincipalId, getUserProfile } from '../../../utils';
 import {
@@ -106,7 +106,7 @@ const OrgMemberContainer = ({
     }));
 
     return () => {
-      dispatch(resetRequestState([GET_CURRENT_ROLE_AUTHORIZATIONS]));
+      dispatch(resetRequestStates([GET_CURRENT_ROLE_AUTHORIZATIONS]));
       dispatch(resetCurrentRoleAuthorizations());
     };
   }, [dispatch, roleAclKeys]);

@@ -8,7 +8,7 @@ import { Typography } from 'lattice-ui-kit';
 import { useDispatch } from 'react-redux';
 
 import { ModalBody } from '../../../components';
-import { resetRequestState } from '../../../core/redux/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
 
 type Props = {
   message :string;
@@ -19,7 +19,7 @@ const ResetOnUnmount = ({ message, path } :Props) => {
   const dispatch = useDispatch();
 
   useEffect(() => () => {
-    dispatch(resetRequestState(path));
+    dispatch(resetRequestStates(path));
   }, [dispatch, path]);
 
   return (

@@ -25,7 +25,7 @@ import {
   initializeOrganization,
 } from '../../../containers/org/actions';
 import { initializeOrganizationDataSet } from '../../edm/actions';
-import { RESET_REQUEST_STATE, RESET_REQUEST_STATES } from '../../redux/actions';
+import { RESET_REQUEST_STATES } from '../../redux/actions';
 import {
   ACES,
   CURRENT,
@@ -34,7 +34,7 @@ import {
   MY_KEYS,
   RS_INITIAL_STATE,
 } from '../../redux/constants';
-import { resetRequestStateReducer, resetRequestStatesReducer } from '../../redux/reducers';
+import { resetRequestStatesReducer } from '../../redux/reducers';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   GET_CURRENT_ROLE_AUTHORIZATIONS,
@@ -82,10 +82,6 @@ const INITIAL_STATE :Map = fromJS({
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
-
-    case RESET_REQUEST_STATE: {
-      return resetRequestStateReducer(state, action);
-    }
 
     case RESET_REQUEST_STATES: {
       return resetRequestStatesReducer(state, action);
