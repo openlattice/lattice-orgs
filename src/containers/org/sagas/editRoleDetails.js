@@ -1,20 +1,24 @@
-// @flow
+/*
+ * @flow
+ */
 
 import {
   all,
   call,
   put,
-  takeEvery
+  takeEvery,
 } from '@redux-saga/core/effects';
 import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
 import { Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
+import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { EDIT_ROLE_DETAILS, editRoleDetails } from '../actions';
 
 const { updateRoleDescriptionWorker, updateRoleTitleWorker } = OrganizationsApiSagas;
 const { updateRoleDescription, updateRoleTitle } = OrganizationsApiActions;
+
 const LOG = new Logger('OrgSagas');
 
 function* editRoleDetailsWorker(action :SequenceAction) :Saga<void> {
@@ -22,11 +26,16 @@ function* editRoleDetailsWorker(action :SequenceAction) :Saga<void> {
     yield put(editRoleDetails.request(action.id, action.value));
 
     const {
-      title,
       description,
+      organizationId,
       roleId,
-      organizationId
-    } = action.value;
+      title,
+    } :{|
+      description :string;
+      organizationId :UUID;
+      roleId :UUID;
+      title :string;
+    |} = action.value;
 
     const titleRequest = call(
       updateRoleTitleWorker,
@@ -41,8 +50,8 @@ function* editRoleDetailsWorker(action :SequenceAction) :Saga<void> {
       updateRoleDescriptionWorker,
       updateRoleDescription({
         description,
-        roleId,
         organizationId,
+        roleId,
       }),
     );
 
