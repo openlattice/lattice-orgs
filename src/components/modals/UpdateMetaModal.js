@@ -2,12 +2,7 @@
  * @flow
  */
 
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import _isFunction from 'lodash/isFunction';
 import { Form } from 'lattice-fabricate';
