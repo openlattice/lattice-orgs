@@ -109,6 +109,7 @@ const DATA_SCHEMA = {
           type: 'string',
         },
       },
+      required: ['title'],
       title: '',
       type: 'object',
     },
