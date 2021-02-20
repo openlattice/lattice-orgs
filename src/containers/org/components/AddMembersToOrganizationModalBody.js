@@ -36,7 +36,7 @@ type Props = {
   organizationId :UUID;
 };
 
-const resetStatePath = [[ADD_MEMBERS_TO_ORGANIZATION]];
+const RESET_ACTIONS = [ADD_MEMBERS_TO_ORGANIZATION];
 
 const AddMembersToOrganzationModalBody = ({ members, onClose, organizationId } :Props) => {
   const dispatch = useDispatch();
@@ -110,7 +110,7 @@ const AddMembersToOrganzationModalBody = ({ members, onClose, organizationId } :
         step === 1 && (
           <>
             <ModalBody>
-              <ResetOnUnmount paths={resetStatePath}>
+              <ResetOnUnmount actions={RESET_ACTIONS}>
                 <StepConfirm
                     confirmText={confirmText}
                     requestState={requestState}

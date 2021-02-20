@@ -20,7 +20,7 @@ import { ASSIGN_ROLES_TO_MEMBERS, assignRolesToMembers } from '../actions';
 
 const { isPending, isSuccess } = ReduxUtils;
 
-const resetStatePath = [[ASSIGN_ROLES_TO_MEMBERS]];
+const RESET_ACTIONS = [ASSIGN_ROLES_TO_MEMBERS];
 
 type Props = {
   members :Map;
@@ -91,7 +91,7 @@ const AssignRolesToMembersModalBody = ({
         step === 1 && (
           <>
             <ModalBody>
-              <ResetOnUnmount paths={resetStatePath}>
+              <ResetOnUnmount actions={RESET_ACTIONS}>
                 <StepConfirm
                     confirmText={confirmText}
                     requestState={requestState}
