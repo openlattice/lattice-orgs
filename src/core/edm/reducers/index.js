@@ -23,7 +23,7 @@ import searchEntitySetMetaDataReducer from './searchEntitySetMetaDataReducer';
 import transportOrganizationEntitySetReducer from './transportOrganizationEntitySetReducer';
 import updateOrganizationDataSetReducer from './updateOrganizationDataSetReducer';
 
-import { RESET_REQUEST_STATE } from '../../redux/actions';
+import { RESET_REQUEST_STATE, RESET_REQUEST_STATES } from '../../redux/actions';
 import {
   DATA_SET_SCHEMA,
   ENTITY_SETS,
@@ -36,7 +36,7 @@ import {
   PROPERTY_TYPES_INDEX_MAP,
   RS_INITIAL_STATE,
 } from '../../redux/constants';
-import { resetRequestStateReducer } from '../../redux/reducers';
+import { resetRequestStateReducer, resetRequestStatesReducer } from '../../redux/reducers';
 import {
   GET_EDM_TYPES,
   GET_ORG_DATA_SETS_FROM_META,
@@ -107,46 +107,64 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
 
-    case RESET_REQUEST_STATE:
+    case RESET_REQUEST_STATE: {
       return resetRequestStateReducer(state, action);
+    }
 
-    case destroyTransportedOrganizationEntitySet.case(action.type):
+    case RESET_REQUEST_STATES: {
+      return resetRequestStatesReducer(state, action);
+    }
+
+    case destroyTransportedOrganizationEntitySet.case(action.type): {
       return destroyTransportedOrganizationEntitySetReducer(state, action);
+    }
 
-    case getEntityDataModelTypes.case(action.type):
+    case getEntityDataModelTypes.case(action.type): {
       return getEntityDataModelTypesReducer(state, action);
+    }
 
-    case getEntitySet.case(action.type):
+    case getEntitySet.case(action.type): {
       return getEntitySetReducer(state, action);
+    }
 
-    case getEntitySets.case(action.type):
+    case getEntitySets.case(action.type): {
       return getEntitySetsReducer(state, action);
+    }
 
-    case getOrgDataSetColumnsFromMeta.case(action.type):
+    case getOrgDataSetColumnsFromMeta.case(action.type): {
       return getOrgDataSetColumnsFromMetaReducer(state, action);
+    }
 
-    case getOrgDataSetsFromMeta.case(action.type):
+    case getOrgDataSetsFromMeta.case(action.type): {
       return getOrgDataSetsFromMetaReducer(state, action);
+    }
 
-    case getOrganizationDataSetSchema.case(action.type):
+    case getOrganizationDataSetSchema.case(action.type): {
       return getOrganizationDataSetSchemaReducer(state, action);
+    }
 
-    case initializeOrganizationDataSet.case(action.type):
+    case initializeOrganizationDataSet.case(action.type): {
       return initializeOrganizationDataSetReducer(state, action);
+    }
 
-    case promoteStagingTable.case(action.type):
+    case promoteStagingTable.case(action.type): {
       return promoteStagingTableReducer(state, action);
+    }
 
-    case searchEntitySetMetaData.case(action.type):
+    case searchEntitySetMetaData.case(action.type): {
       return searchEntitySetMetaDataReducer(state, action);
+    }
 
-    case transportOrganizationEntitySet.case(action.type):
+    case transportOrganizationEntitySet.case(action.type): {
       return transportOrganizationEntitySetReducer(state, action);
+    }
 
-    case updateOrganizationDataSet.case(action.type):
+    case updateOrganizationDataSet.case(action.type): {
       return updateOrganizationDataSetReducer(state, action);
+    }
 
-    default:
+    default: {
       return state;
+    }
   }
 }
