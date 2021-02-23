@@ -11,6 +11,7 @@ import addRoleToMemberReducer from './addRoleToMemberReducer';
 import addRoleToOrganizationReducer from './addRoleToOrganizationReducer';
 import assignRolesToMembersReducer from './assignRolesToMembersReducer';
 import createNewOrganizationReducer from './createNewOrganizationReducer';
+import deleteExistingOrganizationReducer from './deleteExistingOrganizationReducer';
 
 import { RESET_REQUEST_STATE } from '../../../core/redux/actions';
 import { MEMBERS, ORGANIZATIONS, RS_INITIAL_STATE } from '../../../core/redux/constants';
@@ -20,10 +21,12 @@ import {
   ADD_ROLE_TO_ORGANIZATION,
   ASSIGN_ROLES_TO_MEMBERS,
   CREATE_NEW_ORGANIZATION,
+  DELETE_EXISTING_ORGANIZATION,
   addMembersToOrganization,
   addRoleToOrganization,
   assignRolesToMembers,
   createNewOrganization,
+  deleteExistingOrganization,
 } from '../actions';
 
 export { default as addMembersToOrganizationReducer } from './addMembersToOrganizationReducer';
@@ -47,6 +50,7 @@ const INITIAL_STATE :Map = fromJS({
   [ADD_ROLE_TO_ORGANIZATION]: RS_INITIAL_STATE,
   [ASSIGN_ROLES_TO_MEMBERS]: RS_INITIAL_STATE,
   [CREATE_NEW_ORGANIZATION]: RS_INITIAL_STATE,
+  [DELETE_EXISTING_ORGANIZATION]: RS_INITIAL_STATE,
   // data
   [MEMBERS]: Map(),
   [ORGANIZATIONS]: Map(),
@@ -82,6 +86,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case createNewOrganization.case(action.type): {
       return createNewOrganizationReducer(state, action);
+    }
+
+    case deleteExistingOrganization.case(action.type): {
+      return deleteExistingOrganizationReducer(state, action);
     }
 
     default: {
