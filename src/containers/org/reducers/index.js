@@ -13,6 +13,7 @@ import assignRolesToMembersReducer from './assignRolesToMembersReducer';
 import createNewOrganizationReducer from './createNewOrganizationReducer';
 import deleteExistingOrganizationReducer from './deleteExistingOrganizationReducer';
 import editOrganizationDetailsReducer from './editOrganizationDetailsReducer';
+import editRoleDetailsReducer from './editRoleDetailsReducer';
 
 import { RESET_REQUEST_STATE } from '../../../core/redux/actions';
 import { MEMBERS, ORGANIZATIONS, RS_INITIAL_STATE } from '../../../core/redux/constants';
@@ -24,12 +25,14 @@ import {
   CREATE_NEW_ORGANIZATION,
   DELETE_EXISTING_ORGANIZATION,
   EDIT_ORGANIZATION_DETAILS,
+  EDIT_ROLE_DETAILS,
   addMembersToOrganization,
   addRoleToOrganization,
   assignRolesToMembers,
   createNewOrganization,
   deleteExistingOrganization,
   editOrganizationDetails,
+  editRoleDetails,
 } from '../actions';
 
 const {
@@ -49,6 +52,7 @@ const INITIAL_STATE :Map = fromJS({
   [CREATE_NEW_ORGANIZATION]: RS_INITIAL_STATE,
   [DELETE_EXISTING_ORGANIZATION]: RS_INITIAL_STATE,
   [EDIT_ORGANIZATION_DETAILS]: RS_INITIAL_STATE,
+  [EDIT_ROLE_DETAILS]: RS_INITIAL_STATE,
   // data
   [MEMBERS]: Map(),
   [ORGANIZATIONS]: Map(),
@@ -92,6 +96,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case editOrganizationDetails.case(action.type): {
       return editOrganizationDetailsReducer(state, action);
+    }
+
+    case editRoleDetails.case(action.type): {
+      return editRoleDetailsReducer(state, action);
     }
 
     default: {
