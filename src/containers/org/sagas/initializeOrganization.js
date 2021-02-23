@@ -81,7 +81,6 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
     ];
     const getAuthorizationsCall = call(getAuthorizationsWorker, getAuthorizations(accessChecks));
 
-    // OPTIMIZATION - perhaps spawn() getOrganizationEntitySets as it's not immediately required
     const [
       getOrganizationResponse,
       getOrganizationMembersResponse,
