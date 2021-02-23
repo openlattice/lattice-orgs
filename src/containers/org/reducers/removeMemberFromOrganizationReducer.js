@@ -14,7 +14,7 @@ import {
   ERROR,
   MEMBERS,
   ORGANIZATIONS,
-  REQUEST_STATE
+  REQUEST_STATE,
 } from '../../../core/redux/constants';
 
 const { OrganizationBuilder } = Models;

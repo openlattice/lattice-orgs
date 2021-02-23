@@ -19,6 +19,7 @@ import getOrganizationMembersReducer from './getOrganizationMembersReducer';
 import getOrganizationsAndAuthorizationsReducer from './getOrganizationsAndAuthorizationsReducer';
 import initializeOrganizationReducer from './initializeOrganizationReducer';
 import removeMemberFromOrganizationReducer from './removeMemberFromOrganizationReducer';
+import removeRoleFromMemberReducer from './removeRoleFromMemberReducer';
 import renameOrganizationDatabaseReducer from './renameOrganizationDatabaseReducer';
 
 import { RESET_REQUEST_STATE } from '../../../core/redux/actions';
@@ -52,11 +53,13 @@ const {
   ADD_ROLE_TO_MEMBER,
   GET_ORGANIZATION_MEMBERS,
   REMOVE_MEMBER_FROM_ORGANIZATION,
+  REMOVE_ROLE_FROM_MEMBER,
   RENAME_ORGANIZATION_DATABASE,
   addMemberToOrganization,
   addRoleToMember,
   getOrganizationMembers,
   removeMemberFromOrganization,
+  removeRoleFromMember,
   renameOrganizationDatabase,
 } = OrganizationsApiActions;
 
@@ -76,6 +79,7 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_MEMBER_FROM_ORGANIZATION]: RS_INITIAL_STATE,
+  [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
   [RENAME_ORGANIZATION_DATABASE]: RS_INITIAL_STATE,
   // data
   [MEMBERS]: Map(),
@@ -144,6 +148,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case removeMemberFromOrganization.case(action.type): {
       return removeMemberFromOrganizationReducer(state, action);
+    }
+
+    case removeRoleFromMember.case(action.type): {
+      return removeRoleFromMemberReducer(state, action);
     }
 
     case renameOrganizationDatabase.case(action.type): {

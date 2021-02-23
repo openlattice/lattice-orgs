@@ -13,7 +13,7 @@ import {
   ERROR,
   MEMBERS,
   ORGS,
-  REQUEST_STATE
+  REQUEST_STATE,
 } from '../../../core/redux/constants';
 
 const { ADD_ROLE_TO_MEMBER, addRoleToMember } = OrganizationsApiActions;
