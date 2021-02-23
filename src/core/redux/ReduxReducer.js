@@ -11,6 +11,7 @@ import {
   APP,
   AUTH,
   EDM,
+  ORGANIZATION,
   ORGANIZATIONS,
   PERMISSIONS,
   SEARCH,
@@ -19,6 +20,7 @@ import {
 
 import { AccountReducer } from '../../containers/account';
 import { AppReducer } from '../../containers/app';
+import { OrgReducer } from '../../containers/org';
 import { OrgsReducer } from '../../containers/orgs';
 import { EDMReducer } from '../edm';
 import { PermissionsReducer } from '../permissions';
@@ -32,6 +34,7 @@ export default function reduxReducer(routerHistory :any) {
     [APP]: AppReducer,
     [AUTH]: AuthReducer,
     [EDM]: EDMReducer,
+    [ORGANIZATION]: OrgReducer,
     [ORGANIZATIONS]: OrgsReducer,
     [PERMISSIONS]: PermissionsReducer,
     [SEARCH]: SearchReducer,
