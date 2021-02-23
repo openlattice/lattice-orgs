@@ -28,6 +28,9 @@ const editOrganizationDetails :RequestSequence = newRequestSequence(EDIT_ORGANIZ
 const EDIT_ROLE_DETAILS :'EDIT_ROLE_DETAILS' = 'EDIT_ROLE_DETAILS';
 const editRoleDetails :RequestSequence = newRequestSequence(EDIT_ROLE_DETAILS);
 
+const GET_ORGANIZATIONS_AND_AUTHORIZATIONS :'GET_ORGANIZATIONS_AND_AUTHORIZATIONS' = 'GET_ORGANIZATIONS_AND_AUTHORIZATIONS';
+const getOrganizationsAndAuthorizations :RequestSequence = newRequestSequence(GET_ORGANIZATIONS_AND_AUTHORIZATIONS);
+
 const GET_ORGANIZATION_INTEGRATION_DETAILS :'GET_ORGANIZATION_INTEGRATION_DETAILS' = 'GET_ORGANIZATION_INTEGRATION_DETAILS';
 const getOrganizationIntegrationDetails :RequestSequence = newRequestSequence(GET_ORGANIZATION_INTEGRATION_DETAILS);
 
@@ -45,6 +48,7 @@ export {
   DELETE_EXISTING_ORGANIZATION,
   EDIT_ORGANIZATION_DETAILS,
   EDIT_ROLE_DETAILS,
+  GET_ORGANIZATIONS_AND_AUTHORIZATIONS,
   GET_ORGANIZATION_INTEGRATION_DETAILS,
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
@@ -56,6 +60,7 @@ export {
   editOrganizationDetails,
   editRoleDetails,
   getOrganizationIntegrationDetails,
+  getOrganizationsAndAuthorizations,
   initializeOrganization,
   removeRoleFromOrganization,
 };
