@@ -20,10 +20,16 @@ import getOrganizationsAndAuthorizationsReducer from './getOrganizationsAndAutho
 import initializeOrganizationReducer from './initializeOrganizationReducer';
 import removeMemberFromOrganizationReducer from './removeMemberFromOrganizationReducer';
 import removeRoleFromMemberReducer from './removeRoleFromMemberReducer';
+import removeRoleFromOrganizationReducer from './removeRoleFromOrganizationReducer';
 import renameOrganizationDatabaseReducer from './renameOrganizationDatabaseReducer';
 
 import { RESET_REQUEST_STATE } from '../../../core/redux/actions';
-import { MEMBERS, ORGANIZATIONS, RS_INITIAL_STATE } from '../../../core/redux/constants';
+import {
+  INTEGRATION_DETAILS,
+  MEMBERS,
+  ORGANIZATIONS,
+  RS_INITIAL_STATE,
+} from '../../../core/redux/constants';
 import { resetRequestStateReducer } from '../../../core/redux/reducers';
 import {
   ADD_MEMBERS_TO_ORGANIZATION,
@@ -36,6 +42,7 @@ import {
   GET_ORGANIZATIONS_AND_AUTHORIZATIONS,
   GET_ORGANIZATION_INTEGRATION_DETAILS,
   INITIALIZE_ORGANIZATION,
+  REMOVE_ROLE_FROM_ORGANIZATION,
   addMembersToOrganization,
   addRoleToOrganization,
   assignRolesToMembers,
@@ -46,6 +53,7 @@ import {
   getOrganizationIntegrationDetails,
   getOrganizationsAndAuthorizations,
   initializeOrganization,
+  removeRoleFromOrganization,
 } from '../actions';
 
 const {
@@ -80,8 +88,10 @@ const INITIAL_STATE :Map = fromJS({
   [INITIALIZE_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_MEMBER_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
+  [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [RENAME_ORGANIZATION_DATABASE]: RS_INITIAL_STATE,
   // data
+  [INTEGRATION_DETAILS]: Map(),
   [MEMBERS]: Map(),
   [ORGANIZATIONS]: Map(),
 });
@@ -152,6 +162,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case removeRoleFromMember.case(action.type): {
       return removeRoleFromMemberReducer(state, action);
+    }
+
+    case removeRoleFromOrganization.case(action.type): {
+      return removeRoleFromOrganizationReducer(state, action);
     }
 
     case renameOrganizationDatabase.case(action.type): {
