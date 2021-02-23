@@ -12,6 +12,7 @@ import addRoleToOrganizationReducer from './addRoleToOrganizationReducer';
 import assignRolesToMembersReducer from './assignRolesToMembersReducer';
 import createNewOrganizationReducer from './createNewOrganizationReducer';
 import deleteExistingOrganizationReducer from './deleteExistingOrganizationReducer';
+import editOrganizationDetailsReducer from './editOrganizationDetailsReducer';
 
 import { RESET_REQUEST_STATE } from '../../../core/redux/actions';
 import { MEMBERS, ORGANIZATIONS, RS_INITIAL_STATE } from '../../../core/redux/constants';
@@ -22,18 +23,14 @@ import {
   ASSIGN_ROLES_TO_MEMBERS,
   CREATE_NEW_ORGANIZATION,
   DELETE_EXISTING_ORGANIZATION,
+  EDIT_ORGANIZATION_DETAILS,
   addMembersToOrganization,
   addRoleToOrganization,
   assignRolesToMembers,
   createNewOrganization,
   deleteExistingOrganization,
+  editOrganizationDetails,
 } from '../actions';
-
-export { default as addMembersToOrganizationReducer } from './addMembersToOrganizationReducer';
-export { default as deleteExistingOrganizationReducer } from './deleteExistingOrganizationReducer';
-export { default as editRoleDetailsReducer } from './editRoleDetailsReducer';
-export { default as getOrganizationIntegrationDetailsReducer } from './getOrganizationIntegrationDetailsReducer';
-export { default as renameOrganizationDatabaseReducer } from './renameOrganizationDatabaseReducer';
 
 const {
   ADD_MEMBER_TO_ORGANIZATION,
@@ -51,6 +48,7 @@ const INITIAL_STATE :Map = fromJS({
   [ASSIGN_ROLES_TO_MEMBERS]: RS_INITIAL_STATE,
   [CREATE_NEW_ORGANIZATION]: RS_INITIAL_STATE,
   [DELETE_EXISTING_ORGANIZATION]: RS_INITIAL_STATE,
+  [EDIT_ORGANIZATION_DETAILS]: RS_INITIAL_STATE,
   // data
   [MEMBERS]: Map(),
   [ORGANIZATIONS]: Map(),
@@ -90,6 +88,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case deleteExistingOrganization.case(action.type): {
       return deleteExistingOrganizationReducer(state, action);
+    }
+
+    case editOrganizationDetails.case(action.type): {
+      return editOrganizationDetailsReducer(state, action);
     }
 
     default: {
