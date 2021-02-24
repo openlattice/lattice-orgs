@@ -17,14 +17,14 @@ import {
   OrganizationsApiActions,
   OrganizationsApiSagas,
 } from 'lattice-sagas';
-import { AxiosUtils, Logger, ReduxUtils } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { IS_OWNER, ORGANIZATION } from '../../../core/redux/constants';
-import { selectOrganizationMembers } from '../../../core/redux/selectors';
+import { selectOrganization, selectOrganizationMembers } from '../../../core/redux/selectors';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
 import type { AuthorizationObject } from '../../../types';
 
@@ -35,7 +35,6 @@ const {
   OrganizationBuilder,
 } = Models;
 const { PermissionTypes } = Types;
-const { selectOrganization } = ReduxUtils;
 
 const { getAuthorizations } = AuthorizationsApiActions;
 const { getAuthorizationsWorker } = AuthorizationsApiSagas;

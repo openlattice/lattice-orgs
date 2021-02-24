@@ -12,7 +12,6 @@ import styled from 'styled-components';
 import { List, Map, fromJS } from 'immutable';
 import { Types } from 'lattice';
 import { AppContentWrapper, Modal, Typography } from 'lattice-ui-kit';
-import { ReduxUtils } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, Principal, UUID } from 'lattice';
 
@@ -29,7 +28,7 @@ import {
   resetCurrentRoleAuthorizations
 } from '../../../core/permissions/actions';
 import { resetRequestState } from '../../../core/redux/actions';
-import { selectOrganizationMembers } from '../../../core/redux/selectors';
+import { selectOrganization, selectOrganizationMembers } from '../../../core/redux/selectors';
 import { getPrincipal, getSecurablePrincipalId, getUserProfile } from '../../../utils';
 import {
   AssignPermissionsToDataSetModalBody,
@@ -39,7 +38,6 @@ import {
 } from '../../permissions';
 import type { UserProfile } from '../../../types';
 
-const { selectOrganization } = ReduxUtils;
 const { PermissionTypes } = Types;
 
 const getPanelColumnSize = ({ isVisiblePanelColumn }) => (
