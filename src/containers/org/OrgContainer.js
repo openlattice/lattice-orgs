@@ -36,7 +36,7 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { resetRequestState } from '../../core/redux/actions';
+import { resetRequestStates } from '../../core/redux/actions';
 import { ORGANIZATIONS, SEARCH } from '../../core/redux/constants';
 import {
   selectOrganization,
@@ -115,7 +115,7 @@ const OrgContainer = ({
   useEffect(() => {
     if (isSuccess(deleteOrgRS)) {
       setTimeout(() => {
-        dispatch(resetRequestState([DELETE_EXISTING_ORGANIZATION]));
+        dispatch(resetRequestStates([DELETE_EXISTING_ORGANIZATION]));
       }, 1000);
       goToRoot();
     }

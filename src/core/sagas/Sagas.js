@@ -12,14 +12,13 @@ import {
 } from 'lattice-sagas';
 import type { Saga } from '@redux-saga/core';
 
+import * as AppSagas from '../../containers/app/sagas';
+import * as DataSagas from '../data/sagas';
+import * as EDMSagas from '../edm/sagas';
+import * as OrgSagas from '../../containers/org/sagas';
+import * as PermissionsSagas from '../permissions/sagas';
 import * as RoutingSagas from '../router/RoutingSagas';
-import { AppSagas } from '../../containers/app';
-import { OrgSagas } from '../../containers/org';
-import { OrgsSagas } from '../../containers/orgs';
-import { DataSagas } from '../data';
-import { EDMSagas } from '../edm';
-import { PermissionsSagas } from '../permissions';
-import { SearchSagas } from '../search';
+import * as SearchSagas from '../search/sagas';
 
 export default function* sagas() :Saga<*> {
 
@@ -44,7 +43,6 @@ export default function* sagas() :Saga<*> {
     fork(OrganizationsApiSagas.destroyTransportedOrganizationEntitySetWatcher),
     fork(OrganizationsApiSagas.getAllOrganizationsWatcher),
     fork(OrganizationsApiSagas.getOrganizationDatabaseNameWatcher),
-    fork(OrganizationsApiSagas.getOrganizationEntitySetsWatcher),
     fork(OrganizationsApiSagas.getOrganizationIntegrationAccountWatcher),
     fork(OrganizationsApiSagas.getOrganizationMembersWatcher),
     fork(OrganizationsApiSagas.getOrganizationWatcher),
@@ -91,7 +89,6 @@ export default function* sagas() :Saga<*> {
     fork(OrgSagas.getOrganizationIntegrationDetailsWatcher),
     fork(OrgSagas.initializeOrganizationWatcher),
     fork(OrgSagas.removeRoleFromOrganizationWatcher),
-    fork(OrgsSagas.getOrganizationsAndAuthorizationsWatcher),
 
     // PermissionsSagas
     fork(PermissionsSagas.assignPermissionsToDataSetWatcher),

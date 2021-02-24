@@ -17,13 +17,13 @@ import {
   USERS,
 } from './constants';
 
-import { AccountReducer } from '../../containers/account';
-import { AppReducer } from '../../containers/app';
-import { OrgsReducer } from '../../containers/orgs';
-import { EDMReducer } from '../edm';
-import { PermissionsReducer } from '../permissions';
-import { SearchReducer } from '../search';
-import { UsersReducer } from '../users';
+import AccountReducer from '../../containers/account/reducers';
+import AppReducer from '../../containers/app/reducers';
+import EDMReducer from '../edm/reducers';
+import OrgsReducer from '../../containers/org/reducers';
+import PermissionsReducer from '../permissions/reducers';
+import SearchReducer from '../search/reducers';
+import UsersReducer from '../users/reducers';
 
 export default function reduxReducer(routerHistory :any) {
 

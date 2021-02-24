@@ -11,15 +11,22 @@ import React, {
 
 import { List, Map } from 'immutable';
 import { AppContentWrapper, Table } from 'lattice-ui-kit';
-import { DataUtils } from 'lattice-utils';
-import { useSelector } from 'react-redux';
+import { DataUtils, useRequestState } from 'lattice-utils';
+import { useDispatch, useSelector } from 'react-redux';
 import type { FQN, UUID } from 'lattice';
+import type { RequestState } from 'redux-reqseq';
 
-import EditMetadataModal from './components/EditMetadataModal';
 import EditableMetadataRow from './components/EditableMetadataRow';
 
+import { UpdateMetaModal } from '../../components';
+import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../core/edm/actions';
 import { FQNS } from '../../core/edm/constants';
+import { EDM } from '../../core/redux/constants';
 import { selectMyKeys, selectOrgDataSetColumns } from '../../core/redux/selectors';
+import {
+  EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+} from '../../utils/constants';
 
 const { getEntityKeyId, getPropertyValue } = DataUtils;
 
@@ -34,25 +41,37 @@ const TABLE_HEADERS = [
     sortable: false,
   },
 ];
-
 const OPEN :'OPEN' = 'OPEN';
 const CLOSE :'CLOSE' = 'CLOSE';
 
 const INITIAL_MODAL_STATE = {
   data: {},
   isVisible: false,
+  schema: {
+    dataSchema: DATA_SCHEMA,
+    uiSchema: UI_SCHEMA,
+  },
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
     case OPEN: {
+      const dataSchema = JSON.parse(JSON.stringify(DATA_SCHEMA));
+      dataSchema.properties.fields.properties.title.default = action.payload.title;
+      dataSchema.properties.fields.properties.title.description = "Update this column's title";
+      dataSchema.properties.fields.properties.description.default = action.payload.description;
+      dataSchema.properties.fields.properties.description.description = "Update this column's description";
       return {
         data: action.payload,
         isVisible: true,
+        schema: {
+          dataSchema,
+          uiSchema: UI_SCHEMA
+        },
       };
     }
     case CLOSE:
-      return INITIAL_MODAL_STATE;
+      return { ...state, data: {}, isVisible: false };
     default:
       return state;
   }
@@ -66,8 +85,12 @@ const DataSetMetaDataContainer = ({
   organizationId :UUID;
 |}) => {
 
+  const dispatch = useDispatch();
+
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_MODAL_STATE);
   const [tableData, setTableData] = useState([]);
+
+  const updateOrgDataSetRS :?RequestState = useRequestState([EDM, UPDATE_ORGANIZATION_DATA_SET]);
 
   const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
@@ -75,14 +98,29 @@ const DataSetMetaDataContainer = ({
 
   useEffect(() => {
     // NOTE: the column is ol.column
-    const data :List = dataSetColumns.map((column :Map<FQN, List>) => ({
-      dataType: getPropertyValue(column, [FQNS.OL_DATA_TYPE, 0]),
-      description: getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]),
-      id: getEntityKeyId(column),
-      title: getPropertyValue(column, [FQNS.OL_TITLE, 0]),
-    }));
+    const data :List = dataSetColumns
+      .sortBy((column :Map<FQN, List>) => getPropertyValue(column, [FQNS.OL_INDEX, 0]))
+      .map((column :Map<FQN, List>) => ({
+        dataType: getPropertyValue(column, [FQNS.OL_DATA_TYPE, 0]),
+        description: getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]),
+        id: getEntityKeyId(column),
+        title: getPropertyValue(column, [FQNS.OL_TITLE, 0]),
+      }));
     setTableData(data.toJS());
   }, [dataSetColumns]);
+
+  const handleOnSubmitUpdate = ({ description, title }) => {
+    dispatch(
+      updateOrganizationDataSet({
+        dataSetId,
+        description,
+        entityKeyId: modalState.data.id,
+        isColumn: true,
+        organizationId,
+        title,
+      })
+    );
+  };
 
   const components = useMemo(() => ({
     Row: ({ data, components: innerComponents, headers } :any) => (
@@ -99,13 +137,13 @@ const DataSetMetaDataContainer = ({
   return (
     <AppContentWrapper>
       <Table components={components} data={tableData} headers={TABLE_HEADERS} />
-      <EditMetadataModal
-          data={modalState.data}
-          dataSetId={dataSetId}
-          isColumn
+      <UpdateMetaModal
           isVisible={modalState.isVisible}
           onClose={() => modalDispatch({ type: CLOSE })}
-          organizationId={organizationId} />
+          onSubmit={handleOnSubmitUpdate}
+          requestState={updateOrgDataSetRS}
+          requestStateAction={UPDATE_ORGANIZATION_DATA_SET}
+          schema={modalState.schema} />
     </AppContentWrapper>
   );
 };

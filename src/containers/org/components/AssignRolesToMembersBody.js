@@ -1,4 +1,6 @@
-// @flow
+/*
+ * @flow
+ */
 
 import React, { useState } from 'react';
 
@@ -11,16 +13,15 @@ import type { RequestState } from 'redux-reqseq';
 import SelectRoles from './SelectRoles';
 import StyledFooter from './styled/StyledFooter';
 
-import ResetOnUnmount from '../../../components/other/ResetOnUnmount';
 import StepConfirm from '../../permissions/StepConfirm';
-import { ModalBody } from '../../../components';
+import { ModalBody, ResetOnUnmount } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserProfile } from '../../../utils';
 import { ASSIGN_ROLES_TO_MEMBERS, assignRolesToMembers } from '../actions';
 
 const { isPending, isSuccess } = ReduxUtils;
 
-const resetStatePath = [[ASSIGN_ROLES_TO_MEMBERS]];
+const RESET_ACTIONS = [ASSIGN_ROLES_TO_MEMBERS];
 
 type Props = {
   members :Map;
@@ -91,7 +92,7 @@ const AssignRolesToMembersModalBody = ({
         step === 1 && (
           <>
             <ModalBody>
-              <ResetOnUnmount paths={resetStatePath}>
+              <ResetOnUnmount actions={RESET_ACTIONS}>
                 <StepConfirm
                     confirmText={confirmText}
                     requestState={requestState}

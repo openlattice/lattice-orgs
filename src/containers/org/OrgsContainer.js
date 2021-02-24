@@ -14,20 +14,21 @@ import {
 import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
+import { CreateOrgModal } from './components';
+
 import {
   ActionsGrid,
   PlusButton,
   SimpleOrganizationCard,
   StackGrid,
 } from '../../components';
-import { ORGANIZATIONS, ORGS } from '../../core/redux/constants';
+import { selectOrganizations } from '../../core/redux/selectors';
 import {
   FILTER,
   INITIAL_PAGINATION_STATE,
   PAGE,
   paginationReducer,
 } from '../../utils/stateReducers/pagination';
-import { CreateOrgModal } from '../org/components';
 
 const MAX_PER_PAGE = 10;
 
@@ -36,7 +37,7 @@ const OrgsContainer = () => {
   const [isVisibleAddOrgModal, setIsVisibleCreateOrgModal] = useState(false);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
 
-  const organizations :Map<UUID, Organization> = useSelector((s) => s.getIn([ORGANIZATIONS, ORGS]));
+  const organizations :Map<UUID, Organization> = useSelector(selectOrganizations());
   const filteredOrganizations = organizations.filter((org :Organization, orgId :UUID) => (
     org && (paginationState.query === orgId || org.title.toLowerCase().includes(paginationState.query.toLowerCase()))
   ));

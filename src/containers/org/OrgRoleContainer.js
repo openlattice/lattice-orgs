@@ -6,7 +6,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 import { AppContentWrapper, Modal, Typography } from 'lattice-ui-kit';
-import { LangUtils, ReduxUtils } from 'lattice-utils';
+import { LangUtils } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
 
@@ -19,6 +19,7 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
+import { selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { goToRoute } from '../../core/router/actions';
 import {
@@ -29,7 +30,6 @@ import {
 } from '../permissions';
 
 const { isNonEmptyString } = LangUtils;
-const { selectOrganization } = ReduxUtils;
 
 const getPanelColumnSize = ({ isVisiblePanelColumn }) => (
   isVisiblePanelColumn ? 'minmax(auto, 384px)' : 'auto'

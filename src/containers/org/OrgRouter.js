@@ -30,7 +30,7 @@ import { OrgMemberContainer, OrgPeopleContainer } from './people';
 
 import { BasicErrorComponent, Spinner } from '../../components';
 import { INITIALIZE_ORGANIZATION_DATA_SET, initializeOrganizationDataSet } from '../../core/edm/actions';
-import { resetRequestState } from '../../core/redux/actions';
+import { resetRequestStates } from '../../core/redux/actions';
 import { EDM, ORGANIZATIONS } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
 import { SEARCH_DATA, SEARCH_ORGANIZATION_DATA_SETS, clearSearchState } from '../../core/search/actions';
@@ -107,18 +107,18 @@ const OrgRouter = () => {
 
   useEffect(() => {
     // reset INITIALIZE_ORGANIZATION RequestState when the org id changes
-    dispatch(resetRequestState([INITIALIZE_ORGANIZATION]));
+    dispatch(resetRequestStates([INITIALIZE_ORGANIZATION]));
     dispatch(initializeOrganization(organizationId));
     return () => {
       dispatch(clearSearchState(SEARCH_DATA));
       dispatch(clearSearchState(SEARCH_ORGANIZATION_DATA_SETS));
-      dispatch(resetRequestState([INITIALIZE_ORGANIZATION]));
+      dispatch(resetRequestStates([INITIALIZE_ORGANIZATION]));
     };
   }, [dispatch, organizationId]);
 
   useEffect(() => {
     // reset INITIALIZE_ORGANIZATION_DATA_SET RequestState when the data set id changes
-    dispatch(resetRequestState([INITIALIZE_ORGANIZATION_DATA_SET]));
+    dispatch(resetRequestStates([INITIALIZE_ORGANIZATION_DATA_SET]));
     if (isSuccess(initializeOrganizationRS) && isValidUUID(dataSetId)) {
       dispatch(initializeOrganizationDataSet({ dataSetId, organizationId }));
     }

@@ -20,9 +20,8 @@ import AddMemberListItem from './AddMemberListItem';
 import SearchMemberBar from './SearchMemberBar';
 import StyledFooter from './styled/StyledFooter';
 
-import ResetOnUnmount from '../../../components/other/ResetOnUnmount';
 import StepConfirm from '../../permissions/StepConfirm';
-import { ModalBody } from '../../../components';
+import { ModalBody, ResetOnUnmount } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserProfile } from '../../../utils';
 import { ADD_MEMBERS_TO_ORGANIZATION, addMembersToOrganization } from '../actions';
@@ -36,7 +35,7 @@ type Props = {
   organizationId :UUID;
 };
 
-const resetStatePath = [[ADD_MEMBERS_TO_ORGANIZATION]];
+const RESET_ACTIONS = [ADD_MEMBERS_TO_ORGANIZATION];
 
 const AddMembersToOrganzationModalBody = ({ members, onClose, organizationId } :Props) => {
   const dispatch = useDispatch();
@@ -110,7 +109,7 @@ const AddMembersToOrganzationModalBody = ({ members, onClose, organizationId } :
         step === 1 && (
           <>
             <ModalBody>
-              <ResetOnUnmount paths={resetStatePath}>
+              <ResetOnUnmount actions={RESET_ACTIONS}>
                 <StepConfirm
                     confirmText={confirmText}
                     requestState={requestState}

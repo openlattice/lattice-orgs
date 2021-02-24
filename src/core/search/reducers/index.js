@@ -8,8 +8,8 @@ import clearSearchStateReducer from './clearSearchStateReducer';
 import searchDataReducer from './searchDataReducer';
 import searchOrganizationDataSetsReducer from './searchOrganizationDataSetsReducer';
 
-import { RESET_REQUEST_STATE } from '../../redux/actions';
-import { resetRequestStateReducer } from '../../redux/reducers';
+import { RESET_REQUEST_STATES } from '../../redux/actions';
+import { resetRequestStatesReducer } from '../../redux/reducers';
 import {
   CLEAR_SEARCH_STATE,
   SEARCH_DATA,
@@ -32,8 +32,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return clearSearchStateReducer(state, action);
     }
 
-    case RESET_REQUEST_STATE: {
-      return resetRequestStateReducer(state, action);
+    case RESET_REQUEST_STATES: {
+      return resetRequestStatesReducer(state, action);
     }
 
     case searchData.case(action.type): {

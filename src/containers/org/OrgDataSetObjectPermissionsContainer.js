@@ -19,7 +19,7 @@ import {
 } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { GET_ORG_DATA_SET_OBJECT_PERMISSIONS } from '../../core/permissions/actions';
-import { resetRequestState } from '../../core/redux/actions';
+import { resetRequestStates } from '../../core/redux/actions';
 import { selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
 import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
 
@@ -50,7 +50,7 @@ const OrgDataSetObjectPermissionsContainer = ({
   const objectKey = useMemo(() => List([dataSetId]), [dataSetId]);
 
   useEffect(() => () => {
-    dispatch(resetRequestState([GET_ORG_DATA_SET_OBJECT_PERMISSIONS]));
+    dispatch(resetRequestStates([GET_ORG_DATA_SET_OBJECT_PERMISSIONS]));
   }, [dispatch]);
 
   const onOpenPermissionsModal = () => setIsVisibleAssignPermissionsModal(true);
