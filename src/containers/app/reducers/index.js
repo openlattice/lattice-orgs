@@ -6,9 +6,9 @@ import { Map, fromJS } from 'immutable';
 
 import initializeApplicationReducer from './initializeApplicationReducer';
 
-import { RESET_REQUEST_STATE } from '../../../core/redux/actions';
+import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import { RS_INITIAL_STATE } from '../../../core/redux/constants';
-import { resetRequestStateReducer } from '../../../core/redux/reducers';
+import { resetRequestStatesReducer } from '../../../core/redux/reducers';
 import { INITIALIZE_APPLICATION, initializeApplication } from '../actions';
 
 const INITIAL_STATE :Map = fromJS({
@@ -19,8 +19,8 @@ export default function reducer(state :Map<*, *> = INITIAL_STATE, action :Object
 
   switch (action.type) {
 
-    case RESET_REQUEST_STATE: {
-      return resetRequestStateReducer(state, action);
+    case RESET_REQUEST_STATES: {
+      return resetRequestStatesReducer(state, action);
     }
 
     case initializeApplication.case(action.type): {
