@@ -8,19 +8,18 @@ import {
   put,
   takeEvery,
 } from '@redux-saga/core/effects';
+import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
 import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
+import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { INITIALIZE_APPLICATION, initializeApplication } from './AppActions';
+import { getEntityDataModelTypes } from '../../../core/edm/actions';
+import { getEntityDataModelTypesWorker } from '../../../core/edm/sagas';
+import { INITIALIZE_APPLICATION, initializeApplication } from '../actions';
 
-import { EDMActions, EDMSagas } from '../../core/edm';
-import { OrgsActions, OrgsSagas } from '../orgs';
-
-const { getEntityDataModelTypes } = EDMActions;
-const { getEntityDataModelTypesWorker } = EDMSagas;
-const { getOrganizationsAndAuthorizations } = OrgsActions;
-const { getOrganizationsAndAuthorizationsWorker } = OrgsSagas;
+const { getAllOrganizations } = OrganizationsApiActions;
+const { getAllOrganizationsWorker } = OrganizationsApiSagas;
 
 const { toSagaError } = AxiosUtils;
 
@@ -30,12 +29,12 @@ function* initializeApplicationWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(initializeApplication.request(action.id));
-    const responses :Object[] = yield all([
+    const [edmResponse, orgsResponse] :WorkerResponse[] = yield all([
       call(getEntityDataModelTypesWorker, getEntityDataModelTypes()),
-      call(getOrganizationsAndAuthorizationsWorker, getOrganizationsAndAuthorizations()),
+      call(getAllOrganizationsWorker, getAllOrganizations()),
     ]);
-    if (responses[0].error) throw responses[0].error;
-    if (responses[1].error) throw responses[1].error;
+    if (edmResponse.error) throw edmResponse.error;
+    if (orgsResponse.error) throw orgsResponse.error;
 
     yield put(initializeApplication.success(action.id));
   }

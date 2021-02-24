@@ -7,7 +7,6 @@ import { ReduxUtils } from 'lattice-utils';
 export const {
   selectEntitySets,
   selectEntityTypes,
-  selectOrganization,
   selectPropertyTypes,
 } = ReduxUtils;
 
@@ -23,9 +22,11 @@ export { default as selectOrgDataSet } from './selectOrgDataSet';
 export { default as selectOrgDataSetColumns } from './selectOrgDataSetColumns';
 export { default as selectOrgDataSets } from './selectOrgDataSets';
 export { default as selectOrgDataSetsColumns } from './selectOrgDataSetsColumns';
+export { default as selectOrganization } from './selectOrganization';
 export { default as selectOrganizationEntitySetIds } from './selectOrganizationEntitySetIds';
 export { default as selectOrganizationIntegrationDetails } from './selectOrganizationIntegrationDetails';
 export { default as selectOrganizationMembers } from './selectOrganizationMembers';
+export { default as selectOrganizations } from './selectOrganizations';
 export { default as selectPermissionsByPrincipal } from './selectPermissionsByPrincipal';
 export { default as selectPrincipalPermissions } from './selectPrincipalPermissions';
 export { default as selectSearchHits } from './selectSearchHits';

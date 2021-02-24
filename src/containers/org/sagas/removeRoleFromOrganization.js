@@ -9,16 +9,16 @@ import {
   takeEvery,
 } from '@redux-saga/core/effects';
 import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
-import { Logger, ReduxUtils, ValidationUtils } from 'lattice-utils';
+import { Logger, ValidationUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { Organization, Role, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { selectOrganization } from '../../../core/redux/selectors';
 import { REMOVE_ROLE_FROM_ORGANIZATION, removeRoleFromOrganization } from '../actions';
 
 const { deleteRole } = OrganizationsApiActions;
 const { deleteRoleWorker } = OrganizationsApiSagas;
-const { selectOrganization } = ReduxUtils;
 const { isValidUUID } = ValidationUtils;
 
 const LOG = new Logger('OrgsSagas');

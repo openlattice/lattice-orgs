@@ -18,7 +18,6 @@ export const {
   HITS,
   MEMBERS,
   ORGANIZATIONS,
-  ORGS,
   PAGE,
   PERMISSIONS,
   PROPERTY_TYPES,
