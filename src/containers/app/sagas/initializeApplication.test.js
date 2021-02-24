@@ -1,3 +1,7 @@
+/*
+ * @flow
+ */
+
 import { all, call, put } from '@redux-saga/core/effects';
 import { v4 as uuid } from 'uuid';
 
@@ -10,7 +14,11 @@ import {
   testShouldBeGeneratorFunction,
   testWatcherSagaShouldTakeEvery,
 } from '../../../utils/testing/TestUtils';
+import { GET_ORGANIZATIONS_AND_AUTHORIZATIONS } from '../../org/actions';
+import { getOrganizationsAndAuthorizationsWorker } from '../../org/sagas';
 import { INITIALIZE_APPLICATION, initializeApplication } from '../actions';
+
+const MOCK_RESPONSE = { data: true };
 
 describe('AppSagas', () => {
 
@@ -46,11 +54,22 @@ describe('AppSagas', () => {
       step = iterator.next();
       expect(step.value).toEqual(
         all([
-          call(getEntityDataModelTypesWorker, { id: expect.any(String), type: GET_EDM_TYPES, value: {} }),
+          call(getEntityDataModelTypesWorker, {
+            // $FlowIgnore
+            id: expect.any(String),
+            type: GET_EDM_TYPES,
+            value: {},
+          }),
+          call(getOrganizationsAndAuthorizationsWorker, {
+            // $FlowIgnore
+            id: expect.any(String),
+            type: GET_ORGANIZATIONS_AND_AUTHORIZATIONS,
+            value: {},
+          }),
         ])
       );
 
-      step = iterator.next([{ data: true }]);
+      step = iterator.next([MOCK_RESPONSE, MOCK_RESPONSE]);
       expect(step.value).toEqual(
         put({
           id: workerSagaAction.id,
@@ -75,7 +94,6 @@ describe('AppSagas', () => {
     test('failure case', () => {
 
       const mockActionValue = uuid();
-      const mockError = new Error(500);
       const workerSagaAction = initializeApplication(mockActionValue);
       const iterator = initializeApplicationWorker(workerSagaAction);
       expect(Object.prototype.toString.call(iterator)).toEqual(GENERATOR_TAG);
@@ -89,12 +107,12 @@ describe('AppSagas', () => {
         })
       );
 
-      step = iterator.throw(mockError);
+      step = iterator.throw(new Error('fail'));
       expect(step.value).toEqual(
         put({
           id: workerSagaAction.id,
           type: initializeApplication.FAILURE,
-          value: mockError,
+          value: {},
         })
       );
 
