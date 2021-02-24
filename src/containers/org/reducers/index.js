@@ -23,14 +23,14 @@ import removeRoleFromMemberReducer from './removeRoleFromMemberReducer';
 import removeRoleFromOrganizationReducer from './removeRoleFromOrganizationReducer';
 import renameOrganizationDatabaseReducer from './renameOrganizationDatabaseReducer';
 
-import { RESET_REQUEST_STATE } from '../../../core/redux/actions';
+import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
   INTEGRATION_DETAILS,
   MEMBERS,
   ORGANIZATIONS,
   RS_INITIAL_STATE,
 } from '../../../core/redux/constants';
-import { resetRequestStateReducer } from '../../../core/redux/reducers';
+import { resetRequestStatesReducer } from '../../../core/redux/reducers';
 import {
   ADD_MEMBERS_TO_ORGANIZATION,
   ADD_ROLE_TO_ORGANIZATION,
@@ -100,8 +100,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
   switch (action.type) {
 
-    case RESET_REQUEST_STATE: {
-      return resetRequestStateReducer(state, action);
+    case RESET_REQUEST_STATES: {
+      return resetRequestStatesReducer(state, action);
     }
 
     case addMemberToOrganization.case(action.type): {
