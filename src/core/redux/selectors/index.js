@@ -26,6 +26,7 @@ export { default as selectOrgDataSetsColumns } from './selectOrgDataSetsColumns'
 export { default as selectOrganizationEntitySetIds } from './selectOrganizationEntitySetIds';
 export { default as selectOrganizationIntegrationDetails } from './selectOrganizationIntegrationDetails';
 export { default as selectOrganizationMembers } from './selectOrganizationMembers';
+export { default as selectOrganizations } from './selectOrganizations';
 export { default as selectPermissionsByPrincipal } from './selectPermissionsByPrincipal';
 export { default as selectPrincipalPermissions } from './selectPrincipalPermissions';
 export { default as selectSearchHits } from './selectSearchHits';

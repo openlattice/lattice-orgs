@@ -8,7 +8,7 @@ import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { MEMBERS, ORGS, REQUEST_STATE } from '../../../core/redux/constants';
+import { MEMBERS, ORGANIZATIONS, REQUEST_STATE } from '../../../core/redux/constants';
 import { sortOrganizationMembers } from '../utils';
 
 const {
@@ -19,6 +19,10 @@ const {
 } = Models;
 const { PrincipalTypes } = Types;
 const { ADD_MEMBER_TO_ORGANIZATION, addMemberToOrganization } = OrganizationsApiActions;
+
+const addMember = (member :Principal | Map) => (members :List = List()) => (
+  members.push(member).sort(sortOrganizationMembers)
+);
 
 export default function reducer(state :Map, action :SequenceAction) {
   return addMemberToOrganization.reducer(state, action, {
@@ -35,23 +39,18 @@ export default function reducer(state :Map, action :SequenceAction) {
           .setType(PrincipalTypes.USER)
           .build();
 
-        const orgMemberObject = fromJS({
+        const orgMemberObject :Map = fromJS({
           principal: { principal: memberPrincipal.toImmutable() },
           profile,
           roles: List()
         });
 
-        const currentOrg :Organization = state.getIn([ORGS, organizationId]);
-        const updatedOrg :Map = currentOrg
-          .toImmutable()
-          .update(MEMBERS, (members :List = List()) => members.push(memberPrincipal));
+        const currentOrg :Organization = state.getIn([ORGANIZATIONS, organizationId]);
+        const updatedOrg :Map = currentOrg.toImmutable().update(MEMBERS, addMember(memberPrincipal));
 
         return state
-          .updateIn(
-            [MEMBERS, organizationId],
-            (members :List = List()) => members.push(orgMemberObject).sort(sortOrganizationMembers),
-          )
-          .setIn([ORGS, organizationId], (new OrganizationBuilder(updatedOrg)).build())
+          .updateIn([MEMBERS, organizationId], addMember(orgMemberObject))
+          .setIn([ORGANIZATIONS, organizationId], (new OrganizationBuilder(updatedOrg)).build())
           .setIn([ADD_MEMBER_TO_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;

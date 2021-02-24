@@ -12,7 +12,7 @@ import type { SequenceAction } from 'redux-reqseq';
 import {
   ERROR,
   MEMBERS,
-  ORGS,
+  ORGANIZATIONS,
   REQUEST_STATE,
 } from '../../../core/redux/constants';
 
@@ -38,7 +38,7 @@ export default function reducer(state :Map, action :SequenceAction) {
           roleId :UUID;
         } = storedAction.value;
 
-        const targetOrg :Organization = state.getIn([ORGS, organizationId]);
+        const targetOrg :Organization = state.getIn([ORGANIZATIONS, organizationId]);
         const targetRole :?Role = targetOrg.roles.find((role) => role.id === roleId);
         const targetMemberIndex :number = state
           .getIn([MEMBERS, organizationId], List())

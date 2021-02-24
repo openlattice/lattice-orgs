@@ -27,11 +27,10 @@ import {
 } from '../../../core/permissions/actions';
 import { resetRequestState } from '../../../core/redux/actions';
 import { selectMyKeys, selectOrganizationMembers } from '../../../core/redux/selectors';
-import { UsersActions } from '../../../core/users';
+import { resetUserSearchResults } from '../../../core/users/actions';
 
 const { PermissionTypes } = Types;
 
-const { resetUserSearchResults } = UsersActions;
 const { selectOrganization } = ReduxUtils;
 
 const MEMBERS_DESCRIPTION = 'People can be granted data permissions on an individual level or by an assigned role.'

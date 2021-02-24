@@ -14,13 +14,10 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { INITIALIZE_APPLICATION, initializeApplication } from './AppActions';
 
-import { EDMActions, EDMSagas } from '../../core/edm';
-import { OrgsActions, OrgsSagas } from '../orgs';
-
-const { getEntityDataModelTypes } = EDMActions;
-const { getEntityDataModelTypesWorker } = EDMSagas;
-const { getOrganizationsAndAuthorizations } = OrgsActions;
-const { getOrganizationsAndAuthorizationsWorker } = OrgsSagas;
+import { getEntityDataModelTypes } from '../../core/edm/actions';
+import { getEntityDataModelTypesWorker } from '../../core/edm/sagas';
+import { getOrganizationsAndAuthorizations } from '../org/actions';
+import { getOrganizationsAndAuthorizationsWorker } from '../org/sagas';
 
 const { toSagaError } = AxiosUtils;
 
