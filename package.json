@@ -24,7 +24,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@babel/polyfill": "~7.12.1",
-    "@babel/runtime": "~7.12.18",
+    "@babel/runtime": "~7.13.7",
     "@fortawesome/fontawesome-svg-core": "~1.2.32",
     "@fortawesome/free-solid-svg-icons": "~5.15.1",
     "@fortawesome/pro-duotone-svg-icons": "~5.15.1",
@@ -61,7 +61,7 @@
     "validator": "~13.5.1"
   },
   "devDependencies": {
-    "@babel/cli": "~7.12.17",
+    "@babel/cli": "~7.13.0",
     "@babel/core": "~7.12.17",
     "@babel/plugin-proposal-class-properties": "~7.12.13",
     "@babel/plugin-proposal-object-rest-spread": "~7.13.0",
