@@ -14,9 +14,9 @@ import createNewOrganizationReducer from './createNewOrganizationReducer';
 import deleteExistingOrganizationReducer from './deleteExistingOrganizationReducer';
 import editOrganizationDetailsReducer from './editOrganizationDetailsReducer';
 import editRoleDetailsReducer from './editRoleDetailsReducer';
+import getAllOrganizationsReducer from './getAllOrganizationsReducer';
 import getOrganizationIntegrationDetailsReducer from './getOrganizationIntegrationDetailsReducer';
 import getOrganizationMembersReducer from './getOrganizationMembersReducer';
-import getOrganizationsAndAuthorizationsReducer from './getOrganizationsAndAuthorizationsReducer';
 import initializeOrganizationReducer from './initializeOrganizationReducer';
 import removeMemberFromOrganizationReducer from './removeMemberFromOrganizationReducer';
 import removeRoleFromMemberReducer from './removeRoleFromMemberReducer';
@@ -39,7 +39,6 @@ import {
   DELETE_EXISTING_ORGANIZATION,
   EDIT_ORGANIZATION_DETAILS,
   EDIT_ROLE_DETAILS,
-  GET_ORGANIZATIONS_AND_AUTHORIZATIONS,
   GET_ORGANIZATION_INTEGRATION_DETAILS,
   INITIALIZE_ORGANIZATION,
   REMOVE_ROLE_FROM_ORGANIZATION,
@@ -51,7 +50,6 @@ import {
   editOrganizationDetails,
   editRoleDetails,
   getOrganizationIntegrationDetails,
-  getOrganizationsAndAuthorizations,
   initializeOrganization,
   removeRoleFromOrganization,
 } from '../actions';
@@ -59,12 +57,14 @@ import {
 const {
   ADD_MEMBER_TO_ORGANIZATION,
   ADD_ROLE_TO_MEMBER,
+  GET_ALL_ORGANIZATIONS,
   GET_ORGANIZATION_MEMBERS,
   REMOVE_MEMBER_FROM_ORGANIZATION,
   REMOVE_ROLE_FROM_MEMBER,
   RENAME_ORGANIZATION_DATABASE,
   addMemberToOrganization,
   addRoleToMember,
+  getAllOrganizations,
   getOrganizationMembers,
   removeMemberFromOrganization,
   removeRoleFromMember,
@@ -82,7 +82,7 @@ const INITIAL_STATE :Map = fromJS({
   [DELETE_EXISTING_ORGANIZATION]: RS_INITIAL_STATE,
   [EDIT_ORGANIZATION_DETAILS]: RS_INITIAL_STATE,
   [EDIT_ROLE_DETAILS]: RS_INITIAL_STATE,
-  [GET_ORGANIZATIONS_AND_AUTHORIZATIONS]: RS_INITIAL_STATE,
+  [GET_ALL_ORGANIZATIONS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_INTEGRATION_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION]: RS_INITIAL_STATE,
@@ -140,8 +140,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return editRoleDetailsReducer(state, action);
     }
 
-    case getOrganizationsAndAuthorizations.case(action.type): {
-      return getOrganizationsAndAuthorizationsReducer(state, action);
+    case getAllOrganizations.case(action.type): {
+      return getAllOrganizationsReducer(state, action);
     }
 
     case getOrganizationIntegrationDetails.case(action.type): {

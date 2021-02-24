@@ -3,6 +3,7 @@
  */
 
 import { all, call, put } from '@redux-saga/core/effects';
+import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
 import { v4 as uuid } from 'uuid';
 
 import { initializeApplicationWatcher, initializeApplicationWorker } from './initializeApplication';
@@ -14,9 +15,10 @@ import {
   testShouldBeGeneratorFunction,
   testWatcherSagaShouldTakeEvery,
 } from '../../../utils/testing/TestUtils';
-import { GET_ORGANIZATIONS_AND_AUTHORIZATIONS } from '../../org/actions';
-import { getOrganizationsAndAuthorizationsWorker } from '../../org/sagas';
 import { INITIALIZE_APPLICATION, initializeApplication } from '../actions';
+
+const { GET_ALL_ORGANIZATIONS } = OrganizationsApiActions;
+const { getAllOrganizationsWorker } = OrganizationsApiSagas;
 
 const MOCK_RESPONSE = { data: true };
 
@@ -60,10 +62,10 @@ describe('AppSagas', () => {
             type: GET_EDM_TYPES,
             value: {},
           }),
-          call(getOrganizationsAndAuthorizationsWorker, {
+          call(getAllOrganizationsWorker, {
             // $FlowIgnore
             id: expect.any(String),
-            type: GET_ORGANIZATIONS_AND_AUTHORIZATIONS,
+            type: GET_ALL_ORGANIZATIONS,
             value: {},
           }),
         ])
