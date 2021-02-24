@@ -25,7 +25,7 @@ import {
   getCurrentRoleAuthorizations,
   resetCurrentRoleAuthorizations
 } from '../../../core/permissions/actions';
-import { resetRequestState } from '../../../core/redux/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
 import { selectMyKeys, selectOrganizationMembers } from '../../../core/redux/selectors';
 import { UsersActions } from '../../../core/users';
 
@@ -76,7 +76,7 @@ const OrgPeopleContainer = ({
     }));
 
     return () => {
-      dispatch(resetRequestState([GET_CURRENT_ROLE_AUTHORIZATIONS]));
+      dispatch(resetRequestStates([GET_CURRENT_ROLE_AUTHORIZATIONS]));
       dispatch(resetCurrentRoleAuthorizations());
     };
   }, [dispatch, roleAclKeys]);

@@ -37,7 +37,7 @@ import {
   Spinner,
   StackGrid,
 } from '../../../components';
-import { resetRequestState } from '../../../core/redux/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import {
   selectMyKeys,
@@ -140,7 +140,7 @@ const OrgSettingsContainer = ({
   useEffect(() => {
     dispatch(getOrganizationIntegrationDetails(organizationId));
     return () => {
-      dispatch(resetRequestState([GET_ORGANIZATION_INTEGRATION_DETAILS]));
+      dispatch(resetRequestStates([GET_ORGANIZATION_INTEGRATION_DETAILS]));
     };
   }, [dispatch, organizationId]);
 

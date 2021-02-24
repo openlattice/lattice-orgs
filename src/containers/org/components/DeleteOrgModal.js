@@ -17,9 +17,7 @@ import { DELETE_EXISTING_ORGANIZATION, deleteExistingOrganization } from '../act
 
 const { isSuccess } = ReduxUtils;
 
-const RESET_PATHS = [
-  [DELETE_EXISTING_ORGANIZATION],
-];
+const RESET_ACTIONS = [DELETE_EXISTING_ORGANIZATION];
 
 type Props = {
   isOwner :boolean;
@@ -63,14 +61,14 @@ const DeleteOrgModal = ({
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
-      <ResetOnUnmount paths={RESET_PATHS}>
+      <ResetOnUnmount actions={RESET_ACTIONS}>
         <ModalBody>
           <Typography>Success!</Typography>
         </ModalBody>
       </ResetOnUnmount>
     ),
     [RequestStates.FAILURE]: (
-      <ResetOnUnmount paths={RESET_PATHS}>
+      <ResetOnUnmount actions={RESET_ACTIONS}>
         <ModalBody>
           <Typography>Failed to delete organization. Please try again.</Typography>
         </ModalBody>

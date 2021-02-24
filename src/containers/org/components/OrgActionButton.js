@@ -2,37 +2,49 @@
  * @flow
  */
 
-import React, { useReducer, useRef } from 'react';
+import React, {
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Set } from 'immutable';
 // $FlowFixMe
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
-import { useGoToRoute } from 'lattice-utils';
-import { useSelector } from 'react-redux';
+import { useGoToRoute, useRequestState } from 'lattice-utils';
+import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
+import type { RequestState } from 'redux-reqseq';
 
 import DeleteOrgModal from './DeleteOrgModal';
-import OrgDescriptionModal from './OrgDescriptionModal';
 
+import { UpdateMetaModal } from '../../../components';
+import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { selectMyKeys } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
+import {
+  EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+} from '../../../utils/constants';
+import { EDIT_ORGANIZATION_DETAILS, editOrganizationDetails } from '../actions';
 
 const CLOSE_DELETE = 'CLOSE_DELETE';
-const CLOSE_DESCRIPTION = 'CLOSE_DESCRIPTION';
+const CLOSE_DETAILS = 'CLOSE_DETAILS';
 const CLOSE_MENU = 'CLOSE_MENU';
 const OPEN_DELETE = 'OPEN_DELETE';
-const OPEN_DESCRIPTION = 'OPEN_DESCRIPTION';
+const OPEN_DETAILS = 'OPEN_DETAILS';
 const OPEN_MENU = 'OPEN_MENU';
 
 const INITIAL_STATE :{|
   deleteOpen :boolean;
-  descriptionOpen :boolean;
+  detailsOpen :boolean;
   menuOpen :boolean;
 |} = {
   deleteOpen: false,
-  descriptionOpen: false,
+  detailsOpen: false,
   menuOpen: false,
 };
 
@@ -48,15 +60,15 @@ const reducer = (state, action) => {
         ...state,
         menuOpen: true,
       };
-    case CLOSE_DESCRIPTION:
+    case CLOSE_DETAILS:
       return {
         ...state,
-        descriptionOpen: false,
+        detailsOpen: false,
       };
-    case OPEN_DESCRIPTION:
+    case OPEN_DETAILS:
       return {
         ...state,
-        descriptionOpen: true,
+        detailsOpen: true,
         menuOpen: false,
       };
     case CLOSE_DELETE:
@@ -83,10 +95,25 @@ const OrgActionButton = ({
 
   const organizationId :UUID = (organization.id :any);
 
-  const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
+  const dispatch = useDispatch();
+
+  const [state, stateDispatch] = useReducer(reducer, INITIAL_STATE);
+  const [schema, setSchema] = useState({ dataSchema: DATA_SCHEMA, uiSchema: UI_SCHEMA });
+
+  const editOrgRS :?RequestState = useRequestState([ORGANIZATIONS, EDIT_ORGANIZATION_DETAILS]);
+
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
   const isOwner :boolean = myKeys.has(List([organizationId]));
   const anchorRef = useRef(null);
+
+  useEffect(() => {
+    const dataSchema = JSON.parse(JSON.stringify(DATA_SCHEMA));
+    dataSchema.properties.fields.properties.title.default = organization.title;
+    dataSchema.properties.fields.properties.title.description = "Update this organization's title";
+    dataSchema.properties.fields.properties.description.default = organization.description;
+    dataSchema.properties.fields.properties.description.description = "Update this organization's description";
+    setSchema({ dataSchema, uiSchema: UI_SCHEMA });
+  }, [organization]);
 
   const goToManagePermissions = useGoToRoute(
     Routes.ORG_OBJECT_PERMISSIONS.replace(Routes.ORG_ID_PARAM, organizationId)
@@ -97,27 +124,33 @@ const OrgActionButton = ({
   );
 
   const handleOpenMenu = () => {
-    dispatch({ type: OPEN_MENU });
+    stateDispatch({ type: OPEN_MENU });
   };
 
   const handleCloseMenu = () => {
-    dispatch({ type: CLOSE_MENU });
+    stateDispatch({ type: CLOSE_MENU });
   };
 
-  const handleOpenDescription = () => {
-    dispatch({ type: OPEN_DESCRIPTION });
+  const handleOpenDetails = () => {
+    stateDispatch({ type: OPEN_DETAILS });
   };
 
-  const handleCloseDescription = () => {
-    dispatch({ type: CLOSE_DESCRIPTION });
+  const handleCloseDetails = () => {
+    stateDispatch({ type: CLOSE_DETAILS });
   };
 
   const handleOpenDelete = () => {
-    dispatch({ type: OPEN_DELETE });
+    stateDispatch({ type: OPEN_DELETE });
   };
 
   const handleCloseDelete = () => {
-    dispatch({ type: CLOSE_DELETE });
+    stateDispatch({ type: CLOSE_DELETE });
+  };
+
+  const handleOnSubmitUpdate = ({ description, title }) => {
+    dispatch(
+      editOrganizationDetails({ description, organizationId, title })
+    );
   };
 
   return (
@@ -147,7 +180,7 @@ const OrgActionButton = ({
             horizontal: 'right',
             vertical: 'top',
           }}>
-        <MenuItem disabled={!isOwner} onClick={handleOpenDescription}>
+        <MenuItem disabled={!isOwner} onClick={handleOpenDetails}>
           Edit Details
         </MenuItem>
         <MenuItem onClick={goToSettings}>
@@ -160,10 +193,13 @@ const OrgActionButton = ({
           Delete Organization
         </MenuItem>
       </Menu>
-      <OrgDescriptionModal
-          isVisible={state.descriptionOpen}
-          onClose={handleCloseDescription}
-          organization={organization} />
+      <UpdateMetaModal
+          isVisible={state.detailsOpen}
+          onClose={handleCloseDetails}
+          onSubmit={handleOnSubmitUpdate}
+          requestState={editOrgRS}
+          requestStateAction={EDIT_ORGANIZATION_DETAILS}
+          schema={schema} />
       <DeleteOrgModal
           isOwner={isOwner}
           isVisible={state.deleteOpen}

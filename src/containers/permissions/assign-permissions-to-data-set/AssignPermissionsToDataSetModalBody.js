@@ -19,7 +19,7 @@ import StepConfirm from '../StepConfirm';
 import StepSelectPermissions from '../StepSelectPermissions';
 import { ModalBody, StepsController } from '../../../components';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../../core/permissions/actions';
-import { resetRequestState } from '../../../core/redux/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
 import { PERMISSIONS } from '../../../core/redux/constants';
 import { SEARCH_ORGANIZATION_DATA_SETS, clearSearchState } from '../../../core/search/actions';
 
@@ -48,7 +48,7 @@ const AssignPermissionsToDataSetModalBody = ({
 
   useEffect(() => () => {
     dispatch(clearSearchState(SEARCH_ORGANIZATION_DATA_SETS));
-    dispatch(resetRequestState([ASSIGN_PERMISSIONS_TO_DATA_SET]));
+    dispatch(resetRequestStates([ASSIGN_PERMISSIONS_TO_DATA_SET]));
   }, [dispatch]);
 
   const onConfirm = () => {

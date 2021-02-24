@@ -28,6 +28,15 @@ type ReactSelectOption<V> = {|
   value :V;
 |};
 
+type RJSFError = {
+  message :string;
+  name :string;
+  params :Object;
+  property :string;
+  schemaPath :string;
+  stack :string;
+};
+
 type SagaError = {
   message :string;
   status :number;
@@ -50,6 +59,7 @@ type UserProfile = {
 export type {
   AuthorizationObject,
   DataSetPermissionTypeSelection,
+  RJSFError,
   ReactSelectOption,
   SagaError,
   SearchEntitySetsHit,
