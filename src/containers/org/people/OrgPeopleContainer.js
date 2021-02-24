@@ -22,9 +22,9 @@ import {
 import {
   GET_CURRENT_ROLE_AUTHORIZATIONS,
   getCurrentRoleAuthorizations,
-  resetCurrentRoleAuthorizations
+  resetCurrentRoleAuthorizations,
 } from '../../../core/permissions/actions';
-import { resetRequestState } from '../../../core/redux/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
 import { selectMyKeys, selectOrganization, selectOrganizationMembers } from '../../../core/redux/selectors';
 import { resetUserSearchResults } from '../../../core/users/actions';
 
@@ -72,7 +72,7 @@ const OrgPeopleContainer = ({
     }));
 
     return () => {
-      dispatch(resetRequestState([GET_CURRENT_ROLE_AUTHORIZATIONS]));
+      dispatch(resetRequestStates([GET_CURRENT_ROLE_AUTHORIZATIONS]));
       dispatch(resetCurrentRoleAuthorizations());
     };
   }, [dispatch, roleAclKeys]);

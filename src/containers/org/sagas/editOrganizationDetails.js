@@ -1,4 +1,6 @@
-// @flow
+/*
+ * @flow
+ */
 
 import {
   all,
@@ -15,6 +17,7 @@ import { EDIT_ORGANIZATION_DETAILS, editOrganizationDetails } from '../actions';
 
 const { updateOrganizationTitleWorker, updateOrganizationDescriptionWorker } = OrganizationsApiSagas;
 const { updateOrganizationTitle, updateOrganizationDescription } = OrganizationsApiActions;
+
 const LOG = new Logger('OrgSagas');
 
 function* editOrganizationDetailsWorker(action :SequenceAction) :Saga<void> {

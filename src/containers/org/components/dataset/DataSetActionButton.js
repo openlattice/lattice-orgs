@@ -2,7 +2,12 @@
  * @flow
  */
 
-import React, { useEffect, useReducer, useRef } from 'react';
+import React, {
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,14 +16,18 @@ import { Types } from 'lattice';
 import { DataSetsApiActions } from 'lattice-sagas';
 // $FlowFixMe
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
-import { DataUtils, useGoToRoute } from 'lattice-utils';
+import { DataUtils, useGoToRoute, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { FQN, UUID } from 'lattice';
+import type { RequestState } from 'redux-reqseq';
 
 import AssembleMenuItem from './AssembleMenuItem';
 import PromoteTableModal from './PromoteTableModal';
 
+import { UpdateMetaModal } from '../../../../components';
+import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../../../core/edm/actions';
 import { FQNS } from '../../../../core/edm/constants';
+import { EDM } from '../../../../core/redux/constants';
 import {
   selectCurrentAuthorization,
   selectDataSetSchema,
@@ -27,20 +36,25 @@ import {
 } from '../../../../core/redux/selectors';
 import { Routes } from '../../../../core/router';
 import { isAtlasDataSet } from '../../../../utils';
-import { OPENLATTICE } from '../../../../utils/constants';
+import {
+  EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+  OPENLATTICE,
+} from '../../../../utils/constants';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
 const { EntitySetFlagTypes, PermissionTypes } = Types;
-const { getPropertyValue } = DataUtils;
+const { getEntityKeyId, getPropertyValue } = DataUtils;
 
-const CLOSE_PROMOTE_DIALOG = 'CLOSE_PROMOTE_DIALOG';
+const CLOSE_DETAILS = 'CLOSE_DETAILS';
 const CLOSE_MENU = 'CLOSE_MENU';
-const OPEN_PROMOTE_DIALOG = 'OPEN_PROMOTE_DIALOG';
+const CLOSE_PROMOTE_DIALOG = 'CLOSE_PROMOTE_DIALOG';
+const OPEN_DETAILS = 'OPEN_DETAILS';
 const OPEN_MENU = 'OPEN_MENU';
+const OPEN_PROMOTE_DIALOG = 'OPEN_PROMOTE_DIALOG';
 
 const INITIAL_STATE = {
-  assembleOpen: false,
-  disassembleOpen: false,
+  detailsOpen: false,
   menuOpen: false,
   promoteOpen: false,
 };
@@ -68,6 +82,17 @@ const reducer = (state, action) => {
         menuOpen: false,
         promoteOpen: true,
       };
+    case CLOSE_DETAILS:
+      return {
+        ...state,
+        detailsOpen: false,
+      };
+    case OPEN_DETAILS:
+      return {
+        ...state,
+        detailsOpen: true,
+        menuOpen: false,
+      };
     default:
       return state;
   }
@@ -86,6 +111,9 @@ const DataSetActionButton = ({
   const dispatch = useDispatch();
 
   const [state, stateDispatch] = useReducer(reducer, INITIAL_STATE);
+  const [schema, setSchema] = useState({ dataSchema: DATA_SCHEMA, uiSchema: UI_SCHEMA });
+
+  const updateOrgDataSetRS :?RequestState = useRequestState([EDM, UPDATE_ORGANIZATION_DATA_SET]);
 
   const hasMaterialize :boolean = useSelector(selectCurrentAuthorization(dataSetKey, PermissionTypes.MATERIALIZE));
   const dataSetSchema = useSelector(selectDataSetSchema(dataSetId));
@@ -95,8 +123,10 @@ const DataSetActionButton = ({
   const isOrgOwner :boolean = myKeys.has(List([organizationId]));
 
   const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSetDescription :string = getPropertyValue(dataSet, [FQNS.OL_DESCRIPTION, 0]);
   const dataSetName :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
   const dataSetFlags :List<string> = getPropertyValue(dataSet, FQNS.OL_FLAGS, List());
+  const dataSetTitle :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
   const isAtlas :boolean = isAtlasDataSet(dataSet);
   const isAssembled = isAtlas ? false : dataSetFlags.includes(EntitySetFlagTypes.TRANSPORTED);
   const isPromoted = dataSetSchema === OPENLATTICE;
@@ -114,6 +144,15 @@ const DataSetActionButton = ({
     isAtlas,
     organizationId,
   ]);
+
+  useEffect(() => {
+    const dataSchema = JSON.parse(JSON.stringify(DATA_SCHEMA));
+    dataSchema.properties.fields.properties.title.default = dataSetTitle;
+    dataSchema.properties.fields.properties.title.description = "Update this data set's title";
+    dataSchema.properties.fields.properties.description.default = dataSetDescription;
+    dataSchema.properties.fields.properties.description.description = "Update this data set's description";
+    setSchema({ dataSchema, uiSchema: UI_SCHEMA });
+  }, [dataSetDescription, dataSetTitle]);
 
   const goToManagePermissions = useGoToRoute(
     Routes.ORG_DATA_SET_OBJECT_PERMISSIONS
@@ -137,6 +176,27 @@ const DataSetActionButton = ({
 
   const handleClosePromote = () => {
     stateDispatch({ type: CLOSE_PROMOTE_DIALOG });
+  };
+
+  const handleOpenDetails = () => {
+    stateDispatch({ type: OPEN_DETAILS });
+  };
+
+  const handleCloseDetails = () => {
+    stateDispatch({ type: CLOSE_DETAILS });
+  };
+
+  const handleOnSubmitUpdate = ({ description, title }) => {
+    dispatch(
+      updateOrganizationDataSet({
+        dataSetId,
+        description,
+        entityKeyId: getEntityKeyId(dataSet),
+        isColumn: false,
+        organizationId,
+        title,
+      })
+    );
   };
 
   return (
@@ -166,6 +226,9 @@ const DataSetActionButton = ({
             horizontal: 'right',
             vertical: 'top',
           }}>
+        <MenuItem disabled={!isDataSetOwner} onClick={handleOpenDetails}>
+          Edit Details
+        </MenuItem>
         {
           isAtlas && (
             <MenuItem disabled={!isOrgOwner || isPromoted} onClick={handleOpenPromote}>
@@ -200,6 +263,13 @@ const DataSetActionButton = ({
           isVisible={state.promoteOpen}
           onClose={handleClosePromote}
           organizationId={organizationId} />
+      <UpdateMetaModal
+          isVisible={state.detailsOpen}
+          onClose={handleCloseDetails}
+          onSubmit={handleOnSubmitUpdate}
+          requestState={updateOrgDataSetRS}
+          requestStateAction={UPDATE_ORGANIZATION_DATA_SET}
+          schema={schema} />
     </>
   );
 };

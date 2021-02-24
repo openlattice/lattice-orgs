@@ -5,16 +5,14 @@
 import React from 'react';
 
 import { OrganizationsApiActions } from 'lattice-sagas';
-import { ActionModal } from 'lattice-ui-kit';
+import { ActionModal, Typography } from 'lattice-ui-kit';
 import { PersonUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import ResetOnUnmount from './ResetOnUnmount';
-
-import { ModalBody } from '../../../components';
+import { ModalBody, ResetOnUnmount } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserTitle } from '../../../utils';
 
@@ -22,7 +20,7 @@ const { getUserId } = PersonUtils;
 
 const { REMOVE_MEMBER_FROM_ORGANIZATION, removeMemberFromOrganization } = OrganizationsApiActions;
 
-const resetStatePath = [REMOVE_MEMBER_FROM_ORGANIZATION];
+const RESET_ACTIONS = [REMOVE_MEMBER_FROM_ORGANIZATION];
 
 type Props = {
   isVisible :boolean;
@@ -50,10 +48,14 @@ const RemoveMemberFromOrgModal = ({
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
-      <ResetOnUnmount path={resetStatePath} message="Success!" />
+      <ResetOnUnmount actions={RESET_ACTIONS}>
+        <Typography>Success!</Typography>
+      </ResetOnUnmount>
     ),
     [RequestStates.FAILURE]: (
-      <ResetOnUnmount path={resetStatePath} message="Failed to remove member. Please try again." />
+      <ResetOnUnmount actions={RESET_ACTIONS}>
+        <Typography>Failed to remove member. Please try again.</Typography>
+      </ResetOnUnmount>
     ),
   };
 

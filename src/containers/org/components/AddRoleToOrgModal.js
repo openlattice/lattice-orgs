@@ -13,7 +13,7 @@ import type { Organization, Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody } from '../../../components';
-import { resetRequestState } from '../../../core/redux/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { ADD_ROLE_TO_ORGANIZATION, addRoleToOrganization } from '../actions';
 
@@ -60,7 +60,7 @@ const AddRoleToOrgModal = ({
     onClose();
     // the timeout avoids rendering the modal with new state before the transition animation finishes
     setTimeout(() => {
-      dispatch(resetRequestState([ADD_ROLE_TO_ORGANIZATION]));
+      dispatch(resetRequestStates([ADD_ROLE_TO_ORGANIZATION]));
     }, 1000);
   };
 
