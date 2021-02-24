@@ -12,13 +12,13 @@ import {
 } from 'lattice-sagas';
 import type { Saga } from '@redux-saga/core';
 
+import * as AppSagas from '../../containers/app/sagas';
 import * as DataSagas from '../data/sagas';
 import * as EDMSagas from '../edm/sagas';
 import * as OrgSagas from '../../containers/org/sagas';
 import * as PermissionsSagas from '../permissions/sagas';
 import * as RoutingSagas from '../router/RoutingSagas';
 import * as SearchSagas from '../search/sagas';
-import { AppSagas } from '../../containers/app';
 
 export default function* sagas() :Saga<*> {
 

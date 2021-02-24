@@ -12,12 +12,11 @@ import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { INITIALIZE_APPLICATION, initializeApplication } from './AppActions';
-
-import { getEntityDataModelTypes } from '../../core/edm/actions';
-import { getEntityDataModelTypesWorker } from '../../core/edm/sagas';
-import { getOrganizationsAndAuthorizations } from '../org/actions';
-import { getOrganizationsAndAuthorizationsWorker } from '../org/sagas';
+import { getEntityDataModelTypes } from '../../../core/edm/actions';
+import { getEntityDataModelTypesWorker } from '../../../core/edm/sagas';
+import { getOrganizationsAndAuthorizations } from '../../org/actions';
+import { getOrganizationsAndAuthorizationsWorker } from '../../org/sagas';
+import { INITIALIZE_APPLICATION, initializeApplication } from '../actions';
 
 const { toSagaError } = AxiosUtils;
 

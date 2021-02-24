@@ -2,13 +2,6 @@
  * @flow
  */
 
-import * as AppActions from './AppActions';
-import * as AppSagas from './AppSagas';
+/* eslint-disable import/prefer-default-export */
 
 export { default as AppContainer } from './AppContainer';
-export { default as AppReducer } from './AppReducer';
-
-export {
-  AppActions,
-  AppSagas,
-};
