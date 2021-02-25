@@ -15,7 +15,7 @@ module.exports = (env) => {
     output: {
       ...baseConfig.output,
       filename: `${APP_PATHS.REL.STATIC_JS}/app.[contenthash].js`,
-      chunkFilename: `${APP_PATHS.REL.STATIC_JS}/app.chunk.[id].[chunkhash:8].js`,
+      chunkFilename: `${APP_PATHS.REL.STATIC_JS}/app.chunk.[id].[chunkhash].js`,
     },
     plugins: [
       new HtmlWebpackPlugin({
