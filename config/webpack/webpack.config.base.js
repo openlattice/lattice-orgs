@@ -67,7 +67,6 @@ module.exports = (env) => {
   return {
     bail: true,
     entry: [
-      '@babel/polyfill',
       APP_PATHS.ABS.APP,
     ],
     mode: env.production ? ENV_PROD : ENV_DEV,
