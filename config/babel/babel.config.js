@@ -38,7 +38,9 @@ module.exports = {
       targets: ['defaults', 'not ie > 0'],
       useBuiltIns: 'usage',
     }],
+    ['@babel/preset-react', {
+      runtime: 'automatic'
+    }],
     '@babel/preset-flow',
-    '@babel/preset-react',
   ],
 };
