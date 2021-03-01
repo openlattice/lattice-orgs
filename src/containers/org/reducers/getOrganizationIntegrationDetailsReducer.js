@@ -20,16 +20,8 @@ export default function reducer(state :Map, action :SequenceAction) {
     REQUEST: () => state
       .setIn([GET_ORGANIZATION_INTEGRATION_DETAILS, REQUEST_STATE], RequestStates.PENDING)
       .setIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id], action),
-    SUCCESS: () => {
-      const storedAction = state.getIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id]);
-      if (storedAction) {
-        const organizationId :UUID = storedAction.value;
-        return state
-          .setIn([INTEGRATION_DETAILS, organizationId], action.value)
-          .setIn([GET_ORGANIZATION_INTEGRATION_DETAILS, REQUEST_STATE], RequestStates.SUCCESS);
-      }
-      return state;
-    },
+    SUCCESS: () => state
+      .setIn([GET_ORGANIZATION_INTEGRATION_DETAILS, REQUEST_STATE], RequestStates.SUCCESS),
     FAILURE: () => {
       if (state.hasIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id])) {
         return state
