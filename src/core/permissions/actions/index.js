@@ -16,11 +16,8 @@ const getCurrentDataSetAuthorizations :RequestSequence = newRequestSequence(GET_
 const GET_CURRENT_ROLE_AUTHORIZATIONS :'GET_CURRENT_ROLE_AUTHORIZATIONS' = 'GET_CURRENT_ROLE_AUTHORIZATIONS';
 const getCurrentRoleAuthorizations :RequestSequence = newRequestSequence(GET_CURRENT_ROLE_AUTHORIZATIONS);
 
-const GET_DATA_SET_KEYS :'GET_DATA_SET_KEYS' = 'GET_DATA_SET_KEYS';
-const getDataSetKeys :RequestSequence = newRequestSequence(GET_DATA_SET_KEYS);
-
-const GET_DATA_SET_PERMISSIONS :'GET_DATA_SET_PERMISSIONS' = 'GET_DATA_SET_PERMISSIONS';
-const getDataSetPermissions :RequestSequence = newRequestSequence(GET_DATA_SET_PERMISSIONS);
+const GET_DATA_SET_PERMISSIONS_PAGE :'GET_DATA_SET_PERMISSIONS_PAGE' = 'GET_DATA_SET_PERMISSIONS_PAGE';
+const getDataSetPermissionsPage :RequestSequence = newRequestSequence(GET_DATA_SET_PERMISSIONS_PAGE);
 
 const GET_ORG_DATA_SET_OBJECT_PERMISSIONS :'GET_ORG_DATA_SET_OBJECT_PERMISSIONS' = 'GET_ORG_DATA_SET_OBJECT_PERMISSIONS';
 const getOrgDataSetObjectPermissions :RequestSequence = newRequestSequence(GET_ORG_DATA_SET_OBJECT_PERMISSIONS);
@@ -31,17 +28,8 @@ const getOrgObjectPermissions :RequestSequence = newRequestSequence(GET_ORG_OBJE
 const GET_ORG_ROLE_OBJECT_PERMISSIONS :'GET_ORG_ROLE_OBJECT_PERMISSIONS' = 'GET_ORG_ROLE_OBJECT_PERMISSIONS';
 const getOrgRoleObjectPermissions :RequestSequence = newRequestSequence(GET_ORG_ROLE_OBJECT_PERMISSIONS);
 
-const GET_OWNER_STATUS :'GET_OWNER_STATUS' = 'GET_OWNER_STATUS';
-const getOwnerStatus :RequestSequence = newRequestSequence(GET_OWNER_STATUS);
-
-const GET_PAGE_DATA_SET_PERMISSIONS :'GET_PAGE_DATA_SET_PERMISSIONS' = 'GET_PAGE_DATA_SET_PERMISSIONS';
-const getPageDataSetPermissions :RequestSequence = newRequestSequence(GET_PAGE_DATA_SET_PERMISSIONS);
-
 const GET_PERMISSIONS :'GET_PERMISSIONS' = 'GET_PERMISSIONS';
 const getPermissions :RequestSequence = newRequestSequence(GET_PERMISSIONS);
-
-const INITIALIZE_DATA_SET_PERMISSIONS :'INITIALIZE_DATA_SET_PERMISSIONS' = 'INITIALIZE_DATA_SET_PERMISSIONS';
-const initializeDataSetPermissions :RequestSequence = newRequestSequence(INITIALIZE_DATA_SET_PERMISSIONS);
 
 const INITIALIZE_OBJECT_PERMISSIONS :'INITIALIZE_OBJECT_PERMISSIONS' = 'INITIALIZE_OBJECT_PERMISSIONS';
 const initializeObjectPermissions :RequestSequence = newRequestSequence(INITIALIZE_OBJECT_PERMISSIONS);
@@ -61,15 +49,11 @@ export {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   GET_CURRENT_DATA_SET_AUTHORIZATIONS,
   GET_CURRENT_ROLE_AUTHORIZATIONS,
-  GET_DATA_SET_KEYS,
-  GET_DATA_SET_PERMISSIONS,
+  GET_DATA_SET_PERMISSIONS_PAGE,
   GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
   GET_ORG_OBJECT_PERMISSIONS,
   GET_ORG_ROLE_OBJECT_PERMISSIONS,
-  GET_OWNER_STATUS,
-  GET_PAGE_DATA_SET_PERMISSIONS,
   GET_PERMISSIONS,
-  INITIALIZE_DATA_SET_PERMISSIONS,
   INITIALIZE_OBJECT_PERMISSIONS,
   RESET_CURRENT_ROLE_AUTHORIZATIONS,
   SET_PERMISSIONS,
@@ -77,15 +61,11 @@ export {
   assignPermissionsToDataSet,
   getCurrentDataSetAuthorizations,
   getCurrentRoleAuthorizations,
-  getDataSetKeys,
-  getDataSetPermissions,
+  getDataSetPermissionsPage,
   getOrgDataSetObjectPermissions,
   getOrgObjectPermissions,
   getOrgRoleObjectPermissions,
-  getOwnerStatus,
-  getPageDataSetPermissions,
   getPermissions,
-  initializeDataSetPermissions,
   initializeObjectPermissions,
   resetCurrentRoleAuthorizations,
   setPermissions,

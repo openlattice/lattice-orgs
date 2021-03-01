@@ -2,21 +2,34 @@
  * @flow
  */
 
-import React, { useReducer, useRef } from 'react';
+import React, {
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { List, Set } from 'immutable';
 // $FlowFixMe
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
-import { useGoToRoute } from 'lattice-utils';
-import { useSelector } from 'react-redux';
+import { useGoToRoute, useRequestState } from 'lattice-utils';
+import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, Role, UUID } from 'lattice';
+import type { RequestState } from 'redux-reqseq';
 
 import RemoveRoleFromOrgModal from './RemoveRoleFromOrgModal';
-import RoleDetailsModal from './RoleDetailsModal';
 
-import { selectCurrentUserIsOrgOwner } from '../../../core/redux/selectors';
+import { UpdateMetaModal } from '../../../components';
+import { ORGANIZATIONS } from '../../../core/redux/constants';
+import { selectMyKeys } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
+import {
+  EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+} from '../../../utils/constants';
+import { EDIT_ROLE_DETAILS, editRoleDetails } from '../actions';
 
 const CLOSE_DETAILS = 'CLOSE_DETAILS';
 const CLOSE_MENU = 'CLOSE_MENU';
@@ -82,9 +95,25 @@ const RoleActionButton = ({
   const organizationId :UUID = (organization.id :any);
   const roleId :UUID = (role.id :any);
 
-  const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
-  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+  const dispatch = useDispatch();
+
+  const [state, stateDispatch] = useReducer(reducer, INITIAL_STATE);
+  const [schema, setSchema] = useState({ dataSchema: DATA_SCHEMA, uiSchema: UI_SCHEMA });
+
+  const editRoleRS :?RequestState = useRequestState([ORGANIZATIONS, EDIT_ROLE_DETAILS]);
+
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isOwner :boolean = myKeys.has(List([organizationId]));
   const anchorRef = useRef(null);
+
+  useEffect(() => {
+    const dataSchema = JSON.parse(JSON.stringify(DATA_SCHEMA));
+    dataSchema.properties.fields.properties.title.default = role.title;
+    dataSchema.properties.fields.properties.title.description = "Update this role's title";
+    dataSchema.properties.fields.properties.description.default = role.description;
+    dataSchema.properties.fields.properties.description.description = "Update this role's description";
+    setSchema({ dataSchema, uiSchema: UI_SCHEMA });
+  }, [role]);
 
   const goToManagePermissions = useGoToRoute(
     Routes.ORG_ROLE_OBJECT_PERMISSIONS
@@ -93,27 +122,38 @@ const RoleActionButton = ({
   );
 
   const handleOpenMenu = () => {
-    dispatch({ type: OPEN_MENU });
+    stateDispatch({ type: OPEN_MENU });
   };
 
   const handleCloseMenu = () => {
-    dispatch({ type: CLOSE_MENU });
+    stateDispatch({ type: CLOSE_MENU });
   };
 
   const handleOpenDetails = () => {
-    dispatch({ type: OPEN_DETAILS });
+    stateDispatch({ type: OPEN_DETAILS });
   };
 
   const handleCloseDetails = () => {
-    dispatch({ type: CLOSE_DETAILS });
+    stateDispatch({ type: CLOSE_DETAILS });
   };
 
   const handleOpenRemoveRole = () => {
-    dispatch({ type: OPEN_REMOVE_ROLE });
+    stateDispatch({ type: OPEN_REMOVE_ROLE });
   };
 
   const handleCloseRemoveRole = () => {
-    dispatch({ type: CLOSE_REMOVE_ROLE });
+    stateDispatch({ type: CLOSE_REMOVE_ROLE });
+  };
+
+  const handleOnSubmitUpdate = ({ description, title }) => {
+    dispatch(
+      editRoleDetails({
+        description,
+        organizationId,
+        roleId,
+        title,
+      })
+    );
   };
 
   return (
@@ -153,16 +193,18 @@ const RoleActionButton = ({
           Manage Permissions
         </MenuItem>
       </Menu>
+      <UpdateMetaModal
+          isVisible={state.detailsOpen}
+          onClose={handleCloseDetails}
+          onSubmit={handleOnSubmitUpdate}
+          requestState={editRoleRS}
+          requestStateAction={EDIT_ROLE_DETAILS}
+          schema={schema} />
       <RemoveRoleFromOrgModal
           isVisible={state.removeRoleOpen}
           onClose={handleCloseRemoveRole}
           organizationId={organizationId}
           roleId={roleId} />
-      <RoleDetailsModal
-          isVisible={state.detailsOpen}
-          onClose={handleCloseDetails}
-          organization={organization}
-          role={role} />
     </>
   );
 };

@@ -11,7 +11,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody, StackGrid } from '../../../components';
-import { resetRequestState } from '../../../core/redux/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { CREATE_NEW_ORGANIZATION, createNewOrganization } from '../actions';
 
@@ -57,7 +57,7 @@ const CreateOrgModal = ({ onClose } :Props) => {
   const handleOnClose = () => {
     onClose();
     setTimeout(() => {
-      dispatch(resetRequestState([CREATE_NEW_ORGANIZATION]));
+      dispatch(resetRequestStates([CREATE_NEW_ORGANIZATION]));
     }, 1000);
   };
 

@@ -2,13 +2,17 @@
  * @flow
  */
 
-import React, { useMemo, useState } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 
 import styled from 'styled-components';
-import { List, Map } from 'immutable';
+import { List, Map, fromJS } from 'immutable';
+import { Types } from 'lattice';
 import { AppContentWrapper, Modal, Typography } from 'lattice-ui-kit';
-import { ReduxUtils } from 'lattice-utils';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, Principal, UUID } from 'lattice';
 
 import MemberRolesContainer from '../MemberRolesContainer';
@@ -18,7 +22,13 @@ import {
   Crumbs,
   StackGrid,
 } from '../../../components';
-import { selectOrganizationMembers } from '../../../core/redux/selectors';
+import {
+  GET_CURRENT_ROLE_AUTHORIZATIONS,
+  getCurrentRoleAuthorizations,
+  resetCurrentRoleAuthorizations
+} from '../../../core/permissions/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
+import { selectOrganization, selectOrganizationMembers } from '../../../core/redux/selectors';
 import { getPrincipal, getSecurablePrincipalId, getUserProfile } from '../../../utils';
 import {
   AssignPermissionsToDataSetModalBody,
@@ -28,7 +38,7 @@ import {
 } from '../../permissions';
 import type { UserProfile } from '../../../types';
 
-const { selectOrganization } = ReduxUtils;
+const { PermissionTypes } = Types;
 
 const getPanelColumnSize = ({ isVisiblePanelColumn }) => (
   isVisiblePanelColumn ? 'minmax(auto, 384px)' : 'auto'
@@ -60,6 +70,7 @@ const OrgMemberContainer = ({
   organizationId :UUID;
   organizationRoute :string;
 |}) => {
+  const dispatch = useDispatch();
 
   const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
   const [filterByQuery, setFilterByQuery] = useState('');
@@ -68,6 +79,11 @@ const OrgMemberContainer = ({
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const orgMembers :List<Map> = useSelector(selectOrganizationMembers(organizationId));
+
+  const roleAclKeys = fromJS(organization?.roles.reduce((aclKeys, role) => {
+    aclKeys.push(role.aclKey);
+    return aclKeys;
+  }, []));
 
   const member :Map = useMemo(() => (
     orgMembers.find((orgMember :Map) => getSecurablePrincipalId(orgMember) === memberPrincipalId)
@@ -80,6 +96,18 @@ const OrgMemberContainer = ({
   const memberPrincipal :?Principal = useMemo(() => (
     getPrincipal(member)
   ), [member]);
+
+  useEffect(() => {
+    dispatch(getCurrentRoleAuthorizations({
+      aclKeys: roleAclKeys,
+      permissions: [PermissionTypes.OWNER]
+    }));
+
+    return () => {
+      dispatch(resetRequestStates([GET_CURRENT_ROLE_AUTHORIZATIONS]));
+      dispatch(resetCurrentRoleAuthorizations());
+    };
+  }, [dispatch, roleAclKeys]);
 
   if (organization && memberPrincipal) {
 
@@ -140,6 +168,7 @@ const OrgMemberContainer = ({
                     dataSetId={selection.dataSetId}
                     key={`${selection.dataSetId}-${selection.permissionType}`}
                     onClose={handleOnClosePermissionsPanel}
+                    organizationId={organizationId}
                     principal={memberPrincipal}
                     permissionType={selection.permissionType} />
               </PanelColumn>

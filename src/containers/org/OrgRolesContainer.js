@@ -5,6 +5,7 @@
 import React, { useReducer, useState } from 'react';
 
 import styled from 'styled-components';
+import { List, Set } from 'immutable';
 import {
   AppContentWrapper,
   CardSegment,
@@ -26,7 +27,7 @@ import {
   PlusButton,
   StackGrid,
 } from '../../components';
-import { selectCurrentUserIsOrgOwner, selectOrganization } from '../../core/redux/selectors';
+import { selectMyKeys, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import {
   FILTER,
@@ -59,7 +60,8 @@ const OrgRolesContainer = ({
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isOwner :boolean = myKeys.has(List([organizationId]));
 
   if (organization) {
 

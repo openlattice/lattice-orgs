@@ -3,7 +3,7 @@
  */
 
 import { call, put, takeEvery } from '@redux-saga/core/effects';
-import { Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -14,6 +14,8 @@ import {
   getOrgRoleObjectPermissions,
   getPermissions,
 } from '../actions';
+
+const { toSagaError } = AxiosUtils;
 
 const LOG = new Logger('PermissionsSagas');
 
@@ -28,7 +30,7 @@ function* getOrgRoleObjectPermissionsWorker(action :SequenceAction) :Saga<*> {
   }
   catch (error) {
     LOG.error(action.type, error);
-    yield put(getOrgRoleObjectPermissions.failure(action.id, error));
+    yield put(getOrgRoleObjectPermissions.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(getOrgRoleObjectPermissions.finally(action.id));

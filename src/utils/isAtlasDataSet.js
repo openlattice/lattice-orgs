@@ -2,10 +2,22 @@
  * @flow
  */
 
-import { Map, has } from 'immutable';
-import type { EntitySet } from 'lattice';
+import _get from 'lodash/get';
+import _has from 'lodash/has';
+import {
+  Map,
+  getIn,
+  has,
+  isImmutable,
+} from 'immutable';
 
-export default function isAtlasDataSet(dataSet :EntitySet | Map) :boolean {
+import { FQNS } from '../core/edm/constants';
 
-  return has(dataSet, 'table');
+export default function isAtlasDataSet(dataSet :Object | Map) :boolean {
+
+  if (isImmutable(dataSet)) {
+    return has(dataSet, 'table') || getIn(dataSet, [FQNS.OL_STANDARDIZED.toString(), 0]) === false;
+  }
+
+  return _has(dataSet, 'table') || _get(dataSet, [FQNS.OL_STANDARDIZED.toString(), 0]) === false;
 }

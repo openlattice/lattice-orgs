@@ -5,16 +5,14 @@
 import React from 'react';
 
 import { OrganizationsApiActions } from 'lattice-sagas';
-import { ActionModal } from 'lattice-ui-kit';
+import { ActionModal, Typography } from 'lattice-ui-kit';
 import { PersonUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import ResetOnUnmount from './ResetOnUnmount';
-
-import { ModalBody } from '../../../components';
+import { ModalBody, ResetOnUnmount } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserTitle } from '../../../utils';
 
@@ -22,7 +20,7 @@ const { getUserId } = PersonUtils;
 
 const { REMOVE_ROLE_FROM_MEMBER, removeRoleFromMember } = OrganizationsApiActions;
 
-const resetStatePath = [REMOVE_ROLE_FROM_MEMBER];
+const RESET_ACTIONS = [REMOVE_ROLE_FROM_MEMBER];
 
 type Props = {
   isVisible :boolean;
@@ -54,10 +52,14 @@ const RemoveRoleFromMemberModal = ({
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
-      <ResetOnUnmount path={resetStatePath} message="Success!" />
+      <ResetOnUnmount actions={RESET_ACTIONS}>
+        <Typography>Success!</Typography>
+      </ResetOnUnmount>
     ),
     [RequestStates.FAILURE]: (
-      <ResetOnUnmount path={resetStatePath} message="Failed to delete role. Please try again." />
+      <ResetOnUnmount actions={RESET_ACTIONS}>
+        <Typography>Failed to delete role. Please try again.</Typography>
+      </ResetOnUnmount>
     ),
   };
 

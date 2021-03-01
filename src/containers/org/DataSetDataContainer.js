@@ -2,9 +2,14 @@
  * @flow
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import { List, Map, set } from 'immutable';
+import {
+  List,
+  Map,
+  Set,
+  set,
+} from 'immutable';
 import {
   AppContentWrapper,
   PaginationToolbar,
@@ -14,7 +19,7 @@ import {
 import { DataUtils, LangUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { EntitySet, PropertyType, UUID } from 'lattice';
+import type { FQN, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import {
@@ -22,11 +27,12 @@ import {
   SearchForm,
   Spinner,
   StackGrid,
+  ValueCell,
 } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { SEARCH } from '../../core/redux/constants';
 import {
-  selectEntitySetPropertyTypes,
+  selectOrgDataSetColumns,
   selectSearchHits,
   selectSearchPage,
   selectSearchQuery,
@@ -35,17 +41,15 @@ import {
 import { SEARCH_DATA, clearSearchState, searchData } from '../../core/search/actions';
 import { MAX_HITS_10 } from '../../core/search/constants';
 
-const { getPropertyValue } = DataUtils;
+const { getEntityKeyId, getPropertyValue } = DataUtils;
 const { isNonEmptyString } = LangUtils;
 
 const DataSetDataContainer = ({
-  atlasDataSet,
   dataSetId,
-  entitySet,
+  organizationId,
 } :{|
-  atlasDataSet :?Map;
   dataSetId :UUID;
-  entitySet :?EntitySet;
+  organizationId :UUID;
 |}) => {
 
   const dispatch = useDispatch();
@@ -54,52 +58,31 @@ const DataSetDataContainer = ({
 
   const searchDataSetDataRS :?RequestState = useRequestState([SEARCH, SEARCH_DATA]);
 
+  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const searchHits :List = useSelector(selectSearchHits(SEARCH_DATA));
   const searchPage :number = useSelector(selectSearchPage(SEARCH_DATA));
   const searchQuery :string = useSelector(selectSearchQuery(SEARCH_DATA));
   const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_DATA));
-  const searchHits :List = useSelector(selectSearchHits(SEARCH_DATA));
 
-  const propertyTypes :Map<UUID, PropertyType> = useSelector(selectEntitySetPropertyTypes(dataSetId));
-  // BUG: unfortunately, I think hashCode() is computed every time since the Map is always "new"
-  const propertyTypesHash :number = propertyTypes.hashCode();
-
-  // OPTIMIZE: everything in this useEffect can probably be improved / optimized
   useEffect(() => {
-    if (atlasDataSet) {
-      const atlasDataSetTableData = searchHits
-        .map((row :Map) => set(row, 'id', row.hashCode()))
-        .toJS(); // TODO: avoid .toJS()
-      const atlasDataSetTableHeaders = atlasDataSet
-        .get('columns', List())
-        .map((column) => ({
-          key: column.get('id'),
-          label: `${column.get('title') || column.get('name')}${column.get('primaryKey') ? ' (PK)' : ''}`,
-          sortable: false,
-        }))
-        .toJS(); // TODO: avoid .toJS()
-      setTableData(atlasDataSetTableData);
-      setTableHeaders(atlasDataSetTableHeaders);
-    }
-    else if (entitySet) {
-      const entitySetTableData = searchHits
-        .map((entity :Map) => set(entity, 'id', getPropertyValue(entity, [FQNS.EKID, 0])))
-        .toJS(); // TODO: avoid .toJS()
-      const entitySetTableHeaders = propertyTypes
-        .valueSeq()
-        .map((propertyType :PropertyType) => ({
-          key: propertyType.type.toString(),
-          label: `${propertyType.title} (${propertyType.type.toString()})`,
-          sortable: false,
-        }))
-        .toJS(); // TODO: avoid .toJS()
-      setTableData(entitySetTableData);
-      setTableHeaders(entitySetTableHeaders);
-    }
-    else {
-      setTableData([]);
-      setTableHeaders([]);
-    }
-  }, [atlasDataSet, entitySet, propertyTypesHash, searchHits]);
+    const data :List = searchHits.map((entity :Map) => set(entity, 'id', getEntityKeyId(entity)));
+    const headersSet :Set<string> = Set().withMutations((mutableSet :Set) => {
+      searchHits.forEach((entity :Map) => mutableSet.union(entity.keySeq()));
+    });
+    const headers :List = dataSetColumns
+      .filter((column :Map<FQN, List>) => headersSet.has(getPropertyValue(column, [FQNS.OL_TYPE, 0])))
+      .map((column :Map<FQN, List>) => {
+        const fqn :string = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
+        const title :string = getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]);
+        return { key: fqn, label: `${title} (${fqn})`, sortable: false };
+      });
+    setTableData(data.toJS());
+    setTableHeaders(headers.toJS());
+  }, [dataSetColumns, searchHits]);
+
+  useEffect(() => () => {
+    dispatch(clearSearchState(SEARCH_DATA));
+  }, [dispatch]);
 
   const dispatchSearch = (params :{ page ?:number, query ?:string, start ?:number } = {}) => {
     const { page = 1, query = searchQuery, start = 0 } = params;
@@ -118,6 +101,18 @@ const DataSetDataContainer = ({
       dispatch(clearSearchState(SEARCH_DATA));
     }
   };
+
+  const components = useMemo(() => ({
+    Row: ({ data, components: { Cell }, headers } :Object) => (
+      <tr>
+        {
+          headers.map((header) => (
+            <ValueCell component={Cell} key={`${data.id}_cell_${header.key}`} value={data[header.key]} />
+          ))
+        }
+      </tr>
+    )
+  }), []);
 
   return (
     <AppContentWrapper>
@@ -145,7 +140,7 @@ const DataSetDataContainer = ({
         {
           searchDataSetDataRS === RequestStates.SUCCESS && searchHits.count() > 0 && (
             <DataTableWrapper>
-              <Table data={tableData} headers={tableHeaders} />
+              <Table components={components} data={tableData} headers={tableHeaders} />
             </DataTableWrapper>
           )
         }

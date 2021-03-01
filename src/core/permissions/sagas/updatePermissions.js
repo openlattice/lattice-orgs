@@ -6,7 +6,7 @@ import { call, put, takeEvery } from '@redux-saga/core/effects';
 import { List } from 'immutable';
 import { Models } from 'lattice';
 import { PermissionsApiActions, PermissionsApiSagas } from 'lattice-sagas';
-import { Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
   Ace,
@@ -18,13 +18,16 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { UPDATE_PERMISSIONS, updatePermissions } from '../actions';
 
-const LOG = new Logger('PermissionsSagas');
-
 const { AclBuilder, AclDataBuilder } = Models;
 const { updateAcls } = PermissionsApiActions;
 const { updateAclsWorker } = PermissionsApiSagas;
+const { toSagaError } = AxiosUtils;
 
-function* updatePermissionsWorker(action :SequenceAction) :Saga<*> {
+const LOG = new Logger('PermissionsSagas');
+
+function* updatePermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> {
+
+  let workerResponse :WorkerResponse;
 
   try {
     yield put(updatePermissions.request(action.id, action.value));
@@ -56,15 +59,19 @@ function* updatePermissionsWorker(action :SequenceAction) :Saga<*> {
     const response :WorkerResponse = yield call(updateAclsWorker, updateAcls(updates));
     if (response.error) throw response.error;
 
+    workerResponse = { data: {} };
     yield put(updatePermissions.success(action.id));
   }
   catch (error) {
+    workerResponse = { error };
     LOG.error(action.type, error);
-    yield put(updatePermissions.failure(action.id, error));
+    yield put(updatePermissions.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(updatePermissions.finally(action.id));
   }
+
+  return workerResponse;
 }
 
 function* updatePermissionsWatcher() :Saga<*> {

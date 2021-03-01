@@ -20,7 +20,7 @@ import {
   StackGrid,
 } from '../../components';
 import { GET_ORG_OBJECT_PERMISSIONS, getOrgObjectPermissions } from '../../core/permissions/actions';
-import { resetRequestState } from '../../core/redux/actions';
+import { resetRequestStates } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectOrganization } from '../../core/redux/selectors';
 import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
@@ -52,7 +52,7 @@ const OrgObjectPermissionsContainer = ({
   }, [dispatch, getOrgObjectPermissionsRS, objectKey]);
 
   useEffect(() => () => {
-    dispatch(resetRequestState([GET_ORG_OBJECT_PERMISSIONS]));
+    dispatch(resetRequestStates([GET_ORG_OBJECT_PERMISSIONS]));
   }, [dispatch]);
 
   const onOpenPermissionsModal = () => setIsVisibleAssignPermissionsModal(true);
@@ -80,6 +80,7 @@ const OrgObjectPermissionsContainer = ({
           <ObjectPermissionsContainer
               filterByPermissionTypes={filterByPermissionTypes}
               filterByQuery={filterByQuery}
+              isDataSet={false}
               isVisibleAssignPermissionsModal={isVisibleAssignPermissionsModal}
               objectKey={objectKey}
               onClosePermissionsModal={onClosePermissionsModal}

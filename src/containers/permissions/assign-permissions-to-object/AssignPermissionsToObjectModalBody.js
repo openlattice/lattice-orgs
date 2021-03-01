@@ -9,13 +9,9 @@ import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { ModalFooter as LUKModalFooter } from 'lattice-ui-kit';
-import { ReduxUtils, ValidationUtils, useRequestState } from 'lattice-utils';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
-import type {
-  Ace,
-  Principal,
-  UUID
-} from 'lattice';
+import type { Ace, Principal, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import StepSelectRoleOrUser from './StepSelectRoleOrUser';
@@ -29,7 +25,7 @@ import {
   assignPermissionsToDataSet,
   updatePermissions
 } from '../../../core/permissions/actions';
-import { resetRequestState } from '../../../core/redux/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
 import { PERMISSIONS } from '../../../core/redux/constants';
 import { getPrincipal } from '../../../utils';
 
@@ -37,7 +33,6 @@ const { AceBuilder } = Models;
 const { ActionTypes } = Types;
 
 const { isPending, isSuccess } = ReduxUtils;
-const { isValidUUID } = ValidationUtils;
 
 const ModalFooter = styled(LUKModalFooter)`
   padding: 30px 0;
@@ -45,15 +40,15 @@ const ModalFooter = styled(LUKModalFooter)`
 
 const AssignPermissionsToObjectModalBody = ({
   existingPermissions,
-  dataSetId,
-  onClose,
+  isDataSet,
   objectKey,
-  organizationId
+  onClose,
+  organizationId,
 } :{
   existingPermissions :Map<Principal, Map<List<UUID>, Ace>>;
-  dataSetId :?UUID;
-  onClose :() => void;
+  isDataSet :boolean;
   objectKey :List<UUID>;
+  onClose :() => void;
   organizationId :UUID;
 }) => {
 
@@ -64,8 +59,6 @@ const AssignPermissionsToObjectModalBody = ({
   const [targetRoleOrUserPrincipleType, setTargetRoleOrUserPrincipleType] = useState('');
   const [targetRoleOrUserTitle, setTargetRoleOrUserTitle] = useState('');
   const [targetPermissionOptions, setTargetPermissionOptions] = useState([]);
-
-  const isDataSet :boolean = isValidUUID(dataSetId);
 
   const assignPermissionsToDataSetRS :?RequestState = useRequestState([PERMISSIONS, ASSIGN_PERMISSIONS_TO_DATA_SET]);
   const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
@@ -79,18 +72,18 @@ const AssignPermissionsToObjectModalBody = ({
   const flattenedPermissions :List<Ace> = existingPermissions.valueSeq().flatten();
 
   useEffect(() => () => {
-    dispatch(resetRequestState([ASSIGN_PERMISSIONS_TO_DATA_SET]));
-    dispatch(resetRequestState([UPDATE_PERMISSIONS]));
+    dispatch(resetRequestStates([ASSIGN_PERMISSIONS_TO_DATA_SET, UPDATE_PERMISSIONS]));
   }, [dispatch]);
 
   const onConfirm = () => {
-    if (dataSetId) {
+    if (isDataSet) {
       dispatch(
         assignPermissionsToDataSet({
-          principal: targetRoleOrUserPrincipal,
-          dataSetId,
+          dataSetId: objectKey.get(0),
+          organizationId,
           permissionTypes: targetPermissionOptions.map((option) => option.value),
-          withProperties: assignPermissionsToAllProperties,
+          principal: targetRoleOrUserPrincipal,
+          withColumns: assignPermissionsToAllProperties,
         })
       );
     }

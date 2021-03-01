@@ -6,8 +6,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import { List, Map } from 'immutable';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
+import { DataUtils } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { EntitySet, Organization, UUID } from 'lattice';
+import type { FQN, Organization, UUID } from 'lattice';
 
 import {
   CrumbItem,
@@ -16,28 +17,22 @@ import {
   Divider,
   StackGrid,
 } from '../../components';
-import {
-  GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
-} from '../../core/permissions/actions';
-import { resetRequestState } from '../../core/redux/actions';
-import {
-  selectAtlasDataSets,
-  selectEntitySets,
-  selectOrganization,
-} from '../../core/redux/selectors';
-import { getDataSetField } from '../../utils';
+import { FQNS } from '../../core/edm/constants';
+import { GET_ORG_DATA_SET_OBJECT_PERMISSIONS } from '../../core/permissions/actions';
+import { resetRequestStates } from '../../core/redux/actions';
+import { selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
 import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
+
+const { getPropertyValue } = DataUtils;
 
 const OrgDataSetObjectPermissionsContainer = ({
   dataSetId,
   dataSetRoute,
-  dataSetsRoute,
   organizationId,
   organizationRoute,
 } :{|
   dataSetId :UUID;
   dataSetRoute :string;
-  dataSetsRoute :string;
   organizationId :UUID;
   organizationRoute :string;
 |}) => {
@@ -49,20 +44,14 @@ const OrgDataSetObjectPermissionsContainer = ({
   const [isVisibleAssignPermissionsModal, setIsVisibleAssignPermissionsModal] = useState(false);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const atlasDataSets :Map<UUID, Map> = useSelector(selectAtlasDataSets([dataSetId]));
-  const entitySets :Map<UUID, EntitySet> = useSelector(selectEntitySets([dataSetId]));
-
-  useEffect(() => () => {
-    dispatch(resetRequestState([GET_ORG_DATA_SET_OBJECT_PERMISSIONS]));
-  }, [dispatch]);
-
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
+  const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
   const objectKey = useMemo(() => List([dataSetId]), [dataSetId]);
 
-  const atlasDataSet :?Map = atlasDataSets.get(dataSetId);
-  const entitySet :?EntitySet = entitySets.get(dataSetId);
-  const dataSet = atlasDataSet || entitySet;
-  const name :string = getDataSetField(dataSet, 'name');
-  const title :string = getDataSetField(dataSet, 'title');
+  useEffect(() => () => {
+    dispatch(resetRequestStates([GET_ORG_DATA_SET_OBJECT_PERMISSIONS]));
+  }, [dispatch]);
 
   const onOpenPermissionsModal = () => setIsVisibleAssignPermissionsModal(true);
   const onClosePermissionsModal = () => setIsVisibleAssignPermissionsModal(false);
@@ -71,7 +60,6 @@ const OrgDataSetObjectPermissionsContainer = ({
     <AppContentWrapper>
       <Crumbs>
         <CrumbLink to={organizationRoute}>{organization?.title || 'Organization'}</CrumbLink>
-        <CrumbLink to={dataSetsRoute}>Data Sets</CrumbLink>
         <CrumbLink to={dataSetRoute}>{title || name}</CrumbLink>
         <CrumbItem>Permissions</CrumbItem>
       </Crumbs>
@@ -89,8 +77,8 @@ const OrgDataSetObjectPermissionsContainer = ({
         <ObjectPermissionsContainer
             filterByPermissionTypes={filterByPermissionTypes}
             filterByQuery={filterByQuery}
+            isDataSet
             isVisibleAssignPermissionsModal={isVisibleAssignPermissionsModal}
-            dataSetId={dataSetId}
             objectKey={objectKey}
             onClosePermissionsModal={onClosePermissionsModal}
             organizationId={organizationId} />

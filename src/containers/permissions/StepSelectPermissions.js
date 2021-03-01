@@ -65,15 +65,15 @@ const StepSelectPermissions = ({
         isDataSet && (
           <>
             <Typography>
-              You can assign permissions to either the data set and all properties, or just the data set itself.
-              Permissions on individual properties can be assigned later.
+              You can assign permissions to either the data set and all columns, or just the data set itself.
+              Permissions on individual columns can be assigned later.
             </Typography>
             <SpaceBetweenGrid>
               <Typography variant="body1">
-                {`Assign ${permissions} to all properties:`}
+                {`Assign ${permissions} to all columns:`}
               </Typography>
               <IconButton
-                  aria-label="permissions toggle for all properties"
+                  aria-label="permissions toggle for all columns"
                   onClick={() => setAssignPermissionsToAllProperties(!assignPermissionsToAllProperties)}>
                 <FontAwesomeIcon
                     color={assignPermissionsToAllProperties ? PURPLE.P300 : NEUTRAL.N500}

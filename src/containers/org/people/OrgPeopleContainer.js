@@ -5,10 +5,9 @@
 import React, { useEffect } from 'react';
 
 import styled from 'styled-components';
-import { List, fromJS } from 'immutable';
+import { List, Set, fromJS } from 'immutable';
 import { Types } from 'lattice';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
-import { ReduxUtils } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
@@ -23,16 +22,13 @@ import {
 import {
   GET_CURRENT_ROLE_AUTHORIZATIONS,
   getCurrentRoleAuthorizations,
-  resetCurrentRoleAuthorizations
+  resetCurrentRoleAuthorizations,
 } from '../../../core/permissions/actions';
-import { resetRequestState } from '../../../core/redux/actions';
-import { selectCurrentUserIsOrgOwner, selectOrganizationMembers } from '../../../core/redux/selectors';
-import { UsersActions } from '../../../core/users';
+import { resetRequestStates } from '../../../core/redux/actions';
+import { selectMyKeys, selectOrganization, selectOrganizationMembers } from '../../../core/redux/selectors';
+import { resetUserSearchResults } from '../../../core/users/actions';
 
 const { PermissionTypes } = Types;
-
-const { resetUserSearchResults } = UsersActions;
-const { selectOrganization } = ReduxUtils;
 
 const MEMBERS_DESCRIPTION = 'People can be granted data permissions on an individual level or by an assigned role.'
   + ' Click on a role to manage its people or datasets.';
@@ -56,7 +52,8 @@ const OrgPeopleContainer = ({
   const dispatch = useDispatch();
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const isOwner :boolean = useSelector(selectCurrentUserIsOrgOwner(organizationId));
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const isOwner :boolean = myKeys.has(List([organizationId]));
   const orgMembers :List = useSelector(selectOrganizationMembers(organizationId));
 
   const roleAclKeys = fromJS(organization?.roles.reduce((aclKeys, role) => {
@@ -75,7 +72,7 @@ const OrgPeopleContainer = ({
     }));
 
     return () => {
-      dispatch(resetRequestState([GET_CURRENT_ROLE_AUTHORIZATIONS]));
+      dispatch(resetRequestStates([GET_CURRENT_ROLE_AUTHORIZATIONS]));
       dispatch(resetCurrentRoleAuthorizations());
     };
   }, [dispatch, roleAclKeys]);

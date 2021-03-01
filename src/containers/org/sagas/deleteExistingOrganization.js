@@ -13,6 +13,7 @@ import { DELETE_EXISTING_ORGANIZATION, deleteExistingOrganization } from '../act
 
 const { deleteOrganization } = OrganizationsApiActions;
 const { deleteOrganizationWorker } = OrganizationsApiSagas;
+const { toSagaError } = AxiosUtils;
 
 const { toSagaError } = AxiosUtils;
 
@@ -22,12 +23,8 @@ function* deleteExistingOrganizationWorker(action :SequenceAction) :Saga<void> {
 
   try {
     yield put(deleteExistingOrganization.request(action.id, action.value));
-
-    const organizationId = action.value;
-
-    const response :WorkerResponse = yield call(deleteOrganizationWorker, deleteOrganization(organizationId));
+    const response :WorkerResponse = yield call(deleteOrganizationWorker, deleteOrganization(action.value));
     if (response.error) throw response.error;
-
     yield put(deleteExistingOrganization.success(action.id, action.value));
   }
   catch (error) {
