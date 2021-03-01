@@ -20,7 +20,6 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import type { SagaError } from '../../../types';
 import {
   ActionsGrid,
   CopyButton,
@@ -44,6 +43,7 @@ import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails
 import { RenameOrgDatabaseModal } from '../components';
 import { DBMS_TYPES } from '../constants';
 import { generateIntegrationConfig } from '../utils';
+import type { SagaError } from '../../../types';
 
 const dataSchema = {
   properties: {
