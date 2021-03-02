@@ -20,7 +20,7 @@ import {
   Modal,
   Typography,
 } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { useError, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
@@ -49,6 +49,7 @@ import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails
 import { RenameOrgDatabaseModal } from '../components';
 import { DBMS_TYPES } from '../constants';
 import { generateIntegrationConfig } from '../utils';
+import type { SagaError } from '../../../types';
 
 const dataSchema = {
   properties: {
@@ -123,6 +124,7 @@ const OrgSettingsContainer = ({
   const [isVisibleRenameModal, setIsVisibleRenameModal] = useState(false);
 
   const getIntegrationDetailsRS :?RequestState = useRequestState([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_DETAILS]);
+  const getIntegrationDetailsError :?SagaError = useError([ORGANIZATIONS, GET_ORGANIZATION_INTEGRATION_DETAILS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
@@ -136,6 +138,8 @@ const OrgSettingsContainer = ({
   const jdbcURL = useMemo(() => (
     `jdbc:postgresql://atlas.openlattice.com:30001/org_${organizationId.replace(/-/g, '')}`
   ), [organizationId]);
+
+  const isUnauthorized :boolean = getIntegrationDetailsError?.status === 401;
 
   useEffect(() => {
     dispatch(getOrganizationIntegrationDetails(organizationId));
@@ -211,21 +215,35 @@ const OrgSettingsContainer = ({
             <CopyButton
                 aria-label="copy database name"
                 onClick={() => clipboardWriteText(databaseName)} />
-            <EditButton
-                aria-label="edit database name"
-                color="default"
-                onClick={() => setIsVisibleRenameModal(true)} />
+            {
+              isOwner && (
+                <EditButton
+                    aria-label="edit database name"
+                    color="default"
+                    onClick={() => setIsVisibleRenameModal(true)} />
+              )
+            }
           </ActionsGrid>
         </div>
-        <div>
-          <Typography component="h2" variant="body2">JDBC URL</Typography>
-          <ActionsGrid align={{ v: 'center' }} fit>
-            <Pre>{jdbcURL}</Pre>
-            <CopyButton
-                aria-label="copy jdbc url"
-                onClick={() => clipboardWriteText(jdbcURL)} />
-          </ActionsGrid>
-        </div>
+        {
+          isUnauthorized
+            ? (
+              <Typography color="error" variant="overline">
+                You are not authorized to view database credetials.
+              </Typography>
+            )
+            : (
+              <div>
+                <Typography component="h2" variant="body2">JDBC URL</Typography>
+                <ActionsGrid align={{ v: 'center' }} fit>
+                  <Pre>{jdbcURL}</Pre>
+                  <CopyButton
+                      aria-label="copy jdbc url"
+                      onClick={() => clipboardWriteText(jdbcURL)} />
+                </ActionsGrid>
+              </div>
+            )
+        }
         {
           isOwner && getIntegrationDetailsRS === RequestStates.SUCCESS && (
             <>
