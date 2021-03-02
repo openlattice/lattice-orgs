@@ -7,7 +7,11 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { ERROR, INTEGRATION_DETAILS, REQUEST_STATE } from '../../../core/redux/constants';
+import {
+  ERROR,
+  INTEGRATION_DETAILS,
+  REQUEST_STATE,
+} from '../../../core/redux/constants';
 import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {
@@ -16,16 +20,8 @@ export default function reducer(state :Map, action :SequenceAction) {
     REQUEST: () => state
       .setIn([GET_ORGANIZATION_INTEGRATION_DETAILS, REQUEST_STATE], RequestStates.PENDING)
       .setIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id], action),
-    SUCCESS: () => {
-      const storedAction :?SequenceAction = state.getIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id]);
-      if (storedAction) {
-        const organizationId :UUID = storedAction.value;
-        return state
-          .setIn([INTEGRATION_DETAILS, organizationId], action.value)
-          .setIn([GET_ORGANIZATION_INTEGRATION_DETAILS, REQUEST_STATE], RequestStates.SUCCESS);
-      }
-      return state;
-    },
+    SUCCESS: () => state
+      .setIn([GET_ORGANIZATION_INTEGRATION_DETAILS, REQUEST_STATE], RequestStates.SUCCESS),
     FAILURE: () => {
       if (state.hasIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id])) {
         return state
@@ -34,6 +30,15 @@ export default function reducer(state :Map, action :SequenceAction) {
       }
       return state;
     },
-    FINALLY: () => state.deleteIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id]),
+    FINALLY: () => {
+      const storedAction = state.getIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id]);
+      if (storedAction) {
+        const organizationId :UUID = storedAction.value;
+        return state
+          .setIn([INTEGRATION_DETAILS, organizationId], action.value)
+          .deleteIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id]);
+      }
+      return state.deleteIn([GET_ORGANIZATION_INTEGRATION_DETAILS, action.id]);
+    }
   });
 }
