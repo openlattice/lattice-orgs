@@ -14,13 +14,12 @@ module.exports = (env) => {
     devtool: false,
     output: {
       ...baseConfig.output,
-      filename: `${APP_PATHS.REL.STATIC_JS}/app.[hash:8].js`,
-      chunkFilename: `${APP_PATHS.REL.STATIC_JS}/app.chunk.[id].[chunkhash:8].js`,
+      filename: `${APP_PATHS.REL.STATIC_JS}/app.[contenthash].js`,
+      chunkFilename: `${APP_PATHS.REL.STATIC_JS}/app.chunk.[id].[chunkhash].js`,
     },
     plugins: [
       new HtmlWebpackPlugin({
         favicon: `${APP_PATHS.ABS.SOURCE_ASSETS}/svg/icons/ol-icon.svg`,
-        inject: true,
         template: `${APP_PATHS.ABS.SOURCE}/index.html`,
       }),
       ...baseConfig.plugins
