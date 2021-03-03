@@ -7,12 +7,14 @@
 const DATA_SET_ID_PARAM :':dataSetId' = ':dataSetId';
 const ORG_ID_PARAM :':organizationId' = ':organizationId';
 const PRINCIPAL_ID_PARAM :':principalId' = ':principalId';
+const REQUEST_ID_PARAM :':requestId' = ':requestId';
 const ROLE_ID_PARAM :':roleId' = ':roleId';
 
 export {
   DATA_SET_ID_PARAM,
   ORG_ID_PARAM,
   PRINCIPAL_ID_PARAM,
+  REQUEST_ID_PARAM,
   ROLE_ID_PARAM,
 };
 
@@ -23,6 +25,12 @@ const ORGS :'/orgs' = '/orgs';
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG :'/orgs/:organizationId' = `${ORGS}/${ORG_ID_PARAM}`;
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_ACCESS_REQUESTS :'/orgs/:organizationId/requests' = `${ORG}/requests`;
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const ORG_ACCESS_REQUEST :'/orgs/:organizationId/requests/request/:requestId' = `${ORG_ACCESS_REQUESTS}/request/${REQUEST_ID_PARAM}`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_DATA_SETS :'/orgs/:organizationId/dataSets' = `${ORG}/dataSets`;
@@ -61,6 +69,8 @@ export {
   ACCOUNT,
   ORG,
   ORGS,
+  ORG_ACCESS_REQUEST,
+  ORG_ACCESS_REQUESTS,
   ORG_DATA_SET,
   ORG_DATA_SETS,
   ORG_DATA_SET_DATA,
