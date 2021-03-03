@@ -4,7 +4,7 @@
 
 import React, { useEffect, useMemo } from 'react';
 
-import { faUser } from '@fortawesome/pro-solid-svg-icons';
+import { faFileContract, faUser } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import {
@@ -129,6 +129,10 @@ const OrgContainer = ({
     Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
+  const requestsPath = useMemo(() => (
+    Routes.ORG_ACCESS_REQUESTS.replace(Routes.ORG_ID_PARAM, organizationId)
+  ), [organizationId]);
+
   if (organization) {
     const rolesCount :number = organization.roles.length;
     const peopleCount :number = organization.members.length;
@@ -149,6 +153,16 @@ const OrgContainer = ({
                   <GapGrid gap={8}>
                     <BadgeCheckIcon />
                     <Typography color="primary">{`${rolesCount} Roles`}</Typography>
+                  </GapGrid>
+                </CrumbLink>
+                <CrumbLink to={requestsPath}>
+                  <GapGrid gap={8}>
+                    <FontAwesomeIcon
+                        color={PURPLE.P300}
+                        fixedWidth
+                        icon={faFileContract}
+                        style={{ fontSize: '1.6em' }} />
+                    <Typography color="primary">Access Requests</Typography>
                   </GapGrid>
                 </CrumbLink>
               </GapGrid>
