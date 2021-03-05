@@ -17,6 +17,7 @@ export { default as selectDataSetPermissionsPage } from './selectDataSetPermissi
 export { default as selectDataSetSchema } from './selectDataSetSchema';
 export { default as selectEntitySetEntityType } from './selectEntitySetEntityType';
 export { default as selectEntitySetPropertyTypes } from './selectEntitySetPropertyTypes';
+export { default as selectIsAppInstalled } from './selectIsAppInstalled';
 export { default as selectMyKeys } from './selectMyKeys';
 export { default as selectOrgDataSet } from './selectOrgDataSet';
 export { default as selectOrgDataSetColumns } from './selectOrgDataSetColumns';

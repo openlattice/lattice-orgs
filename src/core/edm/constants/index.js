@@ -7,6 +7,10 @@ import { Constants, Models } from 'lattice';
 const { OPENLATTICE_ID_FQN } = Constants;
 const { FQN } = Models;
 
+const APPS = {
+  ACCESS_REQUESTS: 'access_requests',
+};
+
 const FQNS = {
   CONTACT_EMAIL: FQN.of('contact.Email'),
   CONTACT_PHONE_NUMBER: FQN.of('contact.phonenumber'),
@@ -34,7 +38,7 @@ const FQNS = {
   OL_TYPE: FQN.of('ol.type'),
 };
 
-/* eslint-disable import/prefer-default-export */
 export {
+  APPS,
   FQNS,
 };

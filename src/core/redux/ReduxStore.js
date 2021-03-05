@@ -11,6 +11,8 @@ import reduxReducer from './ReduxReducer';
 
 import sagas from '../sagas/Sagas';
 
+declare var __ENV_DEV__ :boolean;
+
 export default function initializeReduxStore(routerHistory :any) :Object {
 
   const sagaMiddleware = createSagaMiddleware();
@@ -33,9 +35,10 @@ export default function initializeReduxStore(routerHistory :any) :Object {
   /* eslint-disable no-underscore-dangle */
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-      stateSanitizer,
       maxAge: 100,
+      name: __ENV_DEV__ ? 'localhost-orgs' : 'orgs',
       serialize: true,
+      stateSanitizer,
     })
     : compose;
   /* eslint-enable */

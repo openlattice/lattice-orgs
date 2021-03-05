@@ -36,9 +36,11 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
+import { APPS } from '../../core/edm/constants';
 import { resetRequestStates } from '../../core/redux/actions';
 import { ORGANIZATIONS, SEARCH } from '../../core/redux/constants';
 import {
+  selectIsAppInstalled,
   selectOrganization,
   selectSearchHits,
   selectSearchPage,
@@ -74,6 +76,8 @@ const OrgContainer = ({
   const searchOrgDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_ORGANIZATION_DATA_SETS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
+  const isInstalled :boolean = useSelector(selectIsAppInstalled(APPS.ACCESS_REQUESTS, organizationId));
+
   const searchPage :number = useSelector(selectSearchPage(SEARCH_ORGANIZATION_DATA_SETS));
   const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS));
   const searchHits :List = useSelector(selectSearchHits(SEARCH_ORGANIZATION_DATA_SETS));
@@ -155,16 +159,20 @@ const OrgContainer = ({
                     <Typography color="primary">{`${rolesCount} Roles`}</Typography>
                   </GapGrid>
                 </CrumbLink>
-                <CrumbLink to={requestsPath}>
-                  <GapGrid gap={8}>
-                    <FontAwesomeIcon
-                        color={PURPLE.P300}
-                        fixedWidth
-                        icon={faFileContract}
-                        style={{ fontSize: '1.6em' }} />
-                    <Typography color="primary">Access Requests</Typography>
-                  </GapGrid>
-                </CrumbLink>
+                {
+                  isInstalled && (
+                    <CrumbLink to={requestsPath}>
+                      <GapGrid gap={8}>
+                        <FontAwesomeIcon
+                            color={PURPLE.P300}
+                            fixedWidth
+                            icon={faFileContract}
+                            style={{ fontSize: '1.6em' }} />
+                        <Typography color="primary">Access Requests</Typography>
+                      </GapGrid>
+                    </CrumbLink>
+                  )
+                }
               </GapGrid>
               <OrgActionButton organization={organization} />
             </SpaceBetweenGrid>

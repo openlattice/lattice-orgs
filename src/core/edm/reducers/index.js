@@ -18,6 +18,7 @@ import getOrgDataSetColumnsFromMetaReducer from './getOrgDataSetColumnsFromMetaR
 import getOrgDataSetsFromMetaReducer from './getOrgDataSetsFromMetaReducer';
 import getOrganizationDataSetSchemaReducer from './getOrganizationDataSetSchemaReducer';
 import initializeOrganizationDataSetReducer from './initializeOrganizationDataSetReducer';
+import isAppInstalledReducer from './isAppInstalledReducer';
 import promoteStagingTableReducer from './promoteStagingTableReducer';
 import searchEntitySetMetaDataReducer from './searchEntitySetMetaDataReducer';
 import transportOrganizationEntitySetReducer from './transportOrganizationEntitySetReducer';
@@ -25,6 +26,7 @@ import updateOrganizationDataSetReducer from './updateOrganizationDataSetReducer
 
 import { RESET_REQUEST_STATES } from '../../redux/actions';
 import {
+  APP_INSTALLS,
   DATA_SET_SCHEMA,
   ENTITY_SETS,
   ENTITY_SETS_INDEX_MAP,
@@ -42,11 +44,13 @@ import {
   GET_ORG_DATA_SETS_FROM_META,
   GET_ORG_DATA_SET_COLUMNS_FROM_META,
   INITIALIZE_ORGANIZATION_DATA_SET,
+  IS_APP_INSTALLED,
   UPDATE_ORGANIZATION_DATA_SET,
   getEntityDataModelTypes,
   getOrgDataSetColumnsFromMeta,
   getOrgDataSetsFromMeta,
   initializeOrganizationDataSet,
+  isAppInstalled,
   updateOrganizationDataSet,
 } from '../actions';
 
@@ -86,12 +90,14 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORG_DATA_SETS_FROM_META]: RS_INITIAL_STATE,
   [GET_ORG_DATA_SET_COLUMNS_FROM_META]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
+  [IS_APP_INSTALLED]: RS_INITIAL_STATE,
   [PROMOTE_STAGING_TABLE]: RS_INITIAL_STATE,
   [SEARCH_ENTITY_SET_METADATA]: RS_INITIAL_STATE,
   [TRANSPORT_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
   [UPDATE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
 
   // data
+  [APP_INSTALLS]: Map(),
   [DATA_SET_SCHEMA]: Map(),
   [ENTITY_SETS]: List(),
   [ENTITY_SETS_INDEX_MAP]: Map(),
@@ -141,6 +147,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case initializeOrganizationDataSet.case(action.type): {
       return initializeOrganizationDataSetReducer(state, action);
+    }
+
+    case isAppInstalled.case(action.type): {
+      return isAppInstalledReducer(state, action);
     }
 
     case promoteStagingTable.case(action.type): {

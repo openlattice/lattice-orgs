@@ -23,6 +23,9 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { isAppInstalled } from '../../../core/edm/actions';
+import { APPS } from '../../../core/edm/constants';
+import { isAppInstalledWorker } from '../../../core/edm/sagas';
 import { IS_OWNER, ORGANIZATION } from '../../../core/redux/constants';
 import { selectOrganization, selectOrganizationMembers } from '../../../core/redux/selectors';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from '../actions';
@@ -80,6 +83,11 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
     ];
     const getAuthorizationsCall = call(getAuthorizationsWorker, getAuthorizations(accessChecks));
 
+    const isAppInstalledCall = call(
+      isAppInstalledWorker,
+      isAppInstalled({ appName: APPS.ACCESS_REQUESTS, organizationId }),
+    );
+
     const [
       getOrganizationResponse,
       getOrganizationMembersResponse,
@@ -88,6 +96,7 @@ function* initializeOrganizationWorker(action :SequenceAction) :Saga<*> {
       getOrganizationCall,
       getOrganizationMembersCall,
       getAuthorizationsCall,
+      isAppInstalledCall,
     ]);
 
     if (getOrganizationResponse) {

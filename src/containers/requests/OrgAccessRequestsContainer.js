@@ -8,11 +8,12 @@ import { AccessRequestContainer } from '@openlattice/access-request';
 import { AppContentWrapper } from 'lattice-ui-kit';
 import { RoutingUtils, ValidationUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
-import { useRouteMatch } from 'react-router';
+import { Redirect, useRouteMatch } from 'react-router';
 import type { Organization, UUID } from 'lattice';
 
 import { CrumbItem, CrumbLink, Crumbs } from '../../components';
-import { selectOrganization } from '../../core/redux/selectors';
+import { APPS } from '../../core/edm/constants';
+import { selectIsAppInstalled, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 
 const { getParamFromMatch } = RoutingUtils;
@@ -29,6 +30,7 @@ const OrgAccessRequestsContainer = ({
   const match = useRouteMatch();
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
+  const isInstalled :boolean = useSelector(selectIsAppInstalled(APPS.ACCESS_REQUESTS, organizationId));
 
   // NOTE: this is super temporary
   let requestId :?UUID;
@@ -40,6 +42,12 @@ const OrgAccessRequestsContainer = ({
   const requestsPath = useMemo(() => (
     Routes.ORG_ACCESS_REQUESTS.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
+
+  if (!isInstalled) {
+    return (
+      <Redirect to={organizationRoute} />
+    );
+  }
 
   if (organization) {
 
