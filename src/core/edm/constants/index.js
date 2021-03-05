@@ -2,10 +2,15 @@
  * @flow
  */
 
-import { Constants, Models } from 'lattice';
+import _capitalize from 'lodash/capitalize';
+import { Constants, Models, Types } from 'lattice';
+import type { EntitySetFlagType } from 'lattice';
+
+import type { ReactSelectOption } from '../../../types';
 
 const { OPENLATTICE_ID_FQN } = Constants;
 const { FQN } = Models;
+const { EntitySetFlagTypes } = Types;
 
 const APPS = {
   ACCESS_REQUESTS: 'access_requests',
@@ -38,7 +43,18 @@ const FQNS = {
   OL_TYPE: FQN.of('ol.type'),
 };
 
+const ES_FLAG_TYPE_RS_OPTIONS :ReactSelectOption<EntitySetFlagType>[] = [
+  { label: _capitalize(EntitySetFlagTypes.ASSOCIATION), value: EntitySetFlagTypes.ASSOCIATION },
+  { label: _capitalize(EntitySetFlagTypes.AUDIT), value: EntitySetFlagTypes.AUDIT },
+  { label: _capitalize(EntitySetFlagTypes.EXTERNAL), value: EntitySetFlagTypes.EXTERNAL },
+  { label: _capitalize(EntitySetFlagTypes.LINKING), value: EntitySetFlagTypes.LINKING },
+  { label: _capitalize(EntitySetFlagTypes.METADATA), value: EntitySetFlagTypes.METADATA },
+  { label: _capitalize(EntitySetFlagTypes.TRANSPORTED), value: EntitySetFlagTypes.TRANSPORTED },
+  { label: _capitalize(EntitySetFlagTypes.UNVERSIONED), value: EntitySetFlagTypes.UNVERSIONED },
+];
+
 export {
   APPS,
+  ES_FLAG_TYPE_RS_OPTIONS,
   FQNS,
 };

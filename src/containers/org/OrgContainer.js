@@ -2,15 +2,20 @@
  * @flow
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
+import { faChevronDown } from '@fortawesome/pro-regular-svg-icons';
 import { faFileContract, faUser } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import {
   AppContentWrapper,
+  Box,
+  Collapse,
   Colors,
+  IconButton,
   PaginationToolbar,
+  Select,
   Typography,
 } from 'lattice-ui-kit';
 import {
@@ -21,7 +26,7 @@ import {
   useRequestState,
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { Organization, UUID } from 'lattice';
+import type { EntitySetFlagType, Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import { DELETE_EXISTING_ORGANIZATION } from './actions';
@@ -30,13 +35,14 @@ import { DataSetSearchResultCard, OrgActionButton } from './components';
 import { BadgeCheckIcon } from '../../assets';
 import {
   CrumbLink,
+  Flip,
   GapGrid,
   SearchForm,
   SpaceBetweenGrid,
   Spinner,
   StackGrid,
 } from '../../components';
-import { APPS } from '../../core/edm/constants';
+import { APPS, ES_FLAG_TYPE_RS_OPTIONS } from '../../core/edm/constants';
 import { resetRequestStates } from '../../core/redux/actions';
 import { ORGANIZATIONS, SEARCH } from '../../core/redux/constants';
 import {
@@ -54,6 +60,7 @@ import {
   searchOrganizationDataSets,
 } from '../../core/search/actions';
 import { MAX_HITS_10 } from '../../core/search/constants';
+import type { ReactSelectOption } from '../../types';
 
 const { PURPLE } = Colors;
 const { getEntityKeyId } = DataUtils;
@@ -72,6 +79,9 @@ const OrgContainer = ({
 
   const dispatch = useDispatch();
 
+  const [isOpenSearchOptions, setIsOpenSearchOptions] = useState(false);
+  const [flag, setFlag] = useState();
+
   const deleteOrgRS :?RequestState = useRequestState([ORGANIZATIONS, DELETE_EXISTING_ORGANIZATION]);
   const searchOrgDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_ORGANIZATION_DATA_SETS]);
 
@@ -79,7 +89,7 @@ const OrgContainer = ({
   const isInstalled :boolean = useSelector(selectIsAppInstalled(APPS.ACCESS_REQUESTS, organizationId));
 
   const searchPage :number = useSelector(selectSearchPage(SEARCH_ORGANIZATION_DATA_SETS));
-  const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS));
+  const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS)) || '*';
   const searchHits :List = useSelector(selectSearchHits(SEARCH_ORGANIZATION_DATA_SETS));
   const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_ORGANIZATION_DATA_SETS));
 
@@ -101,11 +111,12 @@ const OrgContainer = ({
     if (isNonEmptyString(query)) {
       dispatch(
         searchOrganizationDataSets({
+          entitySetFlags: [flag],
+          maxHits: MAX_HITS_10,
           organizationId,
           page,
           query,
           start,
-          maxHits: MAX_HITS_10,
         })
       );
     }
@@ -140,6 +151,7 @@ const OrgContainer = ({
   if (organization) {
     const rolesCount :number = organization.roles.length;
     const peopleCount :number = organization.members.length;
+    const toggleSearchOptions = () => setIsOpenSearchOptions(!isOpenSearchOptions);
     return (
       <AppContentWrapper>
         <StackGrid gap={24}>
@@ -183,10 +195,29 @@ const OrgContainer = ({
             }
           </StackGrid>
           <Typography variant="h2">Data Sets</Typography>
-          <SearchForm
-              onSubmit={(query :string) => dispatchDataSetSearch({ query })}
-              searchQuery={searchQuery}
-              searchRequestState={searchOrgDataSetsRS} />
+          <StackGrid gap={8}>
+            <SearchForm
+                onSubmit={(query :string) => dispatchDataSetSearch({ query })}
+                searchQuery={searchQuery}
+                searchRequestState={searchOrgDataSetsRS} />
+            <GapGrid gap={8}>
+              <Typography variant="subtitle2">Search Options</Typography>
+              <Flip flip={isOpenSearchOptions}>
+                <IconButton flip={isOpenSearchOptions} onClick={toggleSearchOptions}>
+                  <FontAwesomeIcon fixedWidth icon={faChevronDown} size="xs" />
+                </IconButton>
+              </Flip>
+            </GapGrid>
+            <Collapse in={isOpenSearchOptions}>
+              <Box maxWidth={240}>
+                <Typography gutterBottom variant="subtitle1">EntitySet Flags</Typography>
+                <Select
+                    isClearable
+                    onChange={(option :?ReactSelectOption<EntitySetFlagType>) => setFlag(option?.value)}
+                    options={ES_FLAG_TYPE_RS_OPTIONS} />
+              </Box>
+            </Collapse>
+          </StackGrid>
           {
             !isStandby(searchOrgDataSetsRS) && (
               <PaginationToolbar
