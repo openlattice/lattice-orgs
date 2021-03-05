@@ -25,7 +25,7 @@ import {
   StackGrid,
 } from '../../components';
 import { FQNS } from '../../core/edm/constants';
-import { selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
+import { selectDataSetSchema, selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { isAtlasDataSet } from '../../utils';
 
@@ -48,6 +48,7 @@ const OrgDataSetContainer = ({
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
 
   const description :string = getPropertyValue(dataSet, [FQNS.OL_DESCRIPTION, 0]);
   const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
@@ -94,6 +95,14 @@ const OrgDataSetContainer = ({
               </SpaceBetweenGrid>
               <Typography>{description || name}</Typography>
             </StackGrid>
+            {
+              isNonEmptyString(dataSetSchema) && (
+                <StackGrid>
+                  <Typography variant="h4">Schema</Typography>
+                  <Typography>{dataSetSchema}</Typography>
+                </StackGrid>
+              )
+            }
             <StackGrid>
               <Typography variant="h4">Contact</Typography>
               {
