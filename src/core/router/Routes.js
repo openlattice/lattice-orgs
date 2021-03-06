@@ -27,10 +27,10 @@ const ORGS :'/orgs' = '/orgs';
 const ORG :'/orgs/:organizationId' = `${ORGS}/${ORG_ID_PARAM}`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ORG_ACCESS_REQUESTS :'/orgs/:organizationId/requests' = `${ORG}/requests`;
+const ORG_ACCESS_REQUESTS :'/orgs/:organizationId/access' = `${ORG}/access`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ORG_ACCESS_REQUEST :'/orgs/:organizationId/requests/request/:requestId' = `${ORG_ACCESS_REQUESTS}/request/${REQUEST_ID_PARAM}`;
+const ORG_ACCESS_REQUEST :'/orgs/:organizationId/access/request/:requestId' = `${ORG_ACCESS_REQUESTS}/request/${REQUEST_ID_PARAM}`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_DATA_SETS :'/orgs/:organizationId/dataSets' = `${ORG}/dataSets`;

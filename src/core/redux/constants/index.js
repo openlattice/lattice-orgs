@@ -31,6 +31,7 @@ export const {
 
 export const ACCOUNT :'account' = 'account';
 export const ACES :'aces' = 'aces';
+export const APP_INSTALLS :'appInstalls' = 'appInstalls';
 export const ATLAS_CREDENTIALS :'atlasCredentials' = 'atlasCredentials';
 export const CURRENT :'current' = 'current';
 export const CURRENT_ROLE_AUTHORIZATIONS :'currentRoleAuthorizations' = 'currentRoleAuthorizations';

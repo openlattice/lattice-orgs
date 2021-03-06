@@ -12,6 +12,10 @@ const { OPENLATTICE_ID_FQN } = Constants;
 const { FQN } = Models;
 const { EntitySetFlagTypes } = Types;
 
+const APPS = {
+  ACCESS_REQUESTS: 'access_requests',
+};
+
 const FQNS = {
   CONTACT_EMAIL: FQN.of('contact.Email'),
   CONTACT_PHONE_NUMBER: FQN.of('contact.phonenumber'),
@@ -50,6 +54,7 @@ const ES_FLAG_TYPE_RS_OPTIONS :ReactSelectOption<EntitySetFlagType>[] = [
 ];
 
 export {
+  APPS,
   ES_FLAG_TYPE_RS_OPTIONS,
   FQNS,
 };
