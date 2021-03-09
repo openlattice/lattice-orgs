@@ -11,7 +11,7 @@ import {
 import { Map, fromJS } from 'immutable';
 import { Types } from 'lattice';
 import { SearchApiActions, SearchApiSagas } from 'lattice-sagas';
-import { AxiosUtils, Logger } from 'lattice-utils';
+import { AxiosUtils, LangUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
   EntitySetFlagType,
@@ -34,6 +34,7 @@ const { EntitySetFlagTypes } = Types;
 const { searchEntitySetData } = SearchApiActions;
 const { searchEntitySetDataWorker } = SearchApiSagas;
 const { toSagaError } = AxiosUtils;
+const { isDefined } = LangUtils;
 
 const REQUIRED_PROPERTY_TYPES :FQN[] = [
   FQNS.OL_FLAGS,
@@ -80,7 +81,8 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
       }],
     }];
 
-    if (entitySetFlags.length === 0) {
+    const flags = entitySetFlags.filter(isDefined);
+    if (flags.length === 0) {
       constraints.push({
         constraints: [
           { searchTerm: `NOT(entity.${propertyTypeIds.get(FQNS.OL_FLAGS)}:${EntitySetFlagTypes.AUDIT})` },
@@ -88,7 +90,7 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
       });
     }
     else {
-      entitySetFlags.forEach((flag :?EntitySetFlagType) => {
+      flags.forEach((flag :?EntitySetFlagType) => {
         if (flag) {
           constraints.push({
             constraints: [
