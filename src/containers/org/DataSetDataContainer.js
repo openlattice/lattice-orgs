@@ -73,7 +73,7 @@ const DataSetDataContainer = ({
       .filter((column :Map<FQN, List>) => headersSet.has(getPropertyValue(column, [FQNS.OL_TYPE, 0])))
       .map((column :Map<FQN, List>) => {
         const fqn :string = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
-        const title :string = getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]);
+        const title :string = getPropertyValue(column, [FQNS.OL_TITLE, 0]);
         return { key: fqn, label: `${title} (${fqn})`, sortable: false };
       });
     setTableData(data.toJS());
