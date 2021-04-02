@@ -7,7 +7,7 @@ const { PURPLE } = Colors;
 const CrumbLink = styled(Link)`
   color: ${PURPLE.P300};
   display: flex;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 500;
   text-decoration: none;
   text-transform: ${({ toUpperCase = false }) => (toUpperCase ? 'uppercase' : 'none')};
