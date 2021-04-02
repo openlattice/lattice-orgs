@@ -31,7 +31,7 @@ module.exports = {
   ],
   presets: [
     ['@babel/preset-env', {
-      corejs: '3.9',
+      corejs: '3.10',
       useBuiltIns: 'entry',
     }],
     ['@babel/preset-react', {
