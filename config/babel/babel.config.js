@@ -1,8 +1,5 @@
 module.exports = {
   plugins: [
-    ['@babel/plugin-transform-runtime', {
-      corejs: 3,
-    }],
     ['babel-plugin-transform-imports', {
       '@fortawesome/free-solid-svg-icons': {
         transform: (importName) => `@fortawesome/free-solid-svg-icons/${importName}`,
@@ -35,10 +32,11 @@ module.exports = {
   presets: [
     ['@babel/preset-env', {
       corejs: '3.9',
-      targets: ['defaults', 'not ie > 0'],
-      useBuiltIns: 'usage',
+      useBuiltIns: 'entry',
+    }],
+    ['@babel/preset-react', {
+      runtime: 'automatic',
     }],
     '@babel/preset-flow',
-    '@babel/preset-react',
   ],
 };
