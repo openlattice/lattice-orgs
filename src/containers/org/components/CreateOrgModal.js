@@ -2,20 +2,29 @@
  * @flow
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
+import { Map } from 'immutable';
 import { ActionModal, Input, Label } from 'lattice-ui-kit';
-import { LangUtils, useRequestState } from 'lattice-utils';
-import { useDispatch } from 'react-redux';
+import {
+  LangUtils,
+  ReduxUtils,
+  useGoToRoute,
+  useRequestState,
+} from 'lattice-utils';
+import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
+import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import * as Routes from '../../../core/router/Routes';
 import { ModalBody, StackGrid } from '../../../components';
 import { resetRequestStates } from '../../../core/redux/actions';
-import { ORGANIZATIONS } from '../../../core/redux/constants';
+import { NEW_ORGANIZATION, ORGANIZATIONS } from '../../../core/redux/constants';
 import { CREATE_NEW_ORGANIZATION, createNewOrganization } from '../actions';
 
 const { isNonEmptyString } = LangUtils;
+const { isSuccess } = ReduxUtils;
 
 type Props = {
   onClose :() => void;
@@ -60,6 +69,20 @@ const CreateOrgModal = ({ onClose } :Props) => {
       dispatch(resetRequestStates([CREATE_NEW_ORGANIZATION]));
     }, 1000);
   };
+
+  const organization :Organization | Map = useSelector((store) => store.getIn([ORGANIZATIONS, NEW_ORGANIZATION]));
+  const organizationId :UUID = (organization?.id :any);
+  const goToOrganization = useGoToRoute(
+    Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId),
+    { organization },
+  );
+
+  useEffect(() => {
+    if (organizationId && isSuccess(createOrganizationRS)) {
+      dispatch(resetRequestStates([CREATE_NEW_ORGANIZATION]));
+      dispatch(goToOrganization());
+    }
+  }, [createOrganizationRS, dispatch, goToOrganization, organizationId]);
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
