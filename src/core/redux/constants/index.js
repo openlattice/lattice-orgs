@@ -44,6 +44,7 @@ export const ENTITY_SET_IDS :'entitySetIds' = 'entitySetIds';
 export const INTEGRATION_DETAILS :'integrationDetails' = 'integrationDetails';
 export const IS_OWNER :'isOwner' = 'isOwner';
 export const MY_KEYS :'myKeys' = 'myKeys';
+export const NEW_ORGANIZATION :'newOrganization' = 'newOrganization';
 export const ORGANIZATION :'organization' = 'organization';
 export const ORG_DATA_SETS :'organizationDataSets' = 'organizationDataSets';
 export const ORG_DATA_SET_COLUMNS :'organizationDataSetColumns' = 'organizationDataSetColumns';
