@@ -19,7 +19,8 @@ import type { RequestState } from 'redux-reqseq';
 import * as Routes from '../../../core/router/Routes';
 import { ModalBody, StackGrid } from '../../../components';
 import { resetRequestStates } from '../../../core/redux/actions';
-import { NEW_ORGANIZATION_ID, ORGANIZATIONS } from '../../../core/redux/constants';
+import { ORGANIZATIONS } from '../../../core/redux/constants';
+import { selectNewOrgId } from '../../../core/redux/selectors';
 import { CREATE_NEW_ORGANIZATION, createNewOrganization } from '../actions';
 
 const { isNonEmptyString } = LangUtils;
@@ -69,7 +70,7 @@ const CreateOrgModal = ({ onClose } :Props) => {
     }, 1000);
   };
 
-  const organizationId :UUID = useSelector((store) => store.getIn([ORGANIZATIONS, NEW_ORGANIZATION_ID]));
+  const organizationId :UUID = useSelector(selectNewOrgId());
   const goToOrganization = useGoToRoute(Routes.ORG.replace(Routes.ORG_ID_PARAM, organizationId));
 
   useEffect(() => {
