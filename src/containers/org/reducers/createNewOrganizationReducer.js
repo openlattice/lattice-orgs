@@ -10,7 +10,7 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import {
   ERROR,
-  NEW_ORGANIZATION,
+  NEW_ORGANIZATION_ID,
   ORGANIZATIONS,
   REQUEST_STATE,
 } from '../../../core/redux/constants';
@@ -28,7 +28,7 @@ export default function reducer(state :Map, action :SequenceAction) {
         const org :Organization = (new OrganizationBuilder(action.value)).build();
         return state
           .setIn([ORGANIZATIONS, org.id], org)
-          .set(NEW_ORGANIZATION, org)
+          .set(NEW_ORGANIZATION_ID, org.id)
           .setIn([CREATE_NEW_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
