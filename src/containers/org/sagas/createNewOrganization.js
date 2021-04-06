@@ -14,8 +14,8 @@ import { CREATE_NEW_ORGANIZATION, createNewOrganization } from '../actions';
 
 const { OrganizationBuilder, PrincipalBuilder } = Models;
 const { PrincipalTypes } = Types;
-const { createOrganization } = OrganizationsApiActions;
-const { createOrganizationWorker } = OrganizationsApiSagas;
+const { createOrganization, getOrganization } = OrganizationsApiActions;
+const { createOrganizationWorker, getOrganizationWorker } = OrganizationsApiSagas;
 const { toSagaError } = AxiosUtils;
 
 const LOG = new Logger('OrgSagas');
@@ -37,17 +37,16 @@ function* createNewOrganizationWorker(action :SequenceAction) :Saga<void> {
       .setPrincipal(principal)
       .setTitle(title);
 
-    const response :WorkerResponse = yield call(
+    let response :WorkerResponse = yield call(
       createOrganizationWorker,
       createOrganization(orgBuilder.build()),
     );
     if (response.error) throw response.error;
 
-    const org = orgBuilder
-      .setId(response.data)
-      .build();
+    response = yield call(getOrganizationWorker, getOrganization(response.data));
+    if (response.error) throw response.error;
 
-    yield put(createNewOrganization.success(action.id, org));
+    yield put(createNewOrganization.success(action.id, response.data));
   }
   catch (error) {
     LOG.error(action.type, error);
