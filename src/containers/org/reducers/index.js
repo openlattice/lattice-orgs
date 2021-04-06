@@ -27,7 +27,7 @@ import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
   INTEGRATION_DETAILS,
   MEMBERS,
-  NEW_ORGANIZATION,
+  NEW_ORGANIZATION_ID,
   ORGANIZATIONS,
   RS_INITIAL_STATE,
 } from '../../../core/redux/constants';
@@ -94,7 +94,7 @@ const INITIAL_STATE :Map = fromJS({
   // data
   [INTEGRATION_DETAILS]: Map(),
   [MEMBERS]: Map(),
-  [NEW_ORGANIZATION]: Map(),
+  [NEW_ORGANIZATION_ID]: '',
   [ORGANIZATIONS]: Map(),
 });
 
