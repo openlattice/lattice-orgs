@@ -8,7 +8,12 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { ERROR, ORGANIZATIONS, REQUEST_STATE } from '../../../core/redux/constants';
+import {
+  ERROR,
+  NEW_ORGANIZATION_ID,
+  ORGANIZATIONS,
+  REQUEST_STATE,
+} from '../../../core/redux/constants';
 import { CREATE_NEW_ORGANIZATION, createNewOrganization } from '../actions';
 
 const { OrganizationBuilder } = Models;
@@ -23,6 +28,7 @@ export default function reducer(state :Map, action :SequenceAction) {
         const org :Organization = (new OrganizationBuilder(action.value)).build();
         return state
           .setIn([ORGANIZATIONS, org.id], org)
+          .set(NEW_ORGANIZATION_ID, org.id)
           .setIn([CREATE_NEW_ORGANIZATION, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;

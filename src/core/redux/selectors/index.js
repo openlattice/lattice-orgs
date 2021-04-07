@@ -19,6 +19,7 @@ export { default as selectEntitySetEntityType } from './selectEntitySetEntityTyp
 export { default as selectEntitySetPropertyTypes } from './selectEntitySetPropertyTypes';
 export { default as selectIsAppInstalled } from './selectIsAppInstalled';
 export { default as selectMyKeys } from './selectMyKeys';
+export { default as selectNewOrgId } from './selectNewOrgId';
 export { default as selectOrgDataSet } from './selectOrgDataSet';
 export { default as selectOrgDataSetColumns } from './selectOrgDataSetColumns';
 export { default as selectOrgDataSets } from './selectOrgDataSets';
