@@ -18,6 +18,7 @@ import { List, Map, Set } from 'immutable';
 import { Models, Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import {
+  Button,
   CardSegment,
   Colors,
   IconButton,
@@ -34,6 +35,7 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import BulkEditColumnPermissionsModal from './BulkEditColumnPermissionsModal';
 import { ObjectPermissionCheckbox } from './components';
 import { ORDERED_PERMISSIONS } from './constants';
 
@@ -87,6 +89,7 @@ const ObjectPermissionsCard = ({
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [openPermissionType, setOpenPermissionType] = useState('');
   const [targetColumnId, setTargetColumnId] = useState('');
 
@@ -205,7 +208,15 @@ const ObjectPermissionsCard = ({
                             </SpaceBetweenGrid>
                           </div>
                           <div>
-                            <Typography gutterBottom variant="body2">Columns</Typography>
+                            <SpaceBetweenGrid>
+                              <Typography gutterBottom variant="body2">Columns</Typography>
+                              <Button
+                                  onClick={() => setIsBulkEditOpen(true)}
+                                  size="small"
+                                  variant="text">
+                                Bulk Edit
+                              </Button>
+                            </SpaceBetweenGrid>
                             {
                               dataSetColumns.map((column :Map<FQN, List>) => {
                                 const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
@@ -238,6 +249,13 @@ const ObjectPermissionsCard = ({
                                 );
                               })
                             }
+                            <BulkEditColumnPermissionsModal
+                                dataSetColumns={dataSetColumns}
+                                isVisible={isBulkEditOpen}
+                                objectKey={objectKey}
+                                onClose={() => setIsBulkEditOpen(false)}
+                                permissionType={permissionType}
+                                principal={principal} />
                           </div>
                         </StackGrid>
                       </ColumnsWrapper>
