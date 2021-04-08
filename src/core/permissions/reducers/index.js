@@ -17,6 +17,7 @@ import initializeObjectPermissionsReducer from './initializeObjectPermissionsRed
 import initializeOrganizationDataSetReducer from './initializeOrganizationDataSetReducer';
 import initializeOrganizationReducer from './initializeOrganizationReducer';
 import setPermissionsReducer from './setPermissionsReducer';
+import updatePermissionsBulkReducer from './updatePermissionsBulkReducer';
 import updatePermissionsReducer from './updatePermissionsReducer';
 
 import {
@@ -47,6 +48,7 @@ import {
   RESET_CURRENT_ROLE_AUTHORIZATIONS,
   SET_PERMISSIONS,
   UPDATE_PERMISSIONS,
+  UPDATE_PERMISSIONS_BULK,
   assignPermissionsToDataSet,
   getCurrentRoleAuthorizations,
   getDataSetPermissionsPage,
@@ -57,6 +59,7 @@ import {
   initializeObjectPermissions,
   setPermissions,
   updatePermissions,
+  updatePermissionsBulk,
 } from '../actions';
 
 const INITIAL_STATE :Map = fromJS({
@@ -71,6 +74,7 @@ const INITIAL_STATE :Map = fromJS({
   [INITIALIZE_OBJECT_PERMISSIONS]: RS_INITIAL_STATE,
   [SET_PERMISSIONS]: RS_INITIAL_STATE,
   [UPDATE_PERMISSIONS]: RS_INITIAL_STATE,
+  [UPDATE_PERMISSIONS_BULK]: RS_INITIAL_STATE,
   // data
   [ACES]: Map(),
   [CURRENT]: Map(),
@@ -145,6 +149,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case updatePermissions.case(action.type): {
       return updatePermissionsReducer(state, action);
+    }
+
+    case updatePermissionsBulk.case(action.type): {
+      return updatePermissionsBulkReducer(state, action);
     }
 
     default:
