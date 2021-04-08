@@ -19,6 +19,9 @@ module.exports = {
     __PACKAGE__: PACKAGE.name,
     __VERSION__: PACKAGE.version,
   },
+  moduleNameMapper: {
+    '\\.(png|svg)$': '<rootDir>/config/jest/mocks/assets.js',
+  },
   modulePathIgnorePatterns: [
     '<rootDir>/build/',
     '<rootDir>/flow-typed/',
@@ -26,9 +29,6 @@ module.exports = {
   rootDir: '../..',
   setupFiles: [
     '<rootDir>/config/jest/enzyme.config.js',
-  ],
-  setupFilesAfterEnv: [
-    '<rootDir>/config/jest/test.config.js',
   ],
   testEnvironment: '<rootDir>/config/jest/jsdom.config.js',
   testURL: 'http://localhost',

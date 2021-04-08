@@ -1,20 +1,24 @@
-/* eslint-disable import/extensions */
+/* eslint-disable import/extensions, import/no-extraneous-dependencies */
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const Webpack = require('webpack');
+const path = require('path');
 
-const APP_PATHS = require('../app/paths.config.js');
 const baseWebpackConfig = require('./webpack.config.base.js');
 
 module.exports = (env) => {
 
-  const DEV_SERVER_PORT = 9000;
   const baseConfig = baseWebpackConfig(env);
+
+  const DEV_SERVER_PORT = 9000;
+
+  const ROOT = path.resolve(__dirname, '../..');
+  const BUILD = path.resolve(ROOT, 'build');
+  const SOURCE = path.resolve(ROOT, 'src');
 
   return {
     ...baseConfig,
     devServer: {
-      contentBase: APP_PATHS.ABS.BUILD,
+      contentBase: BUILD,
       historyApiFallback: {
         index: baseConfig.output.publicPath,
       },
@@ -25,15 +29,13 @@ module.exports = (env) => {
     devtool: false,
     output: {
       ...baseConfig.output,
-      filename: `${APP_PATHS.REL.STATIC_JS}/index.js`,
+      filename: 'static/js/index.js',
     },
     plugins: [
       new HtmlWebpackPlugin({
-        favicon: `${APP_PATHS.ABS.SOURCE_ASSETS}/svg/icons/ol-icon.svg`,
-        inject: true,
-        template: `${APP_PATHS.ABS.SOURCE}/index.html`,
+        favicon: `${SOURCE}/assets/svg/icons/ol-icon.svg`,
+        template: `${SOURCE}/index.html`,
       }),
-      new Webpack.HotModuleReplacementPlugin(),
       ...baseConfig.plugins
     ],
   };

@@ -2,14 +2,11 @@
  * @flow
  */
 
-import CardSegmentNoBorder from './card/CardSegmentNoBorder';
-import ModalBodyMinWidth from './modal/ModalBodyMinWidth';
-import SectionGrid from './grid/SectionGrid';
-
-export {
-  CardSegmentNoBorder,
-  ModalBodyMinWidth,
-  SectionGrid,
-};
-
 export * from './buttons';
+export * from './cards';
+export * from './crumbs';
+export * from './errors';
+export * from './grids';
+export * from './modals';
+export * from './other';
+export * from './typography';

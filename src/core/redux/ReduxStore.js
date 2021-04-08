@@ -7,8 +7,11 @@ import createSagaMiddleware from '@redux-saga/core';
 import { routerMiddleware } from 'connected-react-router/immutable';
 import { applyMiddleware, compose, createStore } from 'redux';
 
-import sagas from '../sagas/Sagas';
 import reduxReducer from './ReduxReducer';
+
+import sagas from '../sagas/Sagas';
+
+declare var __ENV_DEV__ :boolean;
 
 export default function initializeReduxStore(routerHistory :any) :Object {
 
@@ -24,14 +27,18 @@ export default function initializeReduxStore(routerHistory :any) :Object {
   ];
 
   const stateSanitizer = (state) => state
-    .set('edm', 'HIDDEN by stateSanitizer');
+    .setIn(['edm', 'entityTypes'], 'HIDDEN')
+    .setIn(['edm', 'entityTypesIndexMap'], 'HIDDEN')
+    .setIn(['edm', 'propertyTypes'], 'HIDDEN')
+    .setIn(['edm', 'propertyTypesIndexMap'], 'HIDDEN');
 
   /* eslint-disable no-underscore-dangle */
   const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
     ? window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
-      stateSanitizer,
       maxAge: 100,
+      name: __ENV_DEV__ ? 'localhost-orgs' : 'orgs',
       serialize: true,
+      stateSanitizer,
     })
     : compose;
   /* eslint-enable */

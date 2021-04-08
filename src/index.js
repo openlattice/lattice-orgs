@@ -12,9 +12,9 @@ import { normalize } from 'polished';
 import { Provider } from 'react-redux';
 import { createGlobalStyle } from 'styled-components';
 
-import AppContainer from './containers/app/AppContainer';
 import initializeReduxStore from './core/redux/ReduxStore';
 import initializeRouterHistory from './core/router/RouterHistory';
+import { AppContainer } from './containers/app';
 import { Routes } from './core/router';
 
 // injected by Webpack.DefinePlugin
@@ -24,8 +24,6 @@ declare var __AUTH0_DOMAIN__ :string;
 const { AuthRoute, AuthUtils } = LatticeAuth;
 const { NEUTRAL } = Colors;
 
-/* eslint-disable */
-// TODO: move into core/styles
 const NormalizeCSS = createGlobalStyle`
   ${normalize()}
 `;
@@ -33,22 +31,18 @@ const NormalizeCSS = createGlobalStyle`
 const GlobalStyle = createGlobalStyle`
   @supports (font-variation-settings: normal) {
     html {
-      font-family: 'Inter var', sans-serif;
+      font-family: 'Inter', sans-serif;
     }
   }
 
   html,
   body {
-    background-color: ${NEUTRAL.N00};
-    color: ${NEUTRAL.N700};
+    background-color: white;
+    color: ${NEUTRAL.N800};
     font-family: 'Inter', sans-serif;
     height: 100%;
     line-height: 1.5;
     width: 100%;
-  }
-
-  input {
-    line-height: 1.5;
   }
 
   * {
@@ -66,7 +60,6 @@ const GlobalStyle = createGlobalStyle`
     width: 100%;
   }
 `;
-/* eslint-enable */
 
 /*
  * !!! MUST HAPPEN FIRST !!!
