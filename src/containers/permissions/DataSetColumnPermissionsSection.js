@@ -128,44 +128,64 @@ const DataSetColumnPermissionsSection = ({
   };
 
   const togglePermissionAssignmentToOnlyNonPII = () => {
-    if (!isPermissionAssignedToOnlyNonPII) {
+    if (!isPending(updatePermissionsRS) || !isPending(updatePermissionsBulkRS)) {
+      if (!isPermissionAssignedToOnlyNonPII) {
 
-      const permissionsToUpdate :Object[] = [];
+        const permissionsToUpdate :Object[] = [];
 
-      const permissionsToAdd :Map<List<UUID>, Ace> = Map();
-      const permissionsToRemove :Map<List<UUID>, Ace> = Map().withMutations((mutator) => {
-        dataSetColumns.forEach((column :Map<FQN, List>) => {
-          const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
-          const key :List<UUID> = List([objectKey.get(0), columnId]);
-          const isOwner = myKeys.has(key);
-          if (isOwner) {
-            const propertyType :?PropertyType = maybePropertyTypes.get(columnId);
-            const pii :?boolean = propertyType?.pii;
-            if (_isBoolean(pii)) {
-              if (pii === false) {
-                permissionsToAdd.set(key, aceForUpdate);
-              }
-              else {
-                mutator.set(key, aceForUpdate);
+        const permissionsToAdd :Map<List<UUID>, Ace> = Map().asMutable();
+        const permissionsToRemove :Map<List<UUID>, Ace> = Map().withMutations((mutator) => {
+          dataSetColumns.forEach((column :Map<FQN, List>) => {
+            const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
+            const key :List<UUID> = List([objectKey.get(0), columnId]);
+            const isOwner = myKeys.has(key);
+            if (isOwner) {
+              const propertyType :?PropertyType = maybePropertyTypes.get(columnId);
+              const pii :?boolean = propertyType?.pii;
+              if (_isBoolean(pii)) {
+                if (pii === false) {
+                  permissionsToAdd.set(key, aceForUpdate);
+                }
+                else {
+                  mutator.set(key, aceForUpdate);
+                }
               }
             }
-          }
+          });
         });
-      });
-      if (!permissionsToAdd.isEmpty()) {
-        permissionsToUpdate.push({
-          actionType: ActionTypes.ADD,
-          permissions: permissionsToAdd.asImmutable()
-        });
+        if (!permissionsToAdd.isEmpty()) {
+          permissionsToUpdate.push({
+            actionType: ActionTypes.ADD,
+            permissions: permissionsToAdd.asImmutable()
+          });
+        }
+        if (!permissionsToRemove.isEmpty()) {
+          permissionsToUpdate.push({
+            actionType: ActionTypes.REMOVE,
+            permissions: permissionsToRemove
+          });
+        }
+        dispatch(updatePermissionsBulk(permissionsToUpdate));
+        setIsPermissionAssignedToOnlyNonPII(isPermissionAssignedToOnlyNonPII);
       }
-      if (!permissionsToRemove.isEmpty()) {
-        permissionsToUpdate.push({
-          actionType: ActionTypes.REMOVE,
-          permissions: permissionsToRemove
+      else {
+        const permissionsToUpdate = Map().withMutations((mutator) => {
+          dataSetColumns.forEach((column :Map<FQN, List>) => {
+            const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
+            const key :List<UUID> = List([objectKey.get(0), columnId]);
+            if (myKeys.has(key)) {
+              mutator.set(key, aceForUpdate);
+            }
+          });
         });
+        dispatch(
+          updatePermissions({
+            actionType: ActionTypes.REMOVE,
+            permissions: permissionsToUpdate
+          })
+        );
+        setIsPermissionAssignedToOnlyNonPII(!isPermissionAssignedToOnlyNonPII);
       }
-      dispatch(updatePermissionsBulk(permissionsToUpdate));
-      setIsPermissionAssignedToOnlyNonPII(isPermissionAssignedToOnlyNonPII);
     }
   };
 
