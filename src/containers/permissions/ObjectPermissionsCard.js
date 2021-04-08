@@ -18,7 +18,6 @@ import { List, Map, Set } from 'immutable';
 import { Models, Types } from 'lattice';
 import { AuthUtils } from 'lattice-auth';
 import {
-  Button,
   CardSegment,
   Colors,
   IconButton,
@@ -36,9 +35,11 @@ import type {
 import type { RequestState } from 'redux-reqseq';
 
 import BulkEditColumnPermissionsModal from './BulkEditColumnPermissionsModal';
+import DataSetColumnPermissionsSection from './DataSetColumnPermissionsSection';
 import { ObjectPermissionCheckbox } from './components';
 import { ORDERED_PERMISSIONS } from './constants';
 
+import Divider from '../../components/other/Divider';
 import { SpaceBetweenGrid, Spinner, StackGrid } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
@@ -210,13 +211,14 @@ const ObjectPermissionsCard = ({
                           <div>
                             <SpaceBetweenGrid>
                               <Typography gutterBottom variant="body2">Columns</Typography>
-                              <Button
-                                  onClick={() => setIsBulkEditOpen(true)}
-                                  size="small"
-                                  variant="text">
-                                Bulk Edit
-                              </Button>
                             </SpaceBetweenGrid>
+                            <DataSetColumnPermissionsSection
+                                dataSetColumns={dataSetColumns}
+                                objectKey={objectKey}
+                                permissions={permissions}
+                                permissionType={permissionType}
+                                principal={principal} />
+                            <Divider />
                             {
                               dataSetColumns.map((column :Map<FQN, List>) => {
                                 const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
