@@ -94,7 +94,7 @@ const OrgActionButton = ({
 |}) => {
 
   const organizationId :UUID = (organization.id :any);
-  const organizationName :string = (organization.title :any);
+  const organizationName :string = (organization.title);
 
   const dispatch = useDispatch();
 
