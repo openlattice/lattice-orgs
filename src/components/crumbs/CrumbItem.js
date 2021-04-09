@@ -6,7 +6,7 @@ const { NEUTRAL } = Colors;
 const CrumbItem = styled.span`
   color: ${NEUTRAL.N500};
   display: flex;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 500;
   text-decoration: none;
   text-transform: ${({ toUpperCase = false }) => (toUpperCase ? 'uppercase' : 'none')};

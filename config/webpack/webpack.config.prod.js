@@ -1,26 +1,29 @@
-/* eslint-disable import/extensions */
+/* eslint-disable import/extensions, import/no-extraneous-dependencies */
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
-const APP_PATHS = require('../app/paths.config.js');
 const baseWebpackConfig = require('./webpack.config.base.js');
 
 module.exports = (env) => {
 
   const baseConfig = baseWebpackConfig(env);
 
+  const ROOT = path.resolve(__dirname, '../..');
+  const SOURCE = path.resolve(ROOT, 'src');
+
   return {
     ...baseConfig,
     devtool: false,
     output: {
       ...baseConfig.output,
-      filename: `${APP_PATHS.REL.STATIC_JS}/app.[contenthash].js`,
-      chunkFilename: `${APP_PATHS.REL.STATIC_JS}/app.chunk.[id].[chunkhash].js`,
+      filename: 'static/js/app.[contenthash].js',
+      chunkFilename: 'static/js/app.chunk.[id].[chunkhash].js',
     },
     plugins: [
       new HtmlWebpackPlugin({
-        favicon: `${APP_PATHS.ABS.SOURCE_ASSETS}/svg/icons/ol-icon.svg`,
-        template: `${APP_PATHS.ABS.SOURCE}/index.html`,
+        favicon: `${SOURCE}/assets/svg/icons/ol-icon.svg`,
+        template: `${SOURCE}/index.html`,
       }),
       ...baseConfig.plugins
     ],

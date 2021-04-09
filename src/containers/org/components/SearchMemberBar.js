@@ -26,6 +26,8 @@ import type { ReactSelectOption } from '../../../types';
 const { isPending } = ReduxUtils;
 const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
+const includeAll = () => true;
+
 type Props = {
   onChange :(option ?:ReactSelectOption<Map>) => void;
   existingMembers ?:List;
@@ -82,6 +84,7 @@ const SearchMemberBar = ({
   return (
     <Select
         closeMenuOnSelect={false}
+        filterOption={includeAll}
         hideDropdownIcon
         inputIcon={<FontAwesomeIcon icon={faSearch} />}
         inputValue={searchTerm}
