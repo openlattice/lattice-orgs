@@ -41,9 +41,12 @@ const { getPropertyValue } = DataUtils;
 const { isPending } = ReduxUtils;
 
 const ToggleWrapper = styled.div`
+  align-items: center;
   display: flex;
-  margin-right: -10px; /* for alignment with toggle icon */
-  min-height: 40px;
+  min-height: 47px; /* to compensate for both spinner and icon */
+  justify-content: center;
+  margin-right: -10px; /* for toggle icon alignment with checkboxes */
+  min-width: 47px; /* to compensate for both spinner and icon */
 `;
 
 const DataSetColumnPermissionsSection = ({
