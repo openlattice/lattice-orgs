@@ -31,6 +31,7 @@ import {
   updatePermissions,
   updatePermissionsBulk,
 } from '../../core/permissions/actions';
+import { resetRequestStates } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectMyKeys, selectPropertyTypes } from '../../core/redux/selectors';
 
@@ -38,7 +39,11 @@ const { NEUTRAL, PURPLE } = Colors;
 const { AceBuilder } = Models;
 const { ActionTypes } = Types;
 const { getPropertyValue } = DataUtils;
-const { isPending } = ReduxUtils;
+const { isFailure, isPending, isSuccess } = ReduxUtils;
+
+const ALL :'ALL' = 'ALL';
+const ONLY_NON_PII_ON :'ONLY_NON_PII_ON' = 'ONLY_NON_PII_ON';
+const ONLY_NON_PII_OFF :'ONLY_NON_PII_OFF' = 'ONLY_NON_PII_OFF';
 
 const ToggleWrapper = styled.div`
   align-items: center;
@@ -65,6 +70,7 @@ const DataSetColumnPermissionsSection = ({
 
   const [isPermissionAssignedToAll, setIsPermissionAssignedToAll] = useState(false);
   const [isPermissionAssignedToOnlyNonPII, setIsPermissionAssignedToOnlyNonPII] = useState(false);
+  const [selectedToggle, setSelectedToggle] = useState('');
 
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
   const aceForUpdate = (new AceBuilder()).setPermissions([permissionType]).setPrincipal(principal).build();
@@ -97,6 +103,7 @@ const DataSetColumnPermissionsSection = ({
     });
     setIsPermissionAssignedToAll(isAssignedToAll);
     setIsPermissionAssignedToOnlyNonPII(isAssignedToOnlyNonPII);
+    /* eslint-disable-next-line */
   }, [
     dataSetColumns,
     myKeys,
@@ -192,20 +199,47 @@ const DataSetColumnPermissionsSection = ({
     }
   };
 
+  const handleToggle = (toggle :string) => {
+    setSelectedToggle(toggle);
+
+    if (toggle === ALL) {
+      togglePermissionAssignmentToAll();
+    }
+    if (toggle === ONLY_NON_PII_ON || toggle === ONLY_NON_PII_OFF) {
+      togglePermissionAssignmentToOnlyNonPII();
+    }
+  };
+
+  useEffect(() => {
+    const resetToggleAndRS = () => {
+      setSelectedToggle('');
+      dispatch(resetRequestStates([UPDATE_PERMISSIONS, UPDATE_PERMISSIONS_BULK]));
+    };
+
+    if (isSuccess(updatePermissionsRS) || isFailure(updatePermissionsRS)) {
+      if (selectedToggle !== ONLY_NON_PII_ON) {
+        resetToggleAndRS();
+      }
+    }
+    if (isSuccess(updatePermissionsBulkRS) || isFailure(updatePermissionsBulkRS)) {
+      resetToggleAndRS();
+    }
+  }, [dispatch, selectedToggle, updatePermissionsRS, updatePermissionsBulkRS]);
+
   return (
     <>
       <SpaceBetweenGrid>
         <Typography>All Columns</Typography>
         <ToggleWrapper>
           {
-            isPending(updatePermissionsRS)
+            isPending(updatePermissionsRS) && selectedToggle === ALL
               ? (
                 <Spinner size="lg" />
               )
               : (
                 <IconButton
                     aria-label="all columns toggle open/close"
-                    onClick={togglePermissionAssignmentToAll}>
+                    onClick={() => handleToggle(ALL)}>
                   <FontAwesomeIcon
                       color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
                       fixedWidth
@@ -222,13 +256,17 @@ const DataSetColumnPermissionsSection = ({
         <ToggleWrapper>
           {
             isPending(updatePermissionsBulkRS)
+              || (isPending(updatePermissionsRS) && selectedToggle === ONLY_NON_PII_OFF)
               ? (
                 <Spinner size="lg" />
               )
               : (
                 <IconButton
                     aria-label="non-pii columns toggle open/close"
-                    onClick={togglePermissionAssignmentToOnlyNonPII}>
+                    onClick={() => {
+                      if (isPermissionAssignedToOnlyNonPII) handleToggle(ONLY_NON_PII_OFF);
+                      if (!isPermissionAssignedToOnlyNonPII) handleToggle(ONLY_NON_PII_ON);
+                    }}>
                   <FontAwesomeIcon
                       color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
                       fixedWidth
