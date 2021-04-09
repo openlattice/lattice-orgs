@@ -203,7 +203,7 @@ const OrgContainer = ({
             <GapGrid gap={8}>
               <Typography variant="subtitle2">Search Options</Typography>
               <Flip flip={isOpenSearchOptions}>
-                <IconButton flip={isOpenSearchOptions} onClick={toggleSearchOptions}>
+                <IconButton aria-label="toggle search options" onClick={toggleSearchOptions}>
                   <FontAwesomeIcon fixedWidth icon={faChevronDown} size="xs" />
                 </IconButton>
               </Flip>
