@@ -4,26 +4,39 @@
 
 import React, { useEffect, useState } from 'react';
 
-import { ActionModal, Typography } from 'lattice-ui-kit';
+import {
+  Input,
+  Modal,
+  ModalFooter,
+  Typography
+} from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody, ResetOnUnmount } from '../../../components';
+import { resetRequestStates } from '../../../core/redux/actions';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { DELETE_EXISTING_ORGANIZATION, deleteExistingOrganization } from '../actions';
 
-const { isSuccess } = ReduxUtils;
+const {
+  isFailure,
+  isPending,
+  isStandby,
+  isSuccess
+} = ReduxUtils;
 
 const RESET_ACTIONS = [DELETE_EXISTING_ORGANIZATION];
+
+const CONFIRM_DELETE_TEXT = 'Yes, Delete';
 
 type Props = {
   isOwner :boolean;
   isVisible :boolean;
   onClose :() => void;
   organizationId :UUID;
+  organizationName :string;
 };
 
 const DeleteOrgModal = ({
@@ -31,61 +44,91 @@ const DeleteOrgModal = ({
   isVisible,
   onClose,
   organizationId,
+  organizationName
 } :Props) => {
 
-  const [standbyMessage, updateStandbyMessage] = useState(
-    'Are you sure you want to delete this organization? This action cannot be undone.'
-  );
+  const [orgNameMatch, setOrgNameMatch] = useState('');
+  const [confirmText, setConfirmText] = useState(CONFIRM_DELETE_TEXT);
 
   const dispatch = useDispatch();
 
   const deleteOrgRS :?RequestState = useRequestState([ORGANIZATIONS, DELETE_EXISTING_ORGANIZATION]);
 
+  const deleteIsStandby :boolean = isStandby(deleteOrgRS);
+  const deleteIsPending :boolean = isPending(deleteOrgRS);
+  const deleteIsFailure :boolean = isFailure(deleteOrgRS);
+  const deleteIsSuccess :boolean = isSuccess(deleteOrgRS);
+
+  const handleInputChange = (event :SyntheticInputEvent<HTMLInputElement>) => {
+    const orgName = event.target.value || '';
+    setOrgNameMatch(orgName);
+  };
+
   const handleOnClickPrimary = () => {
     if (isOwner) {
       dispatch(deleteExistingOrganization(organizationId));
     }
-    else {
-      updateStandbyMessage('You are not authorized to delete this organization.');
-    }
+  };
+
+  const resetRequestState = () => {
+    dispatch(resetRequestStates(RESET_ACTIONS));
+    setConfirmText(CONFIRM_DELETE_TEXT);
   };
 
   useEffect(() => {
-    if (isSuccess(deleteOrgRS)) onClose();
-  });
+    if (deleteIsSuccess) onClose();
+    if (deleteIsFailure) {
+      setConfirmText('Try Again');
+      setOrgNameMatch('');
+    }
+  }, [deleteIsSuccess, deleteIsFailure, onClose, setConfirmText, setOrgNameMatch]);
 
-  const rsComponents = {
-    [RequestStates.STANDBY]: (
+  let body = (
+    <ModalBody>
+      <Typography paragraph>
+        Are you sure you want to delete this organization? This action cannot be undone.
+      </Typography>
+      <Typography>To confirm, please type the organization name.</Typography>
+      <Input
+          disabled={deleteIsPending}
+          id="org-name-confirmation"
+          error={orgNameMatch.length && orgNameMatch !== organizationName}
+          onChange={handleInputChange} />
+    </ModalBody>
+  );
+
+  if (deleteIsFailure) {
+    body = (
       <ModalBody>
-        <Typography>{standbyMessage}</Typography>
+        <Typography>Failed to delete organization. Please try again.</Typography>
       </ModalBody>
-    ),
-    [RequestStates.SUCCESS]: (
-      <ResetOnUnmount actions={RESET_ACTIONS}>
-        <ModalBody>
-          <Typography>Success!</Typography>
-        </ModalBody>
-      </ResetOnUnmount>
-    ),
-    [RequestStates.FAILURE]: (
-      <ResetOnUnmount actions={RESET_ACTIONS}>
-        <ModalBody>
-          <Typography>Failed to delete organization. Please try again.</Typography>
-        </ModalBody>
-      </ResetOnUnmount>
-    ),
-  };
+    );
+  }
+
+  // TODO: figure out why this is throwing that "unique key prop" error if the "key" prop is not set
+  const withFooter = (
+    <ModalFooter
+        isDisabledPrimary={deleteIsStandby && orgNameMatch !== organizationName}
+        isPendingPrimary={deleteIsPending}
+        isPendingSecondary={deleteIsPending}
+        key="modal-footer"
+        onClickPrimary={deleteIsStandby ? handleOnClickPrimary : resetRequestState}
+        onClickSecondary={deleteIsStandby && onClose}
+        shouldStretchButtons
+        textPrimary={confirmText}
+        textSecondary={deleteIsStandby && 'No, Cancel'} />
+  );
 
   return (
-    <ActionModal
+    <Modal
         isVisible={isVisible}
-        onClickPrimary={handleOnClickPrimary}
         onClose={onClose}
-        requestState={deleteOrgRS}
-        requestStateComponents={rsComponents}
-        shouldStretchButtons
-        textPrimary="Delete"
-        textTitle="Delete Organization" />
+        textTitle="Delete Organization"
+        withFooter={withFooter}>
+      <ResetOnUnmount actions={RESET_ACTIONS}>
+        { body }
+      </ResetOnUnmount>
+    </Modal>
   );
 };
 
