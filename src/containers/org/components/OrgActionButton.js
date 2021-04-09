@@ -94,6 +94,7 @@ const OrgActionButton = ({
 |}) => {
 
   const organizationId :UUID = (organization.id :any);
+  const organizationName :string = (organization.title :any);
 
   const dispatch = useDispatch();
 
@@ -204,7 +205,8 @@ const OrgActionButton = ({
           isOwner={isOwner}
           isVisible={state.deleteOpen}
           onClose={handleCloseDelete}
-          organizationId={organizationId} />
+          organizationId={organizationId}
+          organizationName={organizationName} />
     </>
   );
 };
