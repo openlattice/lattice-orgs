@@ -34,7 +34,6 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import BulkEditColumnPermissionsModal from './BulkEditColumnPermissionsModal';
 import DataSetColumnPermissionsSection from './DataSetColumnPermissionsSection';
 import { ObjectPermissionCheckbox } from './components';
 import { ORDERED_PERMISSIONS } from './constants';
@@ -90,7 +89,6 @@ const ObjectPermissionsCard = ({
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isBulkEditOpen, setIsBulkEditOpen] = useState(false);
   const [openPermissionType, setOpenPermissionType] = useState('');
   const [targetColumnId, setTargetColumnId] = useState('');
 
@@ -251,13 +249,6 @@ const ObjectPermissionsCard = ({
                                 );
                               })
                             }
-                            <BulkEditColumnPermissionsModal
-                                dataSetColumns={dataSetColumns}
-                                isVisible={isBulkEditOpen}
-                                objectKey={objectKey}
-                                onClose={() => setIsBulkEditOpen(false)}
-                                permissionType={permissionType}
-                                principal={principal} />
                           </div>
                         </StackGrid>
                       </ColumnsWrapper>
