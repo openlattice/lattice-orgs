@@ -193,13 +193,14 @@ const DataSetColumnPermissionsSection = ({
     }
   };
 
-  const handleToggle = (toggle :string) => {
-    setSelectedToggle(toggle);
+  const handleToggle = (e :SyntheticInputEvent<HTMLInputElement>) => {
+    const toggleId = e.currentTarget.id;
+    setSelectedToggle(toggleId);
 
-    if (toggle === ALL) {
+    if (toggleId === ALL) {
       togglePermissionAssignmentToAll();
     }
-    if (toggle === ONLY_NON_PII_ON || toggle === ONLY_NON_PII_OFF) {
+    if (toggleId === ONLY_NON_PII_ON || toggleId === ONLY_NON_PII_OFF) {
       togglePermissionAssignmentToOnlyNonPII();
     }
   };
@@ -224,7 +225,8 @@ const DataSetColumnPermissionsSection = ({
               : (
                 <IconButton
                     aria-label="all columns toggle open/close"
-                    onClick={() => handleToggle(ALL)}>
+                    id={ALL}
+                    onClick={handleToggle}>
                   <FontAwesomeIcon
                       color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
                       fixedWidth
@@ -248,10 +250,8 @@ const DataSetColumnPermissionsSection = ({
               : (
                 <IconButton
                     aria-label="non-pii columns toggle open/close"
-                    onClick={() => {
-                      if (isPermissionAssignedToOnlyNonPII) handleToggle(ONLY_NON_PII_OFF);
-                      if (!isPermissionAssignedToOnlyNonPII) handleToggle(ONLY_NON_PII_ON);
-                    }}>
+                    id={isPermissionAssignedToOnlyNonPII ? ONLY_NON_PII_OFF : ONLY_NON_PII_ON}
+                    onClick={handleToggle}>
                   <FontAwesomeIcon
                       color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
                       fixedWidth
