@@ -2,11 +2,16 @@
  * @flow
  */
 
-import { call, put, takeEvery } from '@redux-saga/core/effects';
+import {
+  all,
+  call,
+  put,
+  takeEvery,
+} from '@redux-saga/core/effects';
 import { List } from 'immutable';
 import { Models } from 'lattice';
 import { PermissionsApiActions, PermissionsApiSagas } from 'lattice-sagas';
-import { AxiosUtils, Logger } from 'lattice-utils';
+import { AxiosUtils, LangUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
   Ace,
@@ -22,6 +27,7 @@ const { AclBuilder, AclDataBuilder } = Models;
 const { updateAcls } = PermissionsApiActions;
 const { updateAclsWorker } = PermissionsApiSagas;
 const { toSagaError } = AxiosUtils;
+const { isDefined } = LangUtils;
 
 const LOG = new Logger('PermissionsSagas');
 
@@ -32,32 +38,47 @@ function* updatePermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> 
   try {
     yield put(updatePermissions.request(action.id, action.value));
 
-    const {
+    const permissionsUpdates :Array<{
+      actionType :ActionType;
+      permissions :Map<List<UUID>, Ace>;
+    }> = action.value;
+
+    const updateAclsCalls = [];
+
+    permissionsUpdates.forEach(({
       actionType,
       permissions,
     } :{
       actionType :ActionType;
       permissions :Map<List<UUID>, Ace>;
-    } = action.value;
+    }) => {
 
-    const updates = [];
-    permissions.forEach((ace :Ace, key :List<UUID>) => {
+      const updates = [];
 
-      const acl = (new AclBuilder())
-        .setAces([ace])
-        .setAclKey(key)
-        .build();
+      permissions.forEach((ace :Ace, key :List<UUID>) => {
 
-      const aclData = (new AclDataBuilder())
-        .setAcl(acl)
-        .setAction(actionType)
-        .build();
+        const acl = (new AclBuilder())
+          .setAces([ace])
+          .setAclKey(key)
+          .build();
 
-      updates.push(aclData);
+        const aclData = (new AclDataBuilder())
+          .setAcl(acl)
+          .setAction(actionType)
+          .build();
+
+        updates.push(aclData);
+      });
+
+      updateAclsCalls.push(call(updateAclsWorker, updateAcls(updates)));
     });
 
-    const response :WorkerResponse = yield call(updateAclsWorker, updateAcls(updates));
-    if (response.error) throw response.error;
+    const responses = yield all(updateAclsCalls);
+    const responseError = responses.reduce(
+      (error :any, r :Object) => (isDefined(error) ? error : r.error),
+      undefined,
+    );
+    if (responseError) throw responseError;
 
     workerResponse = { data: {} };
     yield put(updatePermissions.success(action.id));
