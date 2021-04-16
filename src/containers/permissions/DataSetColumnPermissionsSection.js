@@ -26,6 +26,7 @@ import type { RequestState } from 'redux-reqseq';
 import { SpaceBetweenGrid, Spinner } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
+import { computePermissionAssignments } from '../../core/permissions/utils';
 import { resetRequestStates } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectMyKeys, selectPropertyTypes } from '../../core/redux/selectors';
@@ -79,23 +80,15 @@ const DataSetColumnPermissionsSection = ({
   const propertyTypesHash :number = maybePropertyTypes.hashCode();
 
   useEffect(() => {
-    let isAssignedToAll = true;
-    let isAssignedToOnlyNonPII = true;
-    dataSetColumns.forEach((column :Map<FQN, List>) => {
-      const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
-      const propertyType :?PropertyType = maybePropertyTypes.get(columnId);
-      const pii :boolean = propertyType?.pii || false;
-      const key :List<UUID> = List([objectKey.get(0), columnId]);
-      const isOwner = myKeys.has(key);
-      if (isOwner) {
-        const ace :?Ace = permissions.get(key);
-        const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
-        isAssignedToAll = isAssignedToAll && isPermissionAssigned;
-        if ((isPermissionAssigned && pii === true) || (!isPermissionAssigned && pii === false)) {
-          isAssignedToOnlyNonPII = false;
-        }
-      }
-    });
+    const dataSetId :UUID = objectKey.get(0, '');
+    const { isAssignedToAll, isAssignedToOnlyNonPII } = computePermissionAssignments(
+      myKeys,
+      dataSetColumns,
+      dataSetId,
+      permissions,
+      permissionType,
+      maybePropertyTypes,
+    );
     setIsPermissionAssignedToAll(isAssignedToAll);
     setIsPermissionAssignedToOnlyNonPII(isAssignedToOnlyNonPII);
     /* eslint-disable-next-line */
