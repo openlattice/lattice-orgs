@@ -119,10 +119,10 @@ const ObjectPermissionsCard = ({
     if (!isPending(updatePermissionsRS)) {
       const aceForUpdate = (new AceBuilder()).setPermissions([permissionType]).setPrincipal(principal).build();
       dispatch(
-        updatePermissions({
+        updatePermissions([{
           actionType: isChecked ? ActionTypes.ADD : ActionTypes.REMOVE,
           permissions: Map().set(targetKey, aceForUpdate),
-        })
+        }])
       );
       if (targetKey.has(1)) {
         setTargetColumnId(targetKey.get(1));
