@@ -40,9 +40,6 @@ const setPermissions :RequestSequence = newRequestSequence(SET_PERMISSIONS);
 const UPDATE_PERMISSIONS :'UPDATE_PERMISSIONS' = 'UPDATE_PERMISSIONS';
 const updatePermissions :RequestSequence = newRequestSequence(UPDATE_PERMISSIONS);
 
-const UPDATE_PERMISSIONS_BULK :'UPDATE_PERMISSIONS_BULK' = 'UPDATE_PERMISSIONS_BULK';
-const updatePermissionsBulk :RequestSequence = newRequestSequence(UPDATE_PERMISSIONS_BULK);
-
 const RESET_CURRENT_ROLE_AUTHORIZATIONS :'RESET_CURRENT_ROLE_AUTHORIZATIONS' = 'RESET_CURRENT_ROLE_AUTHORIZATIONS';
 const resetCurrentRoleAuthorizations = () => ({
   type: RESET_CURRENT_ROLE_AUTHORIZATIONS
@@ -61,7 +58,6 @@ export {
   RESET_CURRENT_ROLE_AUTHORIZATIONS,
   SET_PERMISSIONS,
   UPDATE_PERMISSIONS,
-  UPDATE_PERMISSIONS_BULK,
   assignPermissionsToDataSet,
   getCurrentDataSetAuthorizations,
   getCurrentRoleAuthorizations,
@@ -74,5 +70,4 @@ export {
   resetCurrentRoleAuthorizations,
   setPermissions,
   updatePermissions,
-  updatePermissionsBulk,
 };
