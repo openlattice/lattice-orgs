@@ -25,12 +25,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import { SpaceBetweenGrid, Spinner } from '../../components';
 import { FQNS } from '../../core/edm/constants';
-import {
-  UPDATE_PERMISSIONS,
-  UPDATE_PERMISSIONS_BULK,
-  updatePermissions,
-  updatePermissionsBulk,
-} from '../../core/permissions/actions';
+import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
 import { resetRequestStates } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectMyKeys, selectPropertyTypes } from '../../core/redux/selectors';
@@ -114,7 +109,6 @@ const DataSetColumnPermissionsSection = ({
   ]);
 
   const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
-  const updatePermissionsBulkRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS_BULK]);
 
   const togglePermissionAssignmentToAll = () => {
     if (!isPending(updatePermissionsRS)) {
@@ -128,17 +122,17 @@ const DataSetColumnPermissionsSection = ({
         });
       });
       dispatch(
-        updatePermissions({
+        updatePermissions([{
           actionType: isPermissionAssignedToAll ? ActionTypes.REMOVE : ActionTypes.ADD,
           permissions: permissionsToUpdate
-        })
+        }])
       );
       setIsPermissionAssignedToAll(!isPermissionAssignedToAll);
     }
   };
 
   const togglePermissionAssignmentToOnlyNonPII = () => {
-    if (!isPending(updatePermissionsRS) || !isPending(updatePermissionsBulkRS)) {
+    if (!isPending(updatePermissionsRS)) {
       if (!isPermissionAssignedToOnlyNonPII) {
 
         const permissionsToUpdate :Object[] = [];
@@ -175,7 +169,7 @@ const DataSetColumnPermissionsSection = ({
             permissions: permissionsToRemove
           });
         }
-        dispatch(updatePermissionsBulk(permissionsToUpdate));
+        dispatch(updatePermissions(permissionsToUpdate));
         setIsPermissionAssignedToOnlyNonPII(isPermissionAssignedToOnlyNonPII);
       }
       else {
@@ -189,10 +183,10 @@ const DataSetColumnPermissionsSection = ({
           });
         });
         dispatch(
-          updatePermissions({
+          updatePermissions([{
             actionType: ActionTypes.REMOVE,
             permissions: permissionsToUpdate
-          })
+          }])
         );
         setIsPermissionAssignedToOnlyNonPII(!isPermissionAssignedToOnlyNonPII);
       }
@@ -211,20 +205,11 @@ const DataSetColumnPermissionsSection = ({
   };
 
   useEffect(() => {
-    const resetToggleAndRS = () => {
-      setSelectedToggle('');
-      dispatch(resetRequestStates([UPDATE_PERMISSIONS, UPDATE_PERMISSIONS_BULK]));
-    };
-
     if (isSuccess(updatePermissionsRS) || isFailure(updatePermissionsRS)) {
-      if (selectedToggle !== ONLY_NON_PII_ON) {
-        resetToggleAndRS();
-      }
+      setSelectedToggle('');
+      dispatch(resetRequestStates([UPDATE_PERMISSIONS]));
     }
-    if (isSuccess(updatePermissionsBulkRS) || isFailure(updatePermissionsBulkRS)) {
-      resetToggleAndRS();
-    }
-  }, [dispatch, selectedToggle, updatePermissionsRS, updatePermissionsBulkRS]);
+  }, [dispatch, selectedToggle, updatePermissionsRS]);
 
   return (
     <>
@@ -255,8 +240,8 @@ const DataSetColumnPermissionsSection = ({
         <Typography>Only Non-PII Columns</Typography>
         <ToggleWrapper>
           {
-            isPending(updatePermissionsBulkRS)
-              || (isPending(updatePermissionsRS) && selectedToggle === ONLY_NON_PII_OFF)
+            isPending(updatePermissionsRS)
+              && (selectedToggle === ONLY_NON_PII_ON || selectedToggle === ONLY_NON_PII_OFF)
               ? (
                 <Spinner size="lg" />
               )
