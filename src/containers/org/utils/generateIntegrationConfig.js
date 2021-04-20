@@ -10,29 +10,25 @@ import { DBMS_TYPES, TEMPLATE_CONSTANTS } from '../constants';
 const INTEGRATION_CONFIG_TEMPLATE = `
 name: "${TEMPLATE_CONSTANTS.ORG_NAME}_initial_transfer"
 description: "Copying over data from ${TEMPLATE_CONSTANTS.ORG_NAME} into OpenLattice server"
-datasources:
-- name: pdSQLDB
+datalakes:
+- name: "pdSQLDB"
   url: "jdbc:${TEMPLATE_CONSTANTS.TARGET_CONNECTION}://${TEMPLATE_CONSTANTS.TARGET_SERVER}:${TEMPLATE_CONSTANTS.TARGET_PORT}/${TEMPLATE_CONSTANTS.TARGET_DATABASE}${TEMPLATE_CONSTANTS.TARGET_CONNECTION_SUFFIX}"
+  driver: ${TEMPLATE_CONSTANTS.TARGET_SQL_DRIVER}
+  dataFormat: ${TEMPLATE_CONSTANTS.TARGET_SQL_DRIVER}
   username: "<INSERT_USERNAME_HERE>"
   password: "<INSERT_PASSWORD_HERE>"
-  driver: ${TEMPLATE_CONSTANTS.TARGET_SQL_DRIVER}
-  fetchSize: 20000
-destinations:
-- name: openLatticeDB
+- name: "openLatticeDB"
   url: "jdbc:postgresql://atlas.openlattice.com:30001/${TEMPLATE_CONSTANTS.ORG_ID}?ssl=true&sslmode=require"
-  driver: org.postgresql.Driver
+  driver: "org.postgresql.Driver"
+  dataFormat: "org.postgresql.Driver"
   username: "${TEMPLATE_CONSTANTS.ORG_USERNAME}"
   password: "${TEMPLATE_CONSTANTS.ORG_PASSWORD}"
 integrations:
   pdSQLDB:
     openLatticeDB:
-      - source: " ( ${TEMPLATE_CONSTANTS.SQL_STATEMENT} ) dh "
-        destination: ${TEMPLATE_CONSTANTS.ORG_NAME_CLEAN}_data_Tables
-        description: "${TEMPLATE_CONSTANTS.ORG_NAME_CLEAN} table listing"
-      - source: "select '( select * from ' || \\"TABLE_NAME\\" || ' ) ' || 'tbl_' || \\"TABLE_NAME\\" as query, \\"TABLE_NAME\\" as destination, 'gluttony'  as description from ${TEMPLATE_CONSTANTS.ORG_NAME_CLEAN}_data_Tables;"
-        destination: "dst"
-        description: "gluttony"
-        gluttony: true
+    - source: "SELECT * FROM data LIMIT 10"
+      destination: ${TEMPLATE_CONSTANTS.ORG_NAME_CLEAN}_data_table
+      description: "${TEMPLATE_CONSTANTS.ORG_NAME_CLEAN} table listing"
 `;
 /* eslint-enable */
 
