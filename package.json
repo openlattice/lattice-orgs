@@ -58,7 +58,7 @@
     "redux-reqseq": "~0.6.0",
     "styled-components": "~5.2.2",
     "uuid": "~8.3.0",
-    "validator": "~13.5.1"
+    "validator": "~13.6.0"
   },
   "devDependencies": {
     "@babel/cli": "~7.13.14",
