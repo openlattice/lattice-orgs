@@ -8,8 +8,7 @@ import {
   AuthorizationsApiSagas,
   DataSetsApiSagas,
   OrganizationsApiSagas,
-  PrincipalsApiSagas,
-  SearchApiSagas
+  PrincipalsApiSagas
 } from 'lattice-sagas';
 import type { Saga } from '@redux-saga/core';
 
