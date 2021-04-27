@@ -18,8 +18,8 @@ import { ADD_MEMBERS_TO_ORGANIZATION, addMembersToOrganization } from '../action
 
 const { isDefined } = LangUtils;
 
-const { addMemberToOrganization } = OrganizationsApiActions;
-const { addMemberToOrganizationWorker } = OrganizationsApiSagas;
+const { addMemberToOrganization, getOrganizationMembers } = OrganizationsApiActions;
+const { addMemberToOrganizationWorker, getOrganizationMembersWorker } = OrganizationsApiSagas;
 const { isValidUUID } = ValidationUtils;
 
 const LOG = new Logger('OrgsSagas');
@@ -59,6 +59,7 @@ function* addMembersToOrganizationWorker(action :SequenceAction) :Saga<void> {
     if (responseError) throw responseError;
 
     yield put(addMembersToOrganization.success(action.id));
+    yield call(getOrganizationMembersWorker, getOrganizationMembers(organizationId));
   }
   catch (error) {
     LOG.error(action.type, error);
