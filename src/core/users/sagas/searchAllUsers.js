@@ -5,7 +5,7 @@
 import isEmail from 'validator/lib/isEmail';
 import { call, put, takeEvery } from '@redux-saga/core/effects';
 import { PrincipalsApiActions, PrincipalsApiSagas } from 'lattice-sagas';
-import { AxiosUtils, Logger } from 'lattice-utils';
+import { AxiosUtils, LangUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
@@ -15,6 +15,7 @@ import { SEARCH_ALL_USERS, searchAllUsers } from '../actions';
 const { searchUsers } = PrincipalsApiActions;
 const { searchUsersWorker } = PrincipalsApiSagas;
 const { toSagaError } = AxiosUtils;
+const { isNonEmptyString } = LangUtils;
 
 const LOG = new Logger('UsersSagas');
 
@@ -23,28 +24,28 @@ function* searchAllUsersWorker(action :SequenceAction) :Saga<void> {
   try {
     yield put(searchAllUsers.request(action.id, action.value));
 
-    let query :string = action.value;
-    if (query === '*') {
+    if (action.value === '*') {
       throw new Error('search query cannot be "*"');
     }
-    else if (query.endsWith('*')) {
-      // remove the trailing '*', will add it below
-      query = query.slice(0, -1);
+    if (!isNonEmptyString(action.value)) {
+      throw new Error('search query cannot be empty');
     }
 
     let fields = {};
+    const query :string = action.value;
+    const wildcard :boolean = query.includes('*');
 
     // NOTE - these checks are not meant to be super strict/advanced at the moment
-    if (!query.includes('*') && isEmail(query)) {
+    if (!wildcard && isEmail(query)) {
       // EXACT email search, make sure there's no "*"
       fields = { email: `"${query}"` };
     }
     else if (query.includes('@') || query.includes('.')) {
       // "test@", "test."
-      fields = { email: `${query}*` };
+      fields = { email: wildcard ? query : `${query}*` };
     }
     else {
-      fields = { name: `${query}*` };
+      fields = { name: wildcard ? query : `${query}*` };
     }
 
     const response :WorkerResponse = yield call(searchUsersWorker, searchUsers(fields));
