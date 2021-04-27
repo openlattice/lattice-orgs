@@ -59,7 +59,7 @@ function* addMembersToOrganizationWorker(action :SequenceAction) :Saga<void> {
     if (responseError) throw responseError;
 
     yield put(addMembersToOrganization.success(action.id));
-    yield call(getOrganizationMembersWorker, getOrganizationMembers(organizationId));
+    yield put(getOrganizationMembers(organizationId));
   }
   catch (error) {
     LOG.error(action.type, error);
