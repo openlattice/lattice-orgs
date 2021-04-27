@@ -5,7 +5,7 @@
 import { Map, Set } from 'immutable';
 import type { UUID } from 'lattice';
 
-import { ENTITY_SET_DATA, DATA } from '../../redux/constants';
+import { DATA, ENTITY_SET_DATA } from '../../redux/constants';
 
 export default function selectStoredEntityKeyIds(entitySetId :UUID, entityKeyIds :Set<UUID>) :Set<UUID> {
   return (

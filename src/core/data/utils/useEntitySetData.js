@@ -1,11 +1,11 @@
 /*
  * @flow
  */
+import { Collection, Map } from 'immutable';
 import { useSelector } from 'react-redux';
-import { Map, Collection } from 'immutable';
 import type { UUID } from 'lattice';
 
-import { ENTITY_SET_DATA, DATA } from '../../redux/constants';
+import { DATA, ENTITY_SET_DATA } from '../../redux/constants';
 
 export default function useEntitySetData(entitySetId :UUID, entityKeyIds :Collection<UUID> | UUID[]) :Map {
   return (
