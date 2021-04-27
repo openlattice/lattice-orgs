@@ -19,7 +19,7 @@ import { ADD_MEMBERS_TO_ORGANIZATION, addMembersToOrganization } from '../action
 const { isDefined } = LangUtils;
 
 const { addMemberToOrganization, getOrganizationMembers } = OrganizationsApiActions;
-const { addMemberToOrganizationWorker, getOrganizationMembersWorker } = OrganizationsApiSagas;
+const { addMemberToOrganizationWorker } = OrganizationsApiSagas;
 const { isValidUUID } = ValidationUtils;
 
 const LOG = new Logger('OrgsSagas');
