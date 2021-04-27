@@ -63,7 +63,7 @@ export default function* sagas() :Saga<*> {
     fork(PrincipalsApiSagas.getAtlasCredentialsWatcher),
     fork(PrincipalsApiSagas.getSecurablePrincipalWatcher),
     fork(PrincipalsApiSagas.regenerateCredentialWatcher),
-    fork(PrincipalsApiSagas.searchAllUsersWatcher),
+    fork(PrincipalsApiSagas.searchUsersWatcher),
 
     // AppSagas
     fork(AppSagas.initializeApplicationWatcher),

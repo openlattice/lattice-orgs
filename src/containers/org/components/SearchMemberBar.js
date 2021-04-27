@@ -24,7 +24,7 @@ import { getUserProfile, getUserTitle } from '../../../utils';
 import type { ReactSelectOption } from '../../../types';
 
 const { isPending } = ReduxUtils;
-const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
+const { SEARCH_USERS, searchUsers } = PrincipalsApiActions;
 
 const includeAll = () => true;
 
@@ -39,7 +39,7 @@ const SearchMemberBar = ({
 } :Props) => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
-  const searchRequestState = useRequestState([USERS, SEARCH_ALL_USERS]);
+  const searchRequestState = useRequestState([USERS, SEARCH_USERS]);
   const userSearchResults = useSelector((store) => store.getIn([USERS, USER_SEARCH_RESULTS]));
 
   const options = useMemo(() => {
@@ -64,7 +64,7 @@ const SearchMemberBar = ({
 
   const debounceDispatchSearch = useCallback(debounce((value) => {
     if (value) {
-      dispatch(searchAllUsers(value));
+      dispatch(searchUsers(value));
     }
     else {
       dispatch(resetUserSearchResults());
