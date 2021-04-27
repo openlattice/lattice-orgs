@@ -5,23 +5,24 @@
 import { Map, fromJS } from 'immutable';
 import { matchPath } from 'react-router';
 
+import exploreEntityDataReducer from './exploreEntityData';
+import exploreEntityNeighborsReducer from './exploreEntityNeighbors';
+
+import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
+import {
+  ENTITY_NEIGHBORS_MAP,
+  RS_INITIAL_STATE,
+  SELECTED_ENTITY_DATA
+} from '../../../core/redux/constants';
+import { resetRequestStatesReducer } from '../../../core/redux/reducers';
+import { Routes, RoutingActions } from '../../../core/router';
 import {
   EXPLORE_ENTITY_DATA,
   EXPLORE_ENTITY_NEIGHBORS,
   exploreEntityData,
   exploreEntityNeighbors,
 } from '../actions';
-import exploreEntityDataReducer from './exploreEntityData';
-import exploreEntityNeighborsReducer from './exploreEntityNeighbors';
-import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
-import {
-  ENTITY_NEIGHBORS_MAP,
-  SELECTED_ENTITY_DATA,
-  RS_INITIAL_STATE
-} from '../../../core/redux/constants';
-import { Routes, RoutingActions } from '../../../core/router';
 import type { RoutingAction } from '../../../core/router/actions';
-import { resetRequestStatesReducer } from '../../../core/redux/reducers';
 
 const { GO_TO_ROUTE } = RoutingActions;
 
