@@ -8,7 +8,7 @@ import {
   put,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { fromJS, Set } from 'immutable';
+import { Set, fromJS } from 'immutable';
 import {
   EntitySetsApiActions,
   EntitySetsApiSagas,
