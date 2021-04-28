@@ -3,7 +3,6 @@
  */
 
 import { Map, fromJS } from 'immutable';
-import { PrincipalsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -11,11 +10,7 @@ import {
   REQUEST_STATE,
   USER_SEARCH_RESULTS,
 } from '../../redux/constants';
-
-const {
-  SEARCH_ALL_USERS,
-  searchAllUsers,
-} = PrincipalsApiActions;
+import { SEARCH_ALL_USERS, searchAllUsers } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {
 
