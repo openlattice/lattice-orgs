@@ -24,11 +24,11 @@ function* searchAllUsersWorker(action :SequenceAction) :Saga<void> {
   try {
     yield put(searchAllUsers.request(action.id, action.value));
 
-    if (action.value === '*') {
-      throw new Error('search query cannot be "*"');
-    }
     if (!isNonEmptyString(action.value)) {
       throw new Error('search query cannot be empty');
+    }
+    if (action.value === '*') {
+      throw new Error('search query cannot be "*"');
     }
 
     let fields = {};
