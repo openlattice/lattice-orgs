@@ -13,18 +13,17 @@ import debounce from 'lodash/debounce';
 import { faSearch } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
-import { PrincipalsApiActions } from 'lattice-sagas';
 import { Select } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { USERS, USER_SEARCH_RESULTS } from '../../../core/redux/constants';
-import { resetUserSearchResults } from '../../../core/users/actions';
+import { USERS } from '../../../core/redux/constants';
+import { selectUserSearchResults } from '../../../core/redux/selectors';
+import { SEARCH_ALL_USERS, resetUserSearchResults, searchAllUsers } from '../../../core/users/actions';
 import { getUserProfile, getUserTitle } from '../../../utils';
 import type { ReactSelectOption } from '../../../types';
 
 const { isPending } = ReduxUtils;
-const { SEARCH_ALL_USERS, searchAllUsers } = PrincipalsApiActions;
 
 const includeAll = () => true;
 
@@ -40,7 +39,7 @@ const SearchMemberBar = ({
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const searchRequestState = useRequestState([USERS, SEARCH_ALL_USERS]);
-  const userSearchResults = useSelector((store) => store.getIn([USERS, USER_SEARCH_RESULTS]));
+  const userSearchResults = useSelector(selectUserSearchResults());
 
   const options = useMemo(() => {
     const selectOptions = [];
