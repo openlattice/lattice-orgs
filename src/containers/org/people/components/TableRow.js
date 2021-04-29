@@ -10,18 +10,18 @@ import {
   Set,
   get
 } from 'immutable';
+import { AuthUtils } from 'lattice-auth';
 import {
   Checkbox,
   Colors,
   IconButton,
-  // $FlowFixMe[missing-export]
   Menu,
-  // $FlowFixMe[missing-export]
   MenuItem,
   Typography,
 } from 'lattice-ui-kit';
 import { Link } from 'react-router-dom';
 import type { Role, UUID } from 'lattice';
+import type { UserInfo } from 'lattice-auth';
 
 import RoleChipsList from './RoleChipsList';
 
@@ -127,6 +127,10 @@ const TableRow = ({
       .replace(Routes.PRINCIPAL_ID_PARAM, memberPrincipalId);
   }
 
+  const thisUserInfo :?UserInfo = AuthUtils.getUserInfo();
+  const thisIsYou = id === thisUserInfo?.id;
+  const isDeleteOptionDisabled = !isOwner && !thisIsYou;
+
   return (
     <Row>
       <Cell>
@@ -184,11 +188,10 @@ const TableRow = ({
             <MenuItem onClick={handleAssignRoles}>
               Add role
             </MenuItem>
-            {/* <MenuItem>
-              Remove all roles
-            </MenuItem> */}
-            <MenuItem disabled={!isOwner} onClick={handleRemoveMember}>
-              Delete person
+            <MenuItem disabled={isDeleteOptionDisabled} onClick={handleRemoveMember}>
+              {
+                thisIsYou ? 'Leave organization' : 'Delete person'
+              }
             </MenuItem>
           </Menu>
           {

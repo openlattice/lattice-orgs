@@ -4,12 +4,14 @@
 
 import React from 'react';
 
+import { AuthUtils } from 'lattice-auth';
 import { OrganizationsApiActions } from 'lattice-sagas';
 import { ActionModal, Typography } from 'lattice-ui-kit';
 import { PersonUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
+import type { UserInfo } from 'lattice-auth';
 import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody, ResetOnUnmount } from '../../../components';
@@ -40,11 +42,18 @@ const RemoveMemberFromOrgModal = ({
   const removeMemberRS :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_MEMBER_FROM_ORGANIZATION]);
   const memberLabel = getUserTitle(member);
   const memberId = getUserId(member);
+  const thisUserInfo :?UserInfo = AuthUtils.getUserInfo();
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <ModalBody>
-        <span>{`Are you sure you want to remove ${memberLabel} from this organization?`}</span>
+        <Typography>
+          {
+            memberId === thisUserInfo?.id
+              ? 'Are you sure you want to leave this organization?'
+              : `Are you sure you want to remove ${memberLabel} from this organization?`
+          }
+        </Typography>
       </ModalBody>
     ),
     [RequestStates.SUCCESS]: (
@@ -55,6 +64,13 @@ const RemoveMemberFromOrgModal = ({
     [RequestStates.FAILURE]: (
       <ResetOnUnmount actions={RESET_ACTIONS}>
         <Typography>Failed to remove member. Please try again.</Typography>
+        <Typography>
+          {
+            memberId === thisUserInfo?.id
+              ? 'Failed to leave organization. Please try again.'
+              : 'Failed to remove member. Please try again.'
+          }
+        </Typography>
       </ResetOnUnmount>
     ),
   };
