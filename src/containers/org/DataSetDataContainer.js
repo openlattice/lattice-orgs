@@ -16,12 +16,18 @@ import {
   Table,
   Typography,
 } from 'lattice-ui-kit';
-import { DataUtils, LangUtils, useRequestState } from 'lattice-utils';
+import {
+  DataUtils,
+  LangUtils,
+  useRequestState,
+  ValidationUtils
+} from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { FQN, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import EntityDataModal from '../explore/components/EntityDataModal';
 import {
   DataTableWrapper,
   SearchForm,
@@ -38,23 +44,29 @@ import {
   selectSearchQuery,
   selectSearchTotalHits,
 } from '../../core/redux/selectors';
+import { Routes } from '../../core/router';
+import { goToRoute } from '../../core/router/actions';
 import { SEARCH_DATA, clearSearchState, searchData } from '../../core/search/actions';
 import { MAX_HITS_10 } from '../../core/search/constants';
 
 const { getEntityKeyId, getPropertyValue } = DataUtils;
 const { isNonEmptyString } = LangUtils;
+const { isValidUUID } = ValidationUtils;
 
 const DataSetDataContainer = ({
   dataSetId,
+  dataSetName,
   organizationId,
 } :{|
   dataSetId :UUID;
+  dataSetName :string;
   organizationId :UUID;
 |}) => {
 
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
   const [tableHeaders, setTableHeaders] = useState([]);
+  const [selectedEntityKeyId, setSelectedEntityKeyId] = useState('');
 
   const searchDataSetDataRS :?RequestState = useRequestState([SEARCH, SEARCH_DATA]);
 
@@ -104,10 +116,13 @@ const DataSetDataContainer = ({
 
   const components = useMemo(() => ({
     Row: ({ data, components: { Cell }, headers } :Object) => (
-      <tr>
+      <tr onClick={() => setSelectedEntityKeyId(data.id)}>
         {
           headers.map((header) => (
-            <ValueCell component={Cell} key={`${data.id}_cell_${header.key}`} value={data[header.key]} />
+            <ValueCell
+                component={Cell}
+                key={`${data.id}_cell_${header.key}`}
+                value={data[header.key]} />
           ))
         }
       </tr>
@@ -145,6 +160,13 @@ const DataSetDataContainer = ({
           )
         }
       </StackGrid>
+      <EntityDataModal
+          dataSetId={dataSetId}
+          dataSetName={dataSetName}
+          entityKeyId={selectedEntityKeyId}
+          isVisible={isValidUUID(dataSetId) && isValidUUID(selectedEntityKeyId)}
+          onClose={() => setSelectedEntityKeyId('')}
+          organizationId={organizationId} />
     </AppContentWrapper>
   );
 };
