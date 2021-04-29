@@ -92,7 +92,7 @@ const RemoveMemberFromOrgModal = ({
         onClose={onClose}
         requestState={removeMemberRS}
         requestStateComponents={rsComponents}
-        textTitle="Delete Person" />
+        textTitle="Remove Member From Organization" />
   );
 };
 
