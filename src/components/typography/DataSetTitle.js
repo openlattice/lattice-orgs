@@ -34,6 +34,8 @@ const DataSetTitle = ({
       {
         getPropertyValue(dataSet, [FQNS.OL_TITLE, 0])
         || getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0])
+        || dataSet.get('title')
+        || dataSet.get('name')
       }
     </Typography>
   </GapGrid>
