@@ -120,7 +120,6 @@ const DataSetColumnPermissionsSection = ({
           permissions: permissionsToUpdate
         }])
       );
-      setIsPermissionAssignedToAll(!isPermissionAssignedToAll);
     }
   };
 
@@ -163,7 +162,6 @@ const DataSetColumnPermissionsSection = ({
           });
         }
         dispatch(updatePermissions(permissionsToUpdate));
-        setIsPermissionAssignedToOnlyNonPII(isPermissionAssignedToOnlyNonPII);
       }
       else {
         const permissionsToUpdate = Map().withMutations((mutator) => {
@@ -181,7 +179,6 @@ const DataSetColumnPermissionsSection = ({
             permissions: permissionsToUpdate
           }])
         );
-        setIsPermissionAssignedToOnlyNonPII(!isPermissionAssignedToOnlyNonPII);
       }
     }
   };
