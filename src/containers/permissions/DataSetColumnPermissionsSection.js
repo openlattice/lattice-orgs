@@ -193,7 +193,7 @@ const DataSetColumnPermissionsSection = ({
     if (toggleId === ALL) {
       togglePermissionAssignmentToAll();
     }
-    if (toggleId === ONLY_NON_PII_ON || toggleId === ONLY_NON_PII_OFF) {
+    else {
       togglePermissionAssignmentToOnlyNonPII();
     }
   };
