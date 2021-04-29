@@ -3,7 +3,6 @@
  */
 
 import {
-  all,
   call,
   put,
   takeEvery,
@@ -11,7 +10,7 @@ import {
 import { List } from 'immutable';
 import { Models } from 'lattice';
 import { PermissionsApiActions, PermissionsApiSagas } from 'lattice-sagas';
-import { AxiosUtils, LangUtils, Logger } from 'lattice-utils';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
   Ace,
@@ -27,7 +26,6 @@ const { AclBuilder, AclDataBuilder } = Models;
 const { updateAcls } = PermissionsApiActions;
 const { updateAclsWorker } = PermissionsApiSagas;
 const { toSagaError } = AxiosUtils;
-const { isDefined } = LangUtils;
 
 const LOG = new Logger('PermissionsSagas');
 
@@ -43,14 +41,9 @@ function* updatePermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> 
       permissions :Map<List<UUID>, Ace>;
     }> = action.value;
 
-    const updateAclsCalls = [];
-
+    const updates = [];
     permissionsUpdates.forEach(({ actionType, permissions }) => {
-
-      const updates = [];
-
       permissions.forEach((ace :Ace, key :List<UUID>) => {
-
         const acl = (new AclBuilder())
           .setAces([ace])
           .setAclKey(key)
@@ -63,16 +56,10 @@ function* updatePermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> 
 
         updates.push(aclData);
       });
-
-      updateAclsCalls.push(call(updateAclsWorker, updateAcls(updates)));
     });
 
-    const responses = yield all(updateAclsCalls);
-    const responseError = responses.reduce(
-      (error :any, r :Object) => (isDefined(error) ? error : r.error),
-      undefined,
-    );
-    if (responseError) throw responseError;
+    const response :WorkerResponse = yield call(updateAclsWorker, updateAcls(updates));
+    if (response.error) throw response.error;
 
     workerResponse = { data: {} };
     yield put(updatePermissions.success(action.id));
