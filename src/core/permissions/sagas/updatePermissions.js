@@ -45,13 +45,7 @@ function* updatePermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> 
 
     const updateAclsCalls = [];
 
-    permissionsUpdates.forEach(({
-      actionType,
-      permissions,
-    } :{
-      actionType :ActionType;
-      permissions :Map<List<UUID>, Ace>;
-    }) => {
+    permissionsUpdates.forEach(({ actionType, permissions }) => {
 
       const updates = [];
 
