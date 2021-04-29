@@ -44,9 +44,9 @@ const ONLY_NON_PII_OFF :'ONLY_NON_PII_OFF' = 'ONLY_NON_PII_OFF';
 const ToggleWrapper = styled.div`
   align-items: center;
   display: flex;
-  min-height: 47px; /* to compensate for both spinner and icon */
   justify-content: center;
   margin-right: -10px; /* for toggle icon alignment with checkboxes */
+  min-height: 47px; /* to compensate for both spinner and icon */
   min-width: 47px; /* to compensate for both spinner and icon */
 `;
 
