@@ -207,9 +207,7 @@ const ObjectPermissionsCard = ({
                             </SpaceBetweenGrid>
                           </div>
                           <div>
-                            <SpaceBetweenGrid>
-                              <Typography gutterBottom variant="body2">Columns</Typography>
-                            </SpaceBetweenGrid>
+                            <Typography gutterBottom variant="body2">Columns</Typography>
                             <DataSetColumnPermissionsSection
                                 dataSetColumns={dataSetColumns}
                                 objectKey={objectKey}
