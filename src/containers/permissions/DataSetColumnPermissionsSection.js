@@ -203,7 +203,7 @@ const DataSetColumnPermissionsSection = ({
       setSelectedToggle('');
       dispatch(resetRequestStates([UPDATE_PERMISSIONS]));
     }
-  }, [dispatch, selectedToggle, updatePermissionsRS]);
+  }, [dispatch, updatePermissionsRS]);
 
   return (
     <>
