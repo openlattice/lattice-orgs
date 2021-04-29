@@ -43,13 +43,14 @@ const RemoveMemberFromOrgModal = ({
   const memberLabel = getUserTitle(member);
   const memberId = getUserId(member);
   const thisUserInfo :?UserInfo = AuthUtils.getUserInfo();
+  const thisIsYou = memberId === thisUserInfo?.id;
 
   const rsComponents = {
     [RequestStates.STANDBY]: (
       <ModalBody>
         <Typography>
           {
-            memberId === thisUserInfo?.id
+            thisIsYou
               ? 'Are you sure you want to leave this organization?'
               : `Are you sure you want to remove ${memberLabel} from this organization?`
           }
@@ -66,7 +67,7 @@ const RemoveMemberFromOrgModal = ({
         <Typography>Failed to remove member. Please try again.</Typography>
         <Typography>
           {
-            memberId === thisUserInfo?.id
+            thisIsYou
               ? 'Failed to leave organization. Please try again.'
               : 'Failed to remove member. Please try again.'
           }
