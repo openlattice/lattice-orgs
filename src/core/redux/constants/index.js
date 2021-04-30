@@ -33,7 +33,6 @@ export const ACCOUNT :'account' = 'account';
 export const ACES :'aces' = 'aces';
 export const APP_INSTALLS :'appInstalls' = 'appInstalls';
 export const ATLAS_CREDENTIALS :'atlasCredentials' = 'atlasCredentials';
-export const ATLAS_DATA_SET_DATA :'atlasDataSetData' = 'atlasDataSetData';
 export const CURRENT :'current' = 'current';
 export const CURRENT_ROLE_AUTHORIZATIONS :'currentRoleAuthorizations' = 'currentRoleAuthorizations';
 export const DATABASE_NAME :'databaseName' = 'databaseName';
