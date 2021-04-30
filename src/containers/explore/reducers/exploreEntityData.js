@@ -27,7 +27,7 @@ export default function exploreEntityDataReducer(state :Map, action :SequenceAct
       return state;
     },
     FAILURE: () => state
-      .set(SELECTED_ENTITY_DATA, undefined)
+      .set(SELECTED_ENTITY_DATA, Map())
       .setIn([EXPLORE_ENTITY_DATA, ERROR], action.value)
       .setIn([EXPLORE_ENTITY_DATA, REQUEST_STATE], RequestStates.FAILURE),
     FINALLY: () => state.deleteIn([EXPLORE_ENTITY_DATA, action.id]),

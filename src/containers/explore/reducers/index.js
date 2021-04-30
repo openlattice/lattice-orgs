@@ -30,7 +30,7 @@ const INITIAL_STATE :Map = fromJS({
   [EXPLORE_ENTITY_DATA]: RS_INITIAL_STATE,
   [EXPLORE_ENTITY_NEIGHBORS]: RS_INITIAL_STATE,
   [ENTITY_NEIGHBORS_MAP]: Map(),
-  [SELECTED_ENTITY_DATA]: undefined,
+  [SELECTED_ENTITY_DATA]: Map(),
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
