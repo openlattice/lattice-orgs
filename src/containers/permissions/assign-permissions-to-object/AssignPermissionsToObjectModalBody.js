@@ -94,10 +94,10 @@ const AssignPermissionsToObjectModalBody = ({
         .build();
       const permissions = Map().set(objectKey, ace);
       dispatch(
-        updatePermissions({
+        updatePermissions([{
           actionType: ActionTypes.ADD,
           permissions
-        })
+        }])
       );
     }
   };
