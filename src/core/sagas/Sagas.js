@@ -20,6 +20,7 @@ import * as OrgSagas from '../../containers/org/sagas';
 import * as PermissionsSagas from '../permissions/sagas';
 import * as RoutingSagas from '../router/RoutingSagas';
 import * as SearchSagas from '../search/sagas';
+import * as UsersSagas from '../users/sagas';
 
 export default function* sagas() :Saga<*> {
 
@@ -64,7 +65,6 @@ export default function* sagas() :Saga<*> {
     fork(PrincipalsApiSagas.getAtlasCredentialsWatcher),
     fork(PrincipalsApiSagas.getSecurablePrincipalWatcher),
     fork(PrincipalsApiSagas.regenerateCredentialWatcher),
-    fork(PrincipalsApiSagas.searchAllUsersWatcher),
 
     // AppSagas
     fork(AppSagas.initializeApplicationWatcher),
@@ -116,5 +116,8 @@ export default function* sagas() :Saga<*> {
     // SearchSagas
     fork(SearchSagas.searchDataWatcher),
     fork(SearchSagas.searchOrganizationDataSetsWatcher),
+
+    // SearchSagas
+    fork(UsersSagas.searchAllUsersWatcher),
   ]);
 }

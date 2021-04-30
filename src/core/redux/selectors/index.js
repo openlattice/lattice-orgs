@@ -38,4 +38,5 @@ export { default as selectSearchQuery } from './selectSearchQuery';
 export { default as selectSearchTotalHits } from './selectSearchTotalHits';
 export { default as selectStoredEntityKeyIds } from './selectStoredEntityKeyIds';
 export { default as selectUser } from './selectUser';
+export { default as selectUserSearchResults } from './selectUserSearchResults';
 export { default as selectUsers } from './selectUsers';

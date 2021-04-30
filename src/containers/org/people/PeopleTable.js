@@ -242,6 +242,11 @@ const PeopleTable = ({
           onPageChange={handleOnPageChange}
           page={paginationState.page}
           rowsPerPage={MAX_PER_PAGE} />
+      <RemoveMemberFromOrgModal
+          isVisible={isVisibleRemoveMemberFromOrgModal}
+          member={targetMember}
+          onClose={() => setIsVisibleRemoveMemberFromOrgModal(false)}
+          organizationId={organizationId} />
       {
         isOwner && targetRole && (
           <RemoveRoleFromMemberModal
@@ -258,15 +263,6 @@ const PeopleTable = ({
               isVisible={isVisibleAddMembersToOrganizationModal}
               members={members}
               onClose={() => setIsVisibleAddMembersToOrganizationModal(false)}
-              organizationId={organizationId} />
-        )
-      }
-      {
-        isOwner && (
-          <RemoveMemberFromOrgModal
-              isVisible={isVisibleRemoveMemberFromOrgModal}
-              member={targetMember}
-              onClose={() => setIsVisibleRemoveMemberFromOrgModal(false)}
               organizationId={organizationId} />
         )
       }
