@@ -2,4 +2,4 @@
  * @flow
  */
 
-export { default as resetRequestStatesReducer } from './resetRequestStates';
+export { default as resetRequestStatesReducer } from './resetRequestStatesReducer';
