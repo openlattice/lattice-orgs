@@ -2,7 +2,11 @@
  * @flow
  */
 
-import { call, put, takeEvery } from '@redux-saga/core/effects';
+import {
+  call,
+  put,
+  takeEvery,
+} from '@redux-saga/core/effects';
 import { List } from 'immutable';
 import { Models } from 'lattice';
 import { PermissionsApiActions, PermissionsApiSagas } from 'lattice-sagas';
@@ -32,28 +36,26 @@ function* updatePermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> 
   try {
     yield put(updatePermissions.request(action.id, action.value));
 
-    const {
-      actionType,
-      permissions,
-    } :{
+    const permissionsUpdates :Array<{
       actionType :ActionType;
       permissions :Map<List<UUID>, Ace>;
-    } = action.value;
+    }> = action.value;
 
     const updates = [];
-    permissions.forEach((ace :Ace, key :List<UUID>) => {
+    permissionsUpdates.forEach(({ actionType, permissions }) => {
+      permissions.forEach((ace :Ace, key :List<UUID>) => {
+        const acl = (new AclBuilder())
+          .setAces([ace])
+          .setAclKey(key)
+          .build();
 
-      const acl = (new AclBuilder())
-        .setAces([ace])
-        .setAclKey(key)
-        .build();
+        const aclData = (new AclDataBuilder())
+          .setAcl(acl)
+          .setAction(actionType)
+          .build();
 
-      const aclData = (new AclDataBuilder())
-        .setAcl(acl)
-        .setAction(actionType)
-        .build();
-
-      updates.push(aclData);
+        updates.push(aclData);
+      });
     });
 
     const response :WorkerResponse = yield call(updateAclsWorker, updateAcls(updates));
