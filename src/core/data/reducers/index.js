@@ -4,8 +4,8 @@
 
 import { Map, fromJS } from 'immutable';
 
-import fetchAtlasDataSetDataReducer from './fetchAtlasDataSetData';
-import fetchEntitySetDataReducer from './fetchEntitySetData';
+import fetchAtlasDataSetDataReducer from './fetchAtlasDataSetDataReducer';
+import fetchEntitySetDataReducer from './fetchEntitySetDataReducer';
 
 import { RESET_REQUEST_STATES } from '../../redux/actions';
 import { ATLAS_DATA_SET_DATA, ENTITY_SET_DATA } from '../../redux/constants';
