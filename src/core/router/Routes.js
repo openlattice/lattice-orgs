@@ -5,7 +5,7 @@
 /* eslint-disable max-len */
 
 const DATA_SET_ID_PARAM :':dataSetId' = ':dataSetId';
-const ENTITY_KEY_ID :':entityKeyId' = ':entityKeyId';
+const ENTITY_KEY_ID_PARAM :':entityKeyId' = ':entityKeyId';
 const ORG_ID_PARAM :':organizationId' = ':organizationId';
 const PRINCIPAL_ID_PARAM :':principalId' = ':principalId';
 const REQUEST_ID_PARAM :':requestId' = ':requestId';
@@ -13,7 +13,7 @@ const ROLE_ID_PARAM :':roleId' = ':roleId';
 
 export {
   DATA_SET_ID_PARAM,
-  ENTITY_KEY_ID,
+  ENTITY_KEY_ID_PARAM,
   ORG_ID_PARAM,
   PRINCIPAL_ID_PARAM,
   REQUEST_ID_PARAM,
@@ -47,7 +47,7 @@ const ORG_DATA_SET_OBJECT_PERMISSIONS :'/orgs/:organizationId/dataSets/:dataSetI
 const ORG_DATA_SET_DATA :'/orgs/:organizationId/dataSets/:dataSetId/data' = `${ORG_DATA_SET}/data`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ORG_DATA_SET_DATA_DETAILS :'/orgs/:organizationId/dataSets/:dataSetId/data/:entityKeyId' = `${ORG_DATA_SET_DATA}/${ENTITY_KEY_ID}`;
+const ENTITY_DETAILS :'/orgs/:organizationId/dataSets/:dataSetId/data/:entityKeyId' = `${ORG_DATA_SET_DATA}/${ENTITY_KEY_ID_PARAM}`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_PEOPLE :'/orgs/:organizationId/people' = `${ORG}/people`;
@@ -79,7 +79,7 @@ export {
   ORG_DATA_SET,
   ORG_DATA_SETS,
   ORG_DATA_SET_DATA,
-  ORG_DATA_SET_DATA_DETAILS,
+  ENTITY_DETAILS,
   ORG_DATA_SET_OBJECT_PERMISSIONS,
   ORG_MEMBER,
   ORG_OBJECT_PERMISSIONS,

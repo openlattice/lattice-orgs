@@ -39,7 +39,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case GO_TO_ROUTE: {
       const routingAction :RoutingAction = action;
-      if (matchPath(routingAction.route, Routes.ORG_DATA_SET_DATA_DETAILS) && routingAction.state.data) {
+      if (matchPath(routingAction.route, Routes.ENTITY_DETAILS) && routingAction.state.data) {
         return state.set(SELECTED_ENTITY_DATA, fromJS(routingAction.state.data));
       }
       return state;
