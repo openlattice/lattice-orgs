@@ -18,8 +18,10 @@ import {
 } from '../actions';
 
 const INITIAL_STATE :Map = fromJS({
+  // actions
   [FETCH_ATLAS_DATA_SET_DATA]: Map(),
   [FETCH_ENTITY_SET_DATA]: Map(),
+  // data
   [ATLAS_DATA_SET_DATA]: Map(),
   [ENTITY_SET_DATA]: Map(),
 });
