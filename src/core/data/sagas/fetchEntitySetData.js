@@ -20,7 +20,7 @@ import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { FETCH_ENTITY_SET_DATA, fetchEntitySetData } from '../actions';
-import { selectStoredEntityKeyIds } from '../utils';
+import { selectStoredEntityKeyIds } from '../../redux/selectors';
 
 const LOG = new Logger('DataSagas');
 
