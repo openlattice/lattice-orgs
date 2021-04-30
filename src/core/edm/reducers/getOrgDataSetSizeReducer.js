@@ -7,7 +7,6 @@ import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { ENTITY_SET_SIZE_MAP, REQUEST_STATE } from '../../redux/constants';
-
 import { GET_ORG_DATA_SET_SIZE, getOrgDataSetSize } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {
