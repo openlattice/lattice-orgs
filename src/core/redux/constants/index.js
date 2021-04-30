@@ -40,6 +40,7 @@ export const DATA_SET :'dataSet' = 'dataSet';
 export const DATA_SET_COLUMNS :'dataSetColumns' = 'dataSetColumns';
 export const DATA_SET_PERMISSIONS_PAGE :'dataSetPermissionsPage' = 'dataSetPermissionsPage';
 export const DATA_SET_SCHEMA :'dataSetSchema' = 'dataSetSchema';
+export const ENTITY_SET_SIZE_MAP :'entitySetSizeMap' = 'entitySetSizeMap';
 export const ENTITY_SET_IDS :'entitySetIds' = 'entitySetIds';
 export const INTEGRATION_DETAILS :'integrationDetails' = 'integrationDetails';
 export const IS_OWNER :'isOwner' = 'isOwner';
