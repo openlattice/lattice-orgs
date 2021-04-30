@@ -5,8 +5,8 @@
 import { Map, fromJS } from 'immutable';
 import { matchPath } from 'react-router';
 
-import exploreEntityDataReducer from './exploreEntityData';
-import exploreEntityNeighborsReducer from './exploreEntityNeighbors';
+import exploreEntityDataReducer from './exploreEntityDataReducer';
+import exploreEntityNeighborsReducer from './exploreEntityNeighborsReducer';
 
 import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
