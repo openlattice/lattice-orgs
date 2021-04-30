@@ -27,8 +27,10 @@ import type { RoutingAction } from '../../../core/router/actions';
 const { GO_TO_ROUTE } = RoutingActions;
 
 const INITIAL_STATE :Map = fromJS({
+  // actions
   [EXPLORE_ENTITY_DATA]: RS_INITIAL_STATE,
   [EXPLORE_ENTITY_NEIGHBORS]: RS_INITIAL_STATE,
+  // data
   [ENTITY_NEIGHBORS_MAP]: Map(),
   [SELECTED_ENTITY_DATA]: Map(),
 });
