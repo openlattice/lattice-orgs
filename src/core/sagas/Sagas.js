@@ -70,7 +70,6 @@ export default function* sagas() :Saga<*> {
     fork(AppSagas.initializeApplicationWatcher),
 
     // DataSagas
-    fork(DataSagas.fetchAtlasDataSetDataWatcher),
     fork(DataSagas.fetchEntitySetDataWatcher),
     fork(DataSagas.submitDataGraphWatcher),
 
