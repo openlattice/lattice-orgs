@@ -32,18 +32,18 @@ export default function reducer(state :Map, action :SequenceAction) {
       const storedAction :?SequenceAction = state.getIn([UPDATE_PERMISSIONS, action.id]);
       if (storedAction) {
 
-        const {
-          actionType,
-          permissions,
-        } :{
+        const permissionsUpdates :Array<{
           actionType :ActionType;
           permissions :Map<List<UUID>, Ace>;
-        } = storedAction.value;
+        }> = storedAction.value;
 
-        const stateAces = state.get(ACES);
-        const aces = updatePermissionsInState(actionType, permissions, stateAces);
+        let updatedAces = state.get(ACES);
+        permissionsUpdates.forEach(({ actionType, permissions }) => {
+          updatedAces = updatePermissionsInState(actionType, permissions, updatedAces);
+        });
+
         return state
-          .set(ACES, aces)
+          .set(ACES, updatedAces)
           .setIn([UPDATE_PERMISSIONS, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
