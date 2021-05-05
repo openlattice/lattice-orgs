@@ -42,7 +42,7 @@ const ORG_DATA_SET :'/orgs/:organizationId/dataSets/:dataSetId' = `${ORG_DATA_SE
 const ORG_DATA_SET_OBJECT_PERMISSIONS :'/orgs/:organizationId/dataSets/:dataSetId/permissions' = `${ORG_DATA_SET}/permissions`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ORG_DATA_SET_DATA :'/orgs/:organizationId/dataSets/:dataSetId/search' = `${ORG_DATA_SET}/search`;
+const ORG_DATA_SET_DATA :'/orgs/:organizationId/dataSets/:dataSetId/data' = `${ORG_DATA_SET}/data`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_PEOPLE :'/orgs/:organizationId/people' = `${ORG}/people`;
