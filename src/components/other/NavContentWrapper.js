@@ -9,10 +9,9 @@ import { AppContentWrapper } from 'lattice-ui-kit';
 
 const NavContentWrapper :ComponentType<{|
   bgColor ?:string;
+  borderless ?:boolean;
   children ?:any;
 |}> = styled(AppContentWrapper)`
-  border-bottom: none;
-
   > div {
     padding: 0;
   }
