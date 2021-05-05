@@ -4,7 +4,6 @@
 
 import React, { useMemo } from 'react';
 
-import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
 import { DataUtils, LangUtils } from 'lattice-utils';
@@ -29,12 +28,6 @@ import { FQNS } from '../../core/edm/constants';
 import { selectDataSetSchema, selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { isAtlasDataSet } from '../../utils';
-
-const AppNavWrapper = styled(AppNavigationWrapper)`
-  a {
-    font-size: 22px;
-  }
-`;
 
 const { getPropertyValue } = DataUtils;
 const { isNonEmptyString } = LangUtils;
@@ -124,15 +117,19 @@ const OrgDataSetContainer = ({
             </StackGrid>
           </StackGrid>
         </AppContentWrapper>
-        <NavContentWrapper bgColor="white">
-          <AppNavWrapper borderless>
-            <NavLink exact strict to={dataSetRoute}>Properties</NavLink>
+        <NavContentWrapper borderless bgColor="white">
+          <AppNavigationWrapper borderless>
+            <NavLink exact strict to={dataSetRoute}>
+              <Typography variant="h3">Properties</Typography>
+            </NavLink>
             {
               !isAtlasDataSet(dataSet) && (
-                <NavLink to={dataSetDataRoute}>Search</NavLink>
+                <NavLink to={dataSetDataRoute}>
+                  <Typography variant="h3">Search</Typography>
+                </NavLink>
               )
             }
-          </AppNavWrapper>
+          </AppNavigationWrapper>
         </NavContentWrapper>
         <Switch>
           <Route exact path={Routes.ORG_DATA_SET_DATA} render={renderDataSetDataContainer} />
