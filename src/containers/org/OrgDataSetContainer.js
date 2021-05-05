@@ -119,10 +119,10 @@ const OrgDataSetContainer = ({
         </AppContentWrapper>
         <NavContentWrapper bgColor="white">
           <AppNavigationWrapper borderless>
-            <NavLink exact strict to={dataSetRoute}>About</NavLink>
+            <NavLink exact strict to={dataSetRoute}>Properties</NavLink>
             {
               !isAtlasDataSet(dataSet) && (
-                <NavLink to={dataSetDataRoute}>Data</NavLink>
+                <NavLink to={dataSetDataRoute}>Search</NavLink>
               )
             }
           </AppNavigationWrapper>
