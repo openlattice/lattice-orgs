@@ -11,6 +11,8 @@ const NavContentWrapper :ComponentType<{|
   bgColor ?:string;
   children ?:any;
 |}> = styled(AppContentWrapper)`
+  border-bottom: none;
+
   > div {
     padding: 0;
   }
