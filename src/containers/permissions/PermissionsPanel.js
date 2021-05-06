@@ -21,7 +21,7 @@ import {
   StyleUtils,
   Typography,
 } from 'lattice-ui-kit';
-import { DataUtils, useRequestState } from 'lattice-utils';
+import { DataUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type {
@@ -54,6 +54,7 @@ const { APP_CONTENT_PADDING } = Sizes;
 const { media } = StyleUtils;
 const { AceBuilder, FQN } = Models;
 const { getPropertyValue } = DataUtils;
+const { isPending, isSuccess } = ReduxUtils;
 
 const Panel = styled.div`
   background-color: white;
@@ -111,8 +112,13 @@ const PermissionsPanel = ({
   const permissionsHash :number = permissions.hashCode();
 
   useEffect(() => {
-    setLocalPermissions(permissions);
-  }, [permissionsHash]);
+    if (isSuccess(setPermissionsRS) && permissions.isEmpty()) {
+      onClose();
+    }
+    else {
+      setLocalPermissions(permissions);
+    }
+  }, [permissionsHash, setPermissionsRS]);
 
   const columnIds :List<UUID> = useMemo(() => (
     dataSetColumns.map((column :Map<FQN, List>) => getPropertyValue(column, [FQNS.OL_ID, 0]))
@@ -371,7 +377,7 @@ const PermissionsPanel = ({
             aria-label="save permissions changes"
             color="primary"
             disabled={arePermissionsEqual}
-            isLoading={setPermissionsRS === RequestStates.PENDING}
+            isLoading={isPending(setPermissionsRS)}
             onClick={handleOnClickSave}>
           Save
         </Button>
