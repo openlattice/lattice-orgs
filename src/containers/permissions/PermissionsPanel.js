@@ -111,11 +111,12 @@ const PermissionsPanel = ({
   const permissionsHash :number = permissions.hashCode();
 
   useEffect(() => {
+    setLocalPermissions(permissions);
+  }, [permissionsHash]);
+
+  useEffect(() => {
     if (isSuccess(setPermissionsRS) && permissions.isEmpty()) {
       onClose();
-    }
-    else {
-      setLocalPermissions(permissions);
     }
   }, [permissionsHash, setPermissionsRS]);
 
