@@ -3,6 +3,7 @@
  */
 
 import React, {
+  useCallback,
   useEffect,
   useReducer,
   useRef,
@@ -25,7 +26,12 @@ import DataSetPermissionsCard from './DataSetPermissionsCard';
 
 import { Spinner, StackGrid } from '../../components';
 import { GET_ORG_DATA_SETS_FROM_META, GET_ORG_DATA_SET_COLUMNS_FROM_META } from '../../core/edm/actions';
-import { GET_DATA_SET_PERMISSIONS_PAGE, getDataSetPermissionsPage } from '../../core/permissions/actions';
+import {
+  ASSIGN_PERMISSIONS_TO_DATA_SET,
+  GET_DATA_SET_PERMISSIONS_PAGE,
+  SET_PERMISSIONS,
+  getDataSetPermissionsPage,
+} from '../../core/permissions/actions';
 import { resetRequestStates } from '../../core/redux/actions';
 import {
   PAGE_PERMISSIONS_BY_DATA_SET,
@@ -72,7 +78,9 @@ const DataSetPermissionsContainer = ({
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
   const { page, start } = paginationState;
 
+  const assignPermissionsToDataSetRS :?RequestState = useRequestState([PERMISSIONS, ASSIGN_PERMISSIONS_TO_DATA_SET]);
   const getDataSetPermissionsPageRS :?RequestState = useRequestState([PERMISSIONS, GET_DATA_SET_PERMISSIONS_PAGE]);
+  const setPermissionsRS :?RequestState = useRequestState([PERMISSIONS, SET_PERMISSIONS]);
 
   const dataSetPermissionsPage :Map = useSelector(selectDataSetPermissionsPage());
   const totalPermissions :number = dataSetPermissionsPage.get(TOTAL_PERMISSIONS) || 0;
@@ -96,7 +104,7 @@ const DataSetPermissionsContainer = ({
     }
   }, [getDataSetPermissionsPageRS]);
 
-  useEffect(() => {
+  const dispatchGetDataSetPermissionsPage = useCallback(() => {
     dispatch(
       getDataSetPermissionsPage({
         filterByPermissionTypes,
@@ -116,6 +124,24 @@ const DataSetPermissionsContainer = ({
     principal,
     start,
   ]);
+
+  useEffect(() => {
+    dispatchGetDataSetPermissionsPage();
+  }, [dispatchGetDataSetPermissionsPage]);
+
+  useEffect(() => {
+    // NOTE: refresh when permissions are assigned via AssignPermissionsToDataSetModal
+    if (isSuccess(assignPermissionsToDataSetRS)) {
+      dispatchGetDataSetPermissionsPage();
+    }
+  }, [assignPermissionsToDataSetRS, dispatchGetDataSetPermissionsPage]);
+
+  useEffect(() => {
+    // NOTE: refresh when permissions are changed via PermissionsPanel
+    if (isSuccess(setPermissionsRS)) {
+      dispatchGetDataSetPermissionsPage();
+    }
+  }, [dispatchGetDataSetPermissionsPage, setPermissionsRS]);
 
   useEffect(() => {
     paginationDispatch({ type: RESET });

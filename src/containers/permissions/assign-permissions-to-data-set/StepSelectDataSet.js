@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import styled from 'styled-components';
 import { Map } from 'immutable';
@@ -59,28 +59,35 @@ const StepSelectDataSet = ({
 }) => {
 
   const dispatch = useDispatch();
+  const [searchId, setSearchId] = useState();
 
   const searchOrgDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_ORGANIZATION_DATA_SETS]);
 
   const searchHits :Map = useSelector(selectSearchHits(SEARCH_ORGANIZATION_DATA_SETS));
   const searchPage :number = useSelector(selectSearchPage(SEARCH_ORGANIZATION_DATA_SETS));
-  const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS));
+  const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS)) || '*';
   const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_ORGANIZATION_DATA_SETS));
 
-  const dispatchDataSetSearch = (params :{ page ?:number, query ?:string, start ?:number } = {}) => {
+  const dispatchDataSetSearch = useCallback((params :{ page ?:number, query ?:string, start ?:number } = {}) => {
     const { page = 0, query = searchQuery, start = 0 } = params;
     if (isNonEmptyString(query)) {
-      dispatch(
-        searchOrganizationDataSets({
-          organizationId,
-          page,
-          query,
-          start,
-          maxHits: MAX_HITS_10,
-        })
-      );
+      const action = searchOrganizationDataSets({
+        maxHits: MAX_HITS_10,
+        organizationId,
+        page,
+        query,
+        start,
+      });
+      dispatch(action);
+      setSearchId(action.id);
     }
-  };
+  }, [dispatch, organizationId, searchQuery]);
+
+  useEffect(() => {
+    if (!searchId) {
+      dispatchDataSetSearch({ query: '*' });
+    }
+  }, [dispatchDataSetSearch, searchId]);
 
   const handleOnChangeSelectDataSet = (event :SyntheticInputEvent<HTMLInputElement>) => {
     const id = event.currentTarget.dataset.id;
@@ -94,14 +101,8 @@ const StepSelectDataSet = ({
       <Typography>Search for a data set to assign permissions.</Typography>
       <SearchForm
           onSubmit={(query :string) => dispatchDataSetSearch({ query })}
+          searchQuery={searchQuery}
           searchRequestState={searchOrgDataSetsRS} />
-      <PaginationWrapper>
-        <PaginationToolbar
-            count={searchTotalHits}
-            onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
-            page={searchPage}
-            rowsPerPage={MAX_HITS_10} />
-      </PaginationWrapper>
       <div>
         {
           searchHits.map((hit :Map) => {
@@ -127,6 +128,17 @@ const StepSelectDataSet = ({
           })
         }
       </div>
+      {
+        searchTotalHits > MAX_HITS_10 && (
+          <PaginationWrapper>
+            <PaginationToolbar
+                count={searchTotalHits}
+                onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
+                page={searchPage}
+                rowsPerPage={MAX_HITS_10} />
+          </PaginationWrapper>
+        )
+      }
     </StackGrid>
   );
 };
