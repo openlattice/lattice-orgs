@@ -14,8 +14,8 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { SET_PERMISSIONS, setPermissions } from '../actions';
 
-const { AclBuilder, AclDataBuilder } = Models;
-const { ActionTypes } = Types;
+const { AceBuilder, AclBuilder, AclDataBuilder } = Models;
+const { ActionTypes, PermissionTypes } = Types;
 const { updateAcls } = PermissionsApiActions;
 const { updateAclsWorker } = PermissionsApiSagas;
 const { toSagaError } = AxiosUtils;
@@ -33,14 +33,21 @@ function* setPermissionsWorker(action :SequenceAction) :Saga<*> {
     const updates = [];
     permissions.forEach((ace :Ace, key :List<UUID>) => {
 
+      // NOTE: calling updateAcls with empty permissions fails with "collection is empty" error. instead of trying to
+      // SET permissions to [], i.e. removing all permissions, we'll instead REMOVE all permissions
+      // https://jira.openlattice.com/browse/LATTICE-2648
+      const removeAll = ace.permissions.length === 0;
+      const removeAce = (new AceBuilder(ace)).setPermissions((Object.values(PermissionTypes) :any)).build();
+      const aces = removeAll ? [removeAce] : [ace];
+
       const acl = (new AclBuilder())
-        .setAces([ace])
+        .setAces(aces)
         .setAclKey(key)
         .build();
 
       const aclData = (new AclDataBuilder())
         .setAcl(acl)
-        .setAction(ActionTypes.SET)
+        .setAction(removeAll ? ActionTypes.REMOVE : ActionTypes.SET)
         .build();
 
       updates.push(aclData);
