@@ -7,7 +7,7 @@ import type { UUID } from 'lattice';
 
 import { DATA, ENTITY_SET_DATA } from '../constants';
 
-export default function selectStoredEntityKeyIds(entitySetId :UUID, entityKeyIds :Set<UUID>) :Set<UUID> {
+export default function selectStoredEntityKeyIds(entitySetId :UUID, entityKeyIds :Set<UUID>) {
   return (
     (state :Map) => (
       state
