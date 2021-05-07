@@ -8,6 +8,9 @@ import type { RequestSequence } from 'redux-reqseq';
 const GET_EDM_TYPES :'GET_EDM_TYPES' = 'GET_EDM_TYPES';
 const getEntityDataModelTypes :RequestSequence = newRequestSequence(GET_EDM_TYPES);
 
+const GET_ORG_DATA_SET_SIZE :'GET_ORG_DATA_SET_SIZE' = 'GET_ORG_DATA_SET_SIZE';
+const getOrgDataSetSize :RequestSequence = newRequestSequence(GET_ORG_DATA_SET_SIZE);
+
 const GET_ORG_DATA_SETS_FROM_META :'GET_ORG_DATA_SETS_FROM_META' = 'GET_ORG_DATA_SETS_FROM_META';
 const getOrgDataSetsFromMeta :RequestSequence = newRequestSequence(GET_ORG_DATA_SETS_FROM_META);
 
@@ -25,12 +28,14 @@ const updateOrganizationDataSet :RequestSequence = newRequestSequence(UPDATE_ORG
 
 export {
   GET_EDM_TYPES,
+  GET_ORG_DATA_SET_SIZE,
   GET_ORG_DATA_SETS_FROM_META,
   GET_ORG_DATA_SET_COLUMNS_FROM_META,
   INITIALIZE_ORGANIZATION_DATA_SET,
   IS_APP_INSTALLED,
   UPDATE_ORGANIZATION_DATA_SET,
   getEntityDataModelTypes,
+  getOrgDataSetSize,
   getOrgDataSetColumnsFromMeta,
   getOrgDataSetsFromMeta,
   initializeOrganizationDataSet,
