@@ -98,10 +98,10 @@ const OrgDataSetContainer = ({
   }, [dataSet]);
 
   useEffect(() => {
-    if (isValidUUID(dataSetId)) {
+    if (!isAtlasDataSet(dataSet) && isValidUUID(dataSetId)) {
       dispatch(getOrgDataSetSize({ dataSetId, organizationId }));
     }
-  }, [dataSetId, dispatch, organizationId]);
+  }, [dataSet, dataSetId, dispatch, organizationId]);
 
   if (organization) {
 
