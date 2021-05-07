@@ -15,8 +15,7 @@ export default function selectOrgDataSetSize(organizationId :UUID, dataSetId :UU
   return (state :Map) :?number => {
 
     if (isValidUUID(organizationId) && isValidUUID(dataSetId)) {
-      const dataSetSize :number = getIn(state, [EDM, ENTITY_SET_SIZE_MAP, organizationId, dataSetId]) || undefined;
-      return dataSetSize;
+      return getIn(state, [EDM, ENTITY_SET_SIZE_MAP, organizationId, dataSetId]) || undefined;
     }
 
     return undefined;
