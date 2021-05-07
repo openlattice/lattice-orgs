@@ -8,8 +8,7 @@ import type { UUID } from 'lattice';
 import { DATA, ENTITY_SET_DATA } from '../constants';
 
 export default function selectStoredEntityKeyIds(entitySetId :UUID, entityKeyIds :Set<UUID>) {
-  return (
-    (state :Map) => (
+  return (state :Map) :Set<UUID> => (
       state
         .getIn([DATA, ENTITY_SET_DATA, entitySetId], Map())
         .keySeq()
