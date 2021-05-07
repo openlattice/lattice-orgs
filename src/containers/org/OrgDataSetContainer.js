@@ -117,12 +117,16 @@ const OrgDataSetContainer = ({
             </StackGrid>
           </StackGrid>
         </AppContentWrapper>
-        <NavContentWrapper bgColor="white">
+        <NavContentWrapper borderless bgColor="white">
           <AppNavigationWrapper borderless>
-            <NavLink exact strict to={dataSetRoute}>About</NavLink>
+            <NavLink exact strict to={dataSetRoute}>
+              <Typography variant="h3">Properties</Typography>
+            </NavLink>
             {
               !isAtlasDataSet(dataSet) && (
-                <NavLink to={dataSetDataRoute}>Data</NavLink>
+                <NavLink to={dataSetDataRoute}>
+                  <Typography variant="h3">Search</Typography>
+                </NavLink>
               )
             }
           </AppNavigationWrapper>
