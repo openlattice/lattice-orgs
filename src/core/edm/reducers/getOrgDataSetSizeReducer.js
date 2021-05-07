@@ -16,14 +16,14 @@ export default function reducer(state :Map, action :SequenceAction) {
       .setIn([GET_ORG_DATA_SET_SIZE, REQUEST_STATE], RequestStates.PENDING)
       .setIn([GET_ORG_DATA_SET_SIZE, action.id], action),
     SUCCESS: () => {
-      if (state.hasIn([GET_ORG_DATA_SET_SIZE, action.id])) {
+      const storedSeqAction :?SequenceAction = state.getIn([GET_ORG_DATA_SET_SIZE, action.id]);
+      if (storedSeqAction) {
         const {
           dataSetId,
-          organizationId,
-          size
-        } = action.value;
+          organizationId
+        } = storedSeqAction.value;
         return state
-          .setIn([ENTITY_SET_SIZE_MAP, organizationId, dataSetId], size)
+          .setIn([ENTITY_SET_SIZE_MAP, organizationId, dataSetId], action.value)
           .setIn([GET_ORG_DATA_SET_SIZE, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
