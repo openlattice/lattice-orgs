@@ -8,13 +8,14 @@ import {
   AuthorizationsApiSagas,
   DataSetsApiSagas,
   OrganizationsApiSagas,
-  PrincipalsApiSagas,
+  PrincipalsApiSagas
 } from 'lattice-sagas';
 import type { Saga } from '@redux-saga/core';
 
 import * as AppSagas from '../../containers/app/sagas';
 import * as DataSagas from '../data/sagas';
 import * as EDMSagas from '../edm/sagas';
+import * as ExploreSagas from '../../containers/explore/sagas';
 import * as OrgSagas from '../../containers/org/sagas';
 import * as PermissionsSagas from '../permissions/sagas';
 import * as RoutingSagas from '../router/RoutingSagas';
@@ -69,6 +70,7 @@ export default function* sagas() :Saga<*> {
     fork(AppSagas.initializeApplicationWatcher),
 
     // DataSagas
+    fork(DataSagas.fetchEntitySetDataWatcher),
     fork(DataSagas.submitDataGraphWatcher),
 
     // EDMSagas
@@ -78,6 +80,10 @@ export default function* sagas() :Saga<*> {
     fork(EDMSagas.getOrgDataSetsFromMetaWatcher),
     fork(EDMSagas.initializeOrganizationDataSetWatcher),
     fork(EDMSagas.updateOrganizationDataSetWatcher),
+
+    // ExploreSagas
+    fork(ExploreSagas.exploreEntityDataWatcher),
+    fork(ExploreSagas.exploreEntityNeighborsWatcher),
 
     // OrgSagas
     fork(OrgSagas.addMembersToOrganizationWatcher),
