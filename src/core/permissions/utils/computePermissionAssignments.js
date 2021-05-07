@@ -23,7 +23,10 @@ function computePermissionAssignments(
   permissions :Map<List<UUID>, Ace>,
   permissionType :PermissionType,
   maybePropertyTypes :Map<UUID, PropertyType>,
-) :Object {
+) :{
+  isAssignedToAll :boolean;
+  isAssignedToOnlyNonPII :boolean;
+} {
 
   let isAssignedToAll = true;
   let isAssignedToOnlyNonPII = true;
