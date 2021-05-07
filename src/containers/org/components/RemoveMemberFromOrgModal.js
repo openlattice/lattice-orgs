@@ -64,7 +64,6 @@ const RemoveMemberFromOrgModal = ({
     ),
     [RequestStates.FAILURE]: (
       <ResetOnUnmount actions={RESET_ACTIONS}>
-        <Typography>Failed to remove member. Please try again.</Typography>
         <Typography>
           {
             thisIsYou

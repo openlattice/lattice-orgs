@@ -38,6 +38,7 @@ import { ObjectPermissionCheckbox } from './components';
 import { Divider, SpaceBetweenGrid } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { SET_PERMISSIONS, setPermissions } from '../../core/permissions/actions';
+import { computePermissionAssignments } from '../../core/permissions/utils';
 import { PERMISSIONS } from '../../core/redux/constants';
 import {
   selectMyKeys,
@@ -120,27 +121,14 @@ const PermissionsPanel = ({
   const propertyTypesHash :number = maybePropertyTypes.hashCode();
 
   useEffect(() => {
-
-    let isAssignedToAll = true;
-    let isAssignedToOnlyNonPII = true;
-    dataSetColumns.forEach((column :Map<FQN, List>) => {
-      const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
-      const key :List<UUID> = List([dataSetId, columnId]);
-      const isOwner = myKeys.has(key);
-      if (isOwner) {
-        const propertyType :?PropertyType = maybePropertyTypes.get(columnId);
-        const pii :boolean = propertyType?.pii || false;
-        const ace :?Ace = localPermissions.get(key);
-        const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
-        isAssignedToAll = isAssignedToAll && isPermissionAssigned;
-        if (
-          (isPermissionAssigned && pii === true)
-          || (!isPermissionAssigned && pii === false)
-        ) {
-          isAssignedToOnlyNonPII = false;
-        }
-      }
-    });
+    const { isAssignedToAll, isAssignedToOnlyNonPII } = computePermissionAssignments(
+      myKeys,
+      dataSetColumns,
+      dataSetId,
+      localPermissions,
+      permissionType,
+      maybePropertyTypes,
+    );
     setIsPermissionAssignedToAll(isAssignedToAll);
     setIsPermissionAssignedToOnlyNonPII(isAssignedToOnlyNonPII);
   }, [

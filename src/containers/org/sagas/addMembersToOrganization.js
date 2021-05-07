@@ -18,7 +18,7 @@ import { ADD_MEMBERS_TO_ORGANIZATION, addMembersToOrganization } from '../action
 
 const { isDefined } = LangUtils;
 
-const { addMemberToOrganization } = OrganizationsApiActions;
+const { addMemberToOrganization, getOrganizationMembers } = OrganizationsApiActions;
 const { addMemberToOrganizationWorker } = OrganizationsApiSagas;
 const { isValidUUID } = ValidationUtils;
 
@@ -59,6 +59,7 @@ function* addMembersToOrganizationWorker(action :SequenceAction) :Saga<void> {
     if (responseError) throw responseError;
 
     yield put(addMembersToOrganization.success(action.id));
+    yield put(getOrganizationMembers(organizationId));
   }
   catch (error) {
     LOG.error(action.type, error);

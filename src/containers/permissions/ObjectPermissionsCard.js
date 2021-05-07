@@ -34,9 +34,11 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import DataSetColumnPermissionsSection from './DataSetColumnPermissionsSection';
 import { ObjectPermissionCheckbox } from './components';
 import { ORDERED_PERMISSIONS } from './constants';
 
+import Divider from '../../components/other/Divider';
 import { SpaceBetweenGrid, Spinner, StackGrid } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
@@ -117,10 +119,10 @@ const ObjectPermissionsCard = ({
     if (!isPending(updatePermissionsRS)) {
       const aceForUpdate = (new AceBuilder()).setPermissions([permissionType]).setPrincipal(principal).build();
       dispatch(
-        updatePermissions({
+        updatePermissions([{
           actionType: isChecked ? ActionTypes.ADD : ActionTypes.REMOVE,
           permissions: Map().set(targetKey, aceForUpdate),
-        })
+        }])
       );
       if (targetKey.has(1)) {
         setTargetColumnId(targetKey.get(1));
@@ -206,6 +208,13 @@ const ObjectPermissionsCard = ({
                           </div>
                           <div>
                             <Typography gutterBottom variant="body2">Columns</Typography>
+                            <DataSetColumnPermissionsSection
+                                dataSetColumns={dataSetColumns}
+                                objectKey={objectKey}
+                                permissions={permissions}
+                                permissionType={permissionType}
+                                principal={principal} />
+                            <Divider />
                             {
                               dataSetColumns.map((column :Map<FQN, List>) => {
                                 const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
