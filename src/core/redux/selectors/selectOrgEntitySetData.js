@@ -6,7 +6,7 @@ import type { UUID } from 'lattice';
 
 import { DATA, ENTITY_SET_DATA } from '../constants';
 
-export default function selectOrgEntitySetData(entitySetId :UUID, entityKeyIds :Collection<UUID> | UUID[]) :Map {
+export default function selectOrgEntitySetData(entitySetId :UUID, entityKeyIds :Collection<UUID> | UUID[]) {
   return ((state :Map) => {
     const entitySetData :Map = state.getIn([DATA, ENTITY_SET_DATA, entitySetId], Map());
     return Map().withMutations((map) => {
