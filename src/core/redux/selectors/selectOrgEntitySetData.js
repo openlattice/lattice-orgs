@@ -14,5 +14,5 @@ export default function selectOrgEntitySetData(entitySetId :UUID, entityKeyIds :
         map.set(entityKeyId, entitySetData.get(entityKeyId, Map()));
       });
     });
-  });
+  };
 }
