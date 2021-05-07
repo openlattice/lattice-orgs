@@ -52,11 +52,7 @@ function* getOrgDataSetSizeWorker(action :SequenceAction) :Saga<WorkerResponse> 
     if (response.error) throw response.error;
     workerResponse = response;
 
-    yield put(getOrgDataSetSize.success(action.id, {
-      dataSetId,
-      organizationId,
-      size: workerResponse.data
-    }));
+    yield put(getOrgDataSetSize.success(action.id, workerResponse.data));
   }
   catch (error) {
     workerResponse = { error };
