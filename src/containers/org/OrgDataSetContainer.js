@@ -47,7 +47,7 @@ import { isAtlasDataSet } from '../../utils';
 const { BLUE } = Colors;
 
 const { getPropertyValue } = DataUtils;
-const { isNonEmptyString } = LangUtils;
+const { isDefined, isNonEmptyString } = LangUtils;
 const { isValidUUID } = ValidationUtils;
 
 const CountBadge = styled(Badge)`
@@ -129,8 +129,12 @@ const OrgDataSetContainer = ({
               <div>
                 <CountBadge count={dataSetColumns.size} />
                 <Label subtle>Data Fields</Label>
-                { dataSetSize && <CountBadge count={dataSetSize} max={500000} /> }
-                <Label subtle>Records</Label>
+                { (isDefined(dataSetSize) && !isAtlasDataSet(dataSet)) && (
+                  <>
+                    <CountBadge count={dataSetSize} max={500000} />
+                    <Label subtle>Records</Label>
+                  </>
+                )}
               </div>
               <Typography>{description || name}</Typography>
             </StackGrid>
