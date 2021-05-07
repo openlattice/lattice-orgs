@@ -13,9 +13,9 @@ import {
 import destroyTransportedOrganizationEntitySetReducer from './destroyTransportedOrganizationEntitySetReducer';
 import getEntityDataModelTypesReducer from './getEntityDataModelTypesReducer';
 import getEntitySetReducer from './getEntitySetReducer';
-import getOrgDataSetSizeReducer from './getOrgDataSetSizeReducer';
 import getEntitySetsReducer from './getEntitySetsReducer';
 import getOrgDataSetColumnsFromMetaReducer from './getOrgDataSetColumnsFromMetaReducer';
+import getOrgDataSetSizeReducer from './getOrgDataSetSizeReducer';
 import getOrgDataSetsFromMetaReducer from './getOrgDataSetsFromMetaReducer';
 import getOrganizationDataSetSchemaReducer from './getOrganizationDataSetSchemaReducer';
 import initializeOrganizationDataSetReducer from './initializeOrganizationDataSetReducer';
@@ -29,9 +29,9 @@ import { RESET_REQUEST_STATES } from '../../redux/actions';
 import {
   APP_INSTALLS,
   DATA_SET_SCHEMA,
-  ENTITY_SET_SIZE_MAP,
   ENTITY_SETS,
   ENTITY_SETS_INDEX_MAP,
+  ENTITY_SET_SIZE_MAP,
   ENTITY_TYPES,
   ENTITY_TYPES_INDEX_MAP,
   ORG_DATA_SETS,
@@ -43,15 +43,15 @@ import {
 import { resetRequestStatesReducer } from '../../redux/reducers';
 import {
   GET_EDM_TYPES,
-  GET_ORG_DATA_SET_SIZE,
   GET_ORG_DATA_SETS_FROM_META,
   GET_ORG_DATA_SET_COLUMNS_FROM_META,
+  GET_ORG_DATA_SET_SIZE,
   INITIALIZE_ORGANIZATION_DATA_SET,
   IS_APP_INSTALLED,
   UPDATE_ORGANIZATION_DATA_SET,
   getEntityDataModelTypes,
-  getOrgDataSetSize,
   getOrgDataSetColumnsFromMeta,
+  getOrgDataSetSize,
   getOrgDataSetsFromMeta,
   initializeOrganizationDataSet,
   isAppInstalled,
