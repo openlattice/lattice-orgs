@@ -41,6 +41,7 @@ export const DATA_SET_COLUMNS :'dataSetColumns' = 'dataSetColumns';
 export const DATA_SET_PERMISSIONS_PAGE :'dataSetPermissionsPage' = 'dataSetPermissionsPage';
 export const DATA_SET_SCHEMA :'dataSetSchema' = 'dataSetSchema';
 export const ENTITY_SET_DATA :'entitySetData' = 'entitySetData';
+export const ENTITY_SET_SIZE_MAP :'entitySetSizeMap' = 'entitySetSizeMap';
 export const ENTITY_SET_IDS :'entitySetIds' = 'entitySetIds';
 export const ENTITY_NEIGHBORS_MAP :'entityNeighborsMap' = 'entityNeighborsMap';
 export const EXPLORE :'explore' = 'explore';
