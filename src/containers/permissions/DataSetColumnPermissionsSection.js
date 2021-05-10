@@ -161,7 +161,7 @@ const DataSetColumnPermissionsSection = ({
             permissions: permissionsToRemove
           });
         }
-        dispatch(updatePermissions(permissionsToUpdate));
+        if (permissionsToUpdate.length) dispatch(updatePermissions(permissionsToUpdate));
       }
       else {
         const permissionsToUpdate = Map().withMutations((mutator) => {
@@ -173,12 +173,14 @@ const DataSetColumnPermissionsSection = ({
             }
           });
         });
-        dispatch(
-          updatePermissions([{
-            actionType: ActionTypes.REMOVE,
-            permissions: permissionsToUpdate
-          }])
-        );
+        if (!permissionsToUpdate.isEmpty()) {
+          dispatch(
+            updatePermissions([{
+              actionType: ActionTypes.REMOVE,
+              permissions: permissionsToUpdate
+            }])
+          );
+        }
       }
     }
   };
