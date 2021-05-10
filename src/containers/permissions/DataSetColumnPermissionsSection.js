@@ -23,6 +23,8 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import { PermissionsLock } from './components';
+
 import { SpaceBetweenGrid, Spinner } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
@@ -66,6 +68,7 @@ const DataSetColumnPermissionsSection = ({
 
   const [isPermissionAssignedToAll, setIsPermissionAssignedToAll] = useState(false);
   const [isPermissionAssignedToOnlyNonPII, setIsPermissionAssignedToOnlyNonPII] = useState(false);
+  const [isUserOwnerOnAtLeastOneColumn, setIsUserOwnerOnAtLeastOneColumn] = useState(false);
   const [selectedToggle, setSelectedToggle] = useState('');
 
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
@@ -81,7 +84,7 @@ const DataSetColumnPermissionsSection = ({
 
   useEffect(() => {
     const dataSetId :UUID = objectKey.get(0, '');
-    const { isAssignedToAll, isAssignedToOnlyNonPII } = computePermissionAssignments(
+    const { isAssignedToAll, isAssignedToOnlyNonPII, isOwnerOnAtLeastOneColumn } = computePermissionAssignments(
       myKeys,
       dataSetColumns,
       dataSetId,
@@ -91,6 +94,7 @@ const DataSetColumnPermissionsSection = ({
     );
     setIsPermissionAssignedToAll(isAssignedToAll);
     setIsPermissionAssignedToOnlyNonPII(isAssignedToOnlyNonPII);
+    setIsUserOwnerOnAtLeastOneColumn(isOwnerOnAtLeastOneColumn);
     /* eslint-disable-next-line */
   }, [
     dataSetColumns,
@@ -109,17 +113,20 @@ const DataSetColumnPermissionsSection = ({
         dataSetColumns.forEach((column :Map<FQN, List>) => {
           const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
           const key :List<UUID> = List([objectKey.get(0), columnId]);
-          if (myKeys.has(key)) {
+          const isOwner = myKeys.has(key);
+          if (isOwner) {
             mutator.set(key, aceForUpdate);
           }
         });
       });
-      dispatch(
-        updatePermissions([{
-          actionType: isPermissionAssignedToAll ? ActionTypes.REMOVE : ActionTypes.ADD,
-          permissions: permissionsToUpdate
-        }])
-      );
+      if (!permissionsToUpdate.isEmpty()) {
+        dispatch(
+          updatePermissions([{
+            actionType: isPermissionAssignedToAll ? ActionTypes.REMOVE : ActionTypes.ADD,
+            permissions: permissionsToUpdate
+          }])
+        );
+      }
     }
   };
 
@@ -204,6 +211,42 @@ const DataSetColumnPermissionsSection = ({
     }
   }, [dispatch, updatePermissionsRS]);
 
+  const allColumnsIcon = isUserOwnerOnAtLeastOneColumn
+    ? (
+      <IconButton
+          aria-label="all columns toggle open/close"
+          id={ALL}
+          onClick={handleToggle}>
+        <FontAwesomeIcon
+            color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
+            fixedWidth
+            icon={faToggleOn}
+            size="lg"
+            transform={{ rotate: isPermissionAssignedToAll ? 0 : 180 }} />
+      </IconButton>
+    )
+    : (
+      <PermissionsLock />
+    );
+
+  const onlyNonPIIColumnsIcon = isUserOwnerOnAtLeastOneColumn
+    ? (
+      <IconButton
+          aria-label="non-pii columns toggle open/close"
+          id={isPermissionAssignedToOnlyNonPII ? ONLY_NON_PII_OFF : ONLY_NON_PII_ON}
+          onClick={handleToggle}>
+        <FontAwesomeIcon
+            color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
+            fixedWidth
+            icon={faToggleOn}
+            size="lg"
+            transform={{ rotate: isPermissionAssignedToOnlyNonPII ? 0 : 180 }} />
+      </IconButton>
+    )
+    : (
+      <PermissionsLock />
+    );
+
   return (
     <>
       <SpaceBetweenGrid>
@@ -215,17 +258,7 @@ const DataSetColumnPermissionsSection = ({
                 <Spinner size="lg" />
               )
               : (
-                <IconButton
-                    aria-label="all columns toggle open/close"
-                    id={ALL}
-                    onClick={handleToggle}>
-                  <FontAwesomeIcon
-                      color={isPermissionAssignedToAll ? PURPLE.P300 : NEUTRAL.N500}
-                      fixedWidth
-                      icon={faToggleOn}
-                      size="lg"
-                      transform={{ rotate: isPermissionAssignedToAll ? 0 : 180 }} />
-                </IconButton>
+                allColumnsIcon
               )
           }
         </ToggleWrapper>
@@ -240,17 +273,7 @@ const DataSetColumnPermissionsSection = ({
                 <Spinner size="lg" />
               )
               : (
-                <IconButton
-                    aria-label="non-pii columns toggle open/close"
-                    id={isPermissionAssignedToOnlyNonPII ? ONLY_NON_PII_OFF : ONLY_NON_PII_ON}
-                    onClick={handleToggle}>
-                  <FontAwesomeIcon
-                      color={isPermissionAssignedToOnlyNonPII ? PURPLE.P300 : NEUTRAL.N500}
-                      fixedWidth
-                      icon={faToggleOn}
-                      size="lg"
-                      transform={{ rotate: isPermissionAssignedToOnlyNonPII ? 0 : 180 }} />
-                </IconButton>
+                onlyNonPIIColumnsIcon
               )
           }
         </ToggleWrapper>
