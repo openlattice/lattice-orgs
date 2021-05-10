@@ -234,7 +234,8 @@ const DataSetColumnPermissionsSection = ({
         <Typography>Only Non-PII Columns</Typography>
         <ToggleWrapper>
           {
-            isPending(updatePermissionsRS) && selectedToggle !== ALL
+            isPending(updatePermissionsRS)
+              && (selectedToggle === ONLY_NON_PII_ON || selectedToggle === ONLY_NON_PII_OFF)
               ? (
                 <Spinner size="lg" />
               )
