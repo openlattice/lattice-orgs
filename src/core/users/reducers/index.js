@@ -13,12 +13,14 @@ import {
   USERS,
   USER_SEARCH_RESULTS,
 } from '../../redux/constants';
-import { RESET_USER_SEARCH_RESULTS } from '../actions';
+import {
+  RESET_USER_SEARCH_RESULTS,
+  SEARCH_ALL_USERS,
+  searchAllUsers,
+} from '../actions';
 
 const {
   GET_USERS,
-  SEARCH_ALL_USERS,
-  searchAllUsers,
   getUsers,
 } = PrincipalsApiActions;
 

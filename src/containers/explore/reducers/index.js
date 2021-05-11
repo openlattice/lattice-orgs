@@ -5,8 +5,8 @@
 import { Map, fromJS } from 'immutable';
 import { matchPath } from 'react-router';
 
-import exploreEntityDataReducer from './exploreEntityData';
-import exploreEntityNeighborsReducer from './exploreEntityNeighbors';
+import exploreEntityDataReducer from './exploreEntityDataReducer';
+import exploreEntityNeighborsReducer from './exploreEntityNeighborsReducer';
 
 import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
@@ -27,10 +27,12 @@ import type { RoutingAction } from '../../../core/router/actions';
 const { GO_TO_ROUTE } = RoutingActions;
 
 const INITIAL_STATE :Map = fromJS({
+  // actions
   [EXPLORE_ENTITY_DATA]: RS_INITIAL_STATE,
   [EXPLORE_ENTITY_NEIGHBORS]: RS_INITIAL_STATE,
+  // data
   [ENTITY_NEIGHBORS_MAP]: Map(),
-  [SELECTED_ENTITY_DATA]: undefined,
+  [SELECTED_ENTITY_DATA]: Map(),
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
@@ -39,7 +41,7 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case GO_TO_ROUTE: {
       const routingAction :RoutingAction = action;
-      if (matchPath(routingAction.route, Routes.ORG_DATA_SET_DATA_DETAILS) && routingAction.state.data) {
+      if (matchPath(routingAction.route, Routes.ENTITY_DETAILS) && routingAction.state.data) {
         return state.set(SELECTED_ENTITY_DATA, fromJS(routingAction.state.data));
       }
       return state;

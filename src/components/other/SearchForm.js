@@ -45,7 +45,9 @@ const SearchForm = ({
             aria-label="search button"
             color="primary"
             isPending={searchRequestState === RequestStates.PENDING}
-            type="submit" />
+            type="submit">
+          Search
+        </SearchButton>
       </ActionsGrid>
     </form>
   );

@@ -2,12 +2,20 @@
  * @flow
  */
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
+import styled from 'styled-components';
 import { List, Map } from 'immutable';
-import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
-import { DataUtils, LangUtils } from 'lattice-utils';
-import { useSelector } from 'react-redux';
+import {
+  AppContentWrapper,
+  AppNavigationWrapper,
+  Badge,
+  Colors,
+  Label,
+  Typography
+} from 'lattice-ui-kit';
+import { DataUtils, LangUtils, ValidationUtils } from 'lattice-utils';
+import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import type { FQN, Organization, UUID } from 'lattice';
@@ -25,13 +33,29 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
+import { getOrgDataSetSize } from '../../core/edm/actions';
 import { FQNS } from '../../core/edm/constants';
-import { selectDataSetSchema, selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
+import {
+  selectDataSetSchema,
+  selectOrgDataSet,
+  selectOrgDataSetColumns,
+  selectOrgDataSetSize,
+  selectOrganization
+} from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { isAtlasDataSet } from '../../utils';
 
+const { BLUE } = Colors;
+
 const { getPropertyValue } = DataUtils;
-const { isNonEmptyString } = LangUtils;
+const { isDefined, isNonEmptyString } = LangUtils;
+const { isValidUUID } = ValidationUtils;
+
+const CountBadge = styled(Badge)`
+  background: ${BLUE.B300};
+  color: white;
+  margin-right: 5px;
+`;
 
 const OrgDataSetContainer = ({
   dataSetDataRoute,
@@ -46,10 +70,13 @@ const OrgDataSetContainer = ({
   organizationId :UUID;
   organizationRoute :string;
 |}) => {
+  const dispatch = useDispatch();
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
   const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
+  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const dataSetSize :?number = useSelector(selectOrgDataSetSize(organizationId, dataSetId));
 
   const description :string = getPropertyValue(dataSet, [FQNS.OL_DESCRIPTION, 0]);
   const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
@@ -70,6 +97,12 @@ const OrgDataSetContainer = ({
     }
     return contactString;
   }, [dataSet]);
+
+  useEffect(() => {
+    if (!isAtlasDataSet(dataSet) && isValidUUID(dataSetId)) {
+      dispatch(getOrgDataSetSize({ dataSetId, organizationId }));
+    }
+  }, [dataSet, dataSetId, dispatch, organizationId]);
 
   if (organization) {
 
@@ -98,6 +131,16 @@ const OrgDataSetContainer = ({
                 <Typography variant="h1">{title || name}</Typography>
                 <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
               </SpaceBetweenGrid>
+              <div>
+                <CountBadge count={dataSetColumns.size} />
+                <Label subtle>Data Fields</Label>
+                { (isDefined(dataSetSize) && !isAtlasDataSet(dataSet)) && (
+                  <>
+                    <CountBadge count={dataSetSize} max={500000} />
+                    <Label subtle>Records</Label>
+                  </>
+                )}
+              </div>
               <Typography>{description || name}</Typography>
             </StackGrid>
             {
@@ -122,12 +165,16 @@ const OrgDataSetContainer = ({
             </StackGrid>
           </StackGrid>
         </AppContentWrapper>
-        <NavContentWrapper bgColor="white">
+        <NavContentWrapper borderless bgColor="white">
           <AppNavigationWrapper borderless>
-            <NavLink exact strict to={dataSetRoute}>Properties</NavLink>
+            <NavLink exact strict to={dataSetRoute}>
+              <Typography variant="h3">Properties</Typography>
+            </NavLink>
             {
               !isAtlasDataSet(dataSet) && (
-                <NavLink to={dataSetDataRoute}>Search</NavLink>
+                <NavLink to={dataSetDataRoute}>
+                  <Typography variant="h3">Search</Typography>
+                </NavLink>
               )
             }
           </AppNavigationWrapper>
