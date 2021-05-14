@@ -28,6 +28,7 @@ import type {
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { isAtlasDataSet } from '../../../utils';
 import {
   ERR_MISSING_ORG,
   ERR_MISSING_PROPERTY_TYPE,
@@ -41,7 +42,7 @@ import {
 } from '../../redux/constants';
 import { selectOrganization, selectPropertyTypes } from '../../redux/selectors';
 import { MAX_HITS_10000 } from '../../search/constants';
-import { INITIALIZE_ORGANIZATION_DATA_SET, initializeOrganizationDataSet } from '../actions';
+import { INITIALIZE_ORGANIZATION_DATA_SET, getOrgDataSetSize, initializeOrganizationDataSet } from '../actions';
 import { FQNS } from '../constants';
 
 const { AccessCheckBuilder, FQN } = Models;
@@ -140,6 +141,11 @@ function* initializeOrganizationDataSetWorker(action :SequenceAction) :Saga<Work
       }),
     );
     if (dataSetColumnsSearchResponse.error) throw dataSetColumnsSearchResponse.error;
+
+    if (!isAtlasDataSet(dataSet)) {
+      const getOrgDataSetSizeRequest = getOrgDataSetSize({ dataSetId, organizationId });
+      yield put(getOrgDataSetSizeRequest);
+    }
 
     const dataSetColumns :List<Map<FQN, List>> = fromJS(dataSetColumnsSearchResponse.data[HITS])
       .map((column :Map) => column.mapKeys((key :string) => FQN.of(key)))
