@@ -112,7 +112,7 @@ const OrgMemberContainer = ({
   if (organization && memberPrincipal) {
 
     // TODO: this will need to be more fancy
-    const memberName = memberUserProfile.name || `${memberUserProfile.givenName} ${memberUserProfile.familyName}`;
+    const memberName = memberUserProfile.name || memberUserProfile.email;
 
     const handleOnClosePermissionsPanel = () => {
       setSelection();
