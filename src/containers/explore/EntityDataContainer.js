@@ -47,9 +47,9 @@ const EntityDataContainer = ({
 
   let entityKeyId :?UUID;
 
-  const matchOrganizationDataSetData = useRouteMatch(Routes.ORG_DATA_SET_DATA_DETAILS);
+  const matchOrganizationDataSetData = useRouteMatch(Routes.ENTITY_DETAILS);
   if (matchOrganizationDataSetData) {
-    entityKeyId = getParamFromMatch(matchOrganizationDataSetData, Routes.ENTITY_KEY_ID);
+    entityKeyId = getParamFromMatch(matchOrganizationDataSetData, Routes.ENTITY_KEY_ID_PARAM);
   }
   const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const neighbors :?Map = useSelector((s) => s.getIn([EXPLORE, ENTITY_NEIGHBORS_MAP, entityKeyId], Map()));

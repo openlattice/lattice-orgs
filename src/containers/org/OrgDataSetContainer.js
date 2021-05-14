@@ -22,7 +22,7 @@ import type { FQN, Organization, UUID } from 'lattice';
 
 import DataSetActionButton from './components/dataset/DataSetActionButton';
 import DataSetDataContainer from './DataSetDataContainer';
-// import EntityDataContainer from '../explore/EntityDataContainer';
+import EntityDataContainer from '../explore/EntityDataContainer';
 import DataSetMetaDataContainer from './DataSetMetaDataContainer';
 
 import {
@@ -106,9 +106,9 @@ const OrgDataSetContainer = ({
 
   if (organization) {
 
-    // const renderDataSetDataDetailsContainer = () => (
-    //   <EntityDataContainer dataSetId={dataSetId} organizationId={organizationId} />
-    // );
+    const renderDataSetDataDetailsContainer = () => (
+      <EntityDataContainer dataSetId={dataSetId} organizationId={organizationId} />
+    );
 
     const renderDataSetDataContainer = () => (
       <DataSetDataContainer dataSetName={title || name} dataSetId={dataSetId} organizationId={organizationId} />
@@ -180,7 +180,7 @@ const OrgDataSetContainer = ({
           </AppNavigationWrapper>
         </NavContentWrapper>
         <Switch>
-          {/* <Route exact path={Routes.ORG_DATA_SET_DATA_DETAILS} render={renderDataSetDataDetailsContainer} /> */}
+          <Route exact path={Routes.ENTITY_DETAILS} render={renderDataSetDataDetailsContainer} />
           <Route exact path={Routes.ORG_DATA_SET_DATA} render={renderDataSetDataContainer} />
           <Route exact path={Routes.ORG_DATA_SET} render={renderDataSetMetaContainer} />
         </Switch>
