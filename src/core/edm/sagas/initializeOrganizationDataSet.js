@@ -143,8 +143,7 @@ function* initializeOrganizationDataSetWorker(action :SequenceAction) :Saga<Work
     if (dataSetColumnsSearchResponse.error) throw dataSetColumnsSearchResponse.error;
 
     if (!isAtlasDataSet(dataSet)) {
-      const getOrgDataSetSizeRequest = getOrgDataSetSize({ dataSetId, organizationId });
-      yield put(getOrgDataSetSizeRequest);
+      yield put(getOrgDataSetSize({ dataSetId, organizationId }));
     }
 
     const dataSetColumns :List<Map<FQN, List>> = fromJS(dataSetColumnsSearchResponse.data[HITS])
