@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
@@ -14,8 +14,8 @@ import {
   Label,
   Typography
 } from 'lattice-ui-kit';
-import { DataUtils, LangUtils, ValidationUtils } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
+import { DataUtils, LangUtils } from 'lattice-utils';
+import { useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
 import type { FQN, Organization, UUID } from 'lattice';
@@ -32,7 +32,6 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
-import { getOrgDataSetSize } from '../../core/edm/actions';
 import { FQNS } from '../../core/edm/constants';
 import {
   selectDataSetSchema,
@@ -48,7 +47,6 @@ const { BLUE } = Colors;
 
 const { getPropertyValue } = DataUtils;
 const { isDefined, isNonEmptyString } = LangUtils;
-const { isValidUUID } = ValidationUtils;
 
 const CountBadge = styled(Badge)`
   background: ${BLUE.B300};
@@ -69,7 +67,6 @@ const OrgDataSetContainer = ({
   organizationId :UUID;
   organizationRoute :string;
 |}) => {
-  const dispatch = useDispatch();
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
@@ -96,12 +93,6 @@ const OrgDataSetContainer = ({
     }
     return contactString;
   }, [dataSet]);
-
-  useEffect(() => {
-    if (!isAtlasDataSet(dataSet) && isValidUUID(dataSetId)) {
-      dispatch(getOrgDataSetSize({ dataSetId, organizationId }));
-    }
-  }, [dataSet, dataSetId, dispatch, organizationId]);
 
   if (organization) {
 
@@ -131,7 +122,7 @@ const OrgDataSetContainer = ({
                 <Label subtle>Data Fields</Label>
                 { (isDefined(dataSetSize) && !isAtlasDataSet(dataSet)) && (
                   <>
-                    <CountBadge count={dataSetSize} max={500000} />
+                    <CountBadge count={dataSetSize} max={1000000} />
                     <Label subtle>Records</Label>
                   </>
                 )}
