@@ -3,8 +3,9 @@
  */
 
 import { Map, fromJS } from 'immutable';
-import { PrincipalsApiActions } from 'lattice-sagas';
+import { OrganizationsApiActions, PrincipalsApiActions } from 'lattice-sagas';
 
+import getOrganizationMembersReducer from './getOrganizationMembersReducer';
 import getUsersReducer from './getUsersReducer';
 import searchAllUsersReducer from './searchAllUsersReducer';
 
@@ -20,12 +21,18 @@ import {
 } from '../actions';
 
 const {
+  GET_ORGANIZATION_MEMBERS,
+  getOrganizationMembers,
+} = OrganizationsApiActions;
+
+const {
   GET_USERS,
   getUsers,
 } = PrincipalsApiActions;
 
 const INITIAL_STATE :Map = fromJS({
   // actions
+  [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
   [GET_USERS]: RS_INITIAL_STATE,
   [SEARCH_ALL_USERS]: RS_INITIAL_STATE,
   // data
@@ -39,6 +46,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case RESET_USER_SEARCH_RESULTS: {
       return state.set(USER_SEARCH_RESULTS, Map());
+    }
+
+    case getOrganizationMembers.case(action.type): {
+      return getOrganizationMembersReducer(state, action);
     }
 
     case getUsers.case(action.type): {
