@@ -84,7 +84,7 @@ const DataSetColumnPermissionsSection = ({
 
   useEffect(() => {
     const dataSetId :UUID = objectKey.get(0, '');
-    const { isAssignedToAll, isAssignedToOnlyNonPII, isOwnerOnAtLeastOneColumn } = computePermissionAssignments(
+    const { isAssignedToAll, isAssignedToOnlyNonPII, isOwnerOfAtLeastOneColumn } = computePermissionAssignments(
       myKeys,
       dataSetColumns,
       dataSetId,
@@ -94,7 +94,7 @@ const DataSetColumnPermissionsSection = ({
     );
     setIsPermissionAssignedToAll(isAssignedToAll);
     setIsPermissionAssignedToOnlyNonPII(isAssignedToOnlyNonPII);
-    setIsUserOwnerOnAtLeastOneColumn(isOwnerOnAtLeastOneColumn);
+    setIsUserOwnerOnAtLeastOneColumn(isOwnerOfAtLeastOneColumn);
     /* eslint-disable-next-line */
   }, [
     dataSetColumns,
