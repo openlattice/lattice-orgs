@@ -33,6 +33,12 @@ export default function reducer(state :Map, action :SequenceAction) {
               const targetIndex :number = currentAces.findIndex((currentAce :Ace) => (
                 currentAce.principal.id === ace.principal.id && currentAce.principal.type === ace.principal.type
               ));
+              // NOTE: empty permissions, i.e. [], is effectively the same as not having any permissions. this means
+              // we tried to SET permissions to [], which is the same as removing all permissions, in which case we
+              // should actually delete the ace here instead of setting it with empty permissions
+              if (ace.permissions.length === 0) {
+                return currentAces.delete(targetIndex);
+              }
               return currentAces.set(targetIndex, ace);
             });
           });

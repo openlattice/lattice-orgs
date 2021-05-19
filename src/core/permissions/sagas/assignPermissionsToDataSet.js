@@ -8,7 +8,7 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { List, Map } from 'immutable';
+import { List, Map, Set } from 'immutable';
 import { Models, Types } from 'lattice';
 import { PermissionsApiActions, PermissionsApiSagas } from 'lattice-sagas';
 import { AxiosUtils, Logger } from 'lattice-utils';
@@ -22,9 +22,11 @@ import type {
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { getDataSetKeys } from '../../../utils';
+import { getOrgDataSetColumnsFromMeta } from '../../edm/actions';
+import { getOrgDataSetColumnsFromMetaWorker } from '../../edm/sagas';
 import { selectOrgDataSet, selectOrgDataSetColumns } from '../../redux/selectors';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../actions';
-import { getDataSetKeys } from '../../../utils';
 
 const { AceBuilder, AclBuilder, AclDataBuilder } = Models;
 const { ActionTypes } = Types;
@@ -53,10 +55,21 @@ function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
       withColumns ?:boolean;
     |} = action.value;
 
+    let response :WorkerResponse;
+
     let keys :List<List<UUID>> = List().push(List([dataSetId]));
     if (withColumns) {
       const dataSet :Map<UUID, Map> = yield select(selectOrgDataSet(organizationId, dataSetId));
-      const dataSetColumns :List<Map<FQN, List>> = yield select(selectOrgDataSetColumns(organizationId, dataSetId));
+      let dataSetColumns :List<Map<FQN, List>> = yield select(selectOrgDataSetColumns(organizationId, dataSetId));
+      // NOTE: if "dataSetColumns" is empty, it's very likely that we just haven't loaded columns
+      if (dataSetColumns.isEmpty()) {
+        response = yield call(
+          getOrgDataSetColumnsFromMetaWorker,
+          getOrgDataSetColumnsFromMeta({ dataSetIds: Set([dataSetId]), organizationId }),
+        );
+        if (response.error) throw response.error;
+        dataSetColumns = response.data.get(dataSetId) || List();
+      }
       keys = getDataSetKeys(dataSet, dataSetColumns);
     }
 
@@ -84,7 +97,7 @@ function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
       });
     });
 
-    const response :WorkerResponse = yield call(updateAclsWorker, updateAcls(updates));
+    response = yield call(updateAclsWorker, updateAcls(updates));
     if (response.error) throw response.error;
 
     yield put(assignPermissionsToDataSet.success(action.id, { permissions }));

@@ -5,12 +5,12 @@
 import React from 'react';
 
 import _isFunction from 'lodash/isFunction';
-import { faLock } from '@fortawesome/pro-light-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List } from 'immutable';
 // $FlowFixMe
-import { Checkbox, Tooltip } from 'lattice-ui-kit';
+import { Checkbox } from 'lattice-ui-kit';
 import type { Ace, PermissionType, UUID } from 'lattice';
+
+import PermissionsLock from './PermissionsLock';
 
 const ObjectPermissionCheckbox = ({
   ace,
@@ -39,11 +39,7 @@ const ObjectPermissionCheckbox = ({
   }
 
   return (
-    <Tooltip arrow placement="left" title="Unauthorized to view permissions">
-      <div>
-        <FontAwesomeIcon fixedWidth icon={faLock} />
-      </div>
-    </Tooltip>
+    <PermissionsLock />
   );
 };
 

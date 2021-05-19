@@ -34,9 +34,11 @@ import type {
 } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import DataSetColumnPermissionsSection from './DataSetColumnPermissionsSection';
 import { ObjectPermissionCheckbox } from './components';
 import { ORDERED_PERMISSIONS } from './constants';
 
+import Divider from '../../components/other/Divider';
 import { SpaceBetweenGrid, Spinner, StackGrid } from '../../components';
 import { FQNS } from '../../core/edm/constants';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
@@ -89,6 +91,7 @@ const ObjectPermissionsCard = ({
   const [isOpen, setIsOpen] = useState(false);
   const [openPermissionType, setOpenPermissionType] = useState('');
   const [targetColumnId, setTargetColumnId] = useState('');
+  const [targetPermissionType, setTargetPermissionType] = useState('');
 
   const updatePermissionsRS :?RequestState = useRequestState([PERMISSIONS, UPDATE_PERMISSIONS]);
 
@@ -101,6 +104,7 @@ const ObjectPermissionsCard = ({
   useEffect(() => {
     if (!isPending(updatePermissionsRS)) {
       setTargetColumnId('');
+      setTargetPermissionType('');
     }
   }, [updatePermissionsRS]);
 
@@ -117,14 +121,13 @@ const ObjectPermissionsCard = ({
     if (!isPending(updatePermissionsRS)) {
       const aceForUpdate = (new AceBuilder()).setPermissions([permissionType]).setPrincipal(principal).build();
       dispatch(
-        updatePermissions({
+        updatePermissions([{
           actionType: isChecked ? ActionTypes.ADD : ActionTypes.REMOVE,
           permissions: Map().set(targetKey, aceForUpdate),
-        })
+        }])
       );
-      if (targetKey.has(1)) {
-        setTargetColumnId(targetKey.get(1));
-      }
+      setTargetColumnId(targetKey.get(1));
+      setTargetPermissionType(permissionType);
     }
   };
 
@@ -155,6 +158,7 @@ const ObjectPermissionsCard = ({
           isOpen && (
             ORDERED_PERMISSIONS.map((permissionType :PermissionType) => {
               const isOpenPermissionType = openPermissionType === permissionType;
+              const isTargetPermissionType = targetPermissionType === permissionType;
               return (
                 <Fragment key={permissionType}>
                   <PermissionTypeWrapper isDataSet={isDataSet}>
@@ -170,14 +174,14 @@ const ObjectPermissionsCard = ({
                         )
                       }
                       {
-                        !isDataSet && isPending(updatePermissionsRS) && (
+                        !isDataSet && isPending(updatePermissionsRS) && isTargetPermissionType && (
                           <SpinnerWrapper>
                             <Spinner size="lg" />
                           </SpinnerWrapper>
                         )
                       }
                       {
-                        !isDataSet && !isPending(updatePermissionsRS) && (
+                        !isDataSet && !(isPending(updatePermissionsRS) && isTargetPermissionType) && (
                           <ObjectPermissionCheckbox
                               ace={objectAce}
                               isAuthorized={myKeys.has(objectKey)}
@@ -206,6 +210,13 @@ const ObjectPermissionsCard = ({
                           </div>
                           <div>
                             <Typography gutterBottom variant="body2">Columns</Typography>
+                            <DataSetColumnPermissionsSection
+                                dataSetColumns={dataSetColumns}
+                                objectKey={objectKey}
+                                permissions={permissions}
+                                permissionType={permissionType}
+                                principal={principal} />
+                            <Divider />
                             {
                               dataSetColumns.map((column :Map<FQN, List>) => {
                                 const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);

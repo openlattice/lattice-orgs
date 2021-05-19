@@ -4,8 +4,16 @@
 
 import React, { useMemo } from 'react';
 
+import styled from 'styled-components';
 import { List, Map } from 'immutable';
-import { AppContentWrapper, AppNavigationWrapper, Typography } from 'lattice-ui-kit';
+import {
+  AppContentWrapper,
+  AppNavigationWrapper,
+  Badge,
+  Colors,
+  Label,
+  Typography
+} from 'lattice-ui-kit';
 import { DataUtils, LangUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
@@ -25,12 +33,26 @@ import {
   StackGrid,
 } from '../../components';
 import { FQNS } from '../../core/edm/constants';
-import { selectDataSetSchema, selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
+import {
+  selectDataSetSchema,
+  selectOrgDataSet,
+  selectOrgDataSetColumns,
+  selectOrgDataSetSize,
+  selectOrganization
+} from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { isAtlasDataSet } from '../../utils';
 
+const { BLUE } = Colors;
+
 const { getPropertyValue } = DataUtils;
-const { isNonEmptyString } = LangUtils;
+const { isDefined, isNonEmptyString } = LangUtils;
+
+const CountBadge = styled(Badge)`
+  background: ${BLUE.B300};
+  color: white;
+  margin-right: 5px;
+`;
 
 const OrgDataSetContainer = ({
   dataSetDataRoute,
@@ -49,6 +71,8 @@ const OrgDataSetContainer = ({
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
   const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
+  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const dataSetSize :?number = useSelector(selectOrgDataSetSize(organizationId, dataSetId));
 
   const description :string = getPropertyValue(dataSet, [FQNS.OL_DESCRIPTION, 0]);
   const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
@@ -93,6 +117,16 @@ const OrgDataSetContainer = ({
                 <Typography variant="h1">{title || name}</Typography>
                 <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
               </SpaceBetweenGrid>
+              <div>
+                <CountBadge count={dataSetColumns.size} />
+                <Label subtle>Data Fields</Label>
+                { (isDefined(dataSetSize) && !isAtlasDataSet(dataSet)) && (
+                  <>
+                    <CountBadge count={dataSetSize} max={1000000} />
+                    <Label subtle>Records</Label>
+                  </>
+                )}
+              </div>
               <Typography>{description || name}</Typography>
             </StackGrid>
             {
@@ -117,12 +151,16 @@ const OrgDataSetContainer = ({
             </StackGrid>
           </StackGrid>
         </AppContentWrapper>
-        <NavContentWrapper bgColor="white">
+        <NavContentWrapper borderless bgColor="white">
           <AppNavigationWrapper borderless>
-            <NavLink exact strict to={dataSetRoute}>About</NavLink>
+            <NavLink exact strict to={dataSetRoute}>
+              <Typography variant="h3">Properties</Typography>
+            </NavLink>
             {
               !isAtlasDataSet(dataSet) && (
-                <NavLink to={dataSetDataRoute}>Data</NavLink>
+                <NavLink to={dataSetDataRoute}>
+                  <Typography variant="h3">Search</Typography>
+                </NavLink>
               )
             }
           </AppNavigationWrapper>
