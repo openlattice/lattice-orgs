@@ -182,7 +182,7 @@ const OrgRouter = () => {
   }, [organizationId]);
 
   const orgSpinner = isStandby(initializeOrganizationRS) || isPending(initializeOrganizationRS);
-  const dataSetSpinner = isValidUUID(dataSetId) && (
+  const dataSetSpinner = isValidUUID(dataSetId) && isSuccess(initializeOrganizationRS) && (
     isStandby(initializeOrgDataSetRS) || isPending(initializeOrgDataSetRS)
   );
   if (orgSpinner || dataSetSpinner) {
