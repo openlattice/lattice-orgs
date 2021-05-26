@@ -21,6 +21,9 @@ export default function getUserTitle(user :any, thisUserId :?string) :string {
   const username :string = get(auth0UserProfile, 'username', '');
 
   let title :string = name || username;
+  if (title === 'undefined undefined') {
+    title = '';
+  }
 
   if (isNonEmptyString(email) && email !== title) {
     if (email.startsWith(title)) {

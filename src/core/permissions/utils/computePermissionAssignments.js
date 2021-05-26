@@ -26,10 +26,12 @@ function computePermissionAssignments(
 ) :{
   isAssignedToAll :boolean;
   isAssignedToOnlyNonPII :boolean;
+  isOwnerOfAtLeastOneColumn :boolean;
 } {
 
   let isAssignedToAll = true;
   let isAssignedToOnlyNonPII = true;
+  let isOwnerOfAtLeastOneColumn = false;
 
   dataSetColumns.forEach((column :Map<FQN, List>) => {
     const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
@@ -38,6 +40,7 @@ function computePermissionAssignments(
     const key :List<UUID> = List([dataSetId, columnId]);
     const isOwner = myKeys.has(key);
     if (isOwner) {
+      isOwnerOfAtLeastOneColumn = true;
       const ace :?Ace = permissions.get(key);
       const isPermissionAssigned = ace ? ace.permissions.includes(permissionType) : false;
       isAssignedToAll = isAssignedToAll && isPermissionAssigned;
@@ -47,7 +50,7 @@ function computePermissionAssignments(
     }
   });
 
-  return { isAssignedToAll, isAssignedToOnlyNonPII };
+  return { isAssignedToAll, isAssignedToOnlyNonPII, isOwnerOfAtLeastOneColumn };
 }
 
 export default computePermissionAssignments;

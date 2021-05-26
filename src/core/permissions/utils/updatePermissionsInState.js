@@ -38,6 +38,10 @@ function updatePermissionsInState(
             updatedPermissions = updatedPermissions.subtract(ace.permissions);
           }
 
+          if (updatedPermissions.isEmpty()) {
+            return storedAces.delete(targetIndex);
+          }
+
           const updatedAce :Ace = (new AceBuilder())
             .setPermissions(updatedPermissions)
             .setPrincipal(targetAce.principal)
