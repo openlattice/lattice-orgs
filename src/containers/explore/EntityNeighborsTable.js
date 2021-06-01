@@ -10,40 +10,48 @@ import {
   Set,
   get
 } from 'immutable';
+import { Models } from 'lattice';
 import {
-  Card,
   CardSegment,
+  Colors,
   PaginationToolbar,
   Table,
 } from 'lattice-ui-kit';
-import { Models } from 'lattice';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { DataSetTitle, TableCardSegment } from '../../components';
 import { EntityDataRow } from './components';
+
+import { TableCardSegment } from '../../components';
 import { FETCH_ENTITY_SET_DATA, fetchEntitySetData } from '../../core/data/actions';
-import { useEntitySetData } from '../../core/data/utils';
 import { useEntityTypePropertyTypes } from '../../core/edm/utils';
-import { resetRequestState } from '../../core/redux/actions';
+import { resetRequestStates } from '../../core/redux/actions';
 import { DATA } from '../../core/redux/constants';
+import { selectOrgEntitySetData } from '../../core/redux/selectors';
 import { MAX_HITS_10 } from '../../core/search/constants';
 
 const { PropertyType } = Models;
 const { isPending } = ReduxUtils;
+const { PURPLE } = Colors;
 
 type Props = {
+  associationDataSet :Map,
   dataSet :Map;
   neighbors :List<Map>;
-  organizationId :UUID;
+  organizationId :?UUID;
 };
 
-const EntityNeighborsCardContainer = ({ dataSet, neighbors, organizationId } :Props) => {
-
-  const dataSetId :UUID = (dataSet.get('id') :any);
+const EntityNeighborsTable = ({
+  associationDataSet,
+  dataSet,
+  neighbors,
+  organizationId
+} :Props) => {
+  const associationDataSetId :UUID = get(associationDataSet, 'id');
+  const dataSetId :UUID = get(dataSet, 'id');
 
   /*
    * NOTE: performance issue against prod
@@ -56,12 +64,13 @@ const EntityNeighborsCardContainer = ({ dataSet, neighbors, organizationId } :Pr
   const [neighborsIndex, setNeighborsIndex] = useState(0);
   const fetchEntitySetDataRS :?RequestState = useRequestState([DATA, FETCH_ENTITY_SET_DATA, dataSetId]);
 
-  const entityKeyIds :List<UUID> = useMemo(() => (
-    List().withMutations((list) => {
+  const neighborToAssociationEKIDs :Map = useMemo(() => (
+    Map().withMutations((mutableMap) => {
       if (neighbors) {
         neighbors
           .slice(neighborsIndex, neighborsIndex + MAX_HITS_10)
-          .reduce((ids :List<UUID>, neighbor :Map) => ids.push(get(neighbor, 'neighborId')), list);
+          .forEach((neighbor :Map) => mutableMap
+            .set(get(neighbor, 'neighborId'), get(neighbor, 'associationId')));
       }
     })
   ), [neighbors, neighborsIndex]);
@@ -71,45 +80,65 @@ const EntityNeighborsCardContainer = ({ dataSet, neighbors, organizationId } :Pr
   ), [neighbors]);
 
   // OPTIMIZE: no need to compute this on every render
-  const propertyTypes :PropertyType[] = useEntityTypePropertyTypes(dataSet.get('entityTypeId'));
+  const associationPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(associationDataSet.get('entityTypeId'));
+  const neighborPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(dataSet.get('entityTypeId'));
 
   // OPTIMIZE: no need to compute this on every render
-  const tableHeaders = propertyTypes.map((propertyType) => ({
+  const tableHeaders = [];
+  associationPropertyTypes.forEach((propertyType) => tableHeaders.push({
+    key: `${propertyType.type.toString()}_edge`,
+    label: `${propertyType.title} (${propertyType.type.toString()}) (Edge)`,
+    sortable: false,
+    cellStyle: { 'background-color': PURPLE.P00 }
+  }));
+  neighborPropertyTypes.forEach((propertyType) => tableHeaders.push({
     key: propertyType.type.toString(),
     label: `${propertyType.title} (${propertyType.type.toString()})`,
     sortable: false,
   }));
 
   // OPTIMIZE: no need to compute this on every render
-  const dataSetData :Map = useEntitySetData(dataSetId, entityKeyIds);
+  const dataSetData :Map = useSelector(selectOrgEntitySetData(dataSetId, neighborToAssociationEKIDs.keySeq()));
+  const associationData :Map = useSelector(
+    selectOrgEntitySetData(associationDataSetId, neighborToAssociationEKIDs.valueSeq())
+  );
 
   useEffect(() => {
     if (fetchEntitySetDataRS === RequestStates.SUCCESS) {
-      const newTableData = entityKeyIds
-        .map((entityKeyId :UUID, index :number) => (
+      const newTableData = neighborToAssociationEKIDs.entrySeq()
+        .map(([neighborEntityKeyId :UUID, associationEntityKeyId :UUID], index :number) => {
           // 'id' is used as the "key" prop in the table component, so it needs to be unique
-          dataSetData.get(entityKeyId).set('id', `${entityKeyId}-${index}`)
-        ))
-        .toJS(); // TODO: avoid .toJS()
+          let entityData = dataSetData.get(neighborEntityKeyId).set('id', `${neighborEntityKeyId}-${index}`);
+          associationData.get(associationEntityKeyId).forEach((value, key) => {
+            entityData = entityData.set(`${key}_edge`, value);
+          });
+          return entityData;
+        }).toJS(); // TODO: avoid .toJS()
       setTableData(newTableData);
     }
   // NOTE: leaving out "dataSetData" from depedency array because it tends to cause infinite renders
   // TODO: figure out how to avoid the infinite renders when "dataSetData" is passed
-  }, [entityKeyIds, fetchEntitySetDataRS]);
+  }, [neighborToAssociationEKIDs, fetchEntitySetDataRS]);
 
   useEffect(() => {
     dispatch(
       fetchEntitySetData({
-        entitySetId: dataSetId,
-        entityKeyIds: Set(entityKeyIds),
+        entitySetId: associationDataSetId,
+        entityKeyIds: Set(neighborToAssociationEKIDs.valueSeq().toJS()),
       })
     );
-  }, [dispatch, entityKeyIds, dataSetId]);
+    dispatch(
+      fetchEntitySetData({
+        entitySetId: dataSetId,
+        entityKeyIds: Set(neighborToAssociationEKIDs.keySeq().toJS()),
+      })
+    );
+  }, [dispatch, neighborToAssociationEKIDs, dataSetId]);
 
   const handleOnPageChange = ({ page, start }) => {
     setTablePage(page);
     setNeighborsIndex(start);
-    dispatch(resetRequestState([FETCH_ENTITY_SET_DATA, dataSetId]));
+    dispatch(resetRequestStates([FETCH_ENTITY_SET_DATA, dataSetId]));
   };
 
   const components = {
@@ -119,33 +148,23 @@ const EntityNeighborsCardContainer = ({ dataSet, neighbors, organizationId } :Pr
   };
 
   return (
-    <Card>
-      <CardSegment>
-        <DataSetTitle component="h3" dataSet={dataSet} variant="h4" />
-      </CardSegment>
-      <CardSegment borderless padding="2px 30px">
-        <PaginationToolbar
-            page={tablePage}
-            count={totalNeighbors}
-            onPageChange={handleOnPageChange}
-            rowsPerPage={MAX_HITS_10} />
-      </CardSegment>
-      <TableCardSegment borderless padding="0 30px" noWrap>
+    <>
+      <TableCardSegment borderless noWrap padding="0">
         <Table
             components={components}
             data={tableData}
             headers={tableHeaders}
             isLoading={isPending(fetchEntitySetDataRS)} />
       </TableCardSegment>
-      <CardSegment padding="2px 30px 30px 30px">
+      <CardSegment borderless padding="0">
         <PaginationToolbar
             page={tablePage}
             count={totalNeighbors}
             onPageChange={handleOnPageChange}
             rowsPerPage={MAX_HITS_10} />
       </CardSegment>
-    </Card>
+    </>
   );
 };
 
-export default EntityNeighborsCardContainer;
+export default EntityNeighborsTable;
