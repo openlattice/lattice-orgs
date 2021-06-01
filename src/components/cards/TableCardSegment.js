@@ -7,11 +7,11 @@ const TableCardSegment = styled(CardSegment)`
   > div {
     border: 1px solid ${NEUTRAL.N100};
     border-radius: 3px;
-    overflow: scroll;
+    min-height: 525px;
+    overflow-x: scroll;
   }
 
   table {
-    margin-bottom: -1px;
     min-width: 100%;
     overflow: scroll;
     width: auto;
