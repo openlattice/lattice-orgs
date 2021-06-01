@@ -41,7 +41,7 @@ type Props = {
   associationDataSet :Map,
   dataSet :Map;
   neighbors :List<Map>;
-  organizationId :?UUID;
+  organizationId :UUID;
 };
 
 const EntityNeighborsTable = ({
