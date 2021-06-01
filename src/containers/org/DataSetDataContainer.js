@@ -44,8 +44,6 @@ import {
   selectSearchQuery,
   selectSearchTotalHits,
 } from '../../core/redux/selectors';
-import { Routes } from '../../core/router';
-import { goToRoute } from '../../core/router/actions';
 import { SEARCH_DATA, clearSearchState, searchData } from '../../core/search/actions';
 import { MAX_HITS_10 } from '../../core/search/constants';
 
