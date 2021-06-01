@@ -17,6 +17,7 @@ import { Route, Switch, useRouteMatch } from 'react-router';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import EntityDataContainer from '../explore/EntityDataContainer';
 import OrgContainer from './OrgContainer';
 import OrgDataSetContainer from './OrgDataSetContainer';
 import OrgDataSetObjectPermissionsContainer from './OrgDataSetObjectPermissionsContainer';
@@ -228,6 +229,10 @@ const OrgRouter = () => {
         : null
     );
 
+    const renderDataSetDataDetailsContainer = () => dataSetId && organizationId && (
+      <EntityDataContainer dataSetId={dataSetId} organizationId={organizationId} />
+    );
+
     const renderOrgDataSetObjectPermissionsContainer = () => (
       (organizationId && dataSetId)
         ? (
@@ -303,6 +308,7 @@ const OrgRouter = () => {
 
     return (
       <Switch>
+        <Route exact path={Routes.ENTITY_DETAILS} render={renderDataSetDataDetailsContainer} />
         <Route path={Routes.ORG_ACCESS_REQUESTS} render={renderOrgAccessRequestsContainer} />
         <Route path={Routes.ORG_DATA_SET_OBJECT_PERMISSIONS} render={renderOrgDataSetObjectPermissionsContainer} />
         <Route path={Routes.ORG_DATA_SET} render={renderOrgDataSetContainer} />
