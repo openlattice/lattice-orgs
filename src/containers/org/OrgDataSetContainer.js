@@ -97,10 +97,6 @@ const OrgDataSetContainer = ({
 
   if (organization) {
 
-    const renderDataSetDataDetailsContainer = () => (
-      <EntityDataContainer dataSetId={dataSetId} organizationId={organizationId} />
-    );
-
     const renderDataSetDataContainer = () => (
       <DataSetDataContainer dataSetName={title || name} dataSetId={dataSetId} organizationId={organizationId} />
     );
@@ -119,7 +115,10 @@ const OrgDataSetContainer = ({
           <StackGrid gap={48}>
             <StackGrid>
               <SpaceBetweenGrid>
-                <Typography variant="h1">{title || name}</Typography>
+                <div>
+                  <Typography variant="h1">{title || name}</Typography>
+                  { name && <Typography variant="subtitle1">{name}</Typography> }
+                </div>
                 <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
               </SpaceBetweenGrid>
               <div>
@@ -171,7 +170,6 @@ const OrgDataSetContainer = ({
           </AppNavigationWrapper>
         </NavContentWrapper>
         <Switch>
-          <Route exact path={Routes.ENTITY_DETAILS} render={renderDataSetDataDetailsContainer} />
           <Route exact path={Routes.ORG_DATA_SET_DATA} render={renderDataSetDataContainer} />
           <Route exact path={Routes.ORG_DATA_SET} render={renderDataSetMetaContainer} />
         </Switch>
