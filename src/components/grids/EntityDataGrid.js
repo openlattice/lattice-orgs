@@ -5,14 +5,22 @@
 import React, { useState } from 'react';
 
 import styled from 'styled-components';
+import type { FQN, UUID } from 'lattice';
 import { List, Map } from 'immutable';
-import { Colors, Label } from 'lattice-ui-kit';
+import { Colors, Label, Typography } from 'lattice-ui-kit';
 import { DataUtils } from 'lattice-utils';
+import { useSelector } from 'react-redux';
+import { faSortDown } from '@fortawesome/pro-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { FlipButton } from '..';
 import { FQNS } from '../../core/edm/constants';
+import { selectOrgDataSetColumns } from '../../core/redux/selectors';
 
-const { NEUTRAL } = Colors;
+const { NEUTRAL, PURPLE } = Colors;
 const { getPropertyValue } = DataUtils;
+
+const downIcon = <FontAwesomeIcon icon={faSortDown} size="xs" />;
 
 const DataGrid = styled.div`
   background: ${NEUTRAL.N050};
@@ -25,6 +33,23 @@ const DataGrid = styled.div`
   > div {
     max-width: 500px;
     word-break: break-word;
+  }
+`;
+
+const CountText = styled.div`
+  color: ${PURPLE.P300};
+  font-weight: 600;
+  margin: 0 5px;
+`;
+
+const InfoText = styled.div`
+  align-items: center;
+  color: ${NEUTRAL.N400};
+  display: flex;
+  margin: 15px 0;
+
+  button {
+    margin-left: 5px;
   }
 `;
 
@@ -42,11 +67,16 @@ const ValueListItem = styled.li`
 
 type Props = {
   data :Object;
-  dataSetColumns :Map[];
+  dataSetId :UUID;
+  organizationId :UUID;
 };
 
-const EntityDataGrid = ({ data, dataSetColumns } :Props) => {
+const EntityDataGrid = ({ data, dataSetId, organizationId } :Props) => {
   const [showFull, setShowFull] = useState(false);
+
+  const dataSetColumns :List<Map<FQN, List>> = useSelector(
+    selectOrgDataSetColumns(organizationId, dataSetId)
+  );
 
   const labels = {};
   dataSetColumns.forEach((column) => {
@@ -54,6 +84,10 @@ const EntityDataGrid = ({ data, dataSetColumns } :Props) => {
     const title = getPropertyValue(column, [FQNS.OL_TITLE, 0]);
     labels[type] = title;
   });
+
+  const expandFields = () => {
+    setShowFull(!showFull);
+  };
 
   const items = [];
   dataSetColumns.forEach((column :Map) => {
@@ -81,10 +115,24 @@ const EntityDataGrid = ({ data, dataSetColumns } :Props) => {
   });
 
   return (
-    <DataGrid>
-      {items.slice(0, 4)}'
-
-    </DataGrid>
+    <>
+      <DataGrid>
+        { items.slice(0, 8) }
+        { showFull && items.slice(8) }
+      </DataGrid>
+      {
+        !!items.slice(8).length && (
+          <InfoText>
+            <Typography variant="subtitle1">See</Typography>
+            <CountText variant="button">{` ${items.slice(8).length} `}</CountText>
+            <Typography variant="subtitle1">more properties used in this dataset</Typography>
+            <FlipButton flip={showFull} onClick={expandFields}>
+              { downIcon }
+            </FlipButton>
+          </InfoText>
+        )
+      }
+    </>
   );
 };
 
