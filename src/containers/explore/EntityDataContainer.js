@@ -5,17 +5,20 @@
 import React, { useEffect } from 'react';
 
 import styled from 'styled-components';
-import { Map } from 'immutable';
-import { AppContentWrapper, Spinner, Typography } from 'lattice-ui-kit';
+import { List, Map } from 'immutable';
 import {
+  AppContentWrapper,
+  Spinner,
+  Typography
+} from 'lattice-ui-kit';
+import {
+  DataUtils,
   ReduxUtils,
-  RoutingUtils,
   ValidationUtils,
   useRequestState
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { useRouteMatch } from 'react-router';
-import type { UUID } from 'lattice';
+import type { FQN, Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import EntityNeighborsContainer from './EntityNeighborsContainer';
@@ -25,17 +28,25 @@ import {
   exploreEntityNeighbors
 } from './actions';
 
-import { EntityDataGrid, LinkButton } from '../../components';
+import {
+  CrumbItem,
+  CrumbLink,
+  Crumbs,
+  EntityDataGrid,
+  LinkButton
+} from '../../components';
+import { FQNS } from '../../core/edm/constants';
 import {
   ENTITY_NEIGHBORS_MAP,
   EXPLORE,
   SELECTED_ENTITY_DATA
 } from '../../core/redux/constants';
+import { selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { clipboardWriteText } from '../../utils';
 
+const { getPropertyValue } = DataUtils;
 const { isPending } = ReduxUtils;
-const { getParamFromMatch } = RoutingUtils;
 const { isValidUUID } = ValidationUtils;
 
 const FlexContainer = styled.div`
@@ -45,47 +56,46 @@ const FlexContainer = styled.div`
 `;
 
 type Props = {
-  dataSetId :?UUID;
-  entityKeyId :?UUID;
-  organizationId :?UUID;
+  dataSetDataRoute ?:string;
+  dataSetId :UUID;
+  entityKeyId :UUID;
+  isModal ?:boolean;
+  organizationId :UUID;
+  organizationRoute ?:string;
 };
 
 const EntityDataContainer = ({
+  dataSetDataRoute,
   dataSetId,
   entityKeyId,
-  organizationId
+  isModal,
+  organizationId,
+  organizationRoute,
 } :Props) => {
   const dispatch = useDispatch();
 
-  let usableDataSetId = dataSetId;
-  let usableEntityKeyId = entityKeyId;
-  let usableOrganizationId = organizationId;
-  let linkString :string = '';
+  const linkString = `https://openlattice.com/orgs/#${
+    Routes.ENTITY_DETAILS
+      .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
+      .replace(Routes.ENTITY_KEY_ID_PARAM, entityKeyId)
+      .replace(Routes.ORG_ID_PARAM, organizationId)
+  }`;
 
-  const matchOrganizationDataSetData = useRouteMatch(Routes.ENTITY_DETAILS);
-  if (matchOrganizationDataSetData) {
-    usableDataSetId = getParamFromMatch(matchOrganizationDataSetData, Routes.DATA_SET_ID_PARAM);
-    usableEntityKeyId = getParamFromMatch(matchOrganizationDataSetData, Routes.ENTITY_KEY_ID_PARAM);
-    usableOrganizationId = getParamFromMatch(matchOrganizationDataSetData, Routes.ORG_ID_PARAM);
-  }
-
-  if (usableDataSetId && usableEntityKeyId && usableOrganizationId) {
-    linkString = `https://openlattice.com/orgs/#${Routes.ENTITY_DETAILS
-      .replace(Routes.DATA_SET_ID_PARAM, usableDataSetId)
-      .replace(Routes.ENTITY_KEY_ID_PARAM, usableEntityKeyId)
-      .replace(Routes.ORG_ID_PARAM, usableOrganizationId)}`;
-  }
-
-  const neighbors :?Map = useSelector((s) => s.getIn([EXPLORE, ENTITY_NEIGHBORS_MAP, usableEntityKeyId], Map()));
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
   const entityData :?Map = useSelector((s) => s.getIn([EXPLORE, SELECTED_ENTITY_DATA], Map()));
   const exploreEntityDataRS :?RequestState = useRequestState([EXPLORE, EXPLORE_ENTITY_DATA]);
+  const neighbors :?Map = useSelector((s) => s.getIn([EXPLORE, ENTITY_NEIGHBORS_MAP, entityKeyId], Map()));
+  const organization :?Organization = useSelector(selectOrganization(organizationId));
+
+  const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
+  const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
 
   useEffect(() => {
-    if (isValidUUID(usableEntityKeyId) && isValidUUID(usableDataSetId)) {
-      dispatch(exploreEntityData({ entityKeyId: usableEntityKeyId, entitySetId: usableDataSetId }));
-      dispatch(exploreEntityNeighbors({ entityKeyId: usableEntityKeyId, entitySetId: usableDataSetId }));
+    if (isValidUUID(entityKeyId) && isValidUUID(dataSetId)) {
+      dispatch(exploreEntityData({ entityKeyId, entitySetId: dataSetId }));
+      dispatch(exploreEntityNeighbors({ entityKeyId, entitySetId: dataSetId }));
     }
-  }, [dispatch, usableEntityKeyId, usableDataSetId]);
+  }, [dispatch, entityKeyId, dataSetId]);
 
   if (isPending(exploreEntityDataRS)) {
     return (
@@ -93,12 +103,21 @@ const EntityDataContainer = ({
     );
   }
 
-  if (entityData && usableDataSetId && usableOrganizationId) {
+  if (entityData && dataSetId && organizationId) {
     return (
       <>
         <AppContentWrapper bgColor="white">
+          {
+            organization && dataSet && !isModal && (
+              <Crumbs>
+                <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+                <CrumbLink to={dataSetDataRoute}>{title || name}</CrumbLink>
+                <CrumbItem>{entityKeyId}</CrumbItem>
+              </Crumbs>
+            )
+          }
           <FlexContainer>
-            <Typography gutterBottom variant="h1">{usableEntityKeyId}</Typography>
+            <Typography gutterBottom variant="h1">{entityKeyId}</Typography>
             <LinkButton
                 color="default"
                 isDisabled={!linkString.length}
@@ -106,18 +125,25 @@ const EntityDataContainer = ({
               Get Link
             </LinkButton>
           </FlexContainer>
-          <EntityDataGrid data={entityData} dataSetId={usableDataSetId} organizationId={usableOrganizationId} />
+          <EntityDataGrid data={entityData} dataSetId={dataSetId} organizationId={organizationId} />
         </AppContentWrapper>
         <AppContentWrapper>
           <Typography gutterBottom variant="h2">Explore</Typography>
           <EntityNeighborsContainer
+              isModal={isModal}
               neighbors={neighbors}
-              organizationId={usableOrganizationId} />
+              organizationId={organizationId} />
         </AppContentWrapper>
       </>
     );
   }
   return null;
+};
+
+EntityDataContainer.defaultProps = {
+  organizationRoute: '',
+  dataSetDataRoute: '',
+  isModal: false
 };
 
 export default EntityDataContainer;
