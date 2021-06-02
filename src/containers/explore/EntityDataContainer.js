@@ -32,9 +32,9 @@ import {
   CrumbItem,
   CrumbLink,
   Crumbs,
-  EntityDataGrid,
   LinkButton
 } from '../../components';
+
 import { FQNS } from '../../core/edm/constants';
 import {
   ENTITY_NEIGHBORS_MAP,
@@ -44,6 +44,7 @@ import {
 import { selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { clipboardWriteText } from '../../utils';
+import { EntityDataGrid } from './components';
 
 const { getPropertyValue } = DataUtils;
 const { isPending } = ReduxUtils;
