@@ -22,7 +22,6 @@ import type { FQN, Organization, UUID } from 'lattice';
 
 import DataSetActionButton from './components/dataset/DataSetActionButton';
 import DataSetDataContainer from './DataSetDataContainer';
-import EntityDataContainer from '../explore/EntityDataContainer';
 import DataSetMetaDataContainer from './DataSetMetaDataContainer';
 
 import {
