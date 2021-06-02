@@ -7,7 +7,6 @@ const TableCardSegment = styled(CardSegment)`
   > div {
     border: 1px solid ${NEUTRAL.N100};
     border-radius: 3px;
-    min-height: 525px;
     overflow-x: scroll;
   }
 
