@@ -42,7 +42,7 @@ const StyledModalBody = styled(ModalBody)`
   width: 70vw;
 `;
 
-const DeleteOrgModal = ({
+const EntityDataModal = ({
   dataSetId,
   dataSetName,
   entityKeyId,
@@ -85,4 +85,4 @@ const DeleteOrgModal = ({
   );
 };
 
-export default DeleteOrgModal;
+export default EntityDataModal;
