@@ -236,14 +236,15 @@ const OrgRouter = () => {
         : null
     );
 
-    const renderDataSetDataDetailsContainer = () => dataSetId && entityKeyId && organizationId && (
-      <EntityDataContainer
-          dataSetDataRoute={dataSetDataRoute}
-          dataSetId={dataSetId}
-          entityKeyId={entityKeyId}
-          organizationId={organizationId}
-          organizationRoute={organizationRoute} />
-    );
+    const renderDataSetDataDetailsContainer = () => ((dataSetId && entityKeyId && organizationId)
+      ? (
+        <EntityDataContainer
+            dataSetDataRoute={dataSetDataRoute}
+            dataSetId={dataSetId}
+            entityKeyId={entityKeyId}
+            organizationId={organizationId}
+            organizationRoute={organizationRoute} />
+      ) : null);
 
     const renderOrgDataSetObjectPermissionsContainer = () => (
       (organizationId && dataSetId)

@@ -69,7 +69,7 @@ const EntityDataContainer = ({
   dataSetDataRoute,
   dataSetId,
   entityKeyId,
-  isModal,
+  isModal = false,
   organizationId,
   organizationRoute,
 } :Props) => {
