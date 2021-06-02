@@ -29,12 +29,12 @@ const SectionWrapper = styled.section`
 `;
 
 type Props = {
+  isModal :boolean;
   neighbors :Map;
   organizationId :UUID;
 };
 
-const EntityNeighborsContainer = ({ neighbors, organizationId } :Props) => {
-
+const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props) => {
   const [visibleOptions, setVisibleOptions] = useState(Map());
   const [visibleNeighbors, setVisibleNeighbors] = useState(Set());
   const exploreEntityNeighborsRS :?RequestState = useRequestState([EXPLORE, EXPLORE_ENTITY_NEIGHBORS]);
@@ -134,6 +134,7 @@ const EntityNeighborsContainer = ({ neighbors, organizationId } :Props) => {
                       associationDataSet={associationEntitySet}
                       key={neighborDataSetId}
                       dataSet={neighborDataSet}
+                      isModal={isModal}
                       neighbors={neighbors.getIn([associationEntitySetId, neighborDataSetId], Map())}
                       organizationId={organizationId} />
                 </>
