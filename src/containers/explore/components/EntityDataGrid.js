@@ -5,17 +5,17 @@
 import React, { useState } from 'react';
 
 import styled from 'styled-components';
-import type { FQN, UUID } from 'lattice';
+import { faSortDown } from '@fortawesome/pro-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Colors, Label, Typography } from 'lattice-ui-kit';
 import { DataUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
-import { faSortDown } from '@fortawesome/pro-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import type { FQN, UUID } from 'lattice';
 
-import { FlipButton } from '..';
-import { FQNS } from '../../core/edm/constants';
-import { selectOrgDataSetColumns } from '../../core/redux/selectors';
+import { FQNS } from '../../../core/edm/constants';
+import { selectOrgDataSetColumns } from '../../../core/redux/selectors';
+import { FlipButton } from '../../../components';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { getPropertyValue } = DataUtils;
