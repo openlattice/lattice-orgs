@@ -17,7 +17,6 @@ import { Route, Switch, useRouteMatch } from 'react-router';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import EntityDataContainer from '../explore/EntityDataContainer';
 import OrgContainer from './OrgContainer';
 import OrgDataSetContainer from './OrgDataSetContainer';
 import OrgDataSetObjectPermissionsContainer from './OrgDataSetObjectPermissionsContainer';
@@ -29,6 +28,7 @@ import OrgSettingsContainer from './settings/OrgSettingsContainer';
 import { INITIALIZE_ORGANIZATION, initializeOrganization } from './actions';
 import { OrgMemberContainer, OrgPeopleContainer } from './people';
 
+import EntityDataContainer from '../explore/EntityDataContainer';
 import { BasicErrorComponent, Spinner } from '../../components';
 import { INITIALIZE_ORGANIZATION_DATA_SET, initializeOrganizationDataSet } from '../../core/edm/actions';
 import { resetRequestStates } from '../../core/redux/actions';
@@ -56,6 +56,7 @@ const OrgRouter = () => {
   const dispatch = useDispatch();
 
   let dataSetId :?UUID;
+  let entityKeyId :?UUID;
   let memberPrincipalId :?UUID;
   let organizationId :?UUID;
   let roleId :?UUID;
@@ -69,6 +70,7 @@ const OrgRouter = () => {
   const matchOrganizationRoles = useRouteMatch(Routes.ORG_ROLES);
   const matchOrgObjectPermissions = useRouteMatch(Routes.ORG_OBJECT_PERMISSIONS);
   const matchOrgRoleObjectPermissions = useRouteMatch(Routes.ORG_ROLE_OBJECT_PERMISSIONS);
+  const matchOrgDataSetEntityDetails = useRouteMatch(Routes.ENTITY_DETAILS);
   const matchOrgDataSetObjectPermissions = useRouteMatch(Routes.ORG_DATA_SET_OBJECT_PERMISSIONS);
 
   // TODO: having to match each route is a pain. how do we avoid this pattern?
@@ -78,6 +80,11 @@ const OrgRouter = () => {
   else if (matchOrgDataSetObjectPermissions) {
     organizationId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.ORG_ID_PARAM);
     dataSetId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.DATA_SET_ID_PARAM);
+  }
+  else if (matchOrgDataSetEntityDetails) {
+    dataSetId = getParamFromMatch(matchOrgDataSetEntityDetails, Routes.DATA_SET_ID_PARAM);
+    entityKeyId = getParamFromMatch(matchOrgDataSetEntityDetails, Routes.ENTITY_KEY_ID_PARAM);
+    organizationId = getParamFromMatch(matchOrgDataSetEntityDetails, Routes.ORG_ID_PARAM);
   }
   else if (matchOrganizationDataSet) {
     organizationId = getParamFromMatch(matchOrganizationDataSet, Routes.ORG_ID_PARAM);
@@ -229,8 +236,13 @@ const OrgRouter = () => {
         : null
     );
 
-    const renderDataSetDataDetailsContainer = () => dataSetId && organizationId && (
-      <EntityDataContainer dataSetId={dataSetId} organizationId={organizationId} />
+    const renderDataSetDataDetailsContainer = () => dataSetId && entityKeyId && organizationId && (
+      <EntityDataContainer
+          dataSetDataRoute={dataSetDataRoute}
+          dataSetId={dataSetId}
+          entityKeyId={entityKeyId}
+          organizationId={organizationId}
+          organizationRoute={organizationRoute} />
     );
 
     const renderOrgDataSetObjectPermissionsContainer = () => (
