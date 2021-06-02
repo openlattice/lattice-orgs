@@ -40,6 +40,7 @@ const { PURPLE } = Colors;
 type Props = {
   associationDataSet :Map,
   dataSet :Map;
+  isModal :boolean;
   neighbors :List<Map>;
   organizationId :UUID;
 };
@@ -47,6 +48,7 @@ type Props = {
 const EntityNeighborsTable = ({
   associationDataSet,
   dataSet,
+  isModal,
   neighbors,
   organizationId
 } :Props) => {
@@ -143,7 +145,12 @@ const EntityNeighborsTable = ({
 
   const components = {
     Row: ({ data, headers } :Object) => (
-      <EntityDataRow data={data} dataSetId={dataSetId} headers={headers} organizationId={organizationId} />
+      <EntityDataRow
+          data={data}
+          dataSetId={dataSetId}
+          headers={headers}
+          isModal={isModal}
+          organizationId={organizationId} />
     )
   };
 
