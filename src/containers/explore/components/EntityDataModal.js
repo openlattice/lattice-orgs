@@ -6,24 +6,22 @@ import React from 'react';
 
 import styled from 'styled-components';
 import {
-  Banner,
   Colors,
   Modal,
   ModalHeader,
-  Spinner,
-  Typography
+  Spinner
 } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { ModalBody } from '../../../components';
 import EntityDataContainer from '../EntityDataContainer';
+import { ModalBody } from '../../../components';
+import { EXPLORE } from '../../../core/redux/constants';
 import {
   EXPLORE_ENTITY_DATA,
   EXPLORE_ENTITY_NEIGHBORS
 } from '../actions';
-import { EXPLORE } from '../../../core/redux/constants';
 
 const { NEUTRAL } = Colors;
 const { isPending, reduceRequestStates } = ReduxUtils;
@@ -77,7 +75,11 @@ const EntityDataModal = ({
           )
           : (
             <StyledModalBody>
-              <EntityDataContainer dataSetId={dataSetId} entityKeyId={entityKeyId} organizationId={organizationId} />
+              <EntityDataContainer
+                  dataSetId={dataSetId}
+                  entityKeyId={entityKeyId}
+                  organizationId={organizationId}
+                  isModal />
             </StyledModalBody>
           )
       }
