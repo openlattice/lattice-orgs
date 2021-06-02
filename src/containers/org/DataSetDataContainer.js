@@ -19,8 +19,8 @@ import {
 import {
   DataUtils,
   LangUtils,
-  useRequestState,
-  ValidationUtils
+  ValidationUtils,
+  useRequestState
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
