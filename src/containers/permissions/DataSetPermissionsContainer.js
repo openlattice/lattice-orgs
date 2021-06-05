@@ -16,6 +16,7 @@ import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   Ace,
+  EntitySetFlagType,
   PermissionType,
   Principal,
   UUID,
@@ -56,6 +57,7 @@ const {
 } = ReduxUtils;
 
 const DataSetPermissionsContainer = ({
+  filterByEntitySetFlagType,
   filterByPermissionTypes,
   filterByQuery,
   onSelect,
@@ -63,6 +65,7 @@ const DataSetPermissionsContainer = ({
   principal,
   selection,
 } :{|
+  filterByEntitySetFlagType :?EntitySetFlagType;
   filterByPermissionTypes :Array<PermissionType>;
   filterByQuery :string;
   onSelect :(selection :?DataSetPermissionTypeSelection) => void;
@@ -107,6 +110,7 @@ const DataSetPermissionsContainer = ({
   const dispatchGetDataSetPermissionsPage = useCallback(() => {
     dispatch(
       getDataSetPermissionsPage({
+        filterByEntitySetFlagType,
         filterByPermissionTypes,
         filterByQuery,
         initialize: shouldInitialize.current,
@@ -118,6 +122,7 @@ const DataSetPermissionsContainer = ({
     );
   }, [
     dispatch,
+    filterByEntitySetFlagType,
     filterByPermissionTypes,
     filterByQuery,
     organizationId,
