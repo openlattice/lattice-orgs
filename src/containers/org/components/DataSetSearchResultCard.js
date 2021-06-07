@@ -53,7 +53,8 @@ const DataSetSearchResultCard = ({
       <CardSegment>
         <StackGrid gap={8}>
           <DataSetTitle component="h2" dataSet={searchResult} variant="h4" />
-          <Typography>{description || name}</Typography>
+          <Typography variant="subtitle1">{`${name}`}</Typography>
+          <Typography variant="body1">{`Description: ${description || name}`}</Typography>
         </StackGrid>
       </CardSegment>
     </Card>
