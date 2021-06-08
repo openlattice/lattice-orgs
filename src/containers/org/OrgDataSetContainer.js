@@ -114,7 +114,10 @@ const OrgDataSetContainer = ({
           <StackGrid gap={48}>
             <StackGrid>
               <SpaceBetweenGrid>
-                <Typography variant="h1">{title || name}</Typography>
+                <div>
+                  <Typography variant="h1">{title || name}</Typography>
+                  { name && <Typography variant="subtitle1">{name}</Typography> }
+                </div>
                 <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
               </SpaceBetweenGrid>
               <div>
