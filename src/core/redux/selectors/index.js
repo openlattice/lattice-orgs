@@ -15,6 +15,7 @@ export { default as selectCurrentAuthorization } from './selectCurrentAuthorizat
 export { default as selectCurrentRoleAuthorizations } from './selectCurrentRoleAuthorizations';
 export { default as selectDataSetPermissionsPage } from './selectDataSetPermissionsPage';
 export { default as selectDataSetSchema } from './selectDataSetSchema';
+export { default as selectSelectedEntityData } from './selectSelectedEntityData';
 export { default as selectEntitySetEntityType } from './selectEntitySetEntityType';
 export { default as selectEntitySetPropertyTypes } from './selectEntitySetPropertyTypes';
 export { default as selectIsAppInstalled } from './selectIsAppInstalled';
@@ -37,6 +38,7 @@ export { default as selectSearchHits } from './selectSearchHits';
 export { default as selectSearchPage } from './selectSearchPage';
 export { default as selectSearchQuery } from './selectSearchQuery';
 export { default as selectSearchTotalHits } from './selectSearchTotalHits';
+export { default as selectEntityNeighborsMap } from './selectEntityNeighborsMap';
 export { default as selectStoredEntityKeyIds } from './selectStoredEntityKeyIds';
 export { default as selectUser } from './selectUser';
 export { default as selectUserSearchResults } from './selectUserSearchResults';
