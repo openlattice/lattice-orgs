@@ -151,6 +151,12 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
     );
   }
 
+  if (associationEntitySetIds.isEmpty()) {
+    return (
+      <Typography gutterBottom variant="subtitle1">The selected entity has no neighbors.</Typography>
+    );
+  }
+
   return (
     <ContainerWrapper>
       <Typography gutterBottom variant="subtitle1">Association Entity Sets:</Typography>
