@@ -8,7 +8,6 @@ import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import {
   AppContentWrapper,
-  Spinner,
   Typography
 } from 'lattice-ui-kit';
 import {
@@ -32,7 +31,8 @@ import {
   CrumbItem,
   CrumbLink,
   Crumbs,
-  LinkButton
+  LinkButton,
+  Spinner
 } from '../../components';
 
 import { FQNS } from '../../core/edm/constants';
@@ -97,7 +97,7 @@ const EntityDataContainer = ({
 
   if (isPending(exploreEntityDataRS)) {
     return (
-      <Spinner size="2x" />
+      <Spinner />
     );
   }
 
