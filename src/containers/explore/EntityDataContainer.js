@@ -112,7 +112,6 @@ const EntityDataContainer = ({
             <Typography gutterBottom variant="h1">{entityKeyId}</Typography>
             <LinkButton
                 color="default"
-                isDisabled={!linkString.length}
                 onClick={() => clipboardWriteText(linkString)}>
               Get Link
             </LinkButton>
