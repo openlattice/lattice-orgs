@@ -13,7 +13,6 @@ import {
 import {
   DataUtils,
   ReduxUtils,
-  ValidationUtils,
   useRequestState
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,6 +25,7 @@ import {
   exploreEntityData,
   exploreEntityNeighbors
 } from './actions';
+import { EntityDataGrid } from './components';
 
 import {
   CrumbItem,
@@ -34,17 +34,16 @@ import {
   LinkButton,
   Spinner
 } from '../../components';
-
 import { FQNS } from '../../core/edm/constants';
+import { EXPLORE } from '../../core/redux/constants';
 import {
-  ENTITY_NEIGHBORS_MAP,
-  EXPLORE,
-  SELECTED_ENTITY_DATA
-} from '../../core/redux/constants';
-import { selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
+  selectEntityNeighborsMap,
+  selectOrgDataSet,
+  selectOrganization,
+  selectSelectedEntityData
+} from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { clipboardWriteText } from '../../utils';
-import { EntityDataGrid } from './components';
 
 const { getPropertyValue } = DataUtils;
 const { isPending } = ReduxUtils;
@@ -81,10 +80,10 @@ const EntityDataContainer = ({
       .replace(Routes.ORG_ID_PARAM, organizationId)
   }`;
 
-  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
-  const entityData :?Map = useSelector((s) => s.getIn([EXPLORE, SELECTED_ENTITY_DATA], Map()));
   const exploreEntityDataRS :?RequestState = useRequestState([EXPLORE, EXPLORE_ENTITY_DATA]);
-  const neighbors :?Map = useSelector((s) => s.getIn([EXPLORE, ENTITY_NEIGHBORS_MAP, entityKeyId], Map()));
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const entityData :Map = useSelector(selectSelectedEntityData());
+  const neighbors :Map = useSelector(selectEntityNeighborsMap(entityKeyId));
   const organization :?Organization = useSelector(selectOrganization(organizationId));
 
   const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
