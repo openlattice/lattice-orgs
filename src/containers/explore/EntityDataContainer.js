@@ -4,7 +4,6 @@
 
 import React, { useEffect } from 'react';
 
-import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import {
@@ -29,6 +28,7 @@ import {
   CrumbLink,
   Crumbs,
   LinkButton,
+  SpaceBetweenGrid,
   Spinner
 } from '../../components';
 import { FQNS } from '../../core/edm/constants';
@@ -44,12 +44,6 @@ import { clipboardWriteText } from '../../utils';
 
 const { getPropertyValue } = DataUtils;
 const { isPending } = ReduxUtils;
-
-const FlexContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 30px;
-`;
 
 const EntityDataContainer = ({
   dataSetDataRoute,
@@ -91,7 +85,9 @@ const EntityDataContainer = ({
 
   if (isPending(exploreEntityDataRS)) {
     return (
-      <Spinner />
+      <AppContentWrapper>
+        <Spinner />
+      </AppContentWrapper>
     );
   }
 
@@ -108,14 +104,14 @@ const EntityDataContainer = ({
               </Crumbs>
             )
           }
-          <FlexContainer>
+          <SpaceBetweenGrid>
             <Typography gutterBottom variant="h1">{entityKeyId}</Typography>
             <LinkButton
                 color="default"
                 onClick={() => clipboardWriteText(linkString)}>
               Get Link
             </LinkButton>
-          </FlexContainer>
+          </SpaceBetweenGrid>
           <EntityDataGrid data={entityData} dataSetId={dataSetId} organizationId={organizationId} />
         </AppContentWrapper>
         <AppContentWrapper>
