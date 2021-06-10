@@ -6,10 +6,7 @@ import React, { useEffect } from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
-import {
-  AppContentWrapper,
-  Typography
-} from 'lattice-ui-kit';
+import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import {
   DataUtils,
   ReduxUtils,
@@ -54,15 +51,6 @@ const FlexContainer = styled.div`
   margin-bottom: 30px;
 `;
 
-type Props = {
-  dataSetDataRoute ?:string;
-  dataSetId :UUID;
-  entityKeyId :UUID;
-  isModal ?:boolean;
-  organizationId :UUID;
-  organizationRoute ?:string;
-};
-
 const EntityDataContainer = ({
   dataSetDataRoute,
   dataSetId,
@@ -70,7 +58,14 @@ const EntityDataContainer = ({
   isModal = false,
   organizationId,
   organizationRoute,
-} :Props) => {
+} :{|
+  dataSetDataRoute ?:string;
+  dataSetId :UUID;
+  entityKeyId :UUID;
+  isModal ?:boolean;
+  organizationId :UUID;
+  organizationRoute ?:string;
+|}) => {
   const dispatch = useDispatch();
 
   const linkString = `https://openlattice.com/orgs/#${
