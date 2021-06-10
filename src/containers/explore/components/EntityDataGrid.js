@@ -8,14 +8,19 @@ import styled from 'styled-components';
 import { faSortDown } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
-import { Colors, Label, Typography } from 'lattice-ui-kit';
+import {
+  Colors,
+  IconButton,
+  Label,
+  Typography,
+} from 'lattice-ui-kit';
 import { DataUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { FQN, UUID } from 'lattice';
 
+import { Flip } from '../../../components';
 import { FQNS } from '../../../core/edm/constants';
 import { selectOrgDataSetColumns } from '../../../core/redux/selectors';
-import { FlipButton } from '../../../components';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { getPropertyValue } = DataUtils;
@@ -23,7 +28,6 @@ const { getPropertyValue } = DataUtils;
 const downIcon = <FontAwesomeIcon icon={faSortDown} size="xs" />;
 
 const DataGrid = styled.div`
-  background: ${NEUTRAL.N050};
   display: grid;
   flex: 1;
   font-size: 14px;
@@ -126,9 +130,11 @@ const EntityDataGrid = ({ data, dataSetId, organizationId } :Props) => {
             <Typography variant="subtitle1">See</Typography>
             <CountText variant="button">{` ${items.slice(8).length} `}</CountText>
             <Typography variant="subtitle1">more properties used in this dataset</Typography>
-            <FlipButton flip={showFull} onClick={expandFields}>
-              { downIcon }
-            </FlipButton>
+            <Flip flip={showFull}>
+              <IconButton aria-label="toggle show all fields" onClick={expandFields}>
+                { downIcon }
+              </IconButton>
+            </Flip>
           </InfoText>
         )
       }
