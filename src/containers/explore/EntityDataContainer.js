@@ -48,7 +48,6 @@ import { EntityDataGrid } from './components';
 
 const { getPropertyValue } = DataUtils;
 const { isPending } = ReduxUtils;
-const { isValidUUID } = ValidationUtils;
 
 const FlexContainer = styled.div`
   display: flex;
@@ -92,10 +91,8 @@ const EntityDataContainer = ({
   const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
 
   useEffect(() => {
-    if (isValidUUID(entityKeyId) && isValidUUID(dataSetId)) {
-      dispatch(exploreEntityData({ entityKeyId, entitySetId: dataSetId }));
-      dispatch(exploreEntityNeighbors({ entityKeyId, entitySetId: dataSetId }));
-    }
+    dispatch(exploreEntityData({ entityKeyId, entitySetId: dataSetId }));
+    dispatch(exploreEntityNeighbors({ entityKeyId, entitySetId: dataSetId }));
   }, [dispatch, entityKeyId, dataSetId]);
 
   if (isPending(exploreEntityDataRS)) {
