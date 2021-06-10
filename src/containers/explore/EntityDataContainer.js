@@ -119,7 +119,7 @@ const EntityDataContainer = ({
               </Crumbs>
             )
           }
-          <FlexContainer>
+          <SpaceBetweenGrid>
             <Typography gutterBottom variant="h1">{entityKeyId}</Typography>
             <LinkButton
                 color="default"
@@ -127,7 +127,7 @@ const EntityDataContainer = ({
                 onClick={() => clipboardWriteText(linkString)}>
               Get Link
             </LinkButton>
-          </FlexContainer>
+          </SpaceBetweenGrid>
           <EntityDataGrid data={entityData} dataSetId={dataSetId} organizationId={organizationId} />
         </AppContentWrapper>
         <AppContentWrapper>
