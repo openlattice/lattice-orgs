@@ -100,7 +100,9 @@ const EntityDataContainer = ({
 
   if (isPending(exploreEntityDataRS)) {
     return (
-      <Spinner size="2x" />
+      <AppContentWrapper>
+        <Spinner size="2x" />
+      </AppContentWrapper>
     );
   }
 
