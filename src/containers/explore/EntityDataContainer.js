@@ -62,7 +62,9 @@ const EntityDataContainer = ({
 |}) => {
   const dispatch = useDispatch();
 
-  const linkString = `https://openlattice.com/orgs/#${
+  const { origin, pathname } = window.location;
+
+  const linkString = `${origin}${pathname}#${
     Routes.ENTITY_DETAILS
       .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
       .replace(Routes.ENTITY_KEY_ID_PARAM, entityKeyId)
