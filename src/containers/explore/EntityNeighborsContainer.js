@@ -60,8 +60,8 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
       const { value: dataSetId } = currentTarget;
       if (dataSetId) {
         if (visibleOptions.get(dataSetId, Set()).isEmpty()) {
-          const nieghborsDataSetIds :Set = neighbors.get(dataSetId, Map()).keySeq().toSet();
-          setVisibleOptions(visibleOptions.set(dataSetId, nieghborsDataSetIds));
+          const neighborsDataSetIds :Set = neighbors.get(dataSetId, Map()).keySeq().toSet();
+          setVisibleOptions(visibleOptions.set(dataSetId, neighborsDataSetIds));
         }
         else {
           setVisibleOptions(visibleOptions.delete(dataSetId));
