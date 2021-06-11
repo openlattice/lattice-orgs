@@ -22,7 +22,7 @@ import type { Organization, UUID } from 'lattice';
 
 import DataSetActionButton from './components/dataset/DataSetActionButton';
 import DataSetDataContainer from './DataSetDataContainer';
-import DataSetMetaDataContainer from './DataSetMetaDataContainer';
+import DataSetMetadataContainer from './DataSetMetadataContainer';
 
 import {
   CrumbItem,
@@ -85,7 +85,7 @@ const OrgDataSetContainer = ({
     );
 
     const renderDataSetMetaContainer = () => (
-      <DataSetMetaDataContainer dataSetId={dataSetId} organizationId={organizationId} />
+      <DataSetMetadataContainer dataSetId={dataSetId} organizationId={organizationId} />
     );
 
     return (

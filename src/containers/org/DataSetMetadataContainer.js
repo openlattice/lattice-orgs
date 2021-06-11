@@ -74,7 +74,7 @@ const reducer = (state, action) => {
   }
 };
 
-const DataSetMetaDataContainer = ({
+const DataSetMetadataContainer = ({
   dataSetId,
   organizationId,
 } :{|
@@ -143,4 +143,4 @@ const DataSetMetaDataContainer = ({
   );
 };
 
-export default DataSetMetaDataContainer;
+export default DataSetMetadataContainer;
