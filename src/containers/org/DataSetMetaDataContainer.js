@@ -11,24 +11,21 @@ import React, {
 
 import { List, Map } from 'immutable';
 import { AppContentWrapper, Table } from 'lattice-ui-kit';
-import { DataUtils, useRequestState } from 'lattice-utils';
+import { useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { FQN, UUID } from 'lattice';
+import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import EditableMetadataRow from './components/EditableMetadataRow';
 
 import { UpdateMetaModal } from '../../components';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../core/edm/actions';
-import { FQNS } from '../../core/edm/constants';
 import { EDM } from '../../core/redux/constants';
 import { selectMyKeys, selectOrgDataSetColumns } from '../../core/redux/selectors';
 import {
   EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
   EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
 } from '../../utils/constants';
-
-const { getEntityKeyId, getPropertyValue } = DataUtils;
 
 const TABLE_HEADERS = [
   { key: 'title', label: 'TITLE' },
@@ -92,19 +89,17 @@ const DataSetMetaDataContainer = ({
 
   const updateOrgDataSetRS :?RequestState = useRequestState([EDM, UPDATE_ORGANIZATION_DATA_SET]);
 
-  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const dataSetColumns :List<Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
   const isDataSetOwner :boolean = myKeys.has(List([dataSetId]));
 
   useEffect(() => {
-    // NOTE: the column is ol.column
     const data :List = dataSetColumns
-      .sortBy((column :Map<FQN, List>) => getPropertyValue(column, [FQNS.OL_INDEX, 0]))
-      .map((column :Map<FQN, List>) => ({
-        dataType: getPropertyValue(column, [FQNS.OL_DATA_TYPE, 0]),
-        description: getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]),
-        id: getEntityKeyId(column),
-        title: getPropertyValue(column, [FQNS.OL_TITLE, 0]),
+      .map((column :Map) => ({
+        dataType: column.get('dataType'),
+        description: column.getIn(['metadata', 'description']),
+        id: column.get('id'),
+        title: column.getIn(['metadata', 'title']),
       }));
     setTableData(data.toJS());
   }, [dataSetColumns]);
