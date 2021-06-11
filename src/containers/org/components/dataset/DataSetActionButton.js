@@ -14,11 +14,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import { DataSetsApiActions } from 'lattice-sagas';
-// $FlowFixMe
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
-import { DataUtils, useGoToRoute, useRequestState } from 'lattice-utils';
+import { useGoToRoute, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { FQN, UUID } from 'lattice';
+import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import AssembleMenuItem from './AssembleMenuItem';
@@ -26,7 +25,6 @@ import PromoteTableModal from './PromoteTableModal';
 
 import { UpdateMetaModal } from '../../../../components';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../../../core/edm/actions';
-import { FQNS } from '../../../../core/edm/constants';
 import { EDM } from '../../../../core/redux/constants';
 import {
   selectCurrentAuthorization,
@@ -44,7 +42,6 @@ import {
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
 const { EntitySetFlagTypes, PermissionTypes } = Types;
-const { getEntityKeyId, getPropertyValue } = DataUtils;
 
 const CLOSE_DETAILS = 'CLOSE_DETAILS';
 const CLOSE_MENU = 'CLOSE_MENU';
@@ -122,11 +119,11 @@ const DataSetActionButton = ({
   const isDataSetOwner :boolean = myKeys.has(dataSetKey);
   const isOrgOwner :boolean = myKeys.has(List([organizationId]));
 
-  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
-  const dataSetDescription :string = getPropertyValue(dataSet, [FQNS.OL_DESCRIPTION, 0]);
-  const dataSetName :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
-  const dataSetFlags :List<string> = getPropertyValue(dataSet, FQNS.OL_FLAGS, List());
-  const dataSetTitle :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
+  const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSetDescription :string = dataSet.getIn(['metadata', 'description']);
+  const dataSetFlags :List<string> = dataSet.getIn(['metadata', 'flags']);
+  const dataSetName :string = dataSet.get('name');
+  const dataSetTitle :string = dataSet.getIn(['metadata', 'title']);
   const isAtlas :boolean = isAtlasDataSet(dataSet);
   const isAssembled = isAtlas ? false : dataSetFlags.includes(EntitySetFlagTypes.TRANSPORTED);
   const isPromoted = dataSetSchema === OPENLATTICE;
@@ -191,8 +188,6 @@ const DataSetActionButton = ({
       updateOrganizationDataSet({
         dataSetId,
         description,
-        entityKeyId: getEntityKeyId(dataSet),
-        isColumn: false,
         organizationId,
         title,
       })
