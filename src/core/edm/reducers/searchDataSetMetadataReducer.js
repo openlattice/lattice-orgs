@@ -18,16 +18,16 @@ import {
 import type { SearchEntitySetsHit } from '../../../types';
 
 const { EntitySetBuilder } = Models;
-const { SEARCH_ENTITY_SET_METADATA, searchEntitySetMetaData } = SearchApiActions;
+const { SEARCH_DATA_SET_METADATA, searchDataSetMetadata } = SearchApiActions;
 
 export default function reducer(state :Map, action :SequenceAction) {
 
-  return searchEntitySetMetaData.reducer(state, action, {
+  return searchDataSetMetadata.reducer(state, action, {
     REQUEST: () => state
-      .setIn([SEARCH_ENTITY_SET_METADATA, REQUEST_STATE], RequestStates.PENDING)
-      .setIn([SEARCH_ENTITY_SET_METADATA, action.id], action),
+      .setIn([SEARCH_DATA_SET_METADATA, REQUEST_STATE], RequestStates.PENDING)
+      .setIn([SEARCH_DATA_SET_METADATA, action.id], action),
     SUCCESS: () => {
-      if (state.hasIn([SEARCH_ENTITY_SET_METADATA, action.id])) {
+      if (state.hasIn([SEARCH_DATA_SET_METADATA, action.id])) {
 
         let entitySets :List<EntitySet> = state.get(ENTITY_SETS);
         let entitySetsIndexMap :Map<UUID | FQN, number> = state.get(ENTITY_SETS_INDEX_MAP);
@@ -49,16 +49,16 @@ export default function reducer(state :Map, action :SequenceAction) {
         return state
           .set(ENTITY_SETS, entitySets)
           .set(ENTITY_SETS_INDEX_MAP, entitySetsIndexMap)
-          .setIn([SEARCH_ENTITY_SET_METADATA, REQUEST_STATE], RequestStates.SUCCESS);
+          .setIn([SEARCH_DATA_SET_METADATA, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
     },
     FAILURE: () => {
-      if (state.hasIn([SEARCH_ENTITY_SET_METADATA, action.id])) {
-        return state.setIn([SEARCH_ENTITY_SET_METADATA, REQUEST_STATE], RequestStates.FAILURE);
+      if (state.hasIn([SEARCH_DATA_SET_METADATA, action.id])) {
+        return state.setIn([SEARCH_DATA_SET_METADATA, REQUEST_STATE], RequestStates.FAILURE);
       }
       return state;
     },
-    FINALLY: () => state.deleteIn([SEARCH_ENTITY_SET_METADATA, action.id]),
+    FINALLY: () => state.deleteIn([SEARCH_DATA_SET_METADATA, action.id]),
   });
 }

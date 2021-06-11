@@ -21,7 +21,7 @@ import getOrganizationDataSetSchemaReducer from './getOrganizationDataSetSchemaR
 import initializeOrganizationDataSetReducer from './initializeOrganizationDataSetReducer';
 import isAppInstalledReducer from './isAppInstalledReducer';
 import promoteStagingTableReducer from './promoteStagingTableReducer';
-import searchEntitySetMetaDataReducer from './searchEntitySetMetaDataReducer';
+import searchDataSetMetadataReducer from './searchDataSetMetadataReducer';
 import transportOrganizationEntitySetReducer from './transportOrganizationEntitySetReducer';
 import updateOrganizationDataSetReducer from './updateOrganizationDataSetReducer';
 
@@ -80,8 +80,8 @@ const {
 } = OrganizationsApiActions;
 
 const {
-  SEARCH_ENTITY_SET_METADATA,
-  searchEntitySetMetaData,
+  SEARCH_DATA_SET_METADATA,
+  searchDataSetMetadata,
 } = SearchApiActions;
 
 const INITIAL_STATE :Map = fromJS({
@@ -97,7 +97,7 @@ const INITIAL_STATE :Map = fromJS({
   [INITIALIZE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
   [IS_APP_INSTALLED]: RS_INITIAL_STATE,
   [PROMOTE_STAGING_TABLE]: RS_INITIAL_STATE,
-  [SEARCH_ENTITY_SET_METADATA]: RS_INITIAL_STATE,
+  [SEARCH_DATA_SET_METADATA]: RS_INITIAL_STATE,
   [TRANSPORT_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
   [UPDATE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
 
@@ -167,8 +167,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return promoteStagingTableReducer(state, action);
     }
 
-    case searchEntitySetMetaData.case(action.type): {
-      return searchEntitySetMetaDataReducer(state, action);
+    case searchDataSetMetadata.case(action.type): {
+      return searchDataSetMetadataReducer(state, action);
     }
 
     case transportOrganizationEntitySet.case(action.type): {
