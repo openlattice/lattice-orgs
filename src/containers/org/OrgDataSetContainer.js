@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
@@ -14,11 +14,11 @@ import {
   Label,
   Typography
 } from 'lattice-ui-kit';
-import { DataUtils, LangUtils } from 'lattice-utils';
+import { LangUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import type { FQN, Organization, UUID } from 'lattice';
+import type { Organization, UUID } from 'lattice';
 
 import DataSetActionButton from './components/dataset/DataSetActionButton';
 import DataSetDataContainer from './DataSetDataContainer';
@@ -32,7 +32,6 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
-import { FQNS } from '../../core/edm/constants';
 import {
   selectDataSetSchema,
   selectOrgDataSet,
@@ -44,8 +43,6 @@ import { Routes } from '../../core/router';
 import { isAtlasDataSet } from '../../utils';
 
 const { BLUE } = Colors;
-
-const { getPropertyValue } = DataUtils;
 const { isDefined, isNonEmptyString } = LangUtils;
 
 const CountBadge = styled(Badge)`
@@ -69,30 +66,17 @@ const OrgDataSetContainer = ({
 |}) => {
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSetColumns :List<Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
-  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const dataSetSize :?number = useSelector(selectOrgDataSetSize(organizationId, dataSetId));
 
-  const description :string = getPropertyValue(dataSet, [FQNS.OL_DESCRIPTION, 0]);
-  const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
-  const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
+  const contacts :List<string> = dataSet.getIn(['metadata', 'contacts']);
+  const description :string = dataSet.getIn(['metadata', 'description']);
+  const name :string = dataSet.get('name');
+  const title :string = dataSet.getIn(['metadata', 'title']);
 
-  const contact :string = useMemo(() => {
-    const contactEmail :string = getPropertyValue(dataSet, [FQNS.CONTACT_EMAIL, 0]);
-    const contactPhone :string = getPropertyValue(dataSet, [FQNS.CONTACT_PHONE_NUMBER, 0]);
-    let contactString = '';
-    if (isNonEmptyString(contactEmail) && isNonEmptyString(contactPhone)) {
-      contactString = `${contactEmail} - ${contactPhone}`;
-    }
-    else if (isNonEmptyString(contactEmail)) {
-      contactString = contactEmail;
-    }
-    else if (isNonEmptyString(contactPhone)) {
-      contactString = contactPhone;
-    }
-    return contactString;
-  }, [dataSet]);
+  const hasContactInfo :boolean = contacts.some(isNonEmptyString);
 
   if (organization) {
 
@@ -143,13 +127,19 @@ const OrgDataSetContainer = ({
             <StackGrid>
               <Typography variant="h4">Contact</Typography>
               {
-                isNonEmptyString(contact)
-                  ? (
-                    <Typography>{contact}</Typography>
-                  )
-                  : (
-                    <Typography>No contact information is available.</Typography>
-                  )
+                contacts.map((contact :string) => {
+                  if (isNonEmptyString(contact)) {
+                    return (
+                      <Typography>{contact}</Typography>
+                    );
+                  }
+                  return null;
+                })
+              }
+              {
+                !hasContactInfo && (
+                  <Typography>No contact information is available.</Typography>
+                )
               }
             </StackGrid>
           </StackGrid>
