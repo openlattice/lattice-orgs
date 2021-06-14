@@ -51,7 +51,7 @@ function* getPermissionsWorker(action :SequenceAction) :Saga<WorkerResponse> {
         .build()
     )).toJS();
 
-    const calls = _chunk(accessChecks, 100).map((accessChecksChunk :AccessCheck[]) => (
+    const calls = _chunk(accessChecks, 1000).map((accessChecksChunk :AccessCheck[]) => (
       call(getAuthorizationsWorker, getAuthorizations(accessChecksChunk))
     ));
     const responses :WorkerResponse[] = yield all(calls);
