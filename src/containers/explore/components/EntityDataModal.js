@@ -60,7 +60,7 @@ const EntityDataModal = ({
   const reducedRequestState :?RequestState = reduceRequestStates([exploreEntityDataRS, exploreEntityNeighborsRS]);
 
   const header = (
-    <StyledModalHeader textTitle={`Examining ${dataSetName}: ${dataSetId}`} onClose={onClose} />
+    <StyledModalHeader textTitle={`Examining ${dataSetName}: ${dataSetId}`} onClickClose={onClose} />
   );
 
   return (
