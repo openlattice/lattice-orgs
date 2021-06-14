@@ -29,6 +29,9 @@ export const {
   USERS,
 } = ReduxConstants;
 
+// TODO: Add COLLABORATIONS const to ReduxConstants in lattice-utils
+export const COLLABORATIONS :'collaborations' = 'collaborations';
+
 export const ACCOUNT :'account' = 'account';
 export const ACES :'aces' = 'aces';
 export const APP_INSTALLS :'appInstalls' = 'appInstalls';
