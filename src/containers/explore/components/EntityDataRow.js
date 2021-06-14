@@ -20,6 +20,10 @@ const StyledTableRow = styled.tr`
   background-color: transparent;
   border-bottom: 1px solid ${NEUTRAL.N100};
   ${(props) => !props.isModal && StyleUtils.getHoverStyles};
+  
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
 type Props = {
