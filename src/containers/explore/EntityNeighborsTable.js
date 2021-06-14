@@ -63,7 +63,7 @@ const EntityNeighborsTable = ({
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
   const [tablePage, setTablePage] = useState(0);
-  const [neighborsIndex, setNeighborsIndex] = useState(0);
+  const [neighborsIndex, setNeighborsIndex] = useState(1);
   const fetchEntitySetDataRS :?RequestState = useRequestState([DATA, FETCH_ENTITY_SET_DATA, dataSetId]);
 
   const neighborToAssociationEKIDs :Map = useMemo(() => (
