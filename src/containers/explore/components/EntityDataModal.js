@@ -31,7 +31,8 @@ const StyledModalHeader = styled(ModalHeader)`
   justify-content: center;
   text-align: center;
 
-  h1, svg {
+  h1,
+  svg {
     color: white;
   }
 
