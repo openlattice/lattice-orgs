@@ -28,10 +28,15 @@ const { isPending, reduceRequestStates } = ReduxUtils;
 
 const StyledModalHeader = styled(ModalHeader)`
   background: ${NEUTRAL.N600};
+  justify-content: center;
   text-align: center;
 
-  h1 {
+  h1, svg {
     color: white;
+  }
+
+  h1 {
+    width: 100%;
   }
 `;
 
