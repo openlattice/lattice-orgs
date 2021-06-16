@@ -14,6 +14,7 @@ import {
 import type { Saga } from '@redux-saga/core';
 
 import * as AppSagas from '../../containers/app/sagas';
+import * as CollaborationsSagas from '../../containers/collaborations/sagas';
 import * as DataSagas from '../data/sagas';
 import * as EDMSagas from '../edm/sagas';
 import * as ExploreSagas from '../../containers/explore/sagas';
@@ -70,6 +71,9 @@ export default function* sagas() :Saga<*> {
 
     // AppSagas
     fork(AppSagas.initializeApplicationWatcher),
+
+    // CollaborationsSagas
+    fork(CollaborationsSagas.createNewCollaborationWatcher),
 
     // DataSagas
     fork(DataSagas.fetchEntitySetDataWatcher),
