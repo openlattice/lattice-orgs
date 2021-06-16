@@ -5,6 +5,7 @@
 import { Map, fromJS } from 'immutable';
 import { CollaborationsApiActions } from 'lattice-sagas';
 
+import addOrganizationsToCollaborationReducer from './addOrganizationsToCollaborationReducer';
 import createNewCollaborationReducer from './createNewCollaborationReducer';
 import deleteCollaborationReducer from './deleteCollaborationReducer';
 import getCollaborationsReducer from './getCollaborationsReducer';
@@ -18,14 +19,17 @@ import { resetRequestStatesReducer } from '../../../core/redux/reducers';
 import { CREATE_NEW_COLLABORATION, createNewCollaboration } from '../actions';
 
 const {
+  ADD_ORGANIZATIONS_TO_COLLABORATION,
   DELETE_COLLABORATION,
   GET_COLLABORATIONS,
+  addOrganizationsToCollaboration,
   deleteCollaboration,
   getCollaborations,
 } = CollaborationsApiActions;
 
 const INITIAL_STATE :Map = fromJS({
   // actions
+  [ADD_ORGANIZATIONS_TO_COLLABORATION]: RS_INITIAL_STATE,
   [CREATE_NEW_COLLABORATION]: RS_INITIAL_STATE,
   [DELETE_COLLABORATION]: RS_INITIAL_STATE,
   [GET_COLLABORATIONS]: RS_INITIAL_STATE,
@@ -39,6 +43,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case RESET_REQUEST_STATES: {
       return resetRequestStatesReducer(state, action);
+    }
+
+    case addOrganizationsToCollaboration.case(action.type): {
+      return addOrganizationsToCollaborationReducer(state, action);
     }
 
     case createNewCollaboration.case(action.type): {
