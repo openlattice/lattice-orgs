@@ -10,7 +10,6 @@ import type { SequenceAction } from 'redux-reqseq';
 import {
   ERROR,
   COLLABORATIONS,
-  COLLABORATIONS_ORG_IDS,
   REQUEST_STATE
 } from '../../../core/redux/constants';
 
@@ -26,7 +25,6 @@ export default function reducer(state :Map, action :SequenceAction) {
       if (storedSeqAction) {
         return state
           .deleteIn([COLLABORATIONS, storedSeqAction.value])
-          .deleteIn([COLLABORATIONS_ORG_IDS, storedSeqAction.value])
           .setIn([DELETE_COLLABORATION, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
