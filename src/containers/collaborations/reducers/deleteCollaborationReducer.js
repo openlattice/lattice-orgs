@@ -15,7 +15,7 @@ import {
 
 const { DELETE_COLLABORATION, deleteCollaboration } = CollaborationsApiActions;
 
-export default function reducer(state :Map, action :SequenceAction) {
+export default function deleteCollaborationReducer(state :Map, action :SequenceAction) {
   return deleteCollaboration.reducer(state, action, {
     REQUEST: () => state
       .setIn([DELETE_COLLABORATION, REQUEST_STATE], RequestStates.PENDING)
