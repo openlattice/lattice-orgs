@@ -9,6 +9,7 @@ import addOrganizationsToCollaborationReducer from './addOrganizationsToCollabor
 import createNewCollaborationReducer from './createNewCollaborationReducer';
 import deleteCollaborationReducer from './deleteCollaborationReducer';
 import getCollaborationsReducer from './getCollaborationsReducer';
+import removeOrganizationsFromCollaborationReducer from './removeOrganizationsFromCollaborationReducer';
 
 import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
@@ -22,9 +23,11 @@ const {
   ADD_ORGANIZATIONS_TO_COLLABORATION,
   DELETE_COLLABORATION,
   GET_COLLABORATIONS,
+  REMOVE_ORGANIZATIONS_FROM_COLLABORATION,
   addOrganizationsToCollaboration,
   deleteCollaboration,
   getCollaborations,
+  removeOrganizationsFromCollaboration
 } = CollaborationsApiActions;
 
 const INITIAL_STATE :Map = fromJS({
@@ -33,6 +36,7 @@ const INITIAL_STATE :Map = fromJS({
   [CREATE_NEW_COLLABORATION]: RS_INITIAL_STATE,
   [DELETE_COLLABORATION]: RS_INITIAL_STATE,
   [GET_COLLABORATIONS]: RS_INITIAL_STATE,
+  [REMOVE_ORGANIZATIONS_FROM_COLLABORATION]: RS_INITIAL_STATE,
   // data
   [COLLABORATIONS]: Map(),
 });
@@ -59,6 +63,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getCollaborations.case(action.type): {
       return getCollaborationsReducer(state, action);
+    }
+
+    case removeOrganizationsFromCollaboration.case(action.type): {
+      return removeOrganizationsFromCollaborationReducer(state, action);
     }
 
     default: {
