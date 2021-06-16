@@ -35,9 +35,9 @@ function* createNewCollaborationWorker(action :SequenceAction) :Saga<*> {
     const getResponse :WorkerResponse = yield call(getCollaborationWorker, getCollaboration(collaborationId));
     if (getResponse.error) throw getResponse.error;
 
-    const collaborations :Map = Map().set(collaborationId, fromJS(getResponse.data));
+    const collaboration :Map = fromJS(getResponse.data);
 
-    yield put(createNewCollaboration.success(action.id, collaborations));
+    yield put(createNewCollaboration.success(action.id, { collaboration, collaborationId }));
   }
   catch (error) {
     LOG.error(action.type, error);
