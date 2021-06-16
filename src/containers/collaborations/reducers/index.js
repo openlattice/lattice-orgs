@@ -11,6 +11,7 @@ import getCollaborationsReducer from './getCollaborationsReducer';
 import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
   COLLABORATIONS,
+  COLLABORATIONS_ORG_IDS,
   RS_INITIAL_STATE,
 } from '../../../core/redux/constants';
 import { resetRequestStatesReducer } from '../../../core/redux/reducers';
@@ -27,6 +28,7 @@ const INITIAL_STATE :Map = fromJS({
   [GET_COLLABORATIONS]: RS_INITIAL_STATE,
   // data
   [COLLABORATIONS]: Map(),
+  [COLLABORATIONS_ORG_IDS]: Map(),
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
