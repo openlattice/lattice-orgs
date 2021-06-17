@@ -15,7 +15,7 @@ export default function selectCollaborationsOrgIds(collaborationId :UUID) {
   return (state :Map) :List<UUID> => {
 
     if (isValidUUID(collaborationId)) {
-      return getIn(state, [COLLABORATIONS, collaborationId, ORGANIZATION_IDS]) || List();
+      return getIn(state, [COLLABORATIONS, COLLABORATIONS, collaborationId, ORGANIZATION_IDS]) || List();
     }
 
     return Map();
