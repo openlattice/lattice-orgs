@@ -9,7 +9,6 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { List, Map, fromJS } from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   AuthorizationsApiActions,
@@ -25,7 +24,7 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { isAtlasDataSet } from '../../../utils';
 import { ERR_MISSING_ORG } from '../../../utils/constants/errors';
-import { DATA_SET, DATA_SET_COLUMNS, IS_OWNER } from '../../redux/constants';
+import { DATA_SET_ID, IS_OWNER } from '../../redux/constants';
 import { selectOrganization } from '../../redux/selectors';
 import { INITIALIZE_ORGANIZATION_DATA_SET, getOrgDataSetSize, initializeOrganizationDataSet } from '../actions';
 
@@ -39,9 +38,7 @@ const { toSagaError } = AxiosUtils;
 
 const LOG = new Logger('EDMSagas');
 
-function* initializeOrganizationDataSetWorker(action :SequenceAction) :Saga<WorkerResponse> {
-
-  let workerResponse :WorkerResponse;
+function* initializeOrganizationDataSetWorker(action :SequenceAction) :Saga<*> {
 
   try {
     yield put(initializeOrganizationDataSet.request(action.id, action.value));
@@ -79,10 +76,7 @@ function* initializeOrganizationDataSetWorker(action :SequenceAction) :Saga<Work
     if (dataSetResponse.error) throw dataSetResponse.error;
     if (dataSetColumnsResponse.error) throw dataSetColumnsResponse.error;
 
-    const dataSet :Map = fromJS(dataSetResponse.data);
-    const dataSetColumns :List<Map> = fromJS(dataSetColumnsResponse.data).get(dataSetId) || List();
-
-    if (!isAtlasDataSet(dataSet)) {
+    if (!isAtlasDataSet(dataSetResponse.data)) {
       yield put(getOrgDataSetSize({ dataSetId, organizationId }));
     }
 
@@ -91,25 +85,18 @@ function* initializeOrganizationDataSetWorker(action :SequenceAction) :Saga<Work
       isOwner = authorizationsResponse.data[0].permissions[PermissionTypes.OWNER] === true;
     }
 
-    workerResponse = {
-      data: {
-        [DATA_SET]: dataSet,
-        [DATA_SET_COLUMNS]: dataSetColumns,
-        [IS_OWNER]: isOwner,
-      },
-    };
-    yield put(initializeOrganizationDataSet.success(action.id, workerResponse.data));
+    yield put(initializeOrganizationDataSet.success(action.id, {
+      [DATA_SET_ID]: dataSetId,
+      [IS_OWNER]: isOwner,
+    }));
   }
   catch (error) {
-    workerResponse = { error };
     LOG.error(action.type, error);
     yield put(initializeOrganizationDataSet.failure(action.id, toSagaError(error)));
   }
   finally {
     yield put(initializeOrganizationDataSet.finally(action.id));
   }
-
-  return workerResponse;
 }
 
 function* initializeOrganizationDataSetWatcher() :Saga<*> {
