@@ -9,15 +9,22 @@ import addOrganizationsToCollaborationReducer from './addOrganizationsToCollabor
 import createNewCollaborationReducer from './createNewCollaborationReducer';
 import deleteCollaborationReducer from './deleteCollaborationReducer';
 import getCollaborationsReducer from './getCollaborationsReducer';
+import getDataSetsInCollaborationReducer from './getDataSetsInCollaborationReducer';
 import removeOrganizationsFromCollaborationReducer from './removeOrganizationsFromCollaborationReducer';
 
 import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
+  COLLABORATION_DATA_SETS,
   COLLABORATIONS,
   RS_INITIAL_STATE,
 } from '../../../core/redux/constants';
 import { resetRequestStatesReducer } from '../../../core/redux/reducers';
-import { CREATE_NEW_COLLABORATION, createNewCollaboration } from '../actions';
+import {
+  CREATE_NEW_COLLABORATION,
+  GET_DATA_SETS_IN_COLLABORATION,
+  createNewCollaboration,
+  getDataSetsInCollaboration,
+} from '../actions';
 
 const {
   ADD_ORGANIZATIONS_TO_COLLABORATION,
@@ -35,9 +42,11 @@ const INITIAL_STATE :Map = fromJS({
   [ADD_ORGANIZATIONS_TO_COLLABORATION]: RS_INITIAL_STATE,
   [CREATE_NEW_COLLABORATION]: RS_INITIAL_STATE,
   [DELETE_COLLABORATION]: RS_INITIAL_STATE,
+  [GET_DATA_SETS_IN_COLLABORATION]: RS_INITIAL_STATE,
   [GET_COLLABORATIONS]: RS_INITIAL_STATE,
   [REMOVE_ORGANIZATIONS_FROM_COLLABORATION]: RS_INITIAL_STATE,
   // data
+  [COLLABORATION_DATA_SETS]: Map(),
   [COLLABORATIONS]: Map(),
 });
 
@@ -63,6 +72,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getCollaborations.case(action.type): {
       return getCollaborationsReducer(state, action);
+    }
+
+    case getDataSetsInCollaboration.case(action.type): {
+      return getDataSetsInCollaborationReducer(state, action);
     }
 
     case removeOrganizationsFromCollaboration.case(action.type): {
