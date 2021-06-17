@@ -4,6 +4,7 @@
 
 import { List, Map, fromJS } from 'immutable';
 import {
+  DataSetMetadataApiActions,
   DataSetsApiActions,
   EntitySetsApiActions,
   OrganizationsApiActions,
@@ -11,13 +12,14 @@ import {
 } from 'lattice-sagas';
 
 import destroyTransportedOrganizationEntitySetReducer from './destroyTransportedOrganizationEntitySetReducer';
+import getDataSetColumnsMetadataReducer from './getDataSetColumnsMetadataReducer';
+import getDataSetMetadataReducer from './getDataSetMetadataReducer';
 import getEntityDataModelTypesReducer from './getEntityDataModelTypesReducer';
 import getEntitySetReducer from './getEntitySetReducer';
 import getEntitySetsReducer from './getEntitySetsReducer';
-import getOrgDataSetColumnsFromMetaReducer from './getOrgDataSetColumnsFromMetaReducer';
 import getOrgDataSetSizeReducer from './getOrgDataSetSizeReducer';
-import getOrgDataSetsFromMetaReducer from './getOrgDataSetsFromMetaReducer';
 import getOrganizationDataSetSchemaReducer from './getOrganizationDataSetSchemaReducer';
+import getOrganizationDataSetsMetadataReducer from './getOrganizationDataSetsMetadataReducer';
 import initializeOrganizationDataSetReducer from './initializeOrganizationDataSetReducer';
 import isAppInstalledReducer from './isAppInstalledReducer';
 import promoteStagingTableReducer from './promoteStagingTableReducer';
@@ -43,20 +45,25 @@ import {
 import { resetRequestStatesReducer } from '../../redux/reducers';
 import {
   GET_EDM_TYPES,
-  GET_ORG_DATA_SETS_FROM_META,
-  GET_ORG_DATA_SET_COLUMNS_FROM_META,
   GET_ORG_DATA_SET_SIZE,
   INITIALIZE_ORGANIZATION_DATA_SET,
   IS_APP_INSTALLED,
   UPDATE_ORGANIZATION_DATA_SET,
   getEntityDataModelTypes,
-  getOrgDataSetColumnsFromMeta,
   getOrgDataSetSize,
-  getOrgDataSetsFromMeta,
   initializeOrganizationDataSet,
   isAppInstalled,
   updateOrganizationDataSet,
 } from '../actions';
+
+const {
+  GET_DATA_SET_COLUMNS_METADATA,
+  GET_DATA_SET_METADATA,
+  GET_ORGANIZATION_DATA_SETS_METADATA,
+  getDataSetColumnsMetadata,
+  getDataSetMetadata,
+  getOrganizationDataSetsMetadata,
+} = DataSetMetadataApiActions;
 
 const {
   GET_ORGANIZATION_DATA_SET_SCHEMA,
@@ -87,12 +94,13 @@ const {
 const INITIAL_STATE :Map = fromJS({
   // actions
   [DESTROY_TRANSPORTED_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
+  [GET_DATA_SET_COLUMNS_METADATA]: RS_INITIAL_STATE,
+  [GET_DATA_SET_METADATA]: RS_INITIAL_STATE,
   [GET_EDM_TYPES]: RS_INITIAL_STATE,
   [GET_ENTITY_SETS]: RS_INITIAL_STATE,
   [GET_ENTITY_SET]: RS_INITIAL_STATE,
+  [GET_ORGANIZATION_DATA_SETS_METADATA]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_DATA_SET_SCHEMA]: RS_INITIAL_STATE,
-  [GET_ORG_DATA_SETS_FROM_META]: RS_INITIAL_STATE,
-  [GET_ORG_DATA_SET_COLUMNS_FROM_META]: RS_INITIAL_STATE,
   [GET_ORG_DATA_SET_SIZE]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
   [IS_APP_INSTALLED]: RS_INITIAL_STATE,
@@ -100,7 +108,6 @@ const INITIAL_STATE :Map = fromJS({
   [SEARCH_DATA_SET_METADATA]: RS_INITIAL_STATE,
   [TRANSPORT_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
   [UPDATE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
-
   // data
   [APP_INSTALLS]: Map(),
   [DATA_SET_SCHEMA]: Map(),
@@ -127,6 +134,14 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return destroyTransportedOrganizationEntitySetReducer(state, action);
     }
 
+    case getDataSetMetadata.case(action.type): {
+      return getDataSetMetadataReducer(state, action);
+    }
+
+    case getDataSetColumnsMetadata.case(action.type): {
+      return getDataSetColumnsMetadataReducer(state, action);
+    }
+
     case getEntityDataModelTypes.case(action.type): {
       return getEntityDataModelTypesReducer(state, action);
     }
@@ -139,20 +154,16 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return getEntitySetsReducer(state, action);
     }
 
-    case getOrgDataSetColumnsFromMeta.case(action.type): {
-      return getOrgDataSetColumnsFromMetaReducer(state, action);
-    }
-
     case getOrgDataSetSize.case(action.type): {
       return getOrgDataSetSizeReducer(state, action);
     }
 
-    case getOrgDataSetsFromMeta.case(action.type): {
-      return getOrgDataSetsFromMetaReducer(state, action);
-    }
-
     case getOrganizationDataSetSchema.case(action.type): {
       return getOrganizationDataSetSchemaReducer(state, action);
+    }
+
+    case getOrganizationDataSetsMetadata.case(action.type): {
+      return getOrganizationDataSetsMetadataReducer(state, action);
     }
 
     case initializeOrganizationDataSet.case(action.type): {
