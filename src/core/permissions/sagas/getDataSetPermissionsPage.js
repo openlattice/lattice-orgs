@@ -9,20 +9,14 @@ import {
   takeEvery,
 } from '@redux-saga/core/effects';
 import { List, Map, Set } from 'immutable';
-import { Models } from 'lattice';
-import {
-  AxiosUtils,
-  DataUtils,
-  LangUtils,
-  Logger,
-} from 'lattice-utils';
+import { DataSetMetadataApiActions, DataSetMetadataApiSagas } from 'lattice-sagas';
+import { AxiosUtils, LangUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type {
   Ace,
   Organization,
   PermissionType,
   Principal,
-  PropertyType,
   UUID,
 } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
@@ -30,28 +24,20 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { getPermissionsWorker } from './getPermissions';
 
-import { ERR_MISSING_ORG, ERR_MISSING_PROPERTY_TYPE } from '../../../utils/constants/errors';
-import { getOrgDataSetColumnsFromMeta, getOrgDataSetsFromMeta } from '../../edm/actions';
-import { FQNS } from '../../edm/constants';
-import { getOrgDataSetColumnsFromMetaWorker, getOrgDataSetsFromMetaWorker } from '../../edm/sagas';
+import { ERR_MISSING_ORG } from '../../../utils/constants/errors';
 import { PAGE_PERMISSIONS_BY_DATA_SET, TOTAL_PERMISSIONS } from '../../redux/constants';
 import {
   selectOrgDataSets,
   selectOrgDataSetsColumns,
   selectOrganization,
   selectPrincipalPermissions,
-  selectPropertyTypes,
 } from '../../redux/selectors';
 import { GET_DATA_SET_PERMISSIONS_PAGE, getDataSetPermissionsPage, getPermissions } from '../actions';
 
-const { FQN } = Models;
 const { toSagaError } = AxiosUtils;
-const { getPropertyValue } = DataUtils;
 const { isNonEmptyArray, isNonEmptyString } = LangUtils;
-
-const REQUIRED_PROPERTY_TYPES :FQN[] = [
-  FQNS.OL_DATA_SET_ID,
-];
+const { getDataSetColumnsMetadata, getOrganizationDataSetsMetadata } = DataSetMetadataApiActions;
+const { getDataSetColumnsMetadataWorker, getOrganizationDataSetsMetadataWorker } = DataSetMetadataApiSagas;
 
 const LOG = new Logger('PermissionsSagas');
 
@@ -84,16 +70,10 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
       throw new Error(ERR_MISSING_ORG);
     }
 
-    const propertyTypes :Map<UUID, PropertyType> = yield select(selectPropertyTypes(REQUIRED_PROPERTY_TYPES));
-    const propertyTypeIds :Map<FQN, UUID> = propertyTypes.map((propertyType) => propertyType.type).flip();
-    if (propertyTypeIds.count() !== REQUIRED_PROPERTY_TYPES.length) {
-      throw new Error(ERR_MISSING_PROPERTY_TYPE);
-    }
-
     if (initialize === true) {
-      // NOTE: we only want to call getOrgDataSetsFromMeta once, not for every page
+      // NOTE: we only want to call getOrganizationDataSetsMetadata once, not for every page
       // NOTE: we don't need response.data because the redux store will be populated
-      response = yield call(getOrgDataSetsFromMetaWorker, getOrgDataSetsFromMeta({ organizationId }));
+      response = yield call(getOrganizationDataSetsMetadataWorker, getOrganizationDataSetsMetadata(organizationId));
       if (response.error) throw response.error;
     }
 
@@ -112,7 +92,7 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
       permissions = permissions.filter((ace :Ace, key :List<UUID>) => {
         const dataSetId :UUID = key.get(0);
         const dataSet :Map = dataSets.get(dataSetId);
-        const dataSetTitle :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
+        const dataSetTitle :string = dataSet.getIn(['metadata', 'title']);
         return (
           dataSetTitle.toLowerCase().includes(filterByQuery.toLowerCase())
           && filterByPermissionTypes.every((pt :PermissionType) => ace?.permissions.includes(pt))
@@ -135,21 +115,16 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
     }
     else {
       // NOTE: we don't need response.data because the redux store will be populated
-      response = yield call(
-        getOrgDataSetColumnsFromMetaWorker,
-        getOrgDataSetColumnsFromMeta({ dataSetIds: pageDataSetIds, organizationId }),
-      );
+      response = yield call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata(pageDataSetIds.toJS()));
       if (response.error) throw response.error;
 
-      const pageDataSetColumns :Map<UUID, List<Map<FQN, List>>> = yield select(
+      const pageDataSetColumns :Map<UUID, Map> = yield select(
         selectOrgDataSetsColumns(organizationId, pageDataSetIds)
       );
       const pageDataSetColumnKeys :List<List<UUID>> = List().withMutations((mutableList) => {
-        pageDataSetColumns.forEach((dataSetColumns :List<Map<FQN, List>>, dataSetId :UUID) => {
-          dataSetColumns.forEach((dataSetColumn :Map<FQN, List>) => {
-            mutableList.push(
-              List([dataSetId, getPropertyValue(dataSetColumn, [FQNS.OL_ID, 0])])
-            );
+        pageDataSetColumns.forEach((dataSetColumns :Map<UUID, Map>, dataSetId :UUID) => {
+          dataSetColumns.forEach((column :Map) => {
+            mutableList.push(List([dataSetId, column.get('id')]));
           });
         });
       });
