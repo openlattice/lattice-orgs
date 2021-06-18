@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 
 import { List, Map } from 'immutable';
+import { DataSetMetadataApiActions } from 'lattice-sagas';
 import { PaginationToolbar, Typography } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,7 +26,6 @@ import type { RequestState } from 'redux-reqseq';
 import DataSetPermissionsCard from './DataSetPermissionsCard';
 
 import { Spinner, StackGrid } from '../../components';
-import { GET_ORG_DATA_SETS_FROM_META, GET_ORG_DATA_SET_COLUMNS_FROM_META } from '../../core/edm/actions';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   GET_DATA_SET_PERMISSIONS_PAGE,
@@ -49,6 +49,8 @@ import type { DataSetPermissionTypeSelection } from '../../types';
 import type { State as PaginationState } from '../../utils/stateReducers/pagination';
 
 const MAX_PER_PAGE = 10;
+
+const { GET_DATA_SET_COLUMNS_METADATA, GET_ORGANIZATION_DATA_SETS_METADATA } = DataSetMetadataApiActions;
 
 const {
   isPending,
@@ -92,8 +94,8 @@ const DataSetPermissionsContainer = ({
     dispatch(
       resetRequestStates([
         GET_DATA_SET_PERMISSIONS_PAGE,
-        GET_ORG_DATA_SETS_FROM_META,
-        GET_ORG_DATA_SET_COLUMNS_FROM_META,
+        GET_DATA_SET_COLUMNS_METADATA,
+        GET_ORGANIZATION_DATA_SETS_METADATA,
       ])
     );
   }, [dispatch]);
