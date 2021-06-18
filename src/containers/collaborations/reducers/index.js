@@ -5,6 +5,7 @@
 import { Map, fromJS } from 'immutable';
 import { CollaborationsApiActions } from 'lattice-sagas';
 
+import addDataSetToCollaborationReducer from './addDataSetToCollaborationReducer';
 import addOrganizationsToCollaborationReducer from './addOrganizationsToCollaborationReducer';
 import createNewCollaborationReducer from './createNewCollaborationReducer';
 import deleteCollaborationReducer from './deleteCollaborationReducer';
@@ -16,6 +17,7 @@ import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
   COLLABORATION_DATA_SETS,
   COLLABORATIONS,
+  DATABASE_DETAILS,
   RS_INITIAL_STATE,
 } from '../../../core/redux/constants';
 import { resetRequestStatesReducer } from '../../../core/redux/reducers';
@@ -27,10 +29,12 @@ import {
 } from '../actions';
 
 const {
+  ADD_DATA_SET_TO_COLLABORATION,
   ADD_ORGANIZATIONS_TO_COLLABORATION,
   DELETE_COLLABORATION,
   GET_COLLABORATIONS,
   REMOVE_ORGANIZATIONS_FROM_COLLABORATION,
+  addDataSetToCollaboration,
   addOrganizationsToCollaboration,
   deleteCollaboration,
   getCollaborations,
@@ -39,6 +43,7 @@ const {
 
 const INITIAL_STATE :Map = fromJS({
   // actions
+  [ADD_DATA_SET_TO_COLLABORATION]: RS_INITIAL_STATE,
   [ADD_ORGANIZATIONS_TO_COLLABORATION]: RS_INITIAL_STATE,
   [CREATE_NEW_COLLABORATION]: RS_INITIAL_STATE,
   [DELETE_COLLABORATION]: RS_INITIAL_STATE,
@@ -48,6 +53,7 @@ const INITIAL_STATE :Map = fromJS({
   // data
   [COLLABORATION_DATA_SETS]: Map(),
   [COLLABORATIONS]: Map(),
+  [DATABASE_DETAILS]: Map(),
 });
 
 export default function reducer(state :Map = INITIAL_STATE, action :Object) {
@@ -56,6 +62,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case RESET_REQUEST_STATES: {
       return resetRequestStatesReducer(state, action);
+    }
+
+    case addDataSetToCollaboration.case(action.type): {
+      return addDataSetToCollaborationReducer(state, action);
     }
 
     case addOrganizationsToCollaboration.case(action.type): {
