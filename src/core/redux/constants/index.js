@@ -39,6 +39,7 @@ export const ATLAS_CREDENTIALS :'atlasCredentials' = 'atlasCredentials';
 export const COLLABORATION_DATA_SETS :'collaborationDataSets' = 'collaborationDataSets';
 export const CURRENT :'current' = 'current';
 export const CURRENT_ROLE_AUTHORIZATIONS :'currentRoleAuthorizations' = 'currentRoleAuthorizations';
+export const DATABASE_DETAILS :'databaseDetails' = 'databaseDetails';
 export const DATABASE_NAME :'databaseName' = 'databaseName';
 export const DATA_SET :'dataSet' = 'dataSet';
 export const DATA_SET_COLUMNS :'dataSetColumns' = 'dataSetColumns';
