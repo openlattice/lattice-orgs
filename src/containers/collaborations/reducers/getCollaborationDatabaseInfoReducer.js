@@ -28,7 +28,6 @@ export default function getCollaborationDatabaseInfoReducer(state :Map, action :
     FAILURE: () => {
       if (state.hasIn([GET_COLLABORATION_DATABASE_INFO, action.id])) {
         return state
-          .set(DATABASE_DETAILS, Map())
           .setIn([GET_COLLABORATION_DATABASE_INFO, ERROR], action.value)
           .setIn([GET_COLLABORATION_DATABASE_INFO, REQUEST_STATE], RequestStates.FAILURE);
       }

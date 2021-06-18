@@ -7,7 +7,6 @@ import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
-  COLLABORATIONS,
   COLLABORATION_DATA_SETS,
   ERROR,
   REQUEST_STATE
@@ -32,7 +31,6 @@ export default function getDataSetsInCollaborationReducer(state :Map, action :Se
     FAILURE: () => {
       if (state.hasIn([GET_DATA_SETS_IN_COLLABORATION, action.id])) {
         return state
-          .set(COLLABORATIONS, Map())
           .setIn([GET_DATA_SETS_IN_COLLABORATION, ERROR], action.value)
           .setIn([GET_DATA_SETS_IN_COLLABORATION, REQUEST_STATE], RequestStates.FAILURE);
       }
