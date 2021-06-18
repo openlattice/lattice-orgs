@@ -35,6 +35,7 @@ export default function* sagas() :Saga<*> {
     fork(AuthSagas.watchLogout),
 
     // "lattice-sagas" sagas
+    fork(CollaborationsApiSagas.addDataSetToCollaborationWatcher),
     fork(CollaborationsApiSagas.addOrganizationsToCollaborationWatcher),
     fork(CollaborationsApiSagas.deleteCollaborationWatcher),
     fork(CollaborationsApiSagas.removeOrganizationsFromCollaborationWatcher),
