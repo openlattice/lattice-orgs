@@ -12,6 +12,7 @@ import deleteCollaborationReducer from './deleteCollaborationReducer';
 import getCollaborationDatabaseInfoReducer from './getCollaborationDatabaseInfoReducer';
 import getCollaborationsReducer from './getCollaborationsReducer';
 import getDataSetsInCollaborationReducer from './getDataSetsInCollaborationReducer';
+import removeDataSetFromCollaborationReducer from './removeDataSetFromCollaborationReducer';
 import removeOrganizationsFromCollaborationReducer from './removeOrganizationsFromCollaborationReducer';
 
 import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
@@ -35,12 +36,14 @@ const {
   DELETE_COLLABORATION,
   GET_COLLABORATION_DATABASE_INFO,
   GET_COLLABORATIONS,
+  REMOVE_DATA_SET_FROM_COLLABORATION,
   REMOVE_ORGANIZATIONS_FROM_COLLABORATION,
   addDataSetToCollaboration,
   addOrganizationsToCollaboration,
   deleteCollaboration,
   getCollaborationDatabaseInfo,
   getCollaborations,
+  removeDataSetFromCollaboration,
   removeOrganizationsFromCollaboration
 } = CollaborationsApiActions;
 
@@ -53,6 +56,7 @@ const INITIAL_STATE :Map = fromJS({
   [GET_COLLABORATION_DATABASE_INFO]: RS_INITIAL_STATE,
   [GET_COLLABORATIONS]: RS_INITIAL_STATE,
   [GET_DATA_SETS_IN_COLLABORATION]: RS_INITIAL_STATE,
+  [REMOVE_DATA_SET_FROM_COLLABORATION]: RS_INITIAL_STATE,
   [REMOVE_ORGANIZATIONS_FROM_COLLABORATION]: RS_INITIAL_STATE,
   // data
   [COLLABORATION_DATA_SETS]: Map(),
@@ -94,6 +98,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getCollaborationDatabaseInfo.case(action.type): {
       return getCollaborationDatabaseInfoReducer(state, action);
+    }
+
+    case removeDataSetFromCollaboration.case(action.type): {
+      return removeDataSetFromCollaborationReducer(state, action);
     }
 
     case removeOrganizationsFromCollaboration.case(action.type): {
