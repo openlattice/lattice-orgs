@@ -51,6 +51,7 @@ export const IS_OWNER :'isOwner' = 'isOwner';
 export const MY_KEYS :'myKeys' = 'myKeys';
 export const NEW_ORGANIZATION_ID :'newOrganizationId' = 'newOrganizationId';
 export const ORGANIZATION :'organization' = 'organization';
+export const ORGANIZATION_ID :'organizationId' = 'organizationId';
 export const ORG_DATA_SETS :'organizationDataSets' = 'organizationDataSets';
 export const ORG_DATA_SET_COLUMNS :'organizationDataSetColumns' = 'organizationDataSetColumns';
 export const PAGE_PERMISSIONS_BY_DATA_SET :'pagePermissionsByDataSet' = 'pagePermissionsByDataSet';
