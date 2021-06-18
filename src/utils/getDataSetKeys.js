@@ -7,7 +7,7 @@ import type { UUID } from 'lattice';
 
 export default function getDataSetKeys(
   dataSet :Map,
-  dataSetColumns :List<Map>,
+  dataSetColumns :Map<UUID, Map>,
 ) :List<List<UUID>> {
 
   return List().withMutations((keys :List<List<UUID>>) => {

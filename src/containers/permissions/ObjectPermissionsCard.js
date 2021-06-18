@@ -76,7 +76,7 @@ const ObjectPermissionsCard = ({
   permissions,
   principal,
 } :{|
-  dataSetColumns :List<Map>;
+  dataSetColumns :Map<UUID, Map>;
   isDataSet :boolean;
   objectKey :List<UUID>;
   permissions :Map<List<UUID>, Ace>;

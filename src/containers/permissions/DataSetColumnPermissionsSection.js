@@ -56,7 +56,7 @@ const DataSetColumnPermissionsSection = ({
   permissionType,
   principal,
 } :{|
-  dataSetColumns :List<Map>;
+  dataSetColumns :Map<UUID, Map>;
   objectKey :List<UUID>;
   permissions :Map<List<UUID>, Ace>;
   permissionType :PermissionType;

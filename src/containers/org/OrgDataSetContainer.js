@@ -67,7 +67,7 @@ const OrgDataSetContainer = ({
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
-  const dataSetColumns :List<Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
   const dataSetSize :?number = useSelector(selectOrgDataSetSize(organizationId, dataSetId));
 

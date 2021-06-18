@@ -57,7 +57,7 @@ const DataSetDataContainer = ({
 
   const searchDataSetDataRS :?RequestState = useRequestState([SEARCH, SEARCH_DATA]);
 
-  const dataSetColumns :List<Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const searchHits :List = useSelector(selectSearchHits(SEARCH_DATA));
   const searchPage :number = useSelector(selectSearchPage(SEARCH_DATA));
   const searchQuery :string = useSelector(selectSearchQuery(SEARCH_DATA));

@@ -100,7 +100,7 @@ const PermissionsPanel = ({
   const setPermissionsRS :?RequestState = useRequestState([PERMISSIONS, SET_PERMISSIONS]);
 
   const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
-  const dataSetColumns :List<Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
 
   const dataSetKey :List<UUID> = useMemo(() => List([dataSetId]), [dataSetId]);
@@ -340,7 +340,7 @@ const PermissionsPanel = ({
           </SpaceBetweenGrid>
         </CardSegment>
         {
-          dataSetColumns.map((column :Map) => {
+          dataSetColumns.valueSeq().map((column :Map) => {
             const columnId :UUID = column.get('id');
             const columnName :string = column.get('name');
             const columnTitle :string = column.getIn(['metadata', 'title']);

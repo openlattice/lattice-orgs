@@ -89,12 +89,13 @@ const DataSetMetadataContainer = ({
 
   const updateOrgDataSetRS :?RequestState = useRequestState([EDM, UPDATE_ORGANIZATION_DATA_SET]);
 
-  const dataSetColumns :List<Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
   const isDataSetOwner :boolean = myKeys.has(List([dataSetId]));
 
   useEffect(() => {
     const data :List = dataSetColumns
+      .valueSeq()
       .map((column :Map) => ({
         dataType: column.get('dataType'),
         description: column.getIn(['metadata', 'description']),

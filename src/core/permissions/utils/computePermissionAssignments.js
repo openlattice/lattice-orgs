@@ -12,7 +12,7 @@ import type {
 
 function computePermissionAssignments(
   myKeys :Set<List<UUID>>,
-  dataSetColumns :List<Map>,
+  dataSetColumns :Map<UUID, Map>,
   dataSetId :UUID,
   permissions :Map<List<UUID>, Ace>,
   permissionType :PermissionType,
