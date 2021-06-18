@@ -11,6 +11,7 @@ export const {
 } = ReduxUtils;
 
 export { default as selectAtlasCredentials } from './selectAtlasCredentials';
+export { default as selectCollaborationDatabaseDetails } from './selectCollaborationDatabaseDetails';
 export { default as selectCollaborationDataSetMap } from './selectCollaborationDataSetMap';
 export { default as selectCollaborationsOrgIds } from './selectCollaborationsOrgIds';
 export { default as selectCurrentAuthorization } from './selectCurrentAuthorization';
