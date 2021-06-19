@@ -69,6 +69,7 @@ const DataSetDataContainer = ({
       searchHits.forEach((entity :Map) => mutableSet.union(entity.keySeq()));
     });
     const headers :List = dataSetColumns
+      .valueSeq()
       .filter((column :Map) => headersSet.has(column.get('name')))
       .map((column :Map) => {
         const fqn :string = column.get('name');
