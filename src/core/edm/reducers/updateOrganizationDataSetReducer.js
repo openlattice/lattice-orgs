@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { List, Map } from 'immutable';
+import { Map } from 'immutable';
 import { ValidationUtils } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
@@ -14,7 +14,6 @@ import {
   REQUEST_STATE,
 } from '../../redux/constants';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../actions';
-import { FQNS } from '../constants';
 
 const { isValidUUID } = ValidationUtils;
 
