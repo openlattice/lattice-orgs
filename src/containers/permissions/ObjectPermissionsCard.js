@@ -215,7 +215,7 @@ const ObjectPermissionsCard = ({
                                 principal={principal} />
                             <Divider />
                             {
-                              dataSetColumns.map((column :Map) => {
+                              dataSetColumns.valueSeq().map((column :Map) => {
                                 const columnId :UUID = column.get('id');
                                 const columnName :string = column.get('name');
                                 const columnTitle :string = column.getIn(['metadata', 'title']);
