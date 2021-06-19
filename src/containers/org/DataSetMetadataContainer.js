@@ -108,10 +108,9 @@ const DataSetMetadataContainer = ({
   const handleOnSubmitUpdate = ({ description, title }) => {
     dispatch(
       updateOrganizationDataSet({
+        columnId: modalState.data.id,
         dataSetId,
         description,
-        entityKeyId: modalState.data.id,
-        isColumn: true,
         organizationId,
         title,
       })
