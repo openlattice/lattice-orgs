@@ -11,7 +11,12 @@ import {
 import { List, Map, fromJS } from 'immutable';
 import { Models } from 'lattice';
 import { DataApiActions, DataApiSagas } from 'lattice-sagas';
-import { AxiosUtils, DataUtils, Logger } from 'lattice-utils';
+import {
+  AxiosUtils,
+  DataUtils,
+  Logger,
+  ValidationUtils,
+} from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { Organization, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
@@ -27,6 +32,7 @@ const { getEntitySetData } = DataApiActions;
 const { getEntitySetDataWorker } = DataApiSagas;
 const { toSagaError } = AxiosUtils;
 const { getPropertyValue } = DataUtils;
+const { isValidUUID } = ValidationUtils;
 
 const LOG = new Logger('EDMSagas');
 
@@ -62,6 +68,7 @@ function* getOrgDataSetsFromMetaWorker(action :SequenceAction) :Saga<WorkerRespo
     const dataSets :Map<UUID, Map<FQN, List>> = fromJS(response.data)
       .toMap()
       .mapKeys((_, dataSet :Map) => getPropertyValue(dataSet, [FQNS.OL_ID, 0]))
+      .filter((dataSet :Map, dataSetId :UUID) => isValidUUID(dataSetId))
       .map((dataSet :Map) => dataSet.mapKeys((key :string) => FQN.of(key)));
 
     workerResponse = { data: dataSets };
