@@ -23,6 +23,7 @@ export {
 const ROOT :'/' = '/';
 
 const ACCOUNT :'/account' = '/account';
+const COLLABS :'/collabs' = '/collabs';
 const ORGS :'/orgs' = '/orgs';
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
@@ -72,6 +73,7 @@ const ORG_SETTINGS :'/orgs/:organizationId/settings' = `${ORGS}/${ORG_ID_PARAM}/
 
 export {
   ACCOUNT,
+  COLLABS,
   ORG,
   ORGS,
   ORG_ACCESS_REQUEST,

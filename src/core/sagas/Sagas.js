@@ -41,6 +41,7 @@ export default function* sagas() :Saga<*> {
     fork(CollaborationsApiSagas.getCollaborationDatabaseInfoWatcher),
     fork(CollaborationsApiSagas.removeDataSetFromCollaborationWatcher),
     fork(CollaborationsApiSagas.removeOrganizationsFromCollaborationWatcher),
+    fork(CollaborationsApiSagas.renameCollaborationDatabaseWatcher),
     fork(AuthorizationsApiSagas.getAuthorizationsWatcher),
     fork(CollaborationsApiSagas.getCollaborationsWatcher),
     fork(DataSetsApiSagas.getOrganizationDataSetSchemaWatcher),
