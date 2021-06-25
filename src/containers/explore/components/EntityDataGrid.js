@@ -70,7 +70,7 @@ const ValueListItem = styled.li`
 `;
 
 type Props = {
-  data :Object;
+  data :Map;
   dataSetId :UUID;
   organizationId :UUID;
 };
