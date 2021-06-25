@@ -58,6 +58,7 @@ const {
 } = ReduxUtils;
 
 const DataSetPermissionsContainer = ({
+  filterByFlag,
   filterByPermissionTypes,
   filterByQuery,
   onSelect,
@@ -65,6 +66,7 @@ const DataSetPermissionsContainer = ({
   principal,
   selection,
 } :{|
+  filterByFlag :?string;
   filterByPermissionTypes :Array<PermissionType>;
   filterByQuery :string;
   onSelect :(selection :?DataSetPermissionTypeSelection) => void;
@@ -109,6 +111,7 @@ const DataSetPermissionsContainer = ({
   const dispatchGetDataSetPermissionsPage = useCallback(() => {
     dispatch(
       getDataSetPermissionsPage({
+        filterByFlag,
         filterByPermissionTypes,
         filterByQuery,
         initialize: shouldInitialize.current,
@@ -120,6 +123,7 @@ const DataSetPermissionsContainer = ({
     );
   }, [
     dispatch,
+    filterByFlag,
     filterByPermissionTypes,
     filterByQuery,
     organizationId,

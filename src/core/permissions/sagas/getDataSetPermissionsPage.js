@@ -9,6 +9,7 @@ import {
   takeEvery,
 } from '@redux-saga/core/effects';
 import { List, Map, Set } from 'immutable';
+import { Types } from 'lattice';
 import { DataSetMetadataApiActions, DataSetMetadataApiSagas } from 'lattice-sagas';
 import { AxiosUtils, LangUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
@@ -34,10 +35,11 @@ import {
 } from '../../redux/selectors';
 import { GET_DATA_SET_PERMISSIONS_PAGE, getDataSetPermissionsPage, getPermissions } from '../actions';
 
-const { toSagaError } = AxiosUtils;
-const { isNonEmptyArray, isNonEmptyString } = LangUtils;
 const { getDataSetColumnsMetadata, getOrganizationDataSetsMetadata } = DataSetMetadataApiActions;
 const { getDataSetColumnsMetadataWorker, getOrganizationDataSetsMetadataWorker } = DataSetMetadataApiSagas;
+const { EntitySetFlagTypes } = Types;
+const { toSagaError } = AxiosUtils;
+const { isDefined, isNonEmptyArray, isNonEmptyString } = LangUtils;
 
 const LOG = new Logger('PermissionsSagas');
 
@@ -47,6 +49,7 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
     yield put(getDataSetPermissionsPage.request(action.id, action.value));
 
     const {
+      filterByFlag,
       filterByPermissionTypes,
       filterByQuery,
       initialize,
@@ -55,6 +58,7 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
       principal,
       start,
     } :{|
+      filterByFlag :?string;
       filterByPermissionTypes :Array<PermissionType>;
       filterByQuery :string;
       initialize :boolean;
@@ -88,17 +92,28 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
     }
 
     let permissions :Map<List<UUID>, Ace> = yield select(selectPrincipalPermissions(dataSetKeys, principal));
-    if (isNonEmptyString(filterByQuery) || isNonEmptyArray(filterByPermissionTypes)) {
-      permissions = permissions.filter((ace :Ace, key :List<UUID>) => {
-        const dataSetId :UUID = key.get(0);
-        const dataSet :Map = dataSets.get(dataSetId);
-        const dataSetTitle :string = dataSet.getIn(['metadata', 'title']);
-        return (
-          dataSetTitle.toLowerCase().includes(filterByQuery.toLowerCase())
-          && filterByPermissionTypes.every((pt :PermissionType) => ace?.permissions.includes(pt))
-        );
-      });
-    }
+    permissions = permissions.filter((ace :Ace, key :List<UUID>) => {
+      const dataSetId :UUID = key.get(0);
+      const dataSet :Map = dataSets.get(dataSetId);
+      const dataSetTitle :string = dataSet.getIn(['metadata', 'title']);
+      const dataSetFlags :List<string> = dataSet.getIn(['metadata', 'flags']);
+      const includeBasedOnQuery = isNonEmptyString(filterByQuery)
+        // include when title contains filter query (if given)
+        ? dataSetTitle.toLowerCase().includes(filterByQuery.toLowerCase())
+        // otherwise always include (default case)
+        : true;
+      const includeBasedOnPermissionTypes = isNonEmptyArray(filterByPermissionTypes)
+        // include when permission types match all filter permission types (if given)
+        ? filterByPermissionTypes.every((pt :PermissionType) => ace?.permissions.includes(pt))
+        // otherwise always include (default case)
+        : true;
+      const includeBasedOnFlag = isDefined(filterByFlag)
+        // include when flags contain the filter flag (if given)
+        ? dataSetFlags.some((flag :string) => flag === filterByFlag)
+        // otherwise, do not include AUDIT entity sets (default case)
+        : !dataSetFlags.some((flag :string) => flag === EntitySetFlagTypes.AUDIT);
+      return includeBasedOnQuery && includeBasedOnPermissionTypes && includeBasedOnFlag;
+    });
 
     // NOTE: these are the data set ids for this page
     const pageDataSetIds :Set<UUID> = permissions

@@ -26,7 +26,7 @@ import {
   useRequestState,
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { EntitySetFlagType, Organization, UUID } from 'lattice';
+import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import { DELETE_EXISTING_ORGANIZATION } from './actions';
@@ -210,10 +210,10 @@ const OrgContainer = ({
             </GapGrid>
             <Collapse in={isOpenSearchOptions}>
               <Box maxWidth={240}>
-                <Typography gutterBottom variant="subtitle1">EntitySet Flags</Typography>
+                <Typography gutterBottom variant="subtitle1">Flags</Typography>
                 <Select
                     isClearable
-                    onChange={(option :?ReactSelectOption<EntitySetFlagType>) => setFlag(option?.value)}
+                    onChange={(option :?ReactSelectOption<string>) => setFlag(option?.value)}
                     options={ES_FLAG_TYPE_RS_OPTIONS} />
               </Box>
             </Collapse>
