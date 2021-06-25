@@ -241,9 +241,9 @@ const OrgContainer = ({
             isSuccess(searchOrgDataSetsRS) && !searchHits.isEmpty() && (
               searchHits.valueSeq().map((searchHit :Map) => (
                 <DataSetSearchResultCard
-                    key={getEntityKeyId(searchHit)}
-                    organizationId={organizationId}
-                    searchResult={searchHit} />
+                    dataSet={searchHit}
+                    key={searchHit.get('id')}
+                    organizationId={organizationId} />
               ))
             )
           }
