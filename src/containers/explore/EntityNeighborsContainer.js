@@ -39,15 +39,11 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
   const [visibleNeighbors, setVisibleNeighbors] = useState(Set());
   const exploreEntityNeighborsRS :?RequestState = useRequestState([EXPLORE, EXPLORE_ENTITY_NEIGHBORS]);
 
-  const associationEntitySetIds :Set<UUID> = useMemo(() => (
-    neighbors ? neighbors.keySeq().toSet() : Set()
-  ), [neighbors]);
+  const associationEntitySetIds :Set<UUID> = useMemo(() => (neighbors.keySeq().toSet()), [neighbors]);
 
   const dataSetIds :Set<UUID> = useMemo(() => (
     Set().withMutations((set) => {
-      if (neighbors) {
-        neighbors.reduce((ids :Set<UUID>, esNeighborsMap :Map) => ids.add(esNeighborsMap.keySeq()), set);
-      }
+      neighbors.reduce((ids :Set<UUID>, esNeighborsMap :Map) => ids.add(esNeighborsMap.keySeq()), set);
     }).flatten()
   ), [neighbors]);
 
