@@ -2,14 +2,13 @@
  * @flow
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { Fragment, useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 import { Map, Set } from 'immutable';
 import { Checkbox, Typography } from 'lattice-ui-kit';
 import { useRequestState, ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
@@ -83,6 +82,7 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
     return (
       <Checkbox
           checked={!visibleOptions.get(associationEntitySetId, Set()).isEmpty()}
+          key={associationEntitySetId}
           label={associationEntitySetName}
           mode="chip"
           onChange={handleAssociationOnClick}
@@ -97,6 +97,7 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
     return (
       <Checkbox
           checked={visibleNeighbors.includes(neighborDataSetId)}
+          key={neighborDataSetId}
           label={neighborDataSetName}
           mode="chip"
           onChange={handleNeighborOnClick}
@@ -110,7 +111,7 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
     const associationEntitySetId = associationEntitySet.get('id');
     return visibleNeighbors.some((neighborESID) => neighborESIDs.includes(neighborESID))
       && (
-        <>
+        <Fragment key={associationEntitySetId}>
           <br />
           <Typography variant="h4">
             { associationEntitySetName }
@@ -120,7 +121,7 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
               const neighborDataSet = dataSetsMap.get(neighborESID, Map());
               const neighborDataSetId = neighborDataSet.get('id');
               return visibleNeighbors.includes(neighborDataSetId) && (
-                <>
+                <Fragment key={neighborDataSetId}>
                   <Divider isVisible={false} margin={15} />
                   <DataSetTitle dataSet={neighborDataSet} />
                   <Divider isVisible={false} margin={15} />
@@ -131,11 +132,11 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
                       isModal={isModal}
                       neighbors={neighbors.getIn([associationEntitySetId, neighborDataSetId], Map())}
                       organizationId={organizationId} />
-                </>
+                </Fragment>
               );
             })
           }
-        </>
+        </Fragment>
       );
   });
 
