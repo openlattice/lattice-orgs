@@ -114,17 +114,20 @@ const EntityDataGrid = ({ data, dataSetId, organizationId } :Props) => {
     }
   });
 
+  const visibleItems = items.slice(0, 8);
+  const hiddenItems = items.slice(8);
+
   return (
     <>
       <DataGrid>
-        { items.slice(0, 8) }
-        { showFull && items.slice(8) }
+        { visibleItems }
+        { showFull && hiddenItems }
       </DataGrid>
       {
         !!items.slice(8).length && (
           <InfoText>
             <Typography variant="subtitle1">See</Typography>
-            <CountText variant="button">{` ${items.slice(8).length} `}</CountText>
+            <CountText variant="button">{` ${hiddenItems.length} `}</CountText>
             <Typography variant="subtitle1">more properties used in this dataset</Typography>
             <Flip flip={showFull}>
               <IconButton aria-label="toggle show all fields" onClick={expandFields}>
