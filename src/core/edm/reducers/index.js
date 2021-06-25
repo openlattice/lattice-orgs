@@ -8,7 +8,6 @@ import {
   DataSetsApiActions,
   EntitySetsApiActions,
   OrganizationsApiActions,
-  SearchApiActions,
 } from 'lattice-sagas';
 
 import destroyTransportedOrganizationEntitySetReducer from './destroyTransportedOrganizationEntitySetReducer';
@@ -23,7 +22,6 @@ import getOrganizationDataSetsMetadataReducer from './getOrganizationDataSetsMet
 import initializeOrganizationDataSetReducer from './initializeOrganizationDataSetReducer';
 import isAppInstalledReducer from './isAppInstalledReducer';
 import promoteStagingTableReducer from './promoteStagingTableReducer';
-import searchDataSetMetadataReducer from './searchDataSetMetadataReducer';
 import transportOrganizationEntitySetReducer from './transportOrganizationEntitySetReducer';
 import updateOrganizationDataSetReducer from './updateOrganizationDataSetReducer';
 
@@ -86,11 +84,6 @@ const {
   transportOrganizationEntitySet,
 } = OrganizationsApiActions;
 
-const {
-  SEARCH_DATA_SET_METADATA,
-  searchDataSetMetadata,
-} = SearchApiActions;
-
 const INITIAL_STATE :Map = fromJS({
   // actions
   [DESTROY_TRANSPORTED_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
@@ -105,7 +98,6 @@ const INITIAL_STATE :Map = fromJS({
   [INITIALIZE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
   [IS_APP_INSTALLED]: RS_INITIAL_STATE,
   [PROMOTE_STAGING_TABLE]: RS_INITIAL_STATE,
-  [SEARCH_DATA_SET_METADATA]: RS_INITIAL_STATE,
   [TRANSPORT_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
   [UPDATE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
   // data
@@ -176,10 +168,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case promoteStagingTable.case(action.type): {
       return promoteStagingTableReducer(state, action);
-    }
-
-    case searchDataSetMetadata.case(action.type): {
-      return searchDataSetMetadataReducer(state, action);
     }
 
     case transportOrganizationEntitySet.case(action.type): {
