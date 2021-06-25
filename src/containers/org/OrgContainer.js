@@ -19,7 +19,6 @@ import {
   Typography,
 } from 'lattice-ui-kit';
 import {
-  DataUtils,
   LangUtils,
   ReduxUtils,
   useGoToRoute,
@@ -63,7 +62,6 @@ import { MAX_HITS_10 } from '../../core/search/constants';
 import type { ReactSelectOption } from '../../types';
 
 const { PURPLE } = Colors;
-const { getEntityKeyId } = DataUtils;
 const { isNonEmptyString } = LangUtils;
 const {
   isPending,
