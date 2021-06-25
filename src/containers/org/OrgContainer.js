@@ -111,7 +111,7 @@ const OrgContainer = ({
     if (isNonEmptyString(query)) {
       dispatch(
         searchOrganizationDataSets({
-          entitySetFlags: [flag],
+          flags: [flag],
           maxHits: MAX_HITS_10,
           organizationId,
           page,
