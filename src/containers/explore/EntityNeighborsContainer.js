@@ -6,7 +6,7 @@ import React, { useMemo, useState } from 'react';
 
 import styled from 'styled-components';
 import { Map, Set } from 'immutable';
-import { Checkbox, Spinner, Typography } from 'lattice-ui-kit';
+import { Checkbox, Typography } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -16,7 +16,7 @@ import type { RequestState } from 'redux-reqseq';
 import EntityNeighborsTable from './EntityNeighborsTable';
 import { EXPLORE_ENTITY_NEIGHBORS } from './actions';
 
-import { DataSetTitle, Divider } from '../../components';
+import { DataSetTitle, Divider, Spinner } from '../../components';
 import { EXPLORE } from '../../core/redux/constants';
 import { selectOrgDataSets } from '../../core/redux/selectors';
 
@@ -139,7 +139,7 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
 
   if (exploreEntityNeighborsRS === RequestStates.PENDING) {
     return (
-      <Spinner size="2x" />
+      <Spinner />
     );
   }
 
