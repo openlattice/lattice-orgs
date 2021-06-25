@@ -16,16 +16,12 @@ import type { RequestState } from 'redux-reqseq';
 import EntityNeighborsTable from './EntityNeighborsTable';
 import { EXPLORE_ENTITY_NEIGHBORS } from './actions';
 
-import { DataSetTitle } from '../../components';
+import { DataSetTitle, Divider } from '../../components';
 import { EXPLORE } from '../../core/redux/constants';
 import { selectOrgDataSets } from '../../core/redux/selectors';
 
 const ContainerWrapper = styled.div`
   min-height: 500px;
-`;
-
-const SectionWrapper = styled.section`
-  margin: 15px 0;
 `;
 
 type Props = {
@@ -123,9 +119,9 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
               const neighborDataSetId = neighborDataSet.get('id');
               return visibleNeighbors.includes(neighborDataSetId) && (
                 <>
-                  <SectionWrapper>
-                    <DataSetTitle dataSet={neighborDataSet} />
-                  </SectionWrapper>
+                  <Divider isVisible={false} margin={15} />
+                  <DataSetTitle dataSet={neighborDataSet} />
+                  <Divider isVisible={false} margin={15} />
                   <EntityNeighborsTable
                       associationDataSet={associationEntitySet}
                       key={neighborDataSetId}
@@ -156,12 +152,16 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
   return (
     <ContainerWrapper>
       <Typography gutterBottom variant="subtitle1">Association Entity Sets:</Typography>
-      <SectionWrapper>{ associationEntitySetChips }</SectionWrapper>
+      <Divider isVisible={false} margin={15} />
+      { associationEntitySetChips }
+      <Divider isVisible={false} margin={15} />
       {
         !visibleOptions.isEmpty() && (
           <>
             <Typography gutterBottom variant="subtitle1">Destination Entity Sets:</Typography>
-            <SectionWrapper>{ neighborDataSetChips }</SectionWrapper>
+            <Divider isVisible={false} margin={15} />
+            { neighborDataSetChips }
+            <Divider isVisible={false} margin={15} />
             { visibleNeighborTables }
           </>
         )
