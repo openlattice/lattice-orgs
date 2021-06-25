@@ -8,7 +8,7 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { Map, fromJS } from 'immutable';
+import { fromJS } from 'immutable';
 import { Types } from 'lattice';
 import { SearchApiActions, SearchApiSagas } from 'lattice-sagas';
 import { AxiosUtils, LangUtils, Logger } from 'lattice-utils';
