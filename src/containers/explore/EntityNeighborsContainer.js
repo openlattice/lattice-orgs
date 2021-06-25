@@ -15,12 +15,26 @@ import type { RequestState } from 'redux-reqseq';
 import EntityNeighborsTable from './EntityNeighborsTable';
 import { EXPLORE_ENTITY_NEIGHBORS } from './actions';
 
-import { DataSetTitle, Divider, Spinner } from '../../components';
+import {
+  CrumbSeparator,
+  DataSetTitle,
+  Divider,
+  Spinner
+} from '../../components';
 import { EXPLORE } from '../../core/redux/constants';
 import { selectOrgDataSets } from '../../core/redux/selectors';
 
 const ContainerWrapper = styled.div`
   min-height: 500px;
+`;
+
+const FlexWrapper = styled.div`
+  display: flex;
+  align-items: center;
+
+  svg {
+    margin-right: 5px;
+  }
 `;
 
 const { isPending } = ReduxUtils;
@@ -107,15 +121,11 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
 
   const visibleNeighborTables = visibleOptions.entrySeq().map(([associationESID, neighborESIDs]) => {
     const associationEntitySet = associationEntitySetsMap.get(associationESID, Map());
-    const associationEntitySetName = associationEntitySet.get('title') || associationEntitySet.get('name');
     const associationEntitySetId = associationEntitySet.get('id');
     return visibleNeighbors.some((neighborESID) => neighborESIDs.includes(neighborESID))
       && (
         <Fragment key={associationEntitySetId}>
           <br />
-          <Typography variant="h4">
-            { associationEntitySetName }
-          </Typography>
           {
             neighborESIDs.map((neighborESID) => {
               const neighborDataSet = dataSetsMap.get(neighborESID, Map());
@@ -123,7 +133,12 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
               return visibleNeighbors.includes(neighborDataSetId) && (
                 <Fragment key={neighborDataSetId}>
                   <Divider isVisible={false} margin={15} />
-                  <DataSetTitle dataSet={neighborDataSet} />
+                  <FlexWrapper>
+                    <CrumbSeparator />
+                    <DataSetTitle dataSet={associationEntitySet} />
+                    <CrumbSeparator />
+                    <DataSetTitle dataSet={neighborDataSet} />
+                  </FlexWrapper>
                   <Divider isVisible={false} margin={15} />
                   <EntityNeighborsTable
                       associationDataSet={associationEntitySet}
