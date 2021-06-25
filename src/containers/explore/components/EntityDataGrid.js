@@ -82,22 +82,18 @@ const EntityDataGrid = ({ data, dataSetId, organizationId } :Props) => {
     selectOrgDataSetColumns(organizationId, dataSetId)
   );
 
-  const labels = {};
-  dataSetColumns.forEach((column) => {
-    const type = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
-    const title = getPropertyValue(column, [FQNS.OL_TITLE, 0]);
-    labels[type] = title;
-  });
-
   const expandFields = () => {
     setShowFull(!showFull);
   };
 
   const items = [];
+  const labels = {};
   dataSetColumns.forEach((column :Map) => {
     const type = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
     const title = getPropertyValue(column, [FQNS.OL_TITLE, 0]);
     const values :List = data.get(type, List());
+
+    labels[type] = title;
 
     const elements = [];
     if (!values.isEmpty()) {
