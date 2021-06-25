@@ -7,7 +7,7 @@ import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Map, Set } from 'immutable';
 import { Checkbox, Typography } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { useRequestState, ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
@@ -23,6 +23,8 @@ import { selectOrgDataSets } from '../../core/redux/selectors';
 const ContainerWrapper = styled.div`
   min-height: 500px;
 `;
+
+const { isPending } = ReduxUtils;
 
 type Props = {
   isModal :boolean;
@@ -137,7 +139,7 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
       );
   });
 
-  if (exploreEntityNeighborsRS === RequestStates.PENDING) {
+  if (isPending(exploreEntityNeighborsRS)) {
     return (
       <Spinner />
     );
