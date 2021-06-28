@@ -19,7 +19,6 @@ import {
 } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
@@ -27,14 +26,14 @@ import { EntityDataRow } from './components';
 
 import { TableCardSegment } from '../../components';
 import { FETCH_ENTITY_SET_DATA, fetchEntitySetData } from '../../core/data/actions';
-import { useEntityTypePropertyTypes } from '../../core/edm/utils';
 import { resetRequestStates } from '../../core/redux/actions';
 import { DATA } from '../../core/redux/constants';
 import { selectOrgEntitySetData } from '../../core/redux/selectors';
+import { useEntityTypePropertyTypes } from '../../core/edm/utils';
 import { MAX_HITS_10 } from '../../core/search/constants';
 
 const { PropertyType } = Models;
-const { isPending } = ReduxUtils;
+const { isPending, isSuccess } = ReduxUtils;
 const { PURPLE } = Colors;
 
 type Props = {
@@ -54,11 +53,6 @@ const EntityNeighborsTable = ({
 } :Props) => {
   const associationDataSetId :UUID = get(associationDataSet, 'id');
   const dataSetId :UUID = get(dataSet, 'id');
-
-  /*
-   * NOTE: performance issue against prod
-   * /explore/entityData/77f1b8d0-9c75-4e52-8176-eb6913a74669/f7cc0000-0000-0000-8000-0000000070ab
-   */
 
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
@@ -81,9 +75,8 @@ const EntityNeighborsTable = ({
     neighbors ? neighbors.count() : 0
   ), [neighbors]);
 
-  // OPTIMIZE: no need to compute this on every render
-  const associationPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(associationDataSet.get('entityTypeId'));
-  const neighborPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(dataSet.get('entityTypeId'));
+  const associationPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(associationDataSetId);
+  const neighborPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(dataSetId);
 
   // OPTIMIZE: no need to compute this on every render
   const tableHeaders = [];
@@ -106,7 +99,7 @@ const EntityNeighborsTable = ({
   );
 
   useEffect(() => {
-    if (fetchEntitySetDataRS === RequestStates.SUCCESS) {
+    if (isSuccess(fetchEntitySetDataRS)) {
       const newTableData = neighborToAssociationEKIDs.entrySeq()
         .map(([neighborEntityKeyId :UUID, associationEntityKeyId :UUID], index :number) => {
           // 'id' is used as the "key" prop in the table component, so it needs to be unique
