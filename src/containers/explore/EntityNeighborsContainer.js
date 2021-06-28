@@ -57,8 +57,8 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
     }).flatten()
   ), [neighbors]);
 
-  const dataSetsMap :Map = useSelector(selectEntitySets(organizationId, dataSetIds));
-  const associationEntitySetsMap = useSelector(selectEntitySets(organizationId, associationEntitySetIds));
+  const dataSetsMap :Map = useSelector(selectEntitySets(dataSetIds));
+  const associationEntitySetsMap = useSelector(selectEntitySets(associationEntitySetIds));
 
   const handleAssociationOnClick = (event :SyntheticEvent<HTMLButtonElement>) => {
     const { currentTarget } = event;
@@ -90,8 +90,8 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
   };
 
   const associationEntitySetChips = associationEntitySetsMap.valueSeq().map((associationEntitySet :Map) => {
-    const associationEntitySetName = associationEntitySet.get('title') || associationEntitySet.get('name');
-    const associationEntitySetId = associationEntitySet.get('id');
+    const associationEntitySetName = associationEntitySet.title;
+    const associationEntitySetId = associationEntitySet.id;
     return (
       <Checkbox
           checked={!visibleOptions.get(associationEntitySetId, Set()).isEmpty()}
@@ -105,8 +105,8 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
 
   const neighborDataSetChips = visibleOptions.valueSeq().flatten().toSet().map((neighborESID :UUID) => {
     const neighborDataSet = dataSetsMap.get(neighborESID, Map());
-    const neighborDataSetName = neighborDataSet.get('title') || neighborDataSet.get('name');
-    const neighborDataSetId = neighborDataSet.get('id');
+    const neighborDataSetName = neighborDataSet.title;
+    const neighborDataSetId = neighborDataSet.id;
     return (
       <Checkbox
           checked={visibleNeighbors.includes(neighborDataSetId)}
@@ -120,7 +120,7 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
 
   const visibleNeighborTables = visibleOptions.entrySeq().map(([associationESID, neighborESIDs]) => {
     const associationEntitySet = associationEntitySetsMap.get(associationESID, Map());
-    const associationEntitySetId = associationEntitySet.get('id');
+    const associationEntitySetId = associationEntitySet.id;
     return visibleNeighbors.some((neighborESID) => neighborESIDs.includes(neighborESID))
       && (
         <Fragment key={associationEntitySetId}>
@@ -128,21 +128,21 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
           {
             neighborESIDs.map((neighborESID) => {
               const neighborDataSet = dataSetsMap.get(neighborESID, Map());
-              const neighborDataSetId = neighborDataSet.get('id');
+              const neighborDataSetId = neighborDataSet.id;
               return visibleNeighbors.includes(neighborDataSetId) && (
                 <Fragment key={neighborDataSetId}>
                   <Divider isVisible={false} margin={15} />
                   <FlexWrapper>
                     <CrumbSeparator />
-                    <DataSetTitle dataSet={associationEntitySet} />
+                    <DataSetTitle dataSet={associationEntitySet.toImmutable()} />
                     <CrumbSeparator />
-                    <DataSetTitle dataSet={neighborDataSet} />
+                    <DataSetTitle dataSet={neighborDataSet.toImmutable()} />
                   </FlexWrapper>
                   <Divider isVisible={false} margin={15} />
                   <EntityNeighborsTable
-                      associationDataSet={associationEntitySet}
+                      associationDataSet={associationEntitySet.toImmutable()}
                       key={neighborDataSetId}
-                      dataSet={neighborDataSet}
+                      dataSet={neighborDataSet.toImmutable()}
                       isModal={isModal}
                       neighbors={neighbors.getIn([associationEntitySetId, neighborDataSetId], Map())}
                       organizationId={organizationId} />
