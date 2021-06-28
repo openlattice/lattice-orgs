@@ -75,8 +75,8 @@ const EntityNeighborsTable = ({
     neighbors ? neighbors.count() : 0
   ), [neighbors]);
 
-  const associationPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(associationDataSetId);
-  const neighborPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(dataSetId);
+  const associationPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(associationDataSet.get('entityTypeId'));
+  const neighborPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(dataSet.get('entityTypeId'));
 
   // OPTIMIZE: no need to compute this on every render
   const tableHeaders = [];
