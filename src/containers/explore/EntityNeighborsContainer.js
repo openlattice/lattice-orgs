@@ -22,7 +22,6 @@ import {
   Spinner
 } from '../../components';
 import { EXPLORE } from '../../core/redux/constants';
-import { selectOrgDataSets } from '../../core/redux/selectors';
 
 const ContainerWrapper = styled.div`
   min-height: 500px;
@@ -37,7 +36,7 @@ const FlexWrapper = styled.div`
   }
 `;
 
-const { isPending } = ReduxUtils;
+const { isPending, selectEntitySets } = ReduxUtils;
 
 type Props = {
   isModal :boolean;
@@ -58,8 +57,8 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
     }).flatten()
   ), [neighbors]);
 
-  const dataSetsMap :Map = useSelector(selectOrgDataSets(organizationId, dataSetIds));
-  const associationEntitySetsMap = useSelector(selectOrgDataSets(organizationId, associationEntitySetIds));
+  const dataSetsMap :Map = useSelector(selectEntitySets(organizationId, dataSetIds));
+  const associationEntitySetsMap = useSelector(selectEntitySets(organizationId, associationEntitySetIds));
 
   const handleAssociationOnClick = (event :SyntheticEvent<HTMLButtonElement>) => {
     const { currentTarget } = event;
