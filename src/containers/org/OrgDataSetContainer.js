@@ -97,7 +97,7 @@ const OrgDataSetContainer = ({
   if (organization) {
 
     const renderDataSetDataContainer = () => (
-      <DataSetDataContainer dataSetId={dataSetId} organizationId={organizationId} />
+      <DataSetDataContainer dataSetName={title || name} dataSetId={dataSetId} organizationId={organizationId} />
     );
 
     const renderDataSetMetaContainer = () => (
