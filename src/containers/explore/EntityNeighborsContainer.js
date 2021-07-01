@@ -31,6 +31,7 @@ const FlexWrapper = styled.div`
   align-items: center;
   display: flex;
   flex-wrap: wrap;
+
   svg {
     margin-right: 5px;
   }

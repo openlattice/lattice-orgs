@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 
 import { EXPLORE, SELECTED_ENTITY_DATA } from '../constants';
 
