@@ -15,6 +15,12 @@ import type { UUID } from 'lattice';
 
 import { DataSetTitle, StackGrid } from '../../../components';
 import { Routes } from '../../../core/router';
+import {
+  DESCRIPTION,
+  ID,
+  METADATA,
+  NAME,
+} from '../../../utils/constants';
 
 const { isNonEmptyString } = LangUtils;
 const { isValidUUID } = ValidationUtils;
@@ -27,7 +33,7 @@ const DataSetSearchResultCard = ({
   dataSet :Map;
 |}) => {
 
-  const dataSetId :UUID = dataSet.get('id');
+  const dataSetId :UUID = dataSet.get(ID);
   const goToOrganizationDataSet = useGoToRoute(
     Routes.ORG_DATA_SET
       .replace(Routes.ORG_ID_PARAM, organizationId)
@@ -38,12 +44,8 @@ const DataSetSearchResultCard = ({
     return null;
   }
 
-  const description :string = dataSet.getIn(['metadata', 'description']);
-  const name :string = dataSet.get('name');
-
-  if (!isNonEmptyString(name)) {
-    return null; // NOTE: likely to be a bad entity
-  }
+  const description :string = dataSet.getIn([METADATA, DESCRIPTION]);
+  const name :string = dataSet.get(NAME);
 
   return (
     <Card id={dataSetId} onClick={goToOrganizationDataSet}>

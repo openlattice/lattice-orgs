@@ -8,6 +8,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { DATA_SET_ID, ID, ORGANIZATION_ID } from '../../../utils/constants';
 import { ERROR, ORG_DATA_SET_COLUMNS, REQUEST_STATE } from '../../redux/constants';
 
 const { GET_DATA_SET_COLUMNS_METADATA, getDataSetColumnsMetadata } = DataSetMetadataApiActions;
@@ -23,9 +24,9 @@ export default function reducer(state :Map, action :SequenceAction) {
         let newState = state;
         fromJS(action.value).forEach((dataSetColumns :List<Map>) => {
           dataSetColumns.forEach((column :Map) => {
-            const columnId :UUID = column.get('id');
-            const dataSetId :UUID = column.get('dataSetId');
-            const organizationId :UUID = column.get('organizationId');
+            const columnId :UUID = column.get(ID);
+            const dataSetId :UUID = column.get(DATA_SET_ID);
+            const organizationId :UUID = column.get(ORGANIZATION_ID);
             newState = newState.setIn([ORG_DATA_SET_COLUMNS, organizationId, dataSetId, columnId], column);
           });
         });

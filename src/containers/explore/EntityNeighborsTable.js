@@ -19,6 +19,7 @@ import { resetRequestStates } from '../../core/redux/actions';
 import { DATA } from '../../core/redux/constants';
 import { selectOrgDataSetColumns, selectOrgEntitySetData } from '../../core/redux/selectors';
 import { MAX_HITS_10 } from '../../core/search/constants';
+import { METADATA, NAME, TITLE } from '../../utils/constants';
 
 const { isPending, isSuccess } = ReduxUtils;
 const { PURPLE } = Colors;
@@ -66,16 +67,16 @@ const EntityNeighborsTable = ({
   const tableHeaders = [];
   associationColumns.forEach((column :Map) => {
     tableHeaders.push({
-      key: `${column.get('name')}_edge`,
-      label: `${column.getIn(['metadata', 'title'])} (Edge)`,
+      key: `${column.get(NAME)}_edge`,
+      label: `${column.getIn([METADATA, TITLE])} (Edge)`,
       sortable: false,
       cellStyle: { 'background-color': PURPLE.P00 }
     });
   });
   neighborColumns.forEach((column :Map) => {
     tableHeaders.push({
-      key: column.get('name'),
-      label: column.getIn(['metadata', 'title']),
+      key: column.get(NAME),
+      label: column.getIn([METADATA, TITLE]),
       sortable: false,
     });
   });

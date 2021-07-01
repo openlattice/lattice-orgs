@@ -30,6 +30,7 @@ import { computePermissionAssignments } from '../../core/permissions/utils';
 import { resetRequestStates } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectMyKeys, selectPropertyTypes } from '../../core/redux/selectors';
+import { ID } from '../../utils/constants';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { AceBuilder } = Models;
@@ -74,7 +75,7 @@ const DataSetColumnPermissionsSection = ({
   const dispatch = useDispatch();
 
   const columnIds :List<UUID> = useMemo(() => (
-    dataSetColumns.map((column :Map) => column.get('id'))
+    dataSetColumns.map((column :Map) => column.get(ID))
   ), [dataSetColumns]);
   const maybePropertyTypes :Map<UUID, PropertyType> = useSelector(selectPropertyTypes(columnIds));
   const propertyTypesHash :number = maybePropertyTypes.hashCode();
@@ -108,7 +109,7 @@ const DataSetColumnPermissionsSection = ({
     if (!isPending(updatePermissionsRS)) {
       const permissionsToUpdate = Map().withMutations((mutator) => {
         dataSetColumns.forEach((column :Map) => {
-          const columnId :UUID = column.get('id');
+          const columnId :UUID = column.get(ID);
           const key :List<UUID> = List([objectKey.get(0), columnId]);
           const isOwner = myKeys.has(key);
           if (isOwner) {
@@ -136,7 +137,7 @@ const DataSetColumnPermissionsSection = ({
         const permissionsToAdd :Map<List<UUID>, Ace> = Map().asMutable();
         const permissionsToRemove :Map<List<UUID>, Ace> = Map().withMutations((mutator) => {
           dataSetColumns.forEach((column :Map) => {
-            const columnId :UUID = column.get('id');
+            const columnId :UUID = column.get(ID);
             const key :List<UUID> = List([objectKey.get(0), columnId]);
             const isOwner = myKeys.has(key);
             if (isOwner) {
@@ -170,7 +171,7 @@ const DataSetColumnPermissionsSection = ({
       else {
         const permissionsToUpdate = Map().withMutations((mutator) => {
           dataSetColumns.forEach((column :Map) => {
-            const columnId :UUID = column.get('id');
+            const columnId :UUID = column.get(ID);
             const key :List<UUID> = List([objectKey.get(0), columnId]);
             if (myKeys.has(key)) {
               mutator.set(key, aceForUpdate);

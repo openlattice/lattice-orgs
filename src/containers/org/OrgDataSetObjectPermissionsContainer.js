@@ -19,6 +19,7 @@ import {
 import { GET_ORG_DATA_SET_OBJECT_PERMISSIONS } from '../../core/permissions/actions';
 import { resetRequestStates } from '../../core/redux/actions';
 import { selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
+import { METADATA, NAME, TITLE } from '../../utils/constants';
 import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
 
 const OrgDataSetObjectPermissionsContainer = ({
@@ -41,8 +42,8 @@ const OrgDataSetObjectPermissionsContainer = ({
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
-  const name :string = dataSet.get('name');
-  const title :string = dataSet.getIn(['metadata', 'title']);
+  const name :string = dataSet.get(NAME);
+  const title :string = dataSet.getIn([METADATA, TITLE]);
   const objectKey = useMemo(() => List([dataSetId]), [dataSetId]);
 
   useEffect(() => () => {

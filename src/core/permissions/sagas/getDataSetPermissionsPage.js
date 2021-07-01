@@ -25,6 +25,12 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { getPermissionsWorker } from './getPermissions';
 
+import {
+  FLAGS,
+  ID,
+  METADATA,
+  TITLE,
+} from '../../../utils/constants';
 import { ERR_MISSING_ORG } from '../../../utils/constants/errors';
 import { PAGE_PERMISSIONS_BY_DATA_SET, TOTAL_PERMISSIONS } from '../../redux/constants';
 import {
@@ -95,8 +101,8 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
     permissions = permissions.filter((ace :Ace, key :List<UUID>) => {
       const dataSetId :UUID = key.get(0);
       const dataSet :Map = dataSets.get(dataSetId);
-      const dataSetTitle :string = dataSet.getIn(['metadata', 'title']);
-      const dataSetFlags :List<string> = dataSet.getIn(['metadata', 'flags']);
+      const dataSetTitle :string = dataSet.getIn([METADATA, TITLE]);
+      const dataSetFlags :List<string> = dataSet.getIn([METADATA, FLAGS]);
       const includeBasedOnQuery = isNonEmptyString(filterByQuery)
         // include when title contains filter query (if given)
         ? dataSetTitle.toLowerCase().includes(filterByQuery.toLowerCase())
@@ -139,7 +145,7 @@ function* getDataSetPermissionsPageWorker(action :SequenceAction) :Saga<void> {
       const pageDataSetColumnKeys :List<List<UUID>> = List().withMutations((mutableList) => {
         pageDataSetColumns.forEach((dataSetColumns :Map<UUID, Map>, dataSetId :UUID) => {
           dataSetColumns.forEach((column :Map) => {
-            mutableList.push(List([dataSetId, column.get('id')]));
+            mutableList.push(List([dataSetId, column.get(ID)]));
           });
         });
       });

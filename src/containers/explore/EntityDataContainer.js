@@ -37,6 +37,7 @@ import {
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { clipboardWriteText } from '../../utils';
+import { METADATA, NAME, TITLE } from '../../utils/constants';
 
 const { isPending } = ReduxUtils;
 
@@ -72,8 +73,8 @@ const EntityDataContainer = ({
   const neighbors :Map = useSelector(selectEntityNeighborsMap(entityKeyId));
   const organization :?Organization = useSelector(selectOrganization(organizationId));
 
-  const dataSetName :string = dataSet.get('name');
-  const dataSetTitle :string = dataSet.getIn(['metadata', 'title']);
+  const dataSetName :string = dataSet.get(NAME);
+  const dataSetTitle :string = dataSet.getIn([METADATA, TITLE]);
 
   useEffect(() => {
     dispatch(exploreEntityData({ entityKeyId, entitySetId: dataSetId }));

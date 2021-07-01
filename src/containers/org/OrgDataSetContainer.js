@@ -41,6 +41,13 @@ import {
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { isAtlasDataSet } from '../../utils';
+import {
+  CONTACTS,
+  DESCRIPTION,
+  METADATA,
+  NAME,
+  TITLE,
+} from '../../utils/constants';
 
 const { BLUE } = Colors;
 const { isDefined, isNonEmptyString } = LangUtils;
@@ -71,10 +78,10 @@ const OrgDataSetContainer = ({
   const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
   const dataSetSize :?number = useSelector(selectOrgDataSetSize(organizationId, dataSetId));
 
-  const contacts :List<string> = dataSet.getIn(['metadata', 'contacts']);
-  const description :string = dataSet.getIn(['metadata', 'description']);
-  const name :string = dataSet.get('name');
-  const title :string = dataSet.getIn(['metadata', 'title']);
+  const contacts :List<string> = dataSet.getIn([METADATA, CONTACTS]);
+  const description :string = dataSet.getIn([METADATA, DESCRIPTION]);
+  const name :string = dataSet.get(NAME);
+  const title :string = dataSet.getIn([METADATA, TITLE]);
 
   const hasContactInfo :boolean = contacts.some(isNonEmptyString);
 
@@ -100,21 +107,27 @@ const OrgDataSetContainer = ({
               <SpaceBetweenGrid>
                 <div>
                   <Typography variant="h1">{title || name}</Typography>
-                  { name && <Typography variant="subtitle1">{name}</Typography> }
+                  <Typography variant="subtitle1">{name}</Typography>
                 </div>
                 <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
               </SpaceBetweenGrid>
               <div>
                 <CountBadge count={dataSetColumns.size} />
                 <Label subtle>Data Fields</Label>
-                { (isDefined(dataSetSize) && !isAtlasDataSet(dataSet)) && (
-                  <>
-                    <CountBadge count={dataSetSize} max={1000000} />
-                    <Label subtle>Records</Label>
-                  </>
-                )}
+                {
+                  isDefined(dataSetSize) && !isAtlasDataSet(dataSet) && (
+                    <>
+                      <CountBadge count={dataSetSize} max={1000000} />
+                      <Label subtle>Records</Label>
+                    </>
+                  )
+                }
               </div>
-              <Typography>{description || name}</Typography>
+              {
+                isNonEmptyString(description) && (
+                  <Typography>{description}</Typography>
+                )
+              }
             </StackGrid>
             {
               isNonEmptyString(dataSetSchema) && (

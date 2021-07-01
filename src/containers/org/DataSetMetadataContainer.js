@@ -23,8 +23,13 @@ import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../c
 import { EDM } from '../../core/redux/constants';
 import { selectMyKeys, selectOrgDataSetColumns } from '../../core/redux/selectors';
 import {
+  DATA_TYPE,
+  DESCRIPTION,
   EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
   EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+  ID,
+  METADATA,
+  TITLE,
 } from '../../utils/constants';
 
 const TABLE_HEADERS = [
@@ -97,10 +102,10 @@ const DataSetMetadataContainer = ({
     const data :List = dataSetColumns
       .valueSeq()
       .map((column :Map) => ({
-        dataType: column.get('dataType'),
-        description: column.getIn(['metadata', 'description']),
-        id: column.get('id'),
-        title: column.getIn(['metadata', 'title']),
+        dataType: column.get(DATA_TYPE),
+        description: column.getIn([METADATA, DESCRIPTION]),
+        id: column.get(ID),
+        title: column.getIn([METADATA, TITLE]),
       }));
     setTableData(data.toJS());
   }, [dataSetColumns]);

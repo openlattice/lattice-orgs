@@ -35,9 +35,14 @@ import {
 import { Routes } from '../../../../core/router';
 import { isAtlasDataSet } from '../../../../utils';
 import {
+  DESCRIPTION,
   EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
   EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+  FLAGS,
+  METADATA,
+  NAME,
   OPENLATTICE,
+  TITLE,
 } from '../../../../utils/constants';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
@@ -120,10 +125,10 @@ const DataSetActionButton = ({
   const isOrgOwner :boolean = myKeys.has(List([organizationId]));
 
   const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
-  const dataSetDescription :string = dataSet.getIn(['metadata', 'description']);
-  const dataSetFlags :List<string> = dataSet.getIn(['metadata', 'flags']);
-  const dataSetName :string = dataSet.get('name');
-  const dataSetTitle :string = dataSet.getIn(['metadata', 'title']);
+  const dataSetDescription :string = dataSet.getIn([METADATA, DESCRIPTION]);
+  const dataSetFlags :List<string> = dataSet.getIn([METADATA, FLAGS]);
+  const dataSetName :string = dataSet.get(NAME);
+  const dataSetTitle :string = dataSet.getIn([METADATA, TITLE]);
   const isAtlas :boolean = isAtlasDataSet(dataSet);
   const isAssembled = isAtlas ? false : dataSetFlags.includes(EntitySetFlagTypes.TRANSPORTED);
   const isPromoted = dataSetSchema === OPENLATTICE;

@@ -46,6 +46,12 @@ import {
   selectPropertyTypes,
 } from '../../core/redux/selectors';
 import { getDataSetKeys } from '../../utils';
+import {
+  ID,
+  METADATA,
+  NAME,
+  TITLE,
+} from '../../utils/constants';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { APP_CONTENT_PADDING } = Sizes;
@@ -119,7 +125,7 @@ const PermissionsPanel = ({
   }, [permissionsHash, setPermissionsRS]);
 
   const columnIds :List<UUID> = useMemo(() => (
-    dataSetColumns.map((column :Map) => column.get('id'))
+    dataSetColumns.map((column :Map) => column.get(ID))
   ), [dataSetColumns]);
   const maybePropertyTypes :Map<UUID, PropertyType> = useSelector(selectPropertyTypes(columnIds));
   const propertyTypesHash :number = maybePropertyTypes.hashCode();
@@ -211,7 +217,7 @@ const PermissionsPanel = ({
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
         mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
         dataSetColumns.forEach((column :Map) => {
-          const columnId :UUID = column.get('id');
+          const columnId :UUID = column.get(ID);
           const key = List([dataSetId, columnId]);
           const isOwner = myKeys.has(key);
           if (isOwner) {
@@ -232,7 +238,7 @@ const PermissionsPanel = ({
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
         mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
         dataSetColumns.forEach((column :Map) => {
-          const columnId :UUID = column.get('id');
+          const columnId :UUID = column.get(ID);
           const key = List([dataSetId, columnId]);
           const isOwner = myKeys.has(key);
           if (isOwner) {
@@ -258,7 +264,7 @@ const PermissionsPanel = ({
       const updatedPermissions :Map<List<UUID>, Ace> = Map().withMutations((mutableMap) => {
         mutableMap.set(dataSetKey, localPermissions.get(dataSetKey));
         dataSetColumns.forEach((column :Map) => {
-          const columnId :UUID = column.get('id');
+          const columnId :UUID = column.get(ID);
           const key :List<List<UUID>> = List([dataSetId, columnId]);
           const isOwner = myKeys.has(key);
           if (isOwner) {
@@ -341,9 +347,9 @@ const PermissionsPanel = ({
         </CardSegment>
         {
           dataSetColumns.valueSeq().map((column :Map) => {
-            const columnId :UUID = column.get('id');
-            const columnName :string = column.get('name');
-            const columnTitle :string = column.getIn(['metadata', 'title']);
+            const columnId :UUID = column.get(ID);
+            const columnName :string = column.get(NAME);
+            const columnTitle :string = column.getIn([METADATA, TITLE]);
             const key :List<UUID> = List([dataSetId, columnId]);
             const ace :?Ace = localPermissions.get(key);
             return (

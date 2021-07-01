@@ -19,6 +19,7 @@ import type { UUID } from 'lattice';
 
 import { Flip } from '../../../components';
 import { selectOrgDataSetColumns } from '../../../core/redux/selectors';
+import { METADATA, NAME, TITLE } from '../../../utils/constants';
 
 const { NEUTRAL, PURPLE } = Colors;
 
@@ -87,8 +88,8 @@ const EntityDataGrid = ({
   const items = [];
   const labels = {};
   dataSetColumns.forEach((column :Map) => {
-    const fqn = column.get('name');
-    const title = column.getIn(['metadata', 'title']);
+    const fqn = column.get(NAME);
+    const title = column.getIn([METADATA, TITLE]);
     const values :List = data.get(fqn, List());
 
     labels[fqn] = title;

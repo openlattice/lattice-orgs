@@ -43,6 +43,12 @@ import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/ac
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectMyKeys, selectUser } from '../../core/redux/selectors';
 import { getPrincipalTitle } from '../../utils';
+import {
+  ID,
+  METADATA,
+  NAME,
+  TITLE,
+} from '../../utils/constants';
 
 const { NEUTRAL } = Colors;
 const { AceBuilder } = Models;
@@ -216,9 +222,9 @@ const ObjectPermissionsCard = ({
                             <Divider />
                             {
                               dataSetColumns.valueSeq().map((column :Map) => {
-                                const columnId :UUID = column.get('id');
-                                const columnName :string = column.get('name');
-                                const columnTitle :string = column.getIn(['metadata', 'title']);
+                                const columnId :UUID = column.get(ID);
+                                const columnName :string = column.get(NAME);
+                                const columnTitle :string = column.getIn([METADATA, TITLE]);
                                 const key :List<UUID> = List([objectKey.get(0), columnId]);
                                 const ace :?Ace = permissions.get(key);
                                 return (

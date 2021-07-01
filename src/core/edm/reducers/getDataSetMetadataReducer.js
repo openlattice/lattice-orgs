@@ -8,6 +8,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { ID, ORGANIZATION_ID } from '../../../utils/constants';
 import { ERROR, ORG_DATA_SETS, REQUEST_STATE } from '../../redux/constants';
 
 const { GET_DATA_SET_METADATA, getDataSetMetadata } = DataSetMetadataApiActions;
@@ -21,8 +22,8 @@ export default function reducer(state :Map, action :SequenceAction) {
     SUCCESS: () => {
       if (state.hasIn([GET_DATA_SET_METADATA, action.id])) {
         const dataSet :Map = fromJS(action.value);
-        const dataSetId :UUID = dataSet.get('id');
-        const organizationId :UUID = dataSet.get('organizationId');
+        const dataSetId :UUID = dataSet.get(ID);
+        const organizationId :UUID = dataSet.get(ORGANIZATION_ID);
         return state
           .setIn([ORG_DATA_SETS, organizationId, dataSetId], dataSet)
           .setIn([GET_DATA_SET_METADATA, REQUEST_STATE], RequestStates.SUCCESS);

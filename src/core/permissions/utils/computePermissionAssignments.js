@@ -10,6 +10,8 @@ import type {
   UUID,
 } from 'lattice';
 
+import { ID } from '../../../utils/constants';
+
 function computePermissionAssignments(
   myKeys :Set<List<UUID>>,
   dataSetColumns :Map<UUID, Map>,
@@ -28,7 +30,7 @@ function computePermissionAssignments(
   let isOwnerOfAtLeastOneColumn = false;
 
   dataSetColumns.forEach((column :Map) => {
-    const columnId :UUID = column.get('id');
+    const columnId :UUID = column.get(ID);
     const propertyType :?PropertyType = maybePropertyTypes.get(columnId);
     const pii :boolean = propertyType?.pii || false;
     const key :List<UUID> = List([dataSetId, columnId]);

@@ -9,6 +9,7 @@ import type { Map } from 'immutable';
 
 import { AtlasDataSetIcon, EntitySetIcon } from '../../assets/svg/icons';
 import { isAtlasDataSet } from '../../utils';
+import { METADATA, NAME, TITLE } from '../../utils/constants';
 import { GapGrid } from '../grids';
 
 const DataSetTitle = ({
@@ -28,7 +29,7 @@ const DataSetTitle = ({
     }
     <Typography component={component} variant={variant}>
       {
-        dataSet.getIn(['metadata', 'title']) || dataSet.get('name')
+        dataSet.getIn([METADATA, TITLE]) || dataSet.get(NAME)
       }
     </Typography>
   </GapGrid>

@@ -45,6 +45,7 @@ import {
 } from '../../core/redux/selectors';
 import { SEARCH_DATA, clearSearchState, searchData } from '../../core/search/actions';
 import { MAX_HITS_10 } from '../../core/search/constants';
+import { METADATA, NAME, TITLE } from '../../utils/constants';
 
 const { getEntityKeyId } = DataUtils;
 const { isNonEmptyString } = LangUtils;
@@ -80,10 +81,10 @@ const DataSetDataContainer = ({
     });
     const headers :List = dataSetColumns
       .valueSeq()
-      .filter((column :Map) => headersSet.has(column.get('name')))
+      .filter((column :Map) => headersSet.has(column.get(NAME)))
       .map((column :Map) => {
-        const fqn :string = column.get('name');
-        const title :string = column.getIn(['metadata', 'title']);
+        const fqn :string = column.get(NAME);
+        const title :string = column.getIn([METADATA, TITLE]);
         return { key: fqn, label: `${title} (${fqn})`, sortable: false };
       });
     setTableData(data.toJS());
