@@ -44,7 +44,7 @@ const EntityNeighborsTable = ({
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
   const [tablePage, setTablePage] = useState(1);
-  const [neighborsIndex, setNeighborsIndex] = useState(1);
+  const [neighborsIndex, setNeighborsIndex] = useState(0);
 
   const fetchEntitySetDataRS :?RequestState = useRequestState([DATA, FETCH_ENTITY_SET_DATA, neighborDataSetId]);
 
