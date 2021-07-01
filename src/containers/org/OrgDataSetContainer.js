@@ -12,7 +12,8 @@ import {
   Badge,
   Colors,
   Label,
-  Typography
+  MarkdownPreview,
+  Typography,
 } from 'lattice-ui-kit';
 import { DataUtils, LangUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
@@ -111,7 +112,7 @@ const OrgDataSetContainer = ({
             <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
-          <StackGrid gap={48}>
+          <StackGrid gap={8}>
             <StackGrid>
               <SpaceBetweenGrid>
                 <div>
@@ -130,8 +131,8 @@ const OrgDataSetContainer = ({
                   </>
                 )}
               </div>
-              <Typography>{description || name}</Typography>
             </StackGrid>
+            <MarkdownPreview>{description || name}</MarkdownPreview>
             {
               isNonEmptyString(dataSetSchema) && (
                 <StackGrid>
