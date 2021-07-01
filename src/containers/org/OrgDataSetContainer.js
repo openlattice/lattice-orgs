@@ -81,7 +81,7 @@ const OrgDataSetContainer = ({
   if (organization) {
 
     const renderDataSetDataContainer = () => (
-      <DataSetDataContainer dataSetId={dataSetId} organizationId={organizationId} />
+      <DataSetDataContainer dataSetId={dataSetId} dataSetName={title || name} organizationId={organizationId} />
     );
 
     const renderDataSetMetaContainer = () => (
@@ -130,7 +130,7 @@ const OrgDataSetContainer = ({
                 contacts.map((contact :string) => {
                   if (isNonEmptyString(contact)) {
                     return (
-                      <Typography>{contact}</Typography>
+                      <Typography key={contact}>{contact}</Typography>
                     );
                   }
                   return null;

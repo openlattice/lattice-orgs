@@ -13,6 +13,7 @@ import {
 import destroyTransportedOrganizationEntitySetReducer from './destroyTransportedOrganizationEntitySetReducer';
 import getDataSetColumnsMetadataReducer from './getDataSetColumnsMetadataReducer';
 import getDataSetMetadataReducer from './getDataSetMetadataReducer';
+import getDataSetsMetadataReducer from './getDataSetsMetadataReducer';
 import getEntityDataModelTypesReducer from './getEntityDataModelTypesReducer';
 import getEntitySetReducer from './getEntitySetReducer';
 import getEntitySetsReducer from './getEntitySetsReducer';
@@ -55,11 +56,13 @@ import {
 } from '../actions';
 
 const {
+  GET_DATA_SETS_METADATA,
   GET_DATA_SET_COLUMNS_METADATA,
   GET_DATA_SET_METADATA,
   GET_ORGANIZATION_DATA_SETS_METADATA,
   getDataSetColumnsMetadata,
   getDataSetMetadata,
+  getDataSetsMetadata,
   getOrganizationDataSetsMetadata,
 } = DataSetMetadataApiActions;
 
@@ -87,6 +90,7 @@ const {
 const INITIAL_STATE :Map = fromJS({
   // actions
   [DESTROY_TRANSPORTED_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
+  [GET_DATA_SETS_METADATA]: RS_INITIAL_STATE,
   [GET_DATA_SET_COLUMNS_METADATA]: RS_INITIAL_STATE,
   [GET_DATA_SET_METADATA]: RS_INITIAL_STATE,
   [GET_EDM_TYPES]: RS_INITIAL_STATE,
@@ -128,6 +132,11 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getDataSetMetadata.case(action.type): {
       return getDataSetMetadataReducer(state, action);
+    }
+
+    case getDataSetsMetadata.case(action.type): {
+      // TODO: merge with getOrganizationDataSetsMetadataReducer because SUCCESS case is exactly the same for both
+      return getDataSetsMetadataReducer(state, action);
     }
 
     case getDataSetColumnsMetadata.case(action.type): {
