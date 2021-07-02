@@ -38,7 +38,7 @@ export const EDIT_TITLE_DESCRIPTION_UI_SCHEMA = {
     },
     description: {
       classNames: 'column-span-12',
-      'ui:widget': 'textarea',
+      'ui:widget': 'MarkdownEditorWidget',
     },
   },
 };
