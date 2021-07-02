@@ -64,6 +64,7 @@ const OrgRoleContainer = ({
 
   const dispatch = useDispatch();
 
+  const [filterByEntitySetFlagType, setFilterByEntitySetFlagType] = useState();
   const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
   const [filterByQuery, setFilterByQuery] = useState('');
   const [isVisibleAddDataSetModal, setIsVisibleAddDataSetModal] = useState(false);
@@ -115,10 +116,12 @@ const OrgRoleContainer = ({
                 </StackGrid>
                 <PermissionsActionsGrid
                     assignPermissionsText="Add dataset"
+                    onChangeFilterByEntitySetFlagType={setFilterByEntitySetFlagType}
                     onChangeFilterByPermissionTypes={setFilterByPermissionTypes}
                     onChangeFilterByQuery={setFilterByQuery}
                     onClickAssignPermissions={() => setIsVisibleAddDataSetModal(true)} />
                 <DataSetPermissionsContainer
+                    filterByEntitySetFlagType={filterByEntitySetFlagType}
                     filterByPermissionTypes={filterByPermissionTypes}
                     filterByQuery={filterByQuery}
                     organizationId={organizationId}
