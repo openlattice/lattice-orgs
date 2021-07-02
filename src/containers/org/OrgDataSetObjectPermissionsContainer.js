@@ -6,9 +6,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 
 import { List, Map } from 'immutable';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
-import { DataUtils } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { FQN, Organization, UUID } from 'lattice';
+import type { Organization, UUID } from 'lattice';
 
 import {
   CrumbItem,
@@ -17,13 +16,11 @@ import {
   Divider,
   StackGrid,
 } from '../../components';
-import { FQNS } from '../../core/edm/constants';
 import { GET_ORG_DATA_SET_OBJECT_PERMISSIONS } from '../../core/permissions/actions';
 import { resetRequestStates } from '../../core/redux/actions';
 import { selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
+import { METADATA, NAME, TITLE } from '../../utils/constants';
 import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
-
-const { getPropertyValue } = DataUtils;
 
 const OrgDataSetObjectPermissionsContainer = ({
   dataSetId,
@@ -44,9 +41,9 @@ const OrgDataSetObjectPermissionsContainer = ({
   const [isVisibleAssignPermissionsModal, setIsVisibleAssignPermissionsModal] = useState(false);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
-  const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
-  const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
+  const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const name :string = dataSet.get(NAME);
+  const title :string = dataSet.getIn([METADATA, TITLE]);
   const objectKey = useMemo(() => List([dataSetId]), [dataSetId]);
 
   useEffect(() => () => {

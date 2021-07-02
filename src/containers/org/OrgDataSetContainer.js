@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useMemo } from 'react';
+import React from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
@@ -14,15 +14,15 @@ import {
   Label,
   Typography
 } from 'lattice-ui-kit';
-import { DataUtils, LangUtils } from 'lattice-utils';
+import { LangUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import { Route, Switch } from 'react-router';
 import { NavLink } from 'react-router-dom';
-import type { FQN, Organization, UUID } from 'lattice';
+import type { Organization, UUID } from 'lattice';
 
 import DataSetActionButton from './components/dataset/DataSetActionButton';
 import DataSetDataContainer from './DataSetDataContainer';
-import DataSetMetaDataContainer from './DataSetMetaDataContainer';
+import DataSetMetadataContainer from './DataSetMetadataContainer';
 
 import {
   CrumbItem,
@@ -32,7 +32,6 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
-import { FQNS } from '../../core/edm/constants';
 import {
   selectDataSetSchema,
   selectOrgDataSet,
@@ -42,10 +41,15 @@ import {
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { isAtlasDataSet } from '../../utils';
+import {
+  CONTACTS,
+  DESCRIPTION,
+  METADATA,
+  NAME,
+  TITLE,
+} from '../../utils/constants';
 
 const { BLUE } = Colors;
-
-const { getPropertyValue } = DataUtils;
 const { isDefined, isNonEmptyString } = LangUtils;
 
 const CountBadge = styled(Badge)`
@@ -69,39 +73,26 @@ const OrgDataSetContainer = ({
 |}) => {
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
-  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const dataSetSize :?number = useSelector(selectOrgDataSetSize(organizationId, dataSetId));
 
-  const description :string = getPropertyValue(dataSet, [FQNS.OL_DESCRIPTION, 0]);
-  const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
-  const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
+  const contacts :List<string> = dataSet.getIn([METADATA, CONTACTS]);
+  const description :string = dataSet.getIn([METADATA, DESCRIPTION]);
+  const name :string = dataSet.get(NAME);
+  const title :string = dataSet.getIn([METADATA, TITLE]);
 
-  const contact :string = useMemo(() => {
-    const contactEmail :string = getPropertyValue(dataSet, [FQNS.CONTACT_EMAIL, 0]);
-    const contactPhone :string = getPropertyValue(dataSet, [FQNS.CONTACT_PHONE_NUMBER, 0]);
-    let contactString = '';
-    if (isNonEmptyString(contactEmail) && isNonEmptyString(contactPhone)) {
-      contactString = `${contactEmail} - ${contactPhone}`;
-    }
-    else if (isNonEmptyString(contactEmail)) {
-      contactString = contactEmail;
-    }
-    else if (isNonEmptyString(contactPhone)) {
-      contactString = contactPhone;
-    }
-    return contactString;
-  }, [dataSet]);
+  const hasContactInfo :boolean = contacts.some(isNonEmptyString);
 
   if (organization) {
 
     const renderDataSetDataContainer = () => (
-      <DataSetDataContainer dataSetName={title || name} dataSetId={dataSetId} organizationId={organizationId} />
+      <DataSetDataContainer dataSetId={dataSetId} dataSetName={title || name} organizationId={organizationId} />
     );
 
     const renderDataSetMetaContainer = () => (
-      <DataSetMetaDataContainer dataSetId={dataSetId} organizationId={organizationId} />
+      <DataSetMetadataContainer dataSetId={dataSetId} organizationId={organizationId} />
     );
 
     return (
@@ -116,21 +107,27 @@ const OrgDataSetContainer = ({
               <SpaceBetweenGrid>
                 <div>
                   <Typography variant="h1">{title || name}</Typography>
-                  { name && <Typography variant="subtitle1">{name}</Typography> }
+                  <Typography variant="subtitle1">{name}</Typography>
                 </div>
                 <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
               </SpaceBetweenGrid>
               <div>
                 <CountBadge count={dataSetColumns.size} />
                 <Label subtle>Data Fields</Label>
-                { (isDefined(dataSetSize) && !isAtlasDataSet(dataSet)) && (
-                  <>
-                    <CountBadge count={dataSetSize} max={1000000} />
-                    <Label subtle>Records</Label>
-                  </>
-                )}
+                {
+                  isDefined(dataSetSize) && !isAtlasDataSet(dataSet) && (
+                    <>
+                      <CountBadge count={dataSetSize} max={1000000} />
+                      <Label subtle>Records</Label>
+                    </>
+                  )
+                }
               </div>
-              <Typography>{description || name}</Typography>
+              {
+                isNonEmptyString(description) && (
+                  <Typography>{description}</Typography>
+                )
+              }
             </StackGrid>
             {
               isNonEmptyString(dataSetSchema) && (
@@ -143,13 +140,19 @@ const OrgDataSetContainer = ({
             <StackGrid>
               <Typography variant="h4">Contact</Typography>
               {
-                isNonEmptyString(contact)
-                  ? (
-                    <Typography>{contact}</Typography>
-                  )
-                  : (
-                    <Typography>No contact information is available.</Typography>
-                  )
+                contacts.map((contact :string) => {
+                  if (isNonEmptyString(contact)) {
+                    return (
+                      <Typography key={contact}>{contact}</Typography>
+                    );
+                  }
+                  return null;
+                })
+              }
+              {
+                !hasContactInfo && (
+                  <Typography>No contact information is available.</Typography>
+                )
               }
             </StackGrid>
           </StackGrid>
