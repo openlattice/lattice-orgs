@@ -12,7 +12,8 @@ import {
   Badge,
   Colors,
   Label,
-  Typography
+  MarkdownPreview,
+  Typography,
 } from 'lattice-ui-kit';
 import { LangUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
@@ -51,6 +52,10 @@ import {
 
 const { BLUE } = Colors;
 const { isDefined, isNonEmptyString } = LangUtils;
+
+const ReducedMargin = styled.div`
+  margin: -16px 0;
+`;
 
 const CountBadge = styled(Badge)`
   background: ${BLUE.B300};
@@ -102,7 +107,7 @@ const OrgDataSetContainer = ({
             <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
-          <StackGrid gap={48}>
+          <StackGrid gap={32}>
             <StackGrid>
               <SpaceBetweenGrid>
                 <div>
@@ -123,12 +128,14 @@ const OrgDataSetContainer = ({
                   )
                 }
               </div>
-              {
-                isNonEmptyString(description) && (
-                  <Typography>{description}</Typography>
-                )
-              }
             </StackGrid>
+            {
+              isNonEmptyString(description) && (
+                <ReducedMargin>
+                  <MarkdownPreview>{description}</MarkdownPreview>
+                </ReducedMargin>
+              )
+            }
             {
               isNonEmptyString(dataSetSchema) && (
                 <StackGrid>
