@@ -49,6 +49,10 @@ const { BLUE } = Colors;
 const { getPropertyValue } = DataUtils;
 const { isDefined, isNonEmptyString } = LangUtils;
 
+const ReducedMargin = styled.div`
+  margin: -16px 0;
+`;
+
 const CountBadge = styled(Badge)`
   background: ${BLUE.B300};
   color: white;
@@ -112,7 +116,7 @@ const OrgDataSetContainer = ({
             <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
-          <StackGrid gap={8}>
+          <StackGrid gap={32}>
             <StackGrid>
               <SpaceBetweenGrid>
                 <div>
@@ -132,7 +136,9 @@ const OrgDataSetContainer = ({
                 )}
               </div>
             </StackGrid>
-            <MarkdownPreview>{description || name}</MarkdownPreview>
+            <ReducedMargin>
+              <MarkdownPreview>{description || name}</MarkdownPreview>
+            </ReducedMargin>
             {
               isNonEmptyString(dataSetSchema) && (
                 <StackGrid>
