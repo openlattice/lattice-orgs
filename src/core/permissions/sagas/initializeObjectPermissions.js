@@ -13,7 +13,12 @@ import { Types } from 'lattice';
 import { PrincipalsApiActions, PrincipalsApiSagas } from 'lattice-sagas';
 import { AxiosUtils, Logger, ValidationUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
-import type { Ace, Principal, UUID } from 'lattice';
+import type {
+  Ace,
+  FQN,
+  Principal,
+  UUID,
+} from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -56,8 +61,8 @@ function* initializeObjectPermissionsWorker(action :SequenceAction) :Saga<*> {
 
     if (isDataSet) {
       const dataSetId :UUID = objectKey.get(0);
-      const dataSet :Map = yield select(selectOrgDataSet(organizationId, dataSetId));
-      const dataSetColumns :Map<UUID, Map> = yield select(selectOrgDataSetColumns(organizationId, dataSetId));
+      const dataSet :Map<UUID, Map> = yield select(selectOrgDataSet(organizationId, dataSetId));
+      const dataSetColumns :List<Map<FQN, List>> = yield select(selectOrgDataSetColumns(organizationId, dataSetId));
       keys = getDataSetKeys(dataSet, dataSetColumns);
       response = yield call(getPermissionsWorker, getPermissions(keys));
       if (response.error) throw response.error;

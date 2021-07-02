@@ -11,10 +11,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map, Set } from 'immutable';
 import { Models, Types } from 'lattice';
 import { Colors, IconButton, Typography } from 'lattice-ui-kit';
-import { ReduxUtils, useRequestState } from 'lattice-utils';
+import { DataUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   Ace,
+  FQN,
   PermissionType,
   Principal,
   PropertyType,
@@ -25,16 +26,17 @@ import type { RequestState } from 'redux-reqseq';
 import { PermissionsLock } from './components';
 
 import { SpaceBetweenGrid, Spinner } from '../../components';
+import { FQNS } from '../../core/edm/constants';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
 import { computePermissionAssignments } from '../../core/permissions/utils';
 import { resetRequestStates } from '../../core/redux/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectMyKeys, selectPropertyTypes } from '../../core/redux/selectors';
-import { ID } from '../../utils/constants';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { AceBuilder } = Models;
 const { ActionTypes } = Types;
+const { getPropertyValue } = DataUtils;
 const { isFailure, isPending, isSuccess } = ReduxUtils;
 
 const ALL :'ALL' = 'ALL';
@@ -57,7 +59,7 @@ const DataSetColumnPermissionsSection = ({
   permissionType,
   principal,
 } :{|
-  dataSetColumns :Map<UUID, Map>;
+  dataSetColumns :List<Map<FQN, List>>;
   objectKey :List<UUID>;
   permissions :Map<List<UUID>, Ace>;
   permissionType :PermissionType;
@@ -75,7 +77,7 @@ const DataSetColumnPermissionsSection = ({
   const dispatch = useDispatch();
 
   const columnIds :List<UUID> = useMemo(() => (
-    dataSetColumns.map((column :Map) => column.get(ID))
+    dataSetColumns.map((column :Map<FQN, List>) => getPropertyValue(column, [FQNS.OL_ID, 0]))
   ), [dataSetColumns]);
   const maybePropertyTypes :Map<UUID, PropertyType> = useSelector(selectPropertyTypes(columnIds));
   const propertyTypesHash :number = maybePropertyTypes.hashCode();
@@ -108,8 +110,8 @@ const DataSetColumnPermissionsSection = ({
   const togglePermissionAssignmentToAll = () => {
     if (!isPending(updatePermissionsRS)) {
       const permissionsToUpdate = Map().withMutations((mutator) => {
-        dataSetColumns.forEach((column :Map) => {
-          const columnId :UUID = column.get(ID);
+        dataSetColumns.forEach((column :Map<FQN, List>) => {
+          const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
           const key :List<UUID> = List([objectKey.get(0), columnId]);
           const isOwner = myKeys.has(key);
           if (isOwner) {
@@ -136,8 +138,8 @@ const DataSetColumnPermissionsSection = ({
 
         const permissionsToAdd :Map<List<UUID>, Ace> = Map().asMutable();
         const permissionsToRemove :Map<List<UUID>, Ace> = Map().withMutations((mutator) => {
-          dataSetColumns.forEach((column :Map) => {
-            const columnId :UUID = column.get(ID);
+          dataSetColumns.forEach((column :Map<FQN, List>) => {
+            const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
             const key :List<UUID> = List([objectKey.get(0), columnId]);
             const isOwner = myKeys.has(key);
             if (isOwner) {
@@ -170,8 +172,8 @@ const DataSetColumnPermissionsSection = ({
       }
       else {
         const permissionsToUpdate = Map().withMutations((mutator) => {
-          dataSetColumns.forEach((column :Map) => {
-            const columnId :UUID = column.get(ID);
+          dataSetColumns.forEach((column :Map<FQN, List>) => {
+            const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
             const key :List<UUID> = List([objectKey.get(0), columnId]);
             if (myKeys.has(key)) {
               mutator.set(key, aceForUpdate);

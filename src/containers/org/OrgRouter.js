@@ -61,7 +61,6 @@ const OrgRouter = () => {
   let organizationId :?UUID;
   let roleId :?UUID;
 
-  const matchEntity = useRouteMatch(Routes.ENTITY);
   const matchOrganization = useRouteMatch(Routes.ORG);
   const matchOrganizationAccessRequests = useRouteMatch(Routes.ORG_ACCESS_REQUESTS);
   const matchOrganizationDataSet = useRouteMatch(Routes.ORG_DATA_SET);
@@ -71,20 +70,21 @@ const OrgRouter = () => {
   const matchOrganizationRoles = useRouteMatch(Routes.ORG_ROLES);
   const matchOrgObjectPermissions = useRouteMatch(Routes.ORG_OBJECT_PERMISSIONS);
   const matchOrgRoleObjectPermissions = useRouteMatch(Routes.ORG_ROLE_OBJECT_PERMISSIONS);
+  const matchOrgDataSetEntityDetails = useRouteMatch(Routes.ENTITY_DETAILS);
   const matchOrgDataSetObjectPermissions = useRouteMatch(Routes.ORG_DATA_SET_OBJECT_PERMISSIONS);
 
   // TODO: having to match each route is a pain. how do we avoid this pattern?
   if (matchOrganizationAccessRequests) {
     organizationId = getParamFromMatch(matchOrganizationAccessRequests, Routes.ORG_ID_PARAM);
   }
-  else if (matchEntity) {
-    dataSetId = getParamFromMatch(matchEntity, Routes.DATA_SET_ID_PARAM);
-    entityKeyId = getParamFromMatch(matchEntity, Routes.ENTITY_KEY_ID_PARAM);
-    organizationId = getParamFromMatch(matchEntity, Routes.ORG_ID_PARAM);
-  }
   else if (matchOrgDataSetObjectPermissions) {
     organizationId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.ORG_ID_PARAM);
     dataSetId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.DATA_SET_ID_PARAM);
+  }
+  else if (matchOrgDataSetEntityDetails) {
+    dataSetId = getParamFromMatch(matchOrgDataSetEntityDetails, Routes.DATA_SET_ID_PARAM);
+    entityKeyId = getParamFromMatch(matchOrgDataSetEntityDetails, Routes.ENTITY_KEY_ID_PARAM);
+    organizationId = getParamFromMatch(matchOrgDataSetEntityDetails, Routes.ORG_ID_PARAM);
   }
   else if (matchOrganizationDataSet) {
     organizationId = getParamFromMatch(matchOrganizationDataSet, Routes.ORG_ID_PARAM);
@@ -236,18 +236,15 @@ const OrgRouter = () => {
         : null
     );
 
-    const renderEntityDataContainer = () => (
-      (dataSetId && entityKeyId && organizationId)
-        ? (
-          <EntityDataContainer
-              dataSetDataRoute={dataSetDataRoute}
-              dataSetId={dataSetId}
-              entityKeyId={entityKeyId}
-              organizationId={organizationId}
-              organizationRoute={organizationRoute} />
-        )
-        : null
-    );
+    const renderDataSetDataDetailsContainer = () => ((dataSetId && entityKeyId && organizationId)
+      ? (
+        <EntityDataContainer
+            dataSetDataRoute={dataSetDataRoute}
+            dataSetId={dataSetId}
+            entityKeyId={entityKeyId}
+            organizationId={organizationId}
+            organizationRoute={organizationRoute} />
+      ) : null);
 
     const renderOrgDataSetObjectPermissionsContainer = () => (
       (organizationId && dataSetId)
@@ -324,7 +321,7 @@ const OrgRouter = () => {
 
     return (
       <Switch>
-        <Route path={Routes.ENTITY} render={renderEntityDataContainer} />
+        <Route exact path={Routes.ENTITY_DETAILS} render={renderDataSetDataDetailsContainer} />
         <Route path={Routes.ORG_ACCESS_REQUESTS} render={renderOrgAccessRequestsContainer} />
         <Route path={Routes.ORG_DATA_SET_OBJECT_PERMISSIONS} render={renderOrgDataSetObjectPermissionsContainer} />
         <Route path={Routes.ORG_DATA_SET} render={renderOrgDataSetContainer} />

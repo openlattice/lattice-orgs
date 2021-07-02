@@ -26,19 +26,21 @@ const StyledTableRow = styled.tr`
   }
 `;
 
-const EntityDataRow = ({
-  data,
-  dataSetId,
-  headers,
-  isModal,
-  organizationId,
-} :{|
+type Props = {
   data :Object;
   dataSetId :UUID;
   headers :Object[];
   isModal :boolean;
   organizationId :UUID;
-|}) => {
+};
+
+const EntityDataRow = ({
+  data,
+  dataSetId,
+  headers,
+  isModal,
+  organizationId
+} :Props) => {
 
   const dispatch = useDispatch();
   const entityKeyId :UUID = (getEntityKeyId(data) :any);
@@ -47,7 +49,7 @@ const EntityDataRow = ({
     <Cell key={`${entityKeyId}_cell_${header.key}`}>{data[header.key]}</Cell>
   ));
 
-  const entityDetailsPath = Routes.ENTITY
+  const entityDetailsPath = Routes.ENTITY_DETAILS
     .replace(Routes.ORG_ID_PARAM, organizationId)
     .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
     .replace(Routes.ENTITY_KEY_ID_PARAM, entityKeyId);

@@ -23,10 +23,11 @@ import {
   IconButton,
   Typography,
 } from 'lattice-ui-kit';
-import { ReduxUtils, useRequestState } from 'lattice-utils';
+import { DataUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   Ace,
+  FQN,
   PermissionType,
   Principal,
   UUID,
@@ -39,20 +40,16 @@ import { ORDERED_PERMISSIONS } from './constants';
 
 import Divider from '../../components/other/Divider';
 import { SpaceBetweenGrid, Spinner, StackGrid } from '../../components';
+import { FQNS } from '../../core/edm/constants';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
 import { PERMISSIONS } from '../../core/redux/constants';
 import { selectMyKeys, selectUser } from '../../core/redux/selectors';
 import { getPrincipalTitle } from '../../utils';
-import {
-  ID,
-  METADATA,
-  NAME,
-  TITLE,
-} from '../../utils/constants';
 
 const { NEUTRAL } = Colors;
 const { AceBuilder } = Models;
 const { ActionTypes } = Types;
+const { getPropertyValue } = DataUtils;
 const { isPending } = ReduxUtils;
 
 const PermissionTypeWrapper :ComponentType<{|
@@ -82,7 +79,7 @@ const ObjectPermissionsCard = ({
   permissions,
   principal,
 } :{|
-  dataSetColumns :Map<UUID, Map>;
+  dataSetColumns :List<Map<FQN, List>>;
   isDataSet :boolean;
   objectKey :List<UUID>;
   permissions :Map<List<UUID>, Ace>;
@@ -221,15 +218,15 @@ const ObjectPermissionsCard = ({
                                 principal={principal} />
                             <Divider />
                             {
-                              dataSetColumns.valueSeq().map((column :Map) => {
-                                const columnId :UUID = column.get(ID);
-                                const columnName :string = column.get(NAME);
-                                const columnTitle :string = column.getIn([METADATA, TITLE]);
+                              dataSetColumns.map((column :Map<FQN, List>) => {
+                                const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
+                                const columnTitle :UUID = getPropertyValue(column, [FQNS.OL_TITLE, 0]);
+                                const columnType :string = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
                                 const key :List<UUID> = List([objectKey.get(0), columnId]);
                                 const ace :?Ace = permissions.get(key);
                                 return (
                                   <SpaceBetweenGrid key={columnId}>
-                                    <Typography data-column-id={columnId} title={columnName}>
+                                    <Typography data-column-id={columnId} title={columnType}>
                                       {columnTitle}
                                     </Typography>
                                     {

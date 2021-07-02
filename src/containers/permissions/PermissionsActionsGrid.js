@@ -20,7 +20,7 @@ import {
   Typography,
 } from 'lattice-ui-kit';
 import { useBoolean } from 'lattice-utils';
-import type { PermissionType } from 'lattice';
+import type { EntitySetFlagType, PermissionType } from 'lattice';
 
 import { PERMISSION_TYPE_RS_OPTIONS } from './constants';
 
@@ -41,13 +41,13 @@ const StyledActionsGrid :ComponentType<ActionsGridProps> = styled(ActionsGrid)`
 
 const PermissionsActionsGrid = ({
   assignPermissionsText,
-  onChangeFilterByFlag,
+  onChangeFilterByEntitySetFlagType,
   onChangeFilterByPermissionTypes,
   onChangeFilterByQuery,
   onClickAssignPermissions,
 } :{|
   assignPermissionsText :string;
-  onChangeFilterByFlag ?:(flag :?string) => void;
+  onChangeFilterByEntitySetFlagType ?:(flag :?EntitySetFlagType) => void;
   onChangeFilterByPermissionTypes :(permissionTypes :PermissionType[]) => void;
   onChangeFilterByQuery :(query :string) => void;
   onClickAssignPermissions :() => void;
@@ -82,9 +82,9 @@ const PermissionsActionsGrid = ({
     }
   };
 
-  const handleOnChangeFlag = (option :?ReactSelectOption<string>) => {
-    if (_isFunction(onChangeFilterByFlag)) {
-      onChangeFilterByFlag(option?.value);
+  const handleOnChangeFlag = (option :?ReactSelectOption<EntitySetFlagType>) => {
+    if (_isFunction(onChangeFilterByEntitySetFlagType)) {
+      onChangeFilterByEntitySetFlagType(option?.value);
     }
   };
 
@@ -107,7 +107,7 @@ const PermissionsActionsGrid = ({
         </PlusButton>
       </StyledActionsGrid>
       {
-        _isFunction(onChangeFilterByFlag) && (
+        _isFunction(onChangeFilterByEntitySetFlagType) && (
           <>
             <GapGrid gap={8}>
               <Typography variant="subtitle2">Filter Options</Typography>
@@ -119,7 +119,7 @@ const PermissionsActionsGrid = ({
             </GapGrid>
             <Collapse in={isOpenSearchOptions}>
               <Box maxWidth={240}>
-                <Typography gutterBottom variant="subtitle1">Flags</Typography>
+                <Typography gutterBottom variant="subtitle1">EntitySet Flags</Typography>
                 <Select
                     isClearable
                     onChange={handleOnChangeFlag}
@@ -134,7 +134,7 @@ const PermissionsActionsGrid = ({
 };
 
 PermissionsActionsGrid.defaultProps = {
-  onChangeFilterByFlag: undefined,
+  onChangeFilterByEntitySetFlagType: undefined,
 };
 
 export default PermissionsActionsGrid;

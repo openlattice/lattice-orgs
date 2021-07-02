@@ -14,14 +14,16 @@ import {
   Label,
   Typography,
 } from 'lattice-ui-kit';
+import { DataUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
-import type { UUID } from 'lattice';
+import type { FQN, UUID } from 'lattice';
 
 import { Flip } from '../../../components';
+import { FQNS } from '../../../core/edm/constants';
 import { selectOrgDataSetColumns } from '../../../core/redux/selectors';
-import { METADATA, NAME, TITLE } from '../../../utils/constants';
 
 const { NEUTRAL, PURPLE } = Colors;
+const { getPropertyValue } = DataUtils;
 
 const downIcon = <FontAwesomeIcon icon={faSortDown} size="xs" />;
 
@@ -67,19 +69,18 @@ const ValueListItem = styled.li`
   text-overflow: ellipsis;
 `;
 
-const EntityDataGrid = ({
-  data,
-  dataSetId,
-  organizationId,
-} :{|
+type Props = {
   data :Map;
   dataSetId :UUID;
   organizationId :UUID;
-|}) => {
+};
 
+const EntityDataGrid = ({ data, dataSetId, organizationId } :Props) => {
   const [showFull, setShowFull] = useState(false);
 
-  const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const dataSetColumns :List<Map<FQN, List>> = useSelector(
+    selectOrgDataSetColumns(organizationId, dataSetId)
+  );
 
   const expandFields = () => {
     setShowFull(!showFull);
@@ -88,11 +89,11 @@ const EntityDataGrid = ({
   const items = [];
   const labels = {};
   dataSetColumns.forEach((column :Map) => {
-    const fqn = column.get(NAME);
-    const title = column.getIn([METADATA, TITLE]);
-    const values :List = data.get(fqn, List());
+    const type = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
+    const title = getPropertyValue(column, [FQNS.OL_TITLE, 0]);
+    const values :List = data.get(type, List());
 
-    labels[fqn] = title;
+    labels[type] = title;
 
     const elements = [];
     if (!values.isEmpty()) {
@@ -105,7 +106,7 @@ const EntityDataGrid = ({
 
     if (elements.length) {
       items.push(
-        <div key={fqn}>
+        <div key={type}>
           <Label subtle>{title}</Label>
           <ValueList size={elements.length}>{elements}</ValueList>
         </div>
