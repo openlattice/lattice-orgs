@@ -12,7 +12,12 @@ import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import { Colors, Typography } from 'lattice-ui-kit';
 import { useSelector } from 'react-redux';
-import type { Ace, PermissionType, UUID } from 'lattice';
+import type {
+  Ace,
+  FQN,
+  PermissionType,
+  UUID,
+} from 'lattice';
 
 import { ORDERED_PERMISSIONS } from './constants';
 
@@ -68,7 +73,7 @@ const DataSetPermissionsCard = ({
   selection :?DataSetPermissionTypeSelection;
 |}) => {
 
-  const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, dataSetId));
 
   const permissionTypeSummaryString = useMemo(() => {
     const dataSetAce :?Ace = dataSetPermissions.get(List([dataSetId]));

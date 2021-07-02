@@ -11,26 +11,24 @@ import React, {
 
 import { List, Map } from 'immutable';
 import { AppContentWrapper, Table } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { DataUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { UUID } from 'lattice';
+import type { FQN, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import EditableMetadataRow from './components/EditableMetadataRow';
 
 import { UpdateMetaModal } from '../../components';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../core/edm/actions';
+import { FQNS } from '../../core/edm/constants';
 import { EDM } from '../../core/redux/constants';
 import { selectMyKeys, selectOrgDataSetColumns } from '../../core/redux/selectors';
 import {
-  DATA_TYPE,
-  DESCRIPTION,
   EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
   EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
-  ID,
-  METADATA,
-  TITLE,
 } from '../../utils/constants';
+
+const { getEntityKeyId, getPropertyValue } = DataUtils;
 
 const TABLE_HEADERS = [
   { key: 'title', label: 'TITLE' },
@@ -79,7 +77,7 @@ const reducer = (state, action) => {
   }
 };
 
-const DataSetMetadataContainer = ({
+const DataSetMetaDataContainer = ({
   dataSetId,
   organizationId,
 } :{|
@@ -94,18 +92,19 @@ const DataSetMetadataContainer = ({
 
   const updateOrgDataSetRS :?RequestState = useRequestState([EDM, UPDATE_ORGANIZATION_DATA_SET]);
 
-  const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
   const isDataSetOwner :boolean = myKeys.has(List([dataSetId]));
 
   useEffect(() => {
+    // NOTE: the column is ol.column
     const data :List = dataSetColumns
-      .valueSeq()
-      .map((column :Map) => ({
-        dataType: column.get(DATA_TYPE),
-        description: column.getIn([METADATA, DESCRIPTION]),
-        id: column.get(ID),
-        title: column.getIn([METADATA, TITLE]),
+      .sortBy((column :Map<FQN, List>) => getPropertyValue(column, [FQNS.OL_INDEX, 0]))
+      .map((column :Map<FQN, List>) => ({
+        dataType: getPropertyValue(column, [FQNS.OL_DATA_TYPE, 0]),
+        description: getPropertyValue(column, [FQNS.OL_DESCRIPTION, 0]),
+        id: getEntityKeyId(column),
+        title: getPropertyValue(column, [FQNS.OL_TITLE, 0]),
       }));
     setTableData(data.toJS());
   }, [dataSetColumns]);
@@ -113,9 +112,10 @@ const DataSetMetadataContainer = ({
   const handleOnSubmitUpdate = ({ description, title }) => {
     dispatch(
       updateOrganizationDataSet({
-        columnId: modalState.data.id,
         dataSetId,
         description,
+        entityKeyId: modalState.data.id,
+        isColumn: true,
         organizationId,
         title,
       })
@@ -148,4 +148,4 @@ const DataSetMetadataContainer = ({
   );
 };
 
-export default DataSetMetadataContainer;
+export default DataSetMetaDataContainer;

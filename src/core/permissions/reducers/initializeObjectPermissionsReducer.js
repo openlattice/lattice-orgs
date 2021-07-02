@@ -7,7 +7,10 @@ import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { REQUEST_STATE } from '../../redux/constants';
-import { INITIALIZE_OBJECT_PERMISSIONS, initializeObjectPermissions } from '../actions';
+import {
+  INITIALIZE_OBJECT_PERMISSIONS,
+  initializeObjectPermissions,
+} from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {
 

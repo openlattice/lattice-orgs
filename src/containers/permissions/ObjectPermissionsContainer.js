@@ -76,7 +76,9 @@ const ObjectPermissionsContainer = ({
 
   const maybeDataSetId :UUID = isDataSet ? objectKey.get(0) : '';
   const maybeDataSet :Map<FQN, List> = useSelector(selectOrgDataSet(organizationId, maybeDataSetId));
-  const maybeDataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, maybeDataSetId));
+  const maybeDataSetColumns :List<Map<FQN, List>> = useSelector(
+    selectOrgDataSetColumns(organizationId, maybeDataSetId)
+  );
 
   const keys :List<List<UUID>> = useMemo(() => {
     if (isDataSet) {

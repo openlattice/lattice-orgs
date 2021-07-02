@@ -2,21 +2,26 @@
  * @flow
  */
 
-import { List, Map, get } from 'immutable';
-import type { UUID } from 'lattice';
+import { List, Map } from 'immutable';
+import { DataUtils } from 'lattice-utils';
+import type { FQN, UUID } from 'lattice';
+
+import { FQNS } from '../core/edm/constants';
+
+const { getPropertyValue } = DataUtils;
 
 export default function getDataSetKeys(
-  dataSet :Map,
-  dataSetColumns :Map<UUID, Map>,
+  dataSet :Map<UUID, Map>,
+  dataSetColumns :List<Map<FQN, List>>,
 ) :List<List<UUID>> {
 
   return List().withMutations((keys :List<List<UUID>>) => {
 
-    const dataSetId :UUID = get(dataSet, 'id');
+    const dataSetId :UUID = getPropertyValue(dataSet, [FQNS.OL_ID, 0]);
     keys.push(List([dataSetId]));
 
     dataSetColumns.forEach((column :Map) => {
-      const columnId :UUID = get(column, 'id');
+      const columnId :UUID = getPropertyValue(column, [FQNS.OL_ID, 0]);
       keys.push(List([dataSetId, columnId]));
     });
   });

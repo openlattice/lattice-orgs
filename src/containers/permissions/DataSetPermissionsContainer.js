@@ -11,12 +11,12 @@ import React, {
 } from 'react';
 
 import { List, Map } from 'immutable';
-import { DataSetMetadataApiActions } from 'lattice-sagas';
 import { PaginationToolbar, Typography } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type {
   Ace,
+  EntitySetFlagType,
   PermissionType,
   Principal,
   UUID,
@@ -26,6 +26,7 @@ import type { RequestState } from 'redux-reqseq';
 import DataSetPermissionsCard from './DataSetPermissionsCard';
 
 import { Spinner, StackGrid } from '../../components';
+import { GET_ORG_DATA_SETS_FROM_META, GET_ORG_DATA_SET_COLUMNS_FROM_META } from '../../core/edm/actions';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   GET_DATA_SET_PERMISSIONS_PAGE,
@@ -50,15 +51,13 @@ import type { State as PaginationState } from '../../utils/stateReducers/paginat
 
 const MAX_PER_PAGE = 10;
 
-const { GET_DATA_SET_COLUMNS_METADATA, GET_ORGANIZATION_DATA_SETS_METADATA } = DataSetMetadataApiActions;
-
 const {
   isPending,
   isSuccess,
 } = ReduxUtils;
 
 const DataSetPermissionsContainer = ({
-  filterByFlag,
+  filterByEntitySetFlagType,
   filterByPermissionTypes,
   filterByQuery,
   onSelect,
@@ -66,7 +65,7 @@ const DataSetPermissionsContainer = ({
   principal,
   selection,
 } :{|
-  filterByFlag :?string;
+  filterByEntitySetFlagType :?EntitySetFlagType;
   filterByPermissionTypes :Array<PermissionType>;
   filterByQuery :string;
   onSelect :(selection :?DataSetPermissionTypeSelection) => void;
@@ -96,8 +95,8 @@ const DataSetPermissionsContainer = ({
     dispatch(
       resetRequestStates([
         GET_DATA_SET_PERMISSIONS_PAGE,
-        GET_DATA_SET_COLUMNS_METADATA,
-        GET_ORGANIZATION_DATA_SETS_METADATA,
+        GET_ORG_DATA_SETS_FROM_META,
+        GET_ORG_DATA_SET_COLUMNS_FROM_META,
       ])
     );
   }, [dispatch]);
@@ -111,7 +110,7 @@ const DataSetPermissionsContainer = ({
   const dispatchGetDataSetPermissionsPage = useCallback(() => {
     dispatch(
       getDataSetPermissionsPage({
-        filterByFlag,
+        filterByEntitySetFlagType,
         filterByPermissionTypes,
         filterByQuery,
         initialize: shouldInitialize.current,
@@ -123,7 +122,7 @@ const DataSetPermissionsContainer = ({
     );
   }, [
     dispatch,
-    filterByFlag,
+    filterByEntitySetFlagType,
     filterByPermissionTypes,
     filterByQuery,
     organizationId,

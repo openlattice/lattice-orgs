@@ -47,7 +47,7 @@ const ORG_DATA_SET_OBJECT_PERMISSIONS :'/orgs/:organizationId/dataSets/:dataSetI
 const ORG_DATA_SET_DATA :'/orgs/:organizationId/dataSets/:dataSetId/data' = `${ORG_DATA_SET}/data`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ENTITY :'/orgs/:organizationId/dataSets/:dataSetId/data/:entityKeyId' = `${ORG_DATA_SET_DATA}/${ENTITY_KEY_ID_PARAM}`;
+const ENTITY_DETAILS :'/orgs/:organizationId/dataSets/:dataSetId/data/:entityKeyId' = `${ORG_DATA_SET_DATA}/${ENTITY_KEY_ID_PARAM}`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_PEOPLE :'/orgs/:organizationId/people' = `${ORG}/people`;
@@ -72,7 +72,6 @@ const ORG_SETTINGS :'/orgs/:organizationId/settings' = `${ORGS}/${ORG_ID_PARAM}/
 
 export {
   ACCOUNT,
-  ENTITY,
   ORG,
   ORGS,
   ORG_ACCESS_REQUEST,
@@ -80,6 +79,7 @@ export {
   ORG_DATA_SET,
   ORG_DATA_SETS,
   ORG_DATA_SET_DATA,
+  ENTITY_DETAILS,
   ORG_DATA_SET_OBJECT_PERMISSIONS,
   ORG_MEMBER,
   ORG_OBJECT_PERMISSIONS,

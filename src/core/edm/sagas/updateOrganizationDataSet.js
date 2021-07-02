@@ -8,21 +8,32 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { DataSetMetadataApiActions, DataSetMetadataApiSagas } from 'lattice-sagas';
-import { AxiosUtils, Logger, ValidationUtils } from 'lattice-utils';
+import { Map } from 'immutable';
+import { DataApiActions, DataApiSagas } from 'lattice-sagas';
+import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
-import type { Organization, UUID } from 'lattice';
+import type {
+  FQN,
+  Organization,
+  PropertyType,
+  UUID,
+} from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { ERR_MISSING_ORG } from '../../../utils/constants/errors';
-import { selectOrganization } from '../../redux/selectors';
+import { ERR_MISSING_ORG, ERR_MISSING_PROPERTY_TYPE } from '../../../utils/constants/errors';
+import { selectOrganization, selectPropertyTypes } from '../../redux/selectors';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../actions';
+import { FQNS } from '../constants';
 
-const { updateDataSetMetadata, updateDataSetColumnMetadata } = DataSetMetadataApiActions;
-const { updateDataSetMetadataWorker, updateDataSetColumnMetadataWorker } = DataSetMetadataApiSagas;
+const { updateEntityData } = DataApiActions;
+const { updateEntityDataWorker } = DataApiSagas;
 const { toSagaError } = AxiosUtils;
-const { isValidUUID } = ValidationUtils;
+
+const REQUIRED_PROPERTY_TYPES :FQN[] = [
+  FQNS.OL_DESCRIPTION,
+  FQNS.OL_TITLE,
+];
 
 const LOG = new Logger('EDMSagas');
 
@@ -32,15 +43,17 @@ function* updateOrganizationDataSetWorker(action :SequenceAction) :Saga<*> {
     yield put(updateOrganizationDataSet.request(action.id, action.value));
 
     const {
-      columnId,
-      dataSetId,
+      // dataSetId,
       description,
+      entityKeyId,
+      isColumn,
       organizationId,
       title,
     } :{|
-      columnId ?:UUID;
       dataSetId :UUID;
       description :string;
+      entityKeyId :UUID;
+      isColumn ?:boolean;
       organizationId :UUID;
       title :string;
     |} = action.value;
@@ -50,12 +63,28 @@ function* updateOrganizationDataSetWorker(action :SequenceAction) :Saga<*> {
       throw new Error(ERR_MISSING_ORG);
     }
 
-    const metadata = { description, title };
-    const updateCall = isValidUUID(columnId)
-      ? call(updateDataSetColumnMetadataWorker, updateDataSetColumnMetadata({ columnId, dataSetId, metadata }))
-      : call(updateDataSetMetadataWorker, updateDataSetMetadata({ dataSetId, metadata }));
+    const propertyTypes :Map<UUID, PropertyType> = yield select(selectPropertyTypes(REQUIRED_PROPERTY_TYPES));
+    const propertyTypeIds :Map<FQN, UUID> = propertyTypes.map((propertyType) => propertyType.type).flip();
+    if (propertyTypeIds.count() !== REQUIRED_PROPERTY_TYPES.length) {
+      throw new Error(ERR_MISSING_PROPERTY_TYPE);
+    }
 
-    const response :WorkerResponse = yield updateCall;
+    const entitySetId :UUID = isColumn
+      ? organization.metadataEntitySetIds.columns
+      : organization.metadataEntitySetIds.datasets;
+
+    const response :WorkerResponse = yield call(
+      updateEntityDataWorker,
+      updateEntityData({
+        entities: {
+          [entityKeyId]: {
+            [propertyTypeIds.get(FQNS.OL_DESCRIPTION)]: [description],
+            [propertyTypeIds.get(FQNS.OL_TITLE)]: [title],
+          },
+        },
+        entitySetId,
+      }),
+    );
     if (response.error) throw response.error;
 
     yield put(updateOrganizationDataSet.success(action.id));
