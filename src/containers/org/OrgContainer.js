@@ -14,6 +14,7 @@ import {
   Collapse,
   Colors,
   IconButton,
+  MarkdownPreview,
   PaginationToolbar,
   Select,
   Typography,
@@ -152,6 +153,7 @@ const OrgContainer = ({
     const rolesCount :number = organization.roles.length;
     const peopleCount :number = organization.members.length;
     const toggleSearchOptions = () => setIsOpenSearchOptions(!isOpenSearchOptions);
+
     return (
       <AppContentWrapper>
         <StackGrid gap={24}>
@@ -190,7 +192,9 @@ const OrgContainer = ({
             </SpaceBetweenGrid>
             {
               isNonEmptyString(organization.description) && (
-                <Typography>{organization.description}</Typography>
+                <MarkdownPreview>
+                  {organization.description}
+                </MarkdownPreview>
               )
             }
           </StackGrid>
