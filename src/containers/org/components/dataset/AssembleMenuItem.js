@@ -11,7 +11,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import AssembleMenuItemContent from './AssembleMenuItemContent';
 
-import { EDM } from '../../../../core/redux/constants';
+import { EDM } from '../../../../common/constants';
 
 const { isPending, reduceRequestStates } = ReduxUtils;
 const {

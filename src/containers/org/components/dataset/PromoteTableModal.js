@@ -10,7 +10,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import PromoteBody from './PromoteBody';
 
-import { EDM } from '../../../../core/redux/constants';
+import { EDM } from '../../../../common/constants';
 
 const { PROMOTE_STAGING_TABLE } = OrganizationsApiActions;
 

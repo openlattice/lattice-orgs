@@ -18,19 +18,19 @@ import type { RequestState } from 'redux-reqseq';
 
 import EditableMetadataRow from './components/EditableMetadataRow';
 
-import { UpdateMetaModal } from '../../components';
-import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../core/edm/actions';
-import { EDM } from '../../core/redux/constants';
-import { selectMyKeys, selectOrgDataSetColumns } from '../../core/redux/selectors';
 import {
   DATA_TYPE,
   DESCRIPTION,
   EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
   EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+  EDM,
   ID,
   METADATA,
   TITLE,
-} from '../../utils/constants';
+} from '../../common/constants';
+import { UpdateMetaModal } from '../../components';
+import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../core/edm/actions';
+import { selectMyKeys, selectOrgDataSetColumns } from '../../core/redux/selectors';
 
 const TABLE_HEADERS = [
   { key: 'title', label: 'TITLE' },

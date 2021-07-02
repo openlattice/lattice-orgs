@@ -26,6 +26,14 @@ import DataSetDataContainer from './DataSetDataContainer';
 import DataSetMetadataContainer from './DataSetMetadataContainer';
 
 import {
+  CONTACTS,
+  DESCRIPTION,
+  METADATA,
+  NAME,
+  TITLE,
+} from '../../common/constants';
+import { isEntitySet } from '../../common/utils';
+import {
   CrumbItem,
   CrumbLink,
   Crumbs,
@@ -41,14 +49,6 @@ import {
   selectOrganization
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-import { isAtlasDataSet } from '../../utils';
-import {
-  CONTACTS,
-  DESCRIPTION,
-  METADATA,
-  NAME,
-  TITLE,
-} from '../../utils/constants';
 
 const { BLUE } = Colors;
 const { isDefined, isNonEmptyString } = LangUtils;
@@ -120,7 +120,7 @@ const OrgDataSetContainer = ({
                 <CountBadge count={dataSetColumns.size} />
                 <Label subtle>Data Fields</Label>
                 {
-                  isDefined(dataSetSize) && !isAtlasDataSet(dataSet) && (
+                  isDefined(dataSetSize) && isEntitySet(dataSet) && (
                     <>
                       <CountBadge count={dataSetSize} max={1000000} />
                       <Label subtle>Records</Label>
@@ -170,7 +170,7 @@ const OrgDataSetContainer = ({
               <Typography variant="h3">Properties</Typography>
             </NavLink>
             {
-              !isAtlasDataSet(dataSet) && (
+              isEntitySet(dataSet) && (
                 <NavLink to={dataSetDataRoute}>
                   <Typography variant="h3">Search</Typography>
                 </NavLink>

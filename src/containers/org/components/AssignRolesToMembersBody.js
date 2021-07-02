@@ -14,9 +14,9 @@ import SelectRoles from './SelectRoles';
 import StyledFooter from './styled/StyledFooter';
 
 import StepConfirm from '../../permissions/StepConfirm';
+import { ORGANIZATIONS } from '../../../common/constants';
+import { getUserProfile } from '../../../common/utils';
 import { ModalBody, ResetOnUnmount } from '../../../components';
-import { ORGANIZATIONS } from '../../../core/redux/constants';
-import { getUserProfile } from '../../../utils';
 import { ASSIGN_ROLES_TO_MEMBERS, assignRolesToMembers } from '../actions';
 
 const { isPending, isSuccess } = ReduxUtils;

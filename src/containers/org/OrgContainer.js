@@ -34,6 +34,13 @@ import { DataSetSearchResultCard, OrgActionButton } from './components';
 
 import { BadgeCheckIcon } from '../../assets';
 import {
+  APPS,
+  ES_FLAG_TYPE_RS_OPTIONS,
+  MAX_HITS_10,
+  ORGANIZATIONS,
+  SEARCH,
+} from '../../common/constants';
+import {
   CrumbLink,
   Flip,
   GapGrid,
@@ -42,9 +49,7 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { APPS, ES_FLAG_TYPE_RS_OPTIONS } from '../../core/edm/constants';
 import { resetRequestStates } from '../../core/redux/actions';
-import { ORGANIZATIONS, SEARCH } from '../../core/redux/constants';
 import {
   selectIsAppInstalled,
   selectOrganization,
@@ -59,8 +64,7 @@ import {
   clearSearchState,
   searchOrganizationDataSets,
 } from '../../core/search/actions';
-import { MAX_HITS_10 } from '../../core/search/constants';
-import type { ReactSelectOption } from '../../types';
+import type { ReactSelectOption } from '../../common/types';
 
 const { PURPLE } = Colors;
 const { isNonEmptyString } = LangUtils;

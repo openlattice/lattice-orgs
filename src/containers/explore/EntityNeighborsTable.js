@@ -13,13 +13,17 @@ import type { RequestState } from 'redux-reqseq';
 
 import { EntityDataRow } from './components';
 
+import {
+  DATA,
+  MAX_HITS_10,
+  METADATA,
+  NAME,
+  TITLE,
+} from '../../common/constants';
 import { DataTableWrapper } from '../../components';
 import { FETCH_ENTITY_SET_DATA, fetchEntitySetData } from '../../core/data/actions';
 import { resetRequestStates } from '../../core/redux/actions';
-import { DATA } from '../../core/redux/constants';
 import { selectOrgDataSetColumns, selectOrgEntitySetData } from '../../core/redux/selectors';
-import { MAX_HITS_10 } from '../../core/search/constants';
-import { METADATA, NAME, TITLE } from '../../utils/constants';
 
 const { isPending, isSuccess } = ReduxUtils;
 const { PURPLE } = Colors;

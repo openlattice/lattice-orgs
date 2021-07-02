@@ -24,14 +24,14 @@ import removeRoleFromMemberReducer from './removeRoleFromMemberReducer';
 import removeRoleFromOrganizationReducer from './removeRoleFromOrganizationReducer';
 import renameOrganizationDatabaseReducer from './renameOrganizationDatabaseReducer';
 
-import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
   INTEGRATION_DETAILS,
   MEMBERS,
   NEW_ORGANIZATION_ID,
   ORGANIZATIONS,
   RS_INITIAL_STATE,
-} from '../../../core/redux/constants';
+} from '../../../common/constants';
+import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import { resetRequestStatesReducer } from '../../../core/redux/reducers';
 import {
   ADD_MEMBERS_TO_ORGANIZATION,

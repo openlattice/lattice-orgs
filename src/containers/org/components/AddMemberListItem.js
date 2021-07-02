@@ -12,7 +12,7 @@ import {
 
 import StyledListItemSecondaryAction from './styled/StyledListItemSecondaryAction';
 
-import { getUserProfile } from '../../../utils';
+import { getUserProfile } from '../../../common/utils';
 
 const CloseIcon = () => <FontAwesomeIcon fixedWidth icon={faTimes} />;
 

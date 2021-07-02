@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, Principal, UUID } from 'lattice';
 
 import MemberRolesContainer from '../MemberRolesContainer';
+import { getPrincipal, getSecurablePrincipalId, getUserProfile } from '../../../common/utils';
 import {
   CrumbItem,
   CrumbLink,
@@ -29,14 +30,13 @@ import {
 } from '../../../core/permissions/actions';
 import { resetRequestStates } from '../../../core/redux/actions';
 import { selectOrganization, selectOrganizationMembers } from '../../../core/redux/selectors';
-import { getPrincipal, getSecurablePrincipalId, getUserProfile } from '../../../utils';
 import {
   AssignPermissionsToDataSetModalBody,
   DataSetPermissionsContainer,
   PermissionsActionsGrid,
   PermissionsPanel,
 } from '../../permissions';
-import type { UserProfile } from '../../../types';
+import type { UserProfile } from '../../../common/types';
 
 const { PermissionTypes } = Types;
 

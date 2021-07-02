@@ -14,9 +14,9 @@ import MemberRoleChip from './MemberRoleChip';
 import { AssignRolesToMembersModal, RemoveRoleFromMemberModal } from './components';
 import { isRoleAssignedToMember } from './utils';
 
+import { getUserProfile } from '../../common/utils';
 import { CirclePlusButton, StackGrid } from '../../components';
 import { selectMyKeys } from '../../core/redux/selectors';
-import { getUserProfile } from '../../utils';
 
 const Flex = styled.div`
   align-items: center;

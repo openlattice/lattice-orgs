@@ -34,10 +34,17 @@ import type { RequestState } from 'redux-reqseq';
 
 import { ObjectPermissionCheckbox } from './components';
 
+import {
+  ID,
+  METADATA,
+  NAME,
+  PERMISSIONS,
+  TITLE,
+} from '../../common/constants';
+import { getDataSetKeys } from '../../common/utils';
 import { Divider, SpaceBetweenGrid } from '../../components';
 import { SET_PERMISSIONS, setPermissions } from '../../core/permissions/actions';
 import { computePermissionAssignments } from '../../core/permissions/utils';
-import { PERMISSIONS } from '../../core/redux/constants';
 import {
   selectMyKeys,
   selectOrgDataSet,
@@ -45,13 +52,6 @@ import {
   selectPrincipalPermissions,
   selectPropertyTypes,
 } from '../../core/redux/selectors';
-import { getDataSetKeys } from '../../utils';
-import {
-  ID,
-  METADATA,
-  NAME,
-  TITLE,
-} from '../../utils/constants';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { APP_CONTENT_PADDING } = Sizes;

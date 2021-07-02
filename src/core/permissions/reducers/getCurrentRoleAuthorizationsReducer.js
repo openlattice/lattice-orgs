@@ -10,7 +10,7 @@ import {
   CURRENT_ROLE_AUTHORIZATIONS,
   ERROR,
   REQUEST_STATE,
-} from '../../redux/constants';
+} from '../../../common/constants';
 import {
   GET_CURRENT_ROLE_AUTHORIZATIONS,
   getCurrentRoleAuthorizations,

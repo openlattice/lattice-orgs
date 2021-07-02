@@ -23,9 +23,20 @@ import type { RequestState } from 'redux-reqseq';
 import AssembleMenuItem from './AssembleMenuItem';
 import PromoteTableModal from './PromoteTableModal';
 
+import {
+  DESCRIPTION,
+  EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+  EDM,
+  FLAGS,
+  METADATA,
+  NAME,
+  OPENLATTICE,
+  TITLE,
+} from '../../../../common/constants';
+import { isEntitySet } from '../../../../common/utils';
 import { UpdateMetaModal } from '../../../../components';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../../../core/edm/actions';
-import { EDM } from '../../../../core/redux/constants';
 import {
   selectCurrentAuthorization,
   selectDataSetSchema,
@@ -33,17 +44,6 @@ import {
   selectOrgDataSet,
 } from '../../../../core/redux/selectors';
 import { Routes } from '../../../../core/router';
-import { isAtlasDataSet } from '../../../../utils';
-import {
-  DESCRIPTION,
-  EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
-  EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
-  FLAGS,
-  METADATA,
-  NAME,
-  OPENLATTICE,
-  TITLE,
-} from '../../../../utils/constants';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
 const { EntitySetFlagTypes, PermissionTypes } = Types;
@@ -129,7 +129,7 @@ const DataSetActionButton = ({
   const dataSetFlags :List<string> = dataSet.getIn([METADATA, FLAGS]);
   const dataSetName :string = dataSet.get(NAME);
   const dataSetTitle :string = dataSet.getIn([METADATA, TITLE]);
-  const isAtlas :boolean = isAtlasDataSet(dataSet);
+  const isAtlas :boolean = !isEntitySet(dataSet);
   const isAssembled = isAtlas ? false : dataSetFlags.includes(EntitySetFlagTypes.TRANSPORTED);
   const isPromoted = dataSetSchema === OPENLATTICE;
 

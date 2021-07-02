@@ -3,11 +3,11 @@
  */
 
 import { Map } from 'immutable';
+import { PrincipalsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
-import { PrincipalsApiActions } from 'lattice-sagas';
 
-import { REQUEST_STATE } from '../../../core/redux/constants';
+import { REQUEST_STATE } from '../../../common/constants';
 
 const { REGENERATE_CREDENTIAL, regenerateCredential } = PrincipalsApiActions;
 

@@ -3,11 +3,11 @@
  */
 
 import { Map } from 'immutable';
-import { RequestStates } from 'redux-reqseq';
 import { Types } from 'lattice';
+import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { ACES, ERROR, REQUEST_STATE } from '../../redux/constants';
+import { ACES, ERROR, REQUEST_STATE } from '../../../common/constants';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   assignPermissionsToDataSet,

@@ -14,7 +14,7 @@ import ModalBody from './ModalBody';
 
 import { StackGrid } from '../grids';
 import { ResetOnUnmount } from '../other';
-import type { RJSFError } from '../../types';
+import type { RJSFError } from '../../common/types';
 
 const { isFailure, isPending, isSuccess } = ReduxUtils;
 

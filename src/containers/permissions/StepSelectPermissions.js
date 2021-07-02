@@ -15,9 +15,9 @@ import {
 } from 'lattice-ui-kit';
 import type { PermissionType } from 'lattice';
 
-import { PERMISSION_TYPE_RS_OPTIONS } from './constants';
+import { PERMISSION_TYPE_RS_OPTIONS } from '../../common/constants';
 import { SpaceBetweenGrid, StackGrid } from '../../components';
-import type { ReactSelectOption } from '../../types';
+import type { ReactSelectOption } from '../../common/types';
 
 const { NEUTRAL, PURPLE } = Colors;
 

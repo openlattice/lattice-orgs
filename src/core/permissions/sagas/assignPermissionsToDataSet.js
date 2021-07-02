@@ -22,7 +22,7 @@ import type { PermissionType, Principal, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { getDataSetKeys } from '../../../utils';
+import { getDataSetKeys } from '../../../common/utils';
 import { selectOrgDataSet, selectOrgDataSetColumns } from '../../redux/selectors';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../actions';
 

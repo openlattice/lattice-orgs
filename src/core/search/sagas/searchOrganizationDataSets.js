@@ -17,11 +17,14 @@ import type { Organization, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { ERR_MISSING_ORG } from '../../../utils/constants/errors';
-import { HITS, TOTAL_HITS } from '../../redux/constants';
+import {
+  ERR_MISSING_ORG,
+  HITS,
+  MAX_HITS_10,
+  TOTAL_HITS,
+} from '../../../common/constants';
 import { selectOrganization } from '../../redux/selectors';
 import { SEARCH_ORGANIZATION_DATA_SETS, searchOrganizationDataSets } from '../actions';
-import { MAX_HITS_10 } from '../constants';
 
 const { EntitySetFlagTypes } = Types;
 const { searchDataSetMetadata } = SearchApiActions;

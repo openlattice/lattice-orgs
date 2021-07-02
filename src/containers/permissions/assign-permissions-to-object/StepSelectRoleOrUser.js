@@ -25,12 +25,9 @@ import type {
   UUID
 } from 'lattice';
 
-import {
-  SpaceBetweenGrid,
-  StackGrid,
-} from '../../../components';
+import { getPrincipal, getUserTitle } from '../../../common/utils';
+import { SpaceBetweenGrid, StackGrid } from '../../../components';
 import { selectOrganization, selectOrganizationMembers } from '../../../core/redux/selectors';
-import { getPrincipal, getUserTitle } from '../../../utils';
 
 const { getUserId } = PersonUtils;
 

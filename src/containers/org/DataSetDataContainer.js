@@ -29,13 +29,19 @@ import type { RequestState } from 'redux-reqseq';
 
 import EntityDataModal from '../explore/components/EntityDataModal';
 import {
+  MAX_HITS_10,
+  METADATA,
+  NAME,
+  SEARCH,
+  TITLE,
+} from '../../common/constants';
+import {
   DataTableWrapper,
   SearchForm,
   Spinner,
   StackGrid,
   ValueCell,
 } from '../../components';
-import { SEARCH } from '../../core/redux/constants';
 import {
   selectOrgDataSetColumns,
   selectSearchHits,
@@ -44,8 +50,6 @@ import {
   selectSearchTotalHits,
 } from '../../core/redux/selectors';
 import { SEARCH_DATA, clearSearchState, searchData } from '../../core/search/actions';
-import { MAX_HITS_10 } from '../../core/search/constants';
-import { METADATA, NAME, TITLE } from '../../utils/constants';
 
 const { getEntityKeyId } = DataUtils;
 const { isNonEmptyString } = LangUtils;

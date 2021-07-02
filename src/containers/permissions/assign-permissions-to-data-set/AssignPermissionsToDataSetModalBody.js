@@ -17,10 +17,10 @@ import StepSelectDataSet from './StepSelectDataSet';
 
 import StepConfirm from '../StepConfirm';
 import StepSelectPermissions from '../StepSelectPermissions';
+import { PERMISSIONS } from '../../../common/constants';
 import { ModalBody, StepsController } from '../../../components';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../../core/permissions/actions';
 import { resetRequestStates } from '../../../core/redux/actions';
-import { PERMISSIONS } from '../../../core/redux/constants';
 import { SEARCH_ORGANIZATION_DATA_SETS, clearSearchState } from '../../../core/search/actions';
 
 const ModalFooter = styled(LUKModalFooter)`

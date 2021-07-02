@@ -11,7 +11,7 @@ import {
   ACES,
   ERROR,
   REQUEST_STATE,
-} from '../../redux/constants';
+} from '../../../common/constants';
 import {
   SET_PERMISSIONS,
   setPermissions,

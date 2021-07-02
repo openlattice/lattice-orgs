@@ -9,16 +9,8 @@ import getOrganizationMembersReducer from './getOrganizationMembersReducer';
 import getUsersReducer from './getUsersReducer';
 import searchAllUsersReducer from './searchAllUsersReducer';
 
-import {
-  RS_INITIAL_STATE,
-  USERS,
-  USER_SEARCH_RESULTS,
-} from '../../redux/constants';
-import {
-  RESET_USER_SEARCH_RESULTS,
-  SEARCH_ALL_USERS,
-  searchAllUsers,
-} from '../actions';
+import { RS_INITIAL_STATE, USERS, USER_SEARCH_RESULTS } from '../../../common/constants';
+import { RESET_USER_SEARCH_RESULTS, SEARCH_ALL_USERS, searchAllUsers } from '../actions';
 
 const {
   GET_ORGANIZATION_MEMBERS,

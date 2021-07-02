@@ -25,6 +25,14 @@ import type { RequestState } from 'redux-reqseq';
 
 import DataSetPermissionsCard from './DataSetPermissionsCard';
 
+import {
+  MAX_HITS_10,
+  PAGE,
+  PAGE_PERMISSIONS_BY_DATA_SET,
+  PERMISSIONS,
+  RESET,
+  TOTAL_PERMISSIONS,
+} from '../../common/constants';
 import { Spinner, StackGrid } from '../../components';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
@@ -33,28 +41,18 @@ import {
   getDataSetPermissionsPage,
 } from '../../core/permissions/actions';
 import { resetRequestStates } from '../../core/redux/actions';
-import {
-  PAGE_PERMISSIONS_BY_DATA_SET,
-  PERMISSIONS,
-  TOTAL_PERMISSIONS,
-} from '../../core/redux/constants';
 import { selectDataSetPermissionsPage } from '../../core/redux/selectors';
-import {
-  INITIAL_PAGINATION_STATE,
-  PAGE,
-  RESET,
-  paginationReducer,
-} from '../../utils/stateReducers/pagination';
-import type { DataSetPermissionTypeSelection } from '../../types';
-import type { State as PaginationState } from '../../utils/stateReducers/pagination';
+import type { DataSetPermissionTypeSelection } from '../../common/types';
 
-const MAX_PER_PAGE = 10;
-
-const { GET_DATA_SET_COLUMNS_METADATA, GET_ORGANIZATION_DATA_SETS_METADATA } = DataSetMetadataApiActions;
+const {
+  GET_DATA_SET_COLUMNS_METADATA,
+  GET_ORGANIZATION_DATA_SETS_METADATA,
+} = DataSetMetadataApiActions;
 
 const {
   isPending,
   isSuccess,
+  pagination,
 } = ReduxUtils;
 
 const DataSetPermissionsContainer = ({
@@ -79,7 +77,7 @@ const DataSetPermissionsContainer = ({
 
   const shouldInitialize = useRef(true);
   const [openDataSetId, setOpenDataSetId] = useState('');
-  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
+  const [paginationState, paginationDispatch] = useReducer(pagination.reducer, pagination.INITIAL_STATE);
   const { page, start } = paginationState;
 
   const assignPermissionsToDataSetRS :?RequestState = useRequestState([PERMISSIONS, ASSIGN_PERMISSIONS_TO_DATA_SET]);
@@ -116,7 +114,7 @@ const DataSetPermissionsContainer = ({
         filterByQuery,
         initialize: shouldInitialize.current,
         organizationId,
-        pageSize: MAX_PER_PAGE,
+        pageSize: MAX_HITS_10,
         principal,
         start,
       })
@@ -153,7 +151,7 @@ const DataSetPermissionsContainer = ({
     paginationDispatch({ type: RESET });
   }, [filterByPermissionTypes, filterByQuery]);
 
-  const handleOnPageChange = (state :PaginationState) => {
+  const handleOnPageChange = (state) => {
     paginationDispatch({
       page: state.page,
       start: state.start,
@@ -199,12 +197,12 @@ const DataSetPermissionsContainer = ({
         )
       }
       {
-        totalPermissions > MAX_PER_PAGE && (
+        totalPermissions > MAX_HITS_10 && (
           <PaginationToolbar
               count={totalPermissions}
               onPageChange={handleOnPageChange}
               page={page}
-              rowsPerPage={MAX_PER_PAGE} />
+              rowsPerPage={MAX_HITS_10} />
         )
       }
     </StackGrid>

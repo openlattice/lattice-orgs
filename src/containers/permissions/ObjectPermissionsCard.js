@@ -35,20 +35,24 @@ import type { RequestState } from 'redux-reqseq';
 
 import DataSetColumnPermissionsSection from './DataSetColumnPermissionsSection';
 import { ObjectPermissionCheckbox } from './components';
-import { ORDERED_PERMISSIONS } from './constants';
 
-import Divider from '../../components/other/Divider';
-import { SpaceBetweenGrid, Spinner, StackGrid } from '../../components';
-import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
-import { PERMISSIONS } from '../../core/redux/constants';
-import { selectMyKeys, selectUser } from '../../core/redux/selectors';
-import { getPrincipalTitle } from '../../utils';
 import {
   ID,
   METADATA,
   NAME,
+  ORDERED_PERMISSIONS,
+  PERMISSIONS,
   TITLE,
-} from '../../utils/constants';
+} from '../../common/constants';
+import { getPrincipalTitle } from '../../common/utils';
+import {
+  Divider,
+  SpaceBetweenGrid,
+  Spinner,
+  StackGrid,
+} from '../../components';
+import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
+import { selectMyKeys, selectUser } from '../../core/redux/selectors';
 
 const { NEUTRAL } = Colors;
 const { AceBuilder } = Models;

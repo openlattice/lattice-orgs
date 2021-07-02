@@ -8,12 +8,8 @@ import { matchPath } from 'react-router';
 import exploreEntityDataReducer from './exploreEntityDataReducer';
 import exploreEntityNeighborsReducer from './exploreEntityNeighborsReducer';
 
+import { ENTITY_NEIGHBORS_MAP, RS_INITIAL_STATE, SELECTED_ENTITY_DATA } from '../../../common/constants';
 import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
-import {
-  ENTITY_NEIGHBORS_MAP,
-  RS_INITIAL_STATE,
-  SELECTED_ENTITY_DATA
-} from '../../../core/redux/constants';
 import { resetRequestStatesReducer } from '../../../core/redux/reducers';
 import { Routes, RoutingActions } from '../../../core/router';
 import {
