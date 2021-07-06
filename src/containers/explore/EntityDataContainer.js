@@ -118,6 +118,7 @@ const EntityDataContainer = ({
         </AppContentWrapper>
         <AppContentWrapper>
           <Typography gutterBottom variant="h2">Explore</Typography>
+          <Typography gutterBottom variant="subtitle2">Note: columns without data are hidden on this page</Typography>
           <EntityNeighborsContainer
               isModal={isModal}
               neighbors={neighbors}
