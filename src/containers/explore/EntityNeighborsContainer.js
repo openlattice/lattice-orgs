@@ -7,7 +7,7 @@ import React, { Fragment, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Map, Set } from 'immutable';
 import { Checkbox, Typography } from 'lattice-ui-kit';
-import { useRequestState, ReduxUtils } from 'lattice-utils';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -168,6 +168,7 @@ const EntityNeighborsContainer = ({ isModal, neighbors, organizationId } :Props)
 
   return (
     <ContainerWrapper>
+      <Divider isVisible={false} margin={15} />
       <Typography gutterBottom variant="subtitle1">Association Entity Sets:</Typography>
       <Divider isVisible={false} margin={15} />
       { associationEntitySetChips }
