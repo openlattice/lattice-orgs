@@ -57,6 +57,7 @@ const EntityNeighborsTable = ({
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
   const [tablePage, setTablePage] = useState(1);
+  const [tableHeaders, setTableHeaders] = useState([]);
   const [neighborsIndex, setNeighborsIndex] = useState(0);
   const fetchEntitySetDataRS :?RequestState = useRequestState([DATA, FETCH_ENTITY_SET_DATA, dataSetId]);
 
@@ -79,24 +80,47 @@ const EntityNeighborsTable = ({
   const neighborPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(dataSet.get('entityTypeId'));
 
   // OPTIMIZE: no need to compute this on every render
-  const tableHeaders = [];
-  associationPropertyTypes.forEach((propertyType) => tableHeaders.push({
-    key: `${propertyType.type.toString()}_edge`,
-    label: `${propertyType.title} (${propertyType.type.toString()}) (Edge)`,
-    sortable: false,
-    cellStyle: { 'background-color': PURPLE.P00 }
-  }));
-  neighborPropertyTypes.forEach((propertyType) => tableHeaders.push({
-    key: propertyType.type.toString(),
-    label: `${propertyType.title} (${propertyType.type.toString()})`,
-    sortable: false,
-  }));
-
-  // OPTIMIZE: no need to compute this on every render
-  const dataSetData :Map = useSelector(selectOrgEntitySetData(dataSetId, neighborToAssociationEKIDs.keySeq()));
   const associationData :Map = useSelector(
     selectOrgEntitySetData(associationDataSetId, neighborToAssociationEKIDs.valueSeq())
   );
+  const associationHash = associationData.hashCode();
+  const dataSetData :Map = useSelector(selectOrgEntitySetData(dataSetId, neighborToAssociationEKIDs.keySeq()));
+  const dataHash = dataSetData.hashCode();
+
+  // OPTIMIZE: no need to compute this on every render
+  useEffect(() => {
+    if (isSuccess(fetchEntitySetDataRS)) {
+      const headersSet :Set<string> = Set().withMutations((mutableSet :Set) => {
+        associationData.forEach((entity :Map) => mutableSet.union(entity.keySeq()));
+        dataSetData.valueSeq().forEach((entity :Map) => mutableSet.union(entity.keySeq()));
+      });
+      const headers :List = List().withMutations((mutableList) => {
+        associationPropertyTypes
+          .filter((column :Map<string, List>) => headersSet.has(column.type.toString()))
+          .forEach((column :Map<string, List>) => {
+            mutableList.push({
+              key: `${column.type.toString()}_edge`,
+              label: `${column.title} (${column.type.toString()}) (Edge)`,
+              sortable: false,
+              cellStyle: { 'background-color': PURPLE.P00 }
+            });
+          });
+        neighborPropertyTypes
+          .filter((column :Map<string, List>) => headersSet.has(column.type.toString()))
+          .forEach((column :Map<string, List>) => {
+            mutableList.push({
+              key: column.type.toString(),
+              label: `${column.title} (${column.type.toString()})`,
+              sortable: false,
+            });
+          });
+      });
+      setTableHeaders(headers.toJS());
+    }
+  // NOTE: leaving out "dataSetData", "associationData", "associationPropertyTypes", and "neighborPropertyTypes"
+  // from depedency array because it tends to cause infinite renders.
+  // TODO: figure out how to avoid the infinite renders when "dataSetData" is passed
+  }, [associationHash, dataHash, fetchEntitySetDataRS]);
 
   useEffect(() => {
     if (isSuccess(fetchEntitySetDataRS)) {
