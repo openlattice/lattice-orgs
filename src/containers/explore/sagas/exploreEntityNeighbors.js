@@ -4,14 +4,15 @@
 
 import _has from 'lodash/has';
 import {
+  all,
   call,
   put,
   takeEvery,
 } from '@redux-saga/core/effects';
 import { Set, fromJS } from 'immutable';
 import {
-  EntitySetsApiActions,
-  EntitySetsApiSagas,
+  DataSetMetadataApiActions,
+  DataSetMetadataApiSagas,
   SearchApiActions,
   SearchApiSagas,
 } from 'lattice-sagas';
@@ -25,8 +26,8 @@ import { EXPLORE_ENTITY_NEIGHBORS, exploreEntityNeighbors } from '../actions';
 
 const LOG = new Logger('ExploreSagas');
 
-const { getEntitySets } = EntitySetsApiActions;
-const { getEntitySetsWorker } = EntitySetsApiSagas;
+const { getDataSetsMetadata, getDataSetColumnsMetadata } = DataSetMetadataApiActions;
+const { getDataSetsMetadataWorker, getDataSetColumnsMetadataWorker } = DataSetMetadataApiSagas;
 const { searchEntityNeighborsWithFilter } = SearchApiActions;
 const { searchEntityNeighborsWithFilterWorker } = SearchApiSagas;
 
@@ -67,7 +68,12 @@ function* exploreEntityNeighborsWorker(action :SequenceAction) :Saga<*> {
       iNeighbors.reduce((ids, value, key) => ids.add(key).add(value.keySeq()), set);
     }).flatten().toJS();
 
-    yield call(getEntitySetsWorker, getEntitySets(entitySetIds));
+    // OPTIMIZE: we are triggering too many of these requests, which are often duplicates. it's very likely we already
+    // have the necessary data
+    yield all([
+      call(getDataSetsMetadataWorker, getDataSetsMetadata(entitySetIds)),
+      call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata(entitySetIds)),
+    ]);
 
     yield put(exploreEntityNeighbors.success(action.id, iNeighbors));
   }

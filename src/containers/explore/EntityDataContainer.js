@@ -6,11 +6,7 @@ import React, { useEffect } from 'react';
 
 import { List, Map } from 'immutable';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
-import {
-  DataUtils,
-  ReduxUtils,
-  useRequestState
-} from 'lattice-utils';
+import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { FQN, Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -29,9 +25,9 @@ import {
   Crumbs,
   LinkButton,
   SpaceBetweenGrid,
-  Spinner
+  Spinner,
+  StackGrid,
 } from '../../components';
-import { FQNS } from '../../core/edm/constants';
 import { EXPLORE } from '../../core/redux/constants';
 import {
   selectEntityNeighborsMap,
@@ -41,8 +37,8 @@ import {
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { clipboardWriteText } from '../../utils';
+import { METADATA, NAME, TITLE } from '../../utils/constants';
 
-const { getPropertyValue } = DataUtils;
 const { isPending } = ReduxUtils;
 
 const EntityDataContainer = ({
@@ -65,7 +61,7 @@ const EntityDataContainer = ({
   const { origin, pathname } = window.location;
 
   const linkString = `${origin}${pathname}#${
-    Routes.ENTITY_DETAILS
+    Routes.ENTITY
       .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
       .replace(Routes.ENTITY_KEY_ID_PARAM, entityKeyId)
       .replace(Routes.ORG_ID_PARAM, organizationId)
@@ -77,8 +73,8 @@ const EntityDataContainer = ({
   const neighbors :Map = useSelector(selectEntityNeighborsMap(entityKeyId));
   const organization :?Organization = useSelector(selectOrganization(organizationId));
 
-  const name :string = getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0]);
-  const title :string = getPropertyValue(dataSet, [FQNS.OL_TITLE, 0]);
+  const dataSetName :string = dataSet.get(NAME);
+  const dataSetTitle :string = dataSet.getIn([METADATA, TITLE]);
 
   useEffect(() => {
     dispatch(exploreEntityData({ entityKeyId, entitySetId: dataSetId }));
@@ -96,32 +92,36 @@ const EntityDataContainer = ({
   if (entityData && dataSetId && organizationId) {
     return (
       <>
-        <AppContentWrapper bgColor="white">
+        <AppContentWrapper>
           {
             organization && dataSet && !isModal && (
               <Crumbs>
                 <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
-                <CrumbLink to={dataSetDataRoute}>{title || name}</CrumbLink>
+                <CrumbLink to={dataSetDataRoute}>{dataSetTitle || dataSetName}</CrumbLink>
                 <CrumbItem>{entityKeyId}</CrumbItem>
               </Crumbs>
             )
           }
-          <SpaceBetweenGrid>
-            <Typography gutterBottom variant="h1">{entityKeyId}</Typography>
-            <LinkButton
-                color="default"
-                onClick={() => clipboardWriteText(linkString)}>
-              Get Link
-            </LinkButton>
-          </SpaceBetweenGrid>
-          <EntityDataGrid data={entityData} dataSetId={dataSetId} organizationId={organizationId} />
-        </AppContentWrapper>
-        <AppContentWrapper>
-          <Typography gutterBottom variant="h2">Explore</Typography>
-          <EntityNeighborsContainer
-              isModal={isModal}
-              neighbors={neighbors}
-              organizationId={organizationId} />
+          <StackGrid gap={48}>
+            <StackGrid>
+              <SpaceBetweenGrid>
+                <Typography variant="h1">{entityKeyId}</Typography>
+                <LinkButton
+                    color="default"
+                    onClick={() => clipboardWriteText(linkString)}>
+                  Copy Link
+                </LinkButton>
+              </SpaceBetweenGrid>
+              <EntityDataGrid data={entityData} dataSetId={dataSetId} organizationId={organizationId} />
+            </StackGrid>
+            <StackGrid>
+              <Typography variant="h2">Explore</Typography>
+              <EntityNeighborsContainer
+                  isModal={isModal}
+                  neighbors={neighbors}
+                  organizationId={organizationId} />
+            </StackGrid>
+          </StackGrid>
         </AppContentWrapper>
       </>
     );
