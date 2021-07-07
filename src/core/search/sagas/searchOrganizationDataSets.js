@@ -8,37 +8,26 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { Map, fromJS } from 'immutable';
+import { fromJS } from 'immutable';
 import { Types } from 'lattice';
 import { SearchApiActions, SearchApiSagas } from 'lattice-sagas';
 import { AxiosUtils, LangUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
-import type {
-  EntitySetFlagType,
-  FQN,
-  Organization,
-  PropertyType,
-  UUID,
-} from 'lattice';
+import type { Organization, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { ERR_MISSING_ORG, ERR_MISSING_PROPERTY_TYPE } from '../../../utils/constants/errors';
-import { FQNS } from '../../edm/constants';
+import { ERR_MISSING_ORG } from '../../../utils/constants/errors';
 import { HITS, TOTAL_HITS } from '../../redux/constants';
-import { selectOrganization, selectPropertyTypes } from '../../redux/selectors';
+import { selectOrganization } from '../../redux/selectors';
 import { SEARCH_ORGANIZATION_DATA_SETS, searchOrganizationDataSets } from '../actions';
 import { MAX_HITS_10 } from '../constants';
 
 const { EntitySetFlagTypes } = Types;
-const { searchEntitySetData } = SearchApiActions;
-const { searchEntitySetDataWorker } = SearchApiSagas;
+const { searchDataSetMetadata } = SearchApiActions;
+const { searchDataSetMetadataWorker } = SearchApiSagas;
 const { toSagaError } = AxiosUtils;
 const { isDefined } = LangUtils;
-
-const REQUIRED_PROPERTY_TYPES :FQN[] = [
-  FQNS.OL_FLAGS,
-];
 
 const LOG = new Logger('SearchSagas');
 
@@ -50,13 +39,13 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
     yield put(searchOrganizationDataSets.request(action.id, action.value));
 
     const {
-      entitySetFlags = [],
+      flags = [],
       maxHits = MAX_HITS_10,
       organizationId,
       query,
       start = 0,
     } :{|
-      entitySetFlags :Array<?EntitySetFlagType>;
+      flags ?:string[];
       maxHits ?:number;
       organizationId :UUID;
       page ?:number;
@@ -69,44 +58,36 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
       throw new Error(ERR_MISSING_ORG);
     }
 
-    const propertyTypes :Map<UUID, PropertyType> = yield select(selectPropertyTypes(REQUIRED_PROPERTY_TYPES));
-    const propertyTypeIds :Map<FQN, UUID> = propertyTypes.map((propertyType) => propertyType.type).flip();
-    if (propertyTypeIds.count() !== REQUIRED_PROPERTY_TYPES.length) {
-      throw new Error(ERR_MISSING_PROPERTY_TYPE);
-    }
-
     const constraints = [{
       constraints: [{
         searchTerm: query,
       }],
     }];
 
-    const flags = entitySetFlags.filter(isDefined);
-    if (flags.length === 0) {
+    const searchFlags = flags.filter(isDefined);
+    if (searchFlags.length === 0) {
       constraints.push({
         constraints: [
-          { searchTerm: `NOT(entity.${propertyTypeIds.get(FQNS.OL_FLAGS)}:${EntitySetFlagTypes.AUDIT})` },
+          { searchTerm: `NOT(dataset.metadata.flags:${EntitySetFlagTypes.AUDIT})` },
         ],
       });
     }
     else {
-      flags.forEach((flag :?EntitySetFlagType) => {
-        if (flag) {
-          constraints.push({
-            constraints: [
-              { searchTerm: `entity.${propertyTypeIds.get(FQNS.OL_FLAGS)}:${flag}` },
-            ],
-          });
-        }
+      searchFlags.forEach((flag) => {
+        constraints.push({
+          constraints: [
+            { searchTerm: `dataset.metadata.flags:${flag}` },
+          ],
+        });
       });
     }
 
     const response :WorkerResponse = yield call(
-      searchEntitySetDataWorker,
-      searchEntitySetData({
+      searchDataSetMetadataWorker,
+      searchDataSetMetadata({
         constraints,
-        entitySetIds: [organization.metadataEntitySetIds.datasets],
         maxHits,
+        organizationIds: [organizationId],
         start,
       }),
     );

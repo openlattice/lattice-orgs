@@ -8,15 +8,9 @@ import {
   List,
   Map,
   Set,
-  get
+  get,
 } from 'immutable';
-import { Models } from 'lattice';
-import {
-  CardSegment,
-  Colors,
-  PaginationToolbar,
-  Table,
-} from 'lattice-ui-kit';
+import { Colors, PaginationToolbar, Table } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
@@ -24,51 +18,47 @@ import type { RequestState } from 'redux-reqseq';
 
 import { EntityDataRow } from './components';
 
-import { TableCardSegment } from '../../components';
+import { DataTableWrapper } from '../../components';
 import { FETCH_ENTITY_SET_DATA, fetchEntitySetData } from '../../core/data/actions';
 import { resetRequestStates } from '../../core/redux/actions';
 import { DATA } from '../../core/redux/constants';
-import { selectOrgEntitySetData } from '../../core/redux/selectors';
-import { useEntityTypePropertyTypes } from '../../core/edm/utils';
+import { selectOrgDataSetColumns, selectOrgEntitySetData } from '../../core/redux/selectors';
 import { MAX_HITS_10 } from '../../core/search/constants';
+import { METADATA, NAME, TITLE } from '../../utils/constants';
 
-const { PropertyType } = Models;
 const { isPending, isSuccess } = ReduxUtils;
 const { PURPLE } = Colors;
 
-type Props = {
-  associationDataSet :Map,
-  dataSet :Map;
-  isModal :boolean;
-  neighbors :List<Map>;
-  organizationId :UUID;
-};
-
 const EntityNeighborsTable = ({
   associationDataSet,
-  dataSet,
   isModal,
+  neighborDataSet,
   neighbors,
-  organizationId
-} :Props) => {
+  organizationId,
+} :{|
+  associationDataSet :Map,
+  isModal :boolean;
+  neighborDataSet :Map;
+  neighbors :List<Map>;
+  organizationId :UUID;
+|}) => {
+
   const associationDataSetId :UUID = get(associationDataSet, 'id');
-  const dataSetId :UUID = get(dataSet, 'id');
+  const neighborDataSetId :UUID = get(neighborDataSet, 'id');
 
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
   const [tablePage, setTablePage] = useState(1);
   const [tableHeaders, setTableHeaders] = useState([]);
   const [neighborsIndex, setNeighborsIndex] = useState(0);
-  const fetchEntitySetDataRS :?RequestState = useRequestState([DATA, FETCH_ENTITY_SET_DATA, dataSetId]);
 
-  const neighborToAssociationEKIDs :Map = useMemo(() => (
+  const fetchEntitySetDataRS :?RequestState = useRequestState([DATA, FETCH_ENTITY_SET_DATA, neighborDataSetId]);
+
+  const neighborToAssociationEKIDs :Map<UUID, UUID> = useMemo(() => (
     Map().withMutations((mutableMap) => {
-      if (neighbors) {
-        neighbors
-          .slice(neighborsIndex, neighborsIndex + MAX_HITS_10)
-          .forEach((neighbor :Map) => mutableMap
-            .set(get(neighbor, 'neighborId'), get(neighbor, 'associationId')));
-      }
+      neighbors
+        .slice(neighborsIndex, neighborsIndex + MAX_HITS_10)
+        .forEach((neighbor :Map) => mutableMap.set(get(neighbor, 'neighborId'), get(neighbor, 'associationId')));
     })
   ), [neighbors, neighborsIndex]);
 
@@ -76,58 +66,60 @@ const EntityNeighborsTable = ({
     neighbors ? neighbors.count() : 0
   ), [neighbors]);
 
-  const associationPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(associationDataSet.get('entityTypeId'));
-  const neighborPropertyTypes :PropertyType[] = useEntityTypePropertyTypes(dataSet.get('entityTypeId'));
+  const associationColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, associationDataSetId));
+  const neighborColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, neighborDataSetId));
 
-  // OPTIMIZE: no need to compute this on every render
   const associationData :Map = useSelector(
     selectOrgEntitySetData(associationDataSetId, neighborToAssociationEKIDs.valueSeq())
   );
   const associationHash = associationData.hashCode();
-  const dataSetData :Map = useSelector(selectOrgEntitySetData(dataSetId, neighborToAssociationEKIDs.keySeq()));
-  const dataHash = dataSetData.hashCode();
 
-  // OPTIMIZE: no need to compute this on every render
+  const neighborData :Map = useSelector(
+    selectOrgEntitySetData(neighborDataSetId, neighborToAssociationEKIDs.keySeq())
+  );
+  const neighborHash = neighborData.hashCode();
+
   useEffect(() => {
     if (isSuccess(fetchEntitySetDataRS)) {
       const headersSet :Set<string> = Set().withMutations((mutableSet :Set) => {
         associationData.forEach((entity :Map) => mutableSet.union(entity.keySeq()));
-        dataSetData.valueSeq().forEach((entity :Map) => mutableSet.union(entity.keySeq()));
+        neighborData.valueSeq().forEach((entity :Map) => mutableSet.union(entity.keySeq()));
       });
       const headers :List = List().withMutations((mutableList) => {
-        associationPropertyTypes
-          .filter((column :Map<string, List>) => headersSet.has(column.type.toString()))
-          .forEach((column :Map<string, List>) => {
+        associationColumns
+          .valueSeq()
+          .filter((column :Map) => headersSet.has(column.get(NAME)))
+          .forEach((column :Map) => {
             mutableList.push({
-              key: `${column.type.toString()}_edge`,
-              label: `${column.title} (${column.type.toString()}) (Edge)`,
+              key: `${column.get(NAME)}_edge`,
+              label: `${column.getIn([METADATA, TITLE])} (Edge)`,
               sortable: false,
               cellStyle: { 'background-color': PURPLE.P00 }
             });
           });
-        neighborPropertyTypes
-          .filter((column :Map<string, List>) => headersSet.has(column.type.toString()))
-          .forEach((column :Map<string, List>) => {
+        neighborColumns
+          .valueSeq()
+          .filter((column :Map) => headersSet.has(column.get(NAME)))
+          .forEach((column :Map) => {
             mutableList.push({
-              key: column.type.toString(),
-              label: `${column.title} (${column.type.toString()})`,
+              key: column.get(NAME),
+              label: column.getIn([METADATA, TITLE]),
               sortable: false,
             });
           });
       });
       setTableHeaders(headers.toJS());
     }
-  // NOTE: leaving out "dataSetData", "associationData", "associationPropertyTypes", and "neighborPropertyTypes"
+  // NOTE: leaving out "neighborData", "associationData", "associationPropertyTypes", and "neighborPropertyTypes"
   // from depedency array because it tends to cause infinite renders.
-  // TODO: figure out how to avoid the infinite renders when "dataSetData" is passed
-  }, [associationHash, dataHash, fetchEntitySetDataRS]);
+  }, [associationHash, neighborHash, fetchEntitySetDataRS]);
 
   useEffect(() => {
     if (isSuccess(fetchEntitySetDataRS)) {
       const newTableData = neighborToAssociationEKIDs.entrySeq()
         .map(([neighborEntityKeyId :UUID, associationEntityKeyId :UUID], index :number) => {
           // 'id' is used as the "key" prop in the table component, so it needs to be unique
-          let entityData = dataSetData.get(neighborEntityKeyId).set('id', `${neighborEntityKeyId}-${index}`);
+          let entityData = neighborData.get(neighborEntityKeyId).set('id', `${neighborEntityKeyId}-${index}`);
           associationData.get(associationEntityKeyId).forEach((value, key) => {
             entityData = entityData.set(`${key}_edge`, value);
           });
@@ -143,28 +135,28 @@ const EntityNeighborsTable = ({
     dispatch(
       fetchEntitySetData({
         entitySetId: associationDataSetId,
-        entityKeyIds: Set(neighborToAssociationEKIDs.valueSeq().toJS()),
+        entityKeyIds: neighborToAssociationEKIDs.valueSeq().toSet(),
       })
     );
     dispatch(
       fetchEntitySetData({
-        entitySetId: dataSetId,
-        entityKeyIds: Set(neighborToAssociationEKIDs.keySeq().toJS()),
+        entitySetId: neighborDataSetId,
+        entityKeyIds: neighborToAssociationEKIDs.keySeq().toSet(),
       })
     );
-  }, [dispatch, neighborToAssociationEKIDs, dataSetId]);
+  }, [dispatch, neighborToAssociationEKIDs, neighborDataSetId]);
 
   const handleOnPageChange = ({ page, start }) => {
     setTablePage(page);
     setNeighborsIndex(start);
-    dispatch(resetRequestStates([FETCH_ENTITY_SET_DATA, dataSetId]));
+    dispatch(resetRequestStates([FETCH_ENTITY_SET_DATA, neighborDataSetId]));
   };
 
   const components = {
     Row: ({ data, headers } :Object) => (
       <EntityDataRow
           data={data}
-          dataSetId={dataSetId}
+          dataSetId={neighborDataSetId}
           headers={headers}
           isModal={isModal}
           organizationId={organizationId} />
@@ -173,20 +165,18 @@ const EntityNeighborsTable = ({
 
   return (
     <>
-      <TableCardSegment borderless noWrap padding="0">
+      <DataTableWrapper>
         <Table
             components={components}
             data={tableData}
             headers={tableHeaders}
             isLoading={isPending(fetchEntitySetDataRS)} />
-      </TableCardSegment>
-      <CardSegment borderless padding="0">
-        <PaginationToolbar
-            page={tablePage}
-            count={totalNeighbors}
-            onPageChange={handleOnPageChange}
-            rowsPerPage={MAX_HITS_10} />
-      </CardSegment>
+      </DataTableWrapper>
+      <PaginationToolbar
+          page={tablePage}
+          count={totalNeighbors}
+          onPageChange={handleOnPageChange}
+          rowsPerPage={MAX_HITS_10} />
     </>
   );
 };
