@@ -4,7 +4,12 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { List, Map, get } from 'immutable';
+import {
+  List,
+  Map,
+  Set,
+  get,
+} from 'immutable';
 import { Colors, PaginationToolbar, Table } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -44,6 +49,7 @@ const EntityNeighborsTable = ({
   const dispatch = useDispatch();
   const [tableData, setTableData] = useState([]);
   const [tablePage, setTablePage] = useState(1);
+  const [tableHeaders, setTableHeaders] = useState([]);
   const [neighborsIndex, setNeighborsIndex] = useState(0);
 
   const fetchEntitySetDataRS :?RequestState = useRequestState([DATA, FETCH_ENTITY_SET_DATA, neighborDataSetId]);
@@ -63,31 +69,50 @@ const EntityNeighborsTable = ({
   const associationColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, associationDataSetId));
   const neighborColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, neighborDataSetId));
 
-  // OPTIMIZE: no need to compute this on every render
-  const tableHeaders = [];
-  associationColumns.forEach((column :Map) => {
-    tableHeaders.push({
-      key: `${column.get(NAME)}_edge`,
-      label: `${column.getIn([METADATA, TITLE])} (Edge)`,
-      sortable: false,
-      cellStyle: { 'background-color': PURPLE.P00 }
-    });
-  });
-  neighborColumns.forEach((column :Map) => {
-    tableHeaders.push({
-      key: column.get(NAME),
-      label: column.getIn([METADATA, TITLE]),
-      sortable: false,
-    });
-  });
-
-  // OPTIMIZE: no need to compute this on every render
   const associationData :Map = useSelector(
     selectOrgEntitySetData(associationDataSetId, neighborToAssociationEKIDs.valueSeq())
   );
+  const associationHash = associationData.hashCode();
+
   const neighborData :Map = useSelector(
     selectOrgEntitySetData(neighborDataSetId, neighborToAssociationEKIDs.keySeq())
   );
+  const neighborHash = neighborData.hashCode();
+
+  useEffect(() => {
+    if (isSuccess(fetchEntitySetDataRS)) {
+      const headersSet :Set<string> = Set().withMutations((mutableSet :Set) => {
+        associationData.forEach((entity :Map) => mutableSet.union(entity.keySeq()));
+        neighborData.valueSeq().forEach((entity :Map) => mutableSet.union(entity.keySeq()));
+      });
+      const headers :List = List().withMutations((mutableList) => {
+        associationColumns
+          .valueSeq()
+          .filter((column :Map) => headersSet.has(column.get(NAME)))
+          .forEach((column :Map) => {
+            mutableList.push({
+              key: `${column.get(NAME)}_edge`,
+              label: `${column.getIn([METADATA, TITLE])} (Edge)`,
+              sortable: false,
+              cellStyle: { 'background-color': PURPLE.P00 }
+            });
+          });
+        neighborColumns
+          .valueSeq()
+          .filter((column :Map) => headersSet.has(column.get(NAME)))
+          .forEach((column :Map) => {
+            mutableList.push({
+              key: column.get(NAME),
+              label: column.getIn([METADATA, TITLE]),
+              sortable: false,
+            });
+          });
+      });
+      setTableHeaders(headers.toJS());
+    }
+  // NOTE: leaving out "neighborData", "associationData", "associationPropertyTypes", and "neighborPropertyTypes"
+  // from depedency array because it tends to cause infinite renders.
+  }, [associationHash, neighborHash, fetchEntitySetDataRS]);
 
   useEffect(() => {
     if (isSuccess(fetchEntitySetDataRS)) {

@@ -116,6 +116,7 @@ const EntityDataContainer = ({
             </StackGrid>
             <StackGrid>
               <Typography variant="h2">Explore</Typography>
+              <Typography variant="subtitle2">Note: columns without data are hidden on this page</Typography>
               <EntityNeighborsContainer
                   isModal={isModal}
                   neighbors={neighbors}
