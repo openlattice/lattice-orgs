@@ -24,7 +24,7 @@ import {
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
-import type { FQN, UUID } from 'lattice';
+import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import EntityDataModal from '../explore/components/EntityDataModal';
@@ -35,7 +35,6 @@ import {
   StackGrid,
   ValueCell,
 } from '../../components';
-import { FQNS } from '../../core/edm/constants';
 import { SEARCH } from '../../core/redux/constants';
 import {
   selectOrgDataSetColumns,
@@ -46,8 +45,9 @@ import {
 } from '../../core/redux/selectors';
 import { SEARCH_DATA, clearSearchState, searchData } from '../../core/search/actions';
 import { MAX_HITS_10 } from '../../core/search/constants';
+import { METADATA, NAME, TITLE } from '../../utils/constants';
 
-const { getEntityKeyId, getPropertyValue } = DataUtils;
+const { getEntityKeyId } = DataUtils;
 const { isNonEmptyString } = LangUtils;
 const { isValidUUID } = ValidationUtils;
 
@@ -68,7 +68,7 @@ const DataSetDataContainer = ({
 
   const searchDataSetDataRS :?RequestState = useRequestState([SEARCH, SEARCH_DATA]);
 
-  const dataSetColumns :List<Map<FQN, List>> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
+  const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const searchHits :List = useSelector(selectSearchHits(SEARCH_DATA));
   const searchPage :number = useSelector(selectSearchPage(SEARCH_DATA));
   const searchQuery :string = useSelector(selectSearchQuery(SEARCH_DATA));
@@ -80,10 +80,11 @@ const DataSetDataContainer = ({
       searchHits.forEach((entity :Map) => mutableSet.union(entity.keySeq()));
     });
     const headers :List = dataSetColumns
-      .filter((column :Map<FQN, List>) => headersSet.has(getPropertyValue(column, [FQNS.OL_TYPE, 0])))
-      .map((column :Map<FQN, List>) => {
-        const fqn :string = getPropertyValue(column, [FQNS.OL_TYPE, 0]);
-        const title :string = getPropertyValue(column, [FQNS.OL_TITLE, 0]);
+      .valueSeq()
+      .filter((column :Map) => headersSet.has(column.get(NAME)))
+      .map((column :Map) => {
+        const fqn :string = column.get(NAME);
+        const title :string = column.getIn([METADATA, TITLE]);
         return { key: fqn, label: `${title} (${fqn})`, sortable: false };
       });
     setTableData(data.toJS());

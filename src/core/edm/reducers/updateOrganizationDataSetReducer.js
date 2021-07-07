@@ -2,8 +2,8 @@
  * @flow
  */
 
-import { List, Map } from 'immutable';
-import { DataUtils } from 'lattice-utils';
+import { Map } from 'immutable';
+import { ValidationUtils } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
@@ -14,9 +14,8 @@ import {
   REQUEST_STATE,
 } from '../../redux/constants';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../actions';
-import { FQNS } from '../constants';
 
-const { getEntityKeyId } = DataUtils;
+const { isValidUUID } = ValidationUtils;
 
 export default function reducer(state :Map, action :SequenceAction) {
 
@@ -28,34 +27,27 @@ export default function reducer(state :Map, action :SequenceAction) {
       const storedAction = state.getIn([UPDATE_ORGANIZATION_DATA_SET, action.id]);
       if (storedAction) {
         const {
+          columnId,
           dataSetId,
           description,
-          entityKeyId,
-          isColumn,
-          organizationId: orgId,
+          organizationId,
           title,
         } :{|
+          columnId ?:UUID;
           dataSetId :UUID;
           description :string;
-          entityKeyId :UUID;
-          isColumn ?:boolean;
           organizationId :UUID;
           title :string;
         |} = storedAction.value;
-        if (isColumn) {
-          const columns :List<Map> = state.getIn([ORG_DATA_SET_COLUMNS, orgId, dataSetId], List());
-          const index :number = columns.findIndex((column :Map) => getEntityKeyId(column) === entityKeyId);
-          if (index >= 0) {
-            return state
-              .setIn([ORG_DATA_SET_COLUMNS, orgId, dataSetId, index, FQNS.OL_DESCRIPTION], List([description]))
-              .setIn([ORG_DATA_SET_COLUMNS, orgId, dataSetId, index, FQNS.OL_TITLE], List([title]))
-              .setIn([UPDATE_ORGANIZATION_DATA_SET, REQUEST_STATE], RequestStates.SUCCESS);
-          }
-          return state;
+        if (isValidUUID(columnId)) {
+          return state
+            .setIn([ORG_DATA_SET_COLUMNS, organizationId, dataSetId, columnId, 'metadata', 'description'], description)
+            .setIn([ORG_DATA_SET_COLUMNS, organizationId, dataSetId, columnId, 'metadata', 'title'], title)
+            .setIn([UPDATE_ORGANIZATION_DATA_SET, REQUEST_STATE], RequestStates.SUCCESS);
         }
         return state
-          .setIn([ORG_DATA_SETS, orgId, dataSetId, FQNS.OL_DESCRIPTION], List([description]))
-          .setIn([ORG_DATA_SETS, orgId, dataSetId, FQNS.OL_TITLE], List([title]))
+          .setIn([ORG_DATA_SETS, organizationId, dataSetId, 'metadata', 'description'], description)
+          .setIn([ORG_DATA_SETS, organizationId, dataSetId, 'metadata', 'title'], title)
           .setIn([UPDATE_ORGANIZATION_DATA_SET, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
