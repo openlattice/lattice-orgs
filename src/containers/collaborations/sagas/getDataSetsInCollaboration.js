@@ -3,16 +3,22 @@
  */
 
 import {
+  all,
   call,
   put,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { List, Map, fromJS } from 'immutable';
+import {
+  List,
+  Map,
+  Set,
+  fromJS
+} from 'immutable';
 import {
   CollaborationsApiActions,
   CollaborationsApiSagas,
-  EntitySetsApiActions,
-  EntitySetsApiSagas,
+  DataSetMetadataApiActions,
+  DataSetMetadataApiSagas,
 } from 'lattice-sagas';
 import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
@@ -26,8 +32,8 @@ const LOG = new Logger('CollaborationSagas');
 
 const { getCollaborationDataSets } = CollaborationsApiActions;
 const { getCollaborationDataSetsWorker } = CollaborationsApiSagas;
-const { getEntitySets } = EntitySetsApiActions;
-const { getEntitySetsWorker } = EntitySetsApiSagas;
+const { getDataSetsMetadata, getDataSetColumnsMetadata } = DataSetMetadataApiActions;
+const { getDataSetsMetadataWorker, getDataSetColumnsMetadataWorker } = DataSetMetadataApiSagas;
 
 function* getDataSetsInCollaborationWorker(action :SequenceAction) :Saga<*> {
 
@@ -45,18 +51,17 @@ function* getDataSetsInCollaborationWorker(action :SequenceAction) :Saga<*> {
     * collaboration from that organization.
     */
     const collaborationDataSets :Map<UUID, List<UUID>> = fromJS(getResponse.data);
-    const dataSetIds :List<UUID> = collaborationDataSets.toSet();
+    const dataSetIds :Set<UUID> = collaborationDataSets.toSet().flatten();
 
     if (!dataSetIds.isEmpty()) {
       /*
       * not sure if this the best way, but created the action+saga because we
       * need to load the entity set information.
       */
-      const entitySetResponse :WorkerResponse = yield call(
-        getEntitySetsWorker,
-        getEntitySets(dataSetIds.toJS())
-      );
-      if (entitySetResponse.error) throw entitySetResponse.error;
+      yield all([
+        call(getDataSetsMetadataWorker, getDataSetsMetadata(dataSetIds)),
+        call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata(dataSetIds)),
+      ]);
     }
 
     yield put(getDataSetsInCollaboration.success(action.id, collaborationDataSets));
