@@ -49,7 +49,7 @@ const CollaborationsContainer = () => {
   const dispatch = useDispatch();
   const collaborations :Map<UUID, Map> = useSelector(selectUsersCollaborations());
   const filteredCollaborations = collaborations.filter((collaboration :Map, collaborationId :UUID) => (
-    collaboration && (paginationState.query === collaborationId
+    collaboration && (collaborationId.includes(paginationState.query)
       || get(collaboration, 'title', '').toLowerCase().includes(paginationState.query.toLowerCase()))
   ));
   const filteredCollaborationsCount = filteredCollaborations.count();
