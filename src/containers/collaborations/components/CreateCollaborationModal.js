@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useReducer, useState } from 'react';
 
 import { Map } from 'immutable';
 import {
@@ -33,15 +33,54 @@ type Props = {
   onClose :() => void;
 };
 
+const INITIAL_STATE :{
+  description :string;
+  name :string;
+  nameIsValid :boolean;
+  title :string;
+  titleIsValid :boolean;
+} = {
+  description: '',
+  name: '',
+  nameIsValid: true,
+  title: '',
+  titleIsValid: true,
+};
+
+const DESCRIPTION = 'DESCRIPTIOIN';
+const NAME = 'NAME';
+const TITLE = 'TITLE';
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case DESCRIPTION:
+      return {
+        ...state,
+        description: action.value,
+      };
+    case NAME:
+      return {
+        ...state,
+        name: action.value,
+      };
+    case TITLE:
+      return {
+        ...state,
+        title: action.value,
+      };
+    default:
+      return state;
+  }
+};
+
 const CreateCollaborationModal = ({ onClose } :Props) => {
 
   const dispatch = useDispatch();
 
   const [isValidCollaborationTitle, setIsValidCollaborationTitle] = useState(true);
   const [isValidCollaborationName, setIsValidCollaborationName] = useState(true);
-  const [collaborationTitle, setCollaborationTitle] = useState('');
-  const [collaborationName, setCollaborationName] = useState('');
-  const [collaborationDescription, setCollaborationDescription] = useState('');
+  const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
+
   const [collaborationOrganizations, setCollaborationOrganizations] = useState([]);
 
   const organizations :Map<UUID, Organization> = useSelector(selectOrganizations());
@@ -51,6 +90,7 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
     const selectOptions = [];
     organizations.forEach((org) => {
       selectOptions.push({
+        key: org.id,
         label: org.title,
         value: org.id,
       });
@@ -59,39 +99,50 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
     return selectOptions;
   }, [organizations]);
 
-  const handleOnChange = (orgOptions :?ReactSelectOption<Organization>[]) => {
+  const handleOnChange = (orgOptions :ReactSelectOption<Organization>[]) => {
     const orgIds = orgOptions.map((org) => org.value);
     setCollaborationOrganizations(orgIds);
   };
 
   const handleOnClickPrimary = () => {
-    if (isNonEmptyString(collaborationTitle)) {
+    if (isNonEmptyString(modalState.name) && isNonEmptyString(modalState.title)) {
       dispatch(
         createNewCollaboration({
-          description: collaborationDescription,
-          name: collaborationName,
+          description: modalState.description,
+          name: modalState.name,
           organizationIds: collaborationOrganizations,
-          title: collaborationTitle,
+          title: modalState.title,
         })
       );
     }
     else {
-      setIsValidCollaborationTitle(false);
+      if (isNonEmptyString(modalState.name)) {
+        setIsValidCollaborationName(false);
+      }
+      if (isNonEmptyString(modalState.title)) {
+        setIsValidCollaborationTitle(false);
+      }
     }
   };
 
-  const handleOnChangeCollaborationTitle = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    setCollaborationTitle(event.target.value || '');
-    setIsValidCollaborationTitle(true);
-  };
-
-  const handleOnChangeCollaborationName = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    setCollaborationName(event.target.value || '');
-    setIsValidCollaborationName(true);
-  };
-
-  const handleOnChangeCollaborationDescription = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    setCollaborationDescription(event.target.value || '');
+  const handleOnInputChange = (event :SyntheticInputEvent<HTMLInputElement>) => {
+    switch (event.target.name) {
+      case DESCRIPTION: {
+        modalDispatch({ type: DESCRIPTION, value: event.target.value || '' });
+        break;
+      }
+      case NAME: {
+        modalDispatch({ type: NAME, value: event.target.value || '' });
+        break;
+      }
+      case TITLE: {
+        modalDispatch({ type: TITLE, value: event.target.value || '' });
+        break;
+      }
+      default: {
+        break;
+      }
+    }
   };
 
   const handleOnClose = () => {
@@ -111,26 +162,31 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
             <Input
                 id="new-collaboration-title"
                 error={!isValidCollaborationTitle}
-                onChange={handleOnChangeCollaborationTitle} />
+                name={TITLE}
+                onChange={handleOnInputChange} />
           </div>
           <div>
             <Label htmlFor="new-collaboration-name">Name</Label>
             <Input
                 id="new-collaboration-name"
                 error={!isValidCollaborationName}
-                onChange={handleOnChangeCollaborationName} />
+                name={NAME}
+                onChange={handleOnInputChange} />
           </div>
           <div>
             <Label htmlFor="new-collaboration-description">Description</Label>
             <Input
                 id="new-collaboration-description"
-                onChange={handleOnChangeCollaborationDescription} />
+                name={DESCRIPTION}
+                onChange={handleOnInputChange} />
           </div>
           <div>
             <Label htmlFor="new-collaboration-organizations">Select organizations to add to collaboration</Label>
             <Select
                 id="new-collaboration-organizations"
                 isMulti
+                menuPortalTarget={document.body}
+                styles={{ menuPortal: (provided) => ({ ...provided, zIndex: 9999 }) }}
                 onChange={handleOnChange}
                 options={options}
                 placeholder="select organizations" />
