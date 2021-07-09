@@ -60,13 +60,8 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
   }, [organizations]);
 
   const handleOnChange = (orgOptions :?ReactSelectOption<Organization>[]) => {
-    if (!orgOptions) {
-      setCollaborationOrganizations([]);
-    }
-    else {
-      const orgIds = orgOptions.map((org) => org.value);
-      setCollaborationOrganizations(orgIds);
-    }
+    const orgIds = orgOptions.map((org) => org.value);
+    setCollaborationOrganizations(orgIds);
   };
 
   const handleOnClickPrimary = () => {
