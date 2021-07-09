@@ -22,10 +22,8 @@ export default function createNewCollaborationReducer(state :Map, action :Sequen
     SUCCESS: () => {
       if (state.hasIn([CREATE_NEW_COLLABORATION, action.id])) {
         const { collaboration, collaborationId } = action.value;
-        const collaborations :Map<UUID, Map> = state.get(COLLABORATIONS, Map())
-          .set(collaborationId, collaboration);
         return state
-          .set(COLLABORATIONS, collaborations)
+          .setIn([COLLABORATIONS, collaborationId], collaboration)
           .setIn([CREATE_NEW_COLLABORATION, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
