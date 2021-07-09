@@ -70,10 +70,7 @@ const CollaborationsContainer = () => {
   const getCollaborationsRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS]);
 
   useEffect(() => {
-    if (isStandby(getCollaborationsRS)) {
-      dispatch(getCollaborations());
-    }
-    if (isSuccess(createNewCollaborationsRS)) {
+    if (isStandby(getCollaborationsRS) || isSuccess(createNewCollaborationsRS)) {
       dispatch(getCollaborations());
     }
   }, [dispatch, getCollaborationsRS, createNewCollaborationsRS]);
