@@ -4,7 +4,6 @@
 
 import { Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
-import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
