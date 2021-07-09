@@ -98,6 +98,13 @@ const CollaborationsContainer = () => {
           <StackGrid gap={24}>
             <Typography variant="h2">My Collaborations</Typography>
             {
+              pageCollaborations.isEmpty() && (
+                <Typography>
+                  You are currently not participating in any Collaborations.
+                </Typography>
+              )
+            }
+            {
               !pageCollaborations.isEmpty() && (
                 <>
                   {
