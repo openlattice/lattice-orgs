@@ -10,6 +10,7 @@ import {
   ACCOUNT,
   APP,
   AUTH,
+  COLLABORATIONS,
   DATA,
   EDM,
   EXPLORE,
@@ -21,6 +22,7 @@ import {
 
 import AccountReducer from '../../containers/account/reducers';
 import AppReducer from '../../containers/app/reducers';
+import CollaborationsReducer from '../../containers/collaborations/reducers';
 import DataReducer from '../data/reducers';
 import EDMReducer from '../edm/reducers';
 import ExploreReducer from '../../containers/explore/reducers';
@@ -35,6 +37,7 @@ export default function reduxReducer(routerHistory :any) {
     [ACCOUNT]: AccountReducer,
     [APP]: AppReducer,
     [AUTH]: AuthReducer,
+    [COLLABORATIONS]: CollaborationsReducer,
     [DATA]: DataReducer,
     [EDM]: EDMReducer,
     [EXPLORE]: ExploreReducer,

@@ -29,12 +29,17 @@ export const {
   USERS,
 } = ReduxConstants;
 
+// TODO: Add COLLABORATIONS const to ReduxConstants in lattice-utils
+export const COLLABORATIONS :'collaborations' = 'collaborations';
+
 export const ACCOUNT :'account' = 'account';
 export const ACES :'aces' = 'aces';
 export const APP_INSTALLS :'appInstalls' = 'appInstalls';
 export const ATLAS_CREDENTIALS :'atlasCredentials' = 'atlasCredentials';
+export const COLLABORATION_DATA_SETS :'collaborationDataSets' = 'collaborationDataSets';
 export const CURRENT :'current' = 'current';
 export const CURRENT_ROLE_AUTHORIZATIONS :'currentRoleAuthorizations' = 'currentRoleAuthorizations';
+export const DATABASE_DETAILS :'databaseDetails' = 'databaseDetails';
 export const DATABASE_NAME :'databaseName' = 'databaseName';
 export const DATA_SET :'dataSet' = 'dataSet';
 export const DATA_SET_COLUMNS :'dataSetColumns' = 'dataSetColumns';
@@ -52,6 +57,7 @@ export const MY_KEYS :'myKeys' = 'myKeys';
 export const NEW_ORGANIZATION_ID :'newOrganizationId' = 'newOrganizationId';
 export const ORGANIZATION :'organization' = 'organization';
 export const ORGANIZATION_ID :'organizationId' = 'organizationId';
+export const ORGANIZATION_IDS :'organizationIds' = 'organizationIds';
 export const ORG_DATA_SETS :'organizationDataSets' = 'organizationDataSets';
 export const ORG_DATA_SET_COLUMNS :'organizationDataSetColumns' = 'organizationDataSetColumns';
 export const PAGE_PERMISSIONS_BY_DATA_SET :'pagePermissionsByDataSet' = 'pagePermissionsByDataSet';
