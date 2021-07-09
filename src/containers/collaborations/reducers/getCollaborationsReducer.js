@@ -20,12 +20,13 @@ export default function getCollaborationsReducer(state :Map, action :SequenceAct
     SUCCESS: () => {
       if (state.hasIn([GET_COLLABORATIONS, action.id])) {
         // TODO: Add Collaboration Model to lattice-js
-        const collaborations :Map<UUID, Map> = Map().asMutable();
-        action.value.forEach((collaboration :Object) => {
-          collaborations.set(collaboration.id, fromJS(collaboration));
+        const collaborations :Map<UUID, Map> = Map().withMutations((mutableMap) => {
+          action.value.forEach((collaboration :Object) => {
+            mutableMap.set(collaboration.id, fromJS(collaboration));
+          });
         });
         return state
-          .set(COLLABORATIONS, collaborations.asImmutable())
+          .set(COLLABORATIONS, collaborations)
           .setIn([GET_COLLABORATIONS, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
