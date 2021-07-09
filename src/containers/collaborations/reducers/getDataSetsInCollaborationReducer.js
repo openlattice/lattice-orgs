@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { Map } from 'immutable';
+import { Map, fromJS } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -23,7 +23,7 @@ export default function getDataSetsInCollaborationReducer(state :Map, action :Se
       if (storedSeqAction) {
         const { collaborationId } = storedSeqAction.value;
         return state
-          .setIn([COLLABORATION_DATA_SETS, collaborationId], action.value)
+          .setIn([COLLABORATION_DATA_SETS, collaborationId], fromJS(action.value))
           .setIn([GET_DATA_SETS_IN_COLLABORATION, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;

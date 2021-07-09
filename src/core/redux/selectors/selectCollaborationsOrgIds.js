@@ -18,6 +18,6 @@ export default function selectCollaborationsOrgIds(collaborationId :UUID) {
       return getIn(state, [COLLABORATIONS, COLLABORATIONS, collaborationId, ORGANIZATION_IDS]) || List();
     }
 
-    return Map();
+    return List();
   };
 }
