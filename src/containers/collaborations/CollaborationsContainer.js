@@ -17,8 +17,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { CreateCollaborationModal } from './components';
 import { CREATE_NEW_COLLABORATION } from './actions';
+import { CreateCollaborationModal } from './components';
 
 import {
   ActionsGrid,
@@ -103,9 +103,9 @@ const CollaborationsContainer = () => {
                   {
                     filteredCollaborationsCount > MAX_PER_PAGE && (
                       <PaginationToolbar
-                          page={paginationState.page}
                           count={filteredCollaborationsCount}
                           onPageChange={handleOnPageChange}
+                          page={paginationState.page}
                           rowsPerPage={MAX_PER_PAGE} />
                     )
                   }
