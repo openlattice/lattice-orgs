@@ -5,15 +5,12 @@
 import React from 'react';
 
 import { Typography } from 'lattice-ui-kit';
-import { DataUtils } from 'lattice-utils';
 import type { Map } from 'immutable';
 
 import { AtlasDataSetIcon, EntitySetIcon } from '../../assets/svg/icons';
-import { FQNS } from '../../core/edm/constants';
 import { isAtlasDataSet } from '../../utils';
+import { METADATA, NAME, TITLE } from '../../utils/constants';
 import { GapGrid } from '../grids';
-
-const { getPropertyValue } = DataUtils;
 
 const DataSetTitle = ({
   component,
@@ -32,8 +29,7 @@ const DataSetTitle = ({
     }
     <Typography component={component} variant={variant}>
       {
-        getPropertyValue(dataSet, [FQNS.OL_TITLE, 0])
-        || getPropertyValue(dataSet, [FQNS.OL_DATA_SET_NAME, 0])
+        dataSet.getIn([METADATA, TITLE]) || dataSet.get(NAME)
       }
     </Typography>
   </GapGrid>

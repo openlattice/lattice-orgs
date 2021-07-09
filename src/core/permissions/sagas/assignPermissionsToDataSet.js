@@ -8,28 +8,28 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { List, Map, Set } from 'immutable';
+import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
-import { PermissionsApiActions, PermissionsApiSagas } from 'lattice-sagas';
+import {
+  DataSetMetadataApiActions,
+  DataSetMetadataApiSagas,
+  PermissionsApiActions,
+  PermissionsApiSagas,
+} from 'lattice-sagas';
 import { AxiosUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
-import type {
-  FQN,
-  PermissionType,
-  Principal,
-  UUID,
-} from 'lattice';
+import type { PermissionType, Principal, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { getDataSetKeys } from '../../../utils';
-import { getOrgDataSetColumnsFromMeta } from '../../edm/actions';
-import { getOrgDataSetColumnsFromMetaWorker } from '../../edm/sagas';
 import { selectOrgDataSet, selectOrgDataSetColumns } from '../../redux/selectors';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../actions';
 
 const { AceBuilder, AclBuilder, AclDataBuilder } = Models;
 const { ActionTypes } = Types;
+const { getDataSetColumnsMetadata } = DataSetMetadataApiActions;
+const { getDataSetColumnsMetadataWorker } = DataSetMetadataApiSagas;
 const { updateAcls } = PermissionsApiActions;
 const { updateAclsWorker } = PermissionsApiSagas;
 const { toSagaError } = AxiosUtils;
@@ -59,14 +59,11 @@ function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
 
     let keys :List<List<UUID>> = List().push(List([dataSetId]));
     if (withColumns) {
-      const dataSet :Map<UUID, Map> = yield select(selectOrgDataSet(organizationId, dataSetId));
-      let dataSetColumns :List<Map<FQN, List>> = yield select(selectOrgDataSetColumns(organizationId, dataSetId));
+      const dataSet :Map = yield select(selectOrgDataSet(organizationId, dataSetId));
+      let dataSetColumns :Map<UUID, Map> = yield select(selectOrgDataSetColumns(organizationId, dataSetId));
       // NOTE: if "dataSetColumns" is empty, it's very likely that we just haven't loaded columns
       if (dataSetColumns.isEmpty()) {
-        response = yield call(
-          getOrgDataSetColumnsFromMetaWorker,
-          getOrgDataSetColumnsFromMeta({ dataSetIds: Set([dataSetId]), organizationId }),
-        );
+        response = yield call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata([dataSetId]));
         if (response.error) throw response.error;
         dataSetColumns = response.data.get(dataSetId) || List();
       }

@@ -14,19 +14,19 @@ import {
   Collapse,
   Colors,
   IconButton,
+  MarkdownPreview,
   PaginationToolbar,
   Select,
   Typography,
 } from 'lattice-ui-kit';
 import {
-  DataUtils,
   LangUtils,
   ReduxUtils,
   useGoToRoute,
   useRequestState,
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import type { EntitySetFlagType, Organization, UUID } from 'lattice';
+import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import { DELETE_EXISTING_ORGANIZATION } from './actions';
@@ -63,7 +63,6 @@ import { MAX_HITS_10 } from '../../core/search/constants';
 import type { ReactSelectOption } from '../../types';
 
 const { PURPLE } = Colors;
-const { getEntityKeyId } = DataUtils;
 const { isNonEmptyString } = LangUtils;
 const {
   isPending,
@@ -111,7 +110,7 @@ const OrgContainer = ({
     if (isNonEmptyString(query)) {
       dispatch(
         searchOrganizationDataSets({
-          entitySetFlags: [flag],
+          flags: [flag],
           maxHits: MAX_HITS_10,
           organizationId,
           page,
@@ -152,6 +151,7 @@ const OrgContainer = ({
     const rolesCount :number = organization.roles.length;
     const peopleCount :number = organization.members.length;
     const toggleSearchOptions = () => setIsOpenSearchOptions(!isOpenSearchOptions);
+
     return (
       <AppContentWrapper>
         <StackGrid gap={24}>
@@ -190,7 +190,9 @@ const OrgContainer = ({
             </SpaceBetweenGrid>
             {
               isNonEmptyString(organization.description) && (
-                <Typography>{organization.description}</Typography>
+                <MarkdownPreview>
+                  {organization.description}
+                </MarkdownPreview>
               )
             }
           </StackGrid>
@@ -210,10 +212,10 @@ const OrgContainer = ({
             </GapGrid>
             <Collapse in={isOpenSearchOptions}>
               <Box maxWidth={240}>
-                <Typography gutterBottom variant="subtitle1">EntitySet Flags</Typography>
+                <Typography gutterBottom variant="subtitle1">Flags</Typography>
                 <Select
                     isClearable
-                    onChange={(option :?ReactSelectOption<EntitySetFlagType>) => setFlag(option?.value)}
+                    onChange={(option :?ReactSelectOption<string>) => setFlag(option?.value)}
                     options={ES_FLAG_TYPE_RS_OPTIONS} />
               </Box>
             </Collapse>
@@ -241,9 +243,9 @@ const OrgContainer = ({
             isSuccess(searchOrgDataSetsRS) && !searchHits.isEmpty() && (
               searchHits.valueSeq().map((searchHit :Map) => (
                 <DataSetSearchResultCard
-                    key={getEntityKeyId(searchHit)}
-                    organizationId={organizationId}
-                    searchResult={searchHit} />
+                    dataSet={searchHit}
+                    key={searchHit.get('id')}
+                    organizationId={organizationId} />
               ))
             )
           }

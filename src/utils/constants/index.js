@@ -2,9 +2,19 @@
  * @flow
  */
 
+export const CONTACTS :'contacts' = 'contacts';
+export const DATA_SET_ID :'dataSetId' = 'dataSetId';
+export const DATA_TYPE :'dataType' = 'dataType';
+export const DESCRIPTION :'description' = 'description';
+export const FLAGS :'flags' = 'flags';
+export const ID :'id' = 'id';
+export const METADATA :'metadata' = 'metadata';
+export const NAME :'name' = 'name';
 export const OPENLATTICE :'openlattice' = 'openlattice';
+export const ORGANIZATION_ID :'organizationId' = 'organizationId';
 export const PRINCIPAL :'principal' = 'principal';
 export const SECURABLE_PRINCIPAL_CLASS = 'com.openlattice.authorization.SecurablePrincipal';
+export const TITLE :'title' = 'title';
 
 export const EDIT_TITLE_DESCRIPTION_DATA_SCHEMA = {
   properties: {
@@ -38,7 +48,7 @@ export const EDIT_TITLE_DESCRIPTION_UI_SCHEMA = {
     },
     description: {
       classNames: 'column-span-12',
-      'ui:widget': 'textarea',
+      'ui:widget': 'MarkdownEditorWidget',
     },
   },
 };
