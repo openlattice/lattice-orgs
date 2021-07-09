@@ -108,19 +108,28 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
           <span>Enter a title for this collaboration and an optional description.</span>
           <div>
             <Label htmlFor="new-collaboration-title">Title</Label>
-            <Input error={!isValidCollaborationTitle} onChange={handleOnChangeCollaborationTitle} />
+            <Input
+                id="new-collaboration-title"
+                error={!isValidCollaborationTitle}
+                onChange={handleOnChangeCollaborationTitle} />
           </div>
           <div>
             <Label htmlFor="new-collaboration-name">Name</Label>
-            <Input error={!isValidCollaborationName} onChange={handleOnChangeCollaborationName} />
+            <Input
+                id="new-collaboration-name"
+                error={!isValidCollaborationName}
+                onChange={handleOnChangeCollaborationName} />
           </div>
           <div>
             <Label htmlFor="new-collaboration-description">Description</Label>
-            <Input onChange={handleOnChangeCollaborationDescription} />
+            <Input
+                id="new-collaboration-description"
+                onChange={handleOnChangeCollaborationDescription} />
           </div>
           <div>
-            <Label htmlFor="new-collaboration-description">Select organizations to add to collaboration</Label>
+            <Label htmlFor="new-collaboration-organizations">Select organizations to add to collaboration</Label>
             <Select
+                id="new-collaboration-organizations"
                 isMulti
                 onChange={handleOnChange}
                 options={options}
