@@ -17,7 +17,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { CREATE_NEW_COLLABORATION } from './actions';
 import { CreateCollaborationModal } from './components';
 
 import {
@@ -37,7 +36,7 @@ import {
   paginationReducer,
 } from '../../utils/stateReducers/pagination';
 
-const { isStandby, isSuccess } = ReduxUtils;
+const { isStandby } = ReduxUtils;
 const { GET_COLLABORATIONS, getCollaborations } = CollaborationsApiActions;
 
 const MAX_PER_PAGE = 10;
@@ -66,14 +65,13 @@ const CollaborationsContainer = () => {
     paginationDispatch({ type: PAGE, page, start });
   };
 
-  const createNewCollaborationsRS :?RequestState = useRequestState([COLLABORATIONS, CREATE_NEW_COLLABORATION]);
   const getCollaborationsRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS]);
 
   useEffect(() => {
-    if (isStandby(getCollaborationsRS) || isSuccess(createNewCollaborationsRS)) {
+    if (isStandby(getCollaborationsRS)) {
       dispatch(getCollaborations());
     }
-  }, [dispatch, getCollaborationsRS, createNewCollaborationsRS]);
+  }, [dispatch, getCollaborationsRS]);
 
   return (
     <>
