@@ -50,6 +50,8 @@ const INITIAL_STATE :{
 const DESCRIPTION = 'DESCRIPTIOIN';
 const NAME = 'NAME';
 const TITLE = 'TITLE';
+const NAME_IS_VALID = 'NAME_IS_VALID';
+const TITLE_IS_VALID = 'TITLE_IS_VALID';
 
 const reducer = (state, action) => {
   switch (action.type) {
@@ -63,10 +65,20 @@ const reducer = (state, action) => {
         ...state,
         name: action.value,
       };
+    case NAME_IS_VALID:
+      return {
+        ...state,
+        nameIsValid: action.value,
+      };
     case TITLE:
       return {
         ...state,
         title: action.value,
+      };
+    case TITLE_IS_VALID:
+      return {
+        ...state,
+        titleIsValid: action.value,
       };
     default:
       return state;
@@ -77,8 +89,6 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
 
   const dispatch = useDispatch();
 
-  const [isValidCollaborationTitle, setIsValidCollaborationTitle] = useState(true);
-  const [isValidCollaborationName, setIsValidCollaborationName] = useState(true);
   const [modalState, modalDispatch] = useReducer(reducer, INITIAL_STATE);
 
   const [collaborationOrganizations, setCollaborationOrganizations] = useState([]);
@@ -116,11 +126,11 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
       );
     }
     else {
-      if (isNonEmptyString(modalState.name)) {
-        setIsValidCollaborationName(false);
+      if (!isNonEmptyString(modalState.name)) {
+        modalDispatch({ type: NAME_IS_VALID, value: false });
       }
-      if (isNonEmptyString(modalState.title)) {
-        setIsValidCollaborationTitle(false);
+      if (!isNonEmptyString(modalState.title)) {
+        modalDispatch({ type: TITLE_IS_VALID, value: false });
       }
     }
   };
@@ -133,10 +143,12 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
       }
       case NAME: {
         modalDispatch({ type: NAME, value: event.target.value || '' });
+        modalDispatch({ type: NAME_IS_VALID, value: true });
         break;
       }
       case TITLE: {
         modalDispatch({ type: TITLE, value: event.target.value || '' });
+        modalDispatch({ type: TITLE_IS_VALID, value: true });
         break;
       }
       default: {
@@ -156,12 +168,12 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
     [RequestStates.STANDBY]: (
       <ModalBody>
         <StackGrid>
-          <span>Enter a title for this collaboration and an optional description.</span>
+          <span>Enter a title, name, and optional description for this collaboration.</span>
           <div>
             <Label htmlFor="new-collaboration-title">Title</Label>
             <Input
                 id="new-collaboration-title"
-                error={!isValidCollaborationTitle}
+                error={!modalState.titleIsValid}
                 name={TITLE}
                 onChange={handleOnInputChange} />
           </div>
@@ -169,7 +181,7 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
             <Label htmlFor="new-collaboration-name">Name</Label>
             <Input
                 id="new-collaboration-name"
-                error={!isValidCollaborationName}
+                error={!modalState.nameIsValid}
                 name={NAME}
                 onChange={handleOnInputChange} />
           </div>
