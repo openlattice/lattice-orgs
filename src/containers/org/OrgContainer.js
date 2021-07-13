@@ -8,6 +8,7 @@ import { faChevronDown } from '@fortawesome/pro-regular-svg-icons';
 import { faFileContract, faUser } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
+import { CollaborationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
   Box,
@@ -69,6 +70,7 @@ const {
   isStandby,
   isSuccess,
 } = ReduxUtils;
+const { getCollaborationsWithOrganization } = CollaborationsApiActions;
 
 const OrgContainer = ({
   organizationId,
@@ -91,6 +93,10 @@ const OrgContainer = ({
   const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS)) || '*';
   const searchHits :List = useSelector(selectSearchHits(SEARCH_ORGANIZATION_DATA_SETS));
   const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_ORGANIZATION_DATA_SETS));
+
+  useEffect(() => {
+    dispatch(getCollaborationsWithOrganization(organizationId));
+  }, [dispatch, organizationId]);
 
   useEffect(() => {
     if (isStandby(searchOrgDataSetsRS)) {
