@@ -11,6 +11,7 @@ import createNewCollaborationReducer from './createNewCollaborationReducer';
 import deleteCollaborationReducer from './deleteCollaborationReducer';
 import getCollaborationDatabaseInfoReducer from './getCollaborationDatabaseInfoReducer';
 import getCollaborationsReducer from './getCollaborationsReducer';
+import getCollaborationsWithOrganizationReducer from './getCollaborationsWithOrganizationReducer';
 import getDataSetsInCollaborationReducer from './getDataSetsInCollaborationReducer';
 import removeDataSetFromCollaborationReducer from './removeDataSetFromCollaborationReducer';
 import removeOrganizationsFromCollaborationReducer from './removeOrganizationsFromCollaborationReducer';
@@ -43,6 +44,7 @@ const {
   deleteCollaboration,
   getCollaborationDatabaseInfo,
   getCollaborations,
+  getCollaborationsWithOrganization,
   removeDataSetFromCollaboration,
   removeOrganizationsFromCollaboration
 } = CollaborationsApiActions;
@@ -90,6 +92,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case getCollaborations.case(action.type): {
       return getCollaborationsReducer(state, action);
+    }
+
+    case getCollaborationsWithOrganization.case(action.type): {
+      return getCollaborationsWithOrganizationReducer(state, action);
     }
 
     case getDataSetsInCollaboration.case(action.type): {
