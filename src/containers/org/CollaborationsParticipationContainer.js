@@ -20,7 +20,8 @@ const BasicListCard = styled.div`
 
 const BasicListCardWrapper = styled.div`
   margin: 16px 0;
-  ${BasicListCard}:not(:last-child) {
+
+  > div:not(:last-child) {
     margin-bottom: 8px;
   }
 `;
