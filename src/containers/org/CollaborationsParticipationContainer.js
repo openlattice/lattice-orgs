@@ -79,7 +79,7 @@ const CollaborationsParticipationContainer = ({ collaborations, type } :Props) =
   const showFilteredResults = !!collaborations.size;
   return (
     <div>
-      <SearchInput onChange={onSearchInputChange} />
+      <SearchInput aria-label="filter collaborations input" onChange={onSearchInputChange} />
       <BasicListCardWrapper>
         {
           !showFilteredResults && (
