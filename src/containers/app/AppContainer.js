@@ -33,6 +33,7 @@ import { APP } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
 import { AccountContainer } from '../account';
 import { OrgRouter, OrgsContainer } from '../org';
+import { CollaborationsContainer } from '../collaborations';
 
 // import { GOOGLE_TRACKING_ID } from '../../core/tracking/google/GoogleAnalytics';
 
@@ -74,6 +75,7 @@ const AppContainer = () => {
             <AppHeaderWrapper appIcon={OpenLatticeIconSVG} appTitle="Organizations" logout={logout} user={user}>
               <AppNavigationWrapper>
                 <NavLink to={Routes.ROOT} />
+                <NavLink to={Routes.COLLABS}>Collaborations</NavLink>
                 <NavLink to={Routes.ACCOUNT}>Account</NavLink>
               </AppNavigationWrapper>
             </AppHeaderWrapper>
@@ -99,6 +101,7 @@ const AppContainer = () => {
                   <Route path={Routes.ACCOUNT} component={AccountContainer} />
                   <Route path={Routes.ORG} component={OrgRouter} />
                   <Route path={Routes.ORGS} component={OrgsContainer} />
+                  <Route path={Routes.COLLABS} component={CollaborationsContainer} />
                   <Redirect to={Routes.ORGS} />
                 </Switch>
               )
