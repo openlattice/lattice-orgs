@@ -51,7 +51,7 @@ function* getDataSetsInCollaborationWorker(action :SequenceAction) :Saga<*> {
     * collaboration from that organization.
     */
     const collaborationDataSets :Map<UUID, List<UUID>> = fromJS(getResponse.data);
-    const dataSetIds :Set<UUID> = collaborationDataSets.toSet().flatten();
+    const dataSetIds :Set<UUID> = collaborationDataSets.valueSeq().toSet().flatten();
 
     if (!dataSetIds.isEmpty()) {
       /*
@@ -59,8 +59,8 @@ function* getDataSetsInCollaborationWorker(action :SequenceAction) :Saga<*> {
       * need to load the entity set information.
       */
       yield all([
-        call(getDataSetsMetadataWorker, getDataSetsMetadata(dataSetIds)),
-        call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata(dataSetIds)),
+        call(getDataSetsMetadataWorker, getDataSetsMetadata(dataSetIds.toJS())),
+        call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata(dataSetIds.toJS())),
       ]);
     }
 
