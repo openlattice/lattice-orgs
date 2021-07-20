@@ -1,0 +1,20 @@
+/*
+ * @flow
+ */
+
+import { List, Map, getIn } from 'immutable';
+import type { UUID } from 'lattice';
+
+import { EDM, ORG_DATA_SETS } from '../constants';
+
+export default function selectOrgsDataSets(dataSetsByOrgId :Map<UUID, List<UUID>>) {
+
+  return (state :Map) :List<Map> => List().withMutations((mutableList) => {
+    dataSetsByOrgId.forEach((dataSetIds, orgId) => {
+      dataSetIds.forEach((dataSetId :UUID) => {
+        const dataSet = getIn(state, [EDM, ORG_DATA_SETS, orgId, dataSetId]) || Map();
+        mutableList.push(dataSet);
+      });
+    });
+  });
+}
