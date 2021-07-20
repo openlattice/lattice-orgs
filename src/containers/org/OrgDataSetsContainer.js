@@ -91,7 +91,7 @@ const OrgDataSetsContainer = ({ organizationId } :Props) => {
   const toggleSearchOptions = () => setIsOpenSearchOptions(!isOpenSearchOptions);
 
   return (
-    <div>
+    <StackGrid gap={0}>
       <StackGrid gap={8}>
         <SearchForm
             onSubmit={(query :string) => dispatchDataSetSearch({ query })}
@@ -148,7 +148,7 @@ const OrgDataSetsContainer = ({ organizationId } :Props) => {
           </StackGrid>
         )
       }
-    </div>
+    </StackGrid>
   );
 };
 

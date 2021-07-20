@@ -7,6 +7,7 @@ import { List } from 'immutable';
 import { Colors, SearchInput, Typography } from 'lattice-ui-kit';
 
 import { World2Icon } from '../../assets';
+import { StackGrid } from '../../components';
 
 const { NEUTRAL } = Colors;
 
@@ -16,14 +17,6 @@ const BasicListCard = styled.div`
   border-radius: 5px;
   display: flex;
   padding: 8px 16px;
-`;
-
-const BasicListCardWrapper = styled.div`
-  margin: 16px 0;
-
-  > div:not(:last-child) {
-    margin-bottom: 8px;
-  }
 `;
 
 const IconWrapper = styled.span`
@@ -56,7 +49,7 @@ const CollaborationsParticipationContainer = ({ collaborations, type } :Props) =
 
   const FilteredCollaborations = filteredCollaborations.size
     ? (
-      <BasicListCardWrapper>
+      <StackGrid gap={8}>
         {
           filteredCollaborations.map((collaboration) => {
             const id = collaboration.get('id');
@@ -72,25 +65,23 @@ const CollaborationsParticipationContainer = ({ collaborations, type } :Props) =
             );
           })
         }
-      </BasicListCardWrapper>
+      </StackGrid>
     )
     : <Typography align="center">No collaborations matching filter.</Typography>;
 
   const showFilteredResults = !!collaborations.size;
   return (
-    <div>
+    <StackGrid gap={24}>
       <SearchInput aria-label="filter collaborations input" onChange={onSearchInputChange} />
-      <BasicListCardWrapper>
-        {
-          !showFilteredResults && (
-            <Typography align="center">{`This ${type} is not part of any collaborations.`}</Typography>
-          )
-        }
-        {
-          showFilteredResults && FilteredCollaborations
-        }
-      </BasicListCardWrapper>
-    </div>
+      {
+        !showFilteredResults && (
+          <Typography align="center">{`This ${type} is not part of any collaborations.`}</Typography>
+        )
+      }
+      {
+        showFilteredResults && FilteredCollaborations
+      }
+    </StackGrid>
   );
 };
 

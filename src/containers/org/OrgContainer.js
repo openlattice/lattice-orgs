@@ -4,7 +4,6 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 
-import styled from 'styled-components';
 import { faFileContract, faUser } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { CollaborationsApiActions } from 'lattice-sagas';
@@ -31,6 +30,7 @@ import OrgDataSetsContainer from './OrgDataSetsContainer';
 import { DELETE_EXISTING_ORGANIZATION } from './actions';
 import { OrgActionButton } from './components';
 
+import TabPanel from '../../components/other/TabPanel';
 import { BadgeCheckIcon } from '../../assets';
 import {
   CrumbLink,
@@ -60,11 +60,6 @@ const {
   isSuccess,
 } = ReduxUtils;
 const { GET_COLLABORATIONS_WITH_ORGANIZATION, getCollaborationsWithOrganization } = CollaborationsApiActions;
-
-const StyledTabPanel = styled.div`
-  display: ${(props) => (props.show ? 'block' : 'none')};
-  padding: 8px 0 0;
-`;
 
 const OrgContainer = ({
   organizationId,
@@ -136,7 +131,7 @@ const OrgContainer = ({
 
     return (
       <AppContentWrapper>
-        <StackGrid gap={24}>
+        <StackGrid>
           <StackGrid>
             <SpaceBetweenGrid>
               <GapGrid gap={32}>
@@ -187,14 +182,14 @@ const OrgContainer = ({
             <Tab label="Data Sets" value="datasets" />
             <Tab label={collabTabText} value="collaborations" />
           </Tabs>
-          <StyledTabPanel show={tab === 'datasets'}>
+          <TabPanel show={tab === 'datasets'}>
             <OrgDataSetsContainer organizationId={organizationId} />
-          </StyledTabPanel>
-          <StyledTabPanel show={tab === 'collaborations'}>
+          </TabPanel>
+          <TabPanel show={tab === 'collaborations'}>
             <CollaborationsParticipationContainer
                 collaborations={collaborationsByOrganizationId}
                 type="organization" />
-          </StyledTabPanel>
+          </TabPanel>
         </StackGrid>
       </AppContentWrapper>
     );
