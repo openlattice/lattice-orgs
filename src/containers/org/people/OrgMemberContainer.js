@@ -146,9 +146,14 @@ const OrgMemberContainer = ({
                 <StackGrid>
                   <Typography variant="h2">Data Sets</Typography>
                   <Typography>Click on a dataset to manage permissions.</Typography>
+                  <Typography>
+                    An important note - only owners are allowed to manage permissions on a data set. If you expect to
+                    see a data set below but it is not there, it is possible that you do not have the OWNER permission
+                    on the data set and therefore cannot manage permissions.
+                  </Typography>
                 </StackGrid>
                 <PermissionsActionsGrid
-                    assignPermissionsText="Add dataset"
+                    assignPermissionsText="Add data set"
                     onChangeFilterByFlag={setFilterByFlag}
                     onChangeFilterByPermissionTypes={setFilterByPermissionTypes}
                     onChangeFilterByQuery={setFilterByQuery}
