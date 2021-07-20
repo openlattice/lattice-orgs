@@ -36,6 +36,8 @@ export const ACCOUNT :'account' = 'account';
 export const ACES :'aces' = 'aces';
 export const APP_INSTALLS :'appInstalls' = 'appInstalls';
 export const ATLAS_CREDENTIALS :'atlasCredentials' = 'atlasCredentials';
+export const COLLABORATIONS_BY_ORGANIZATION_ID :'collaborationsByOrganizationId' = 'collaborationsByOrganizationId';
+export const COLLABORATIONS_BY_DATA_SET_ID :'collaborationsByDataSetId' = 'collaborationsByDataSetId';
 export const COLLABORATION_DATA_SETS :'collaborationDataSets' = 'collaborationDataSets';
 export const CURRENT :'current' = 'current';
 export const CURRENT_ROLE_AUTHORIZATIONS :'currentRoleAuthorizations' = 'currentRoleAuthorizations';
@@ -62,6 +64,7 @@ export const ORG_DATA_SETS :'organizationDataSets' = 'organizationDataSets';
 export const ORG_DATA_SET_COLUMNS :'organizationDataSetColumns' = 'organizationDataSetColumns';
 export const PAGE_PERMISSIONS_BY_DATA_SET :'pagePermissionsByDataSet' = 'pagePermissionsByDataSet';
 export const SELECTED_ENTITY_DATA :'selectedEntityData' = 'selectedEntityData';
+export const TITLE :'title' = 'title';
 export const TOTAL_PERMISSIONS :'totalPermissions' = 'totalPermissions';
 export const USER_SEARCH_RESULTS :'userSearchResults' = 'userSearchResults';
 
