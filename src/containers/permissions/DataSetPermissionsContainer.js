@@ -180,7 +180,7 @@ const DataSetPermissionsContainer = ({
       }
       {
         isSuccess(getDataSetPermissionsPageRS) && totalPermissions === 0 && (
-          <Typography align="center">No datasets.</Typography>
+          <Typography align="center">No data sets.</Typography>
         )
       }
       {
