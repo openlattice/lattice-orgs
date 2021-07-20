@@ -8,7 +8,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
-  COLLABORATIONS,
+  DATABASE_DETAILS,
   ERROR,
   REQUEST_STATE,
   TITLE
@@ -26,7 +26,7 @@ export default function renameCollaborationDatabaseReducer(state :Map, action :S
       if (storedSeqAction) {
         const { collaborationId, name } = storedSeqAction.value;
         return state
-          .setIn([COLLABORATIONS, collaborationId, TITLE], name)
+          .setIn([DATABASE_DETAILS, collaborationId, TITLE], name)
           .setIn([RENAME_COLLABORATION_DATABASE, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
