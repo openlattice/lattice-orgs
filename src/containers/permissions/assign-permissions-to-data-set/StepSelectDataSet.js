@@ -12,7 +12,7 @@ import {
   Radio,
   Typography,
 } from 'lattice-ui-kit';
-import { DataUtils, LangUtils, useRequestState } from 'lattice-utils';
+import { LangUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -23,7 +23,6 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../../components';
-import { FQNS } from '../../../core/edm/constants';
 import { SEARCH } from '../../../core/redux/constants';
 import {
   selectSearchHits,
@@ -36,8 +35,13 @@ import {
   searchOrganizationDataSets,
 } from '../../../core/search/actions';
 import { MAX_HITS_10 } from '../../../core/search/constants';
+import {
+  ID,
+  METADATA,
+  NAME,
+  TITLE,
+} from '../../../utils/constants';
 
-const { getPropertyValue } = DataUtils;
 const { isNonEmptyString } = LangUtils;
 
 const PaginationWrapper = styled.div`
@@ -106,9 +110,9 @@ const StepSelectDataSet = ({
       <div>
         {
           searchHits.map((hit :Map) => {
-            const id = getPropertyValue(hit, [FQNS.OL_ID, 0]);
-            const name :string = getPropertyValue(hit, [FQNS.OL_DATA_SET_NAME, 0]);
-            const title :string = getPropertyValue(hit, [FQNS.OL_TITLE, 0]);
+            const id :UUID = hit.get(ID);
+            const name :string = hit.get(NAME);
+            const title :string = hit.getIn([METADATA, TITLE]);
             return (
               <CardSegment key={id} padding="8px 0">
                 <SpaceBetweenGrid>
