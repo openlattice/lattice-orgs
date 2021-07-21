@@ -64,6 +64,7 @@ export const ORG_DATA_SETS :'organizationDataSets' = 'organizationDataSets';
 export const ORG_DATA_SET_COLUMNS :'organizationDataSetColumns' = 'organizationDataSetColumns';
 export const PAGE_PERMISSIONS_BY_DATA_SET :'pagePermissionsByDataSet' = 'pagePermissionsByDataSet';
 export const SELECTED_ENTITY_DATA :'selectedEntityData' = 'selectedEntityData';
+export const TITLE :'title' = 'title';
 export const TOTAL_PERMISSIONS :'totalPermissions' = 'totalPermissions';
 export const USER_SEARCH_RESULTS :'userSearchResults' = 'userSearchResults';
 
