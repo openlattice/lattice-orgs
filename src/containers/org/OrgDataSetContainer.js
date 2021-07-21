@@ -11,17 +11,18 @@ import {
   AppContentWrapper,
   Badge,
   Colors,
+  FolderTab,
+  FolderTabs,
   Label,
   MarkdownPreview,
-  Tab,
-  Tabs,
   Typography,
 } from 'lattice-ui-kit';
-import { LangUtils } from 'lattice-utils';
+import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch, useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
 import type { Organization, UUID } from 'lattice';
+import type { RequestState } from 'redux-reqseq';
 
 import CollaborationsParticipationContainer from './CollaborationsParticipationContainer';
 import DataSetActionButton from './components/dataset/DataSetActionButton';
@@ -35,6 +36,7 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
+import { COLLABORATIONS } from '../../core/redux/constants';
 import {
   selectCollaborationsByDataSetId,
   selectDataSetSchema,
@@ -56,7 +58,8 @@ import {
 
 const { BLUE } = Colors;
 const { isDefined, isNonEmptyString } = LangUtils;
-const { getCollaborationsWithDataSets } = CollaborationsApiActions;
+const { GET_COLLABORATIONS_WITH_DATA_SETS, getCollaborationsWithDataSets } = CollaborationsApiActions;
+const { isSuccess } = ReduxUtils;
 
 const ReducedMargin = styled.div`
   margin: -16px 0;
@@ -89,6 +92,7 @@ const OrgDataSetContainer = ({
   const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
   const dataSetSize :?number = useSelector(selectOrgDataSetSize(organizationId, dataSetId));
+  const getCollabWithDataSetRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS_WITH_DATA_SETS]);
 
   const collaborationsByDataSetId = useSelector(selectCollaborationsByDataSetId(dataSetId));
 
@@ -105,6 +109,9 @@ const OrgDataSetContainer = ({
   const dataSetCollabRoute = ORG_DATA_SET_COLLABORATIONS
     .replace(Routes.ORG_ID_PARAM, organizationId)
     .replace(Routes.DATA_SET_ID_PARAM, dataSetId);
+
+  const collabCount = collaborationsByDataSetId.size;
+  const collabTabText = isSuccess(getCollabWithDataSetRS) ? `Collaborations (${collabCount})` : 'Collaborations';
 
   if (organization) {
 
@@ -170,27 +177,27 @@ const OrgDataSetContainer = ({
                 )
               }
             </StackGrid>
-            <Tabs
+            <FolderTabs
                 aria-label="tabs"
                 indicatorColor="primary"
                 textColor="primary"
                 value={location.pathname}>
-              <Tab
+              <FolderTab
                   component={Link}
                   to={dataSetRoute}
                   label="Properties"
                   value={dataSetRoute} />
-              <Tab
+              <FolderTab
                   component={Link}
                   to={dataSetDataRoute}
                   label="Search"
                   value={dataSetDataRoute} />
-              <Tab
+              <FolderTab
                   component={Link}
                   to={dataSetCollabRoute}
-                  label="Collaborations"
+                  label={collabTabText}
                   value={dataSetCollabRoute} />
-            </Tabs>
+            </FolderTabs>
             <Switch>
               <Route
                   exact

@@ -10,9 +10,9 @@ import { CollaborationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
   Colors,
+  FolderTab,
+  FolderTabs,
   MarkdownPreview,
-  Tab,
-  Tabs,
   Typography,
 } from 'lattice-ui-kit';
 import {
@@ -174,22 +174,22 @@ const OrgContainer = ({
               )
             }
           </StackGrid>
-          <Tabs
+          <FolderTabs
               aria-label="tabs"
               indicatorColor="primary"
               textColor="primary"
               value={location.pathname}>
-            <Tab
+            <FolderTab
                 component={Link}
                 to={orgHref}
                 label="Data Sets"
                 value={orgHref} />
-            <Tab
+            <FolderTab
                 component={Link}
                 to={collaborationHref}
                 label={collabTabText}
                 value={collaborationHref} />
-          </Tabs>
+          </FolderTabs>
           <Switch>
             <Route
                 path={ORG}
