@@ -8,7 +8,7 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { List, Map } from 'immutable';
+import { List, Map, fromJS } from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   DataSetMetadataApiActions,
@@ -65,7 +65,7 @@ function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
       if (dataSetColumns.isEmpty()) {
         response = yield call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata([dataSetId]));
         if (response.error) throw response.error;
-        dataSetColumns = response.data.get(dataSetId) || List();
+        dataSetColumns = fromJS(response.data).get(dataSetId) || List();
       }
       keys = getDataSetKeys(dataSet, dataSetColumns);
     }
