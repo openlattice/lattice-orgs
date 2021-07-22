@@ -71,10 +71,6 @@ module.exports = (env) => {
     __VERSION__: JSON.stringify(`v${PACKAGE.version}`),
   });
 
-  const PROCESS_PLUGIN = new webpack.ProvidePlugin({
-    process: 'process/browser',
-  });
-
   //
   // base webpack config
   //
@@ -114,7 +110,6 @@ module.exports = (env) => {
     plugins: [
       DEFINE_PLUGIN,
       BANNER_PLUGIN,
-      PROCESS_PLUGIN,
     ],
     resolve: {
       alias: {
