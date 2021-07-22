@@ -48,7 +48,7 @@ import {
   selectOrganization,
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-import { ORG, ORG_COLLABORATIONS } from '../../core/router/Routes';
+import { ORG, ORG_COLLABORATIONS, ORG_ID_PARAM } from '../../core/router/Routes';
 import {
   SEARCH_ORGANIZATION_DATA_SETS,
   searchOrganizationDataSets,
@@ -80,8 +80,8 @@ const OrgContainer = ({
   const isInstalled :boolean = useSelector(selectIsAppInstalled(APPS.ACCESS_REQUESTS, organizationId));
   const collaborationsByOrganizationId = useSelector(selectCollaborationsByOrgId(organizationId));
 
-  const collaborationHref = ORG_COLLABORATIONS.replace(':organizationId', organizationId);
-  const orgHref = ORG.replace(':organizationId', organizationId);
+  const collaborationHref = ORG_COLLABORATIONS.replace(ORG_ID_PARAM, organizationId);
+  const orgHref = ORG.replace(ORG_ID_PARAM, organizationId);
 
   useEffect(() => {
     dispatch(getCollaborationsWithOrganization(organizationId));
