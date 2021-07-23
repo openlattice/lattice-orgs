@@ -6,6 +6,7 @@ import { all, fork } from '@redux-saga/core/effects';
 import { AuthSagas } from 'lattice-auth';
 import {
   AuthorizationsApiSagas,
+  CollaborationsApiSagas,
   DataSetsApiSagas,
   OrganizationsApiSagas,
   PrincipalsApiSagas
@@ -13,6 +14,7 @@ import {
 import type { Saga } from '@redux-saga/core';
 
 import * as AppSagas from '../../containers/app/sagas';
+import * as CollaborationsSagas from '../../containers/collaborations/sagas';
 import * as DataSagas from '../data/sagas';
 import * as EDMSagas from '../edm/sagas';
 import * as ExploreSagas from '../../containers/explore/sagas';
@@ -33,7 +35,17 @@ export default function* sagas() :Saga<*> {
     fork(AuthSagas.watchLogout),
 
     // "lattice-sagas" sagas
+    fork(CollaborationsApiSagas.addDataSetToCollaborationWatcher),
+    fork(CollaborationsApiSagas.addOrganizationsToCollaborationWatcher),
+    fork(CollaborationsApiSagas.deleteCollaborationWatcher),
+    fork(CollaborationsApiSagas.getCollaborationDatabaseInfoWatcher),
+    fork(CollaborationsApiSagas.getCollaborationsWithDataSetsWatcher),
+    fork(CollaborationsApiSagas.getCollaborationsWithOrganizationWatcher),
+    fork(CollaborationsApiSagas.removeDataSetFromCollaborationWatcher),
+    fork(CollaborationsApiSagas.removeOrganizationsFromCollaborationWatcher),
+    fork(CollaborationsApiSagas.renameCollaborationDatabaseWatcher),
     fork(AuthorizationsApiSagas.getAuthorizationsWatcher),
+    fork(CollaborationsApiSagas.getCollaborationsWatcher),
     fork(DataSetsApiSagas.getOrganizationDataSetSchemaWatcher),
     fork(OrganizationsApiSagas.addDomainsToOrganizationWatcher),
     fork(OrganizationsApiSagas.addMemberToOrganizationWatcher),
@@ -68,6 +80,10 @@ export default function* sagas() :Saga<*> {
 
     // AppSagas
     fork(AppSagas.initializeApplicationWatcher),
+
+    // CollaborationsSagas
+    fork(CollaborationsSagas.createNewCollaborationWatcher),
+    fork(CollaborationsSagas.getDataSetsInCollaborationWatcher),
 
     // DataSagas
     fork(DataSagas.fetchEntitySetDataWatcher),

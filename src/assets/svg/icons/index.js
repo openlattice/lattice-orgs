@@ -10,6 +10,7 @@ import EntitySetIconSVG from './entity-set-icon.svg';
 import ExternalLinkSVG from './external-link.svg';
 import OpenLatticeIconSVG from './ol-icon.svg';
 import RoleIconSVG from './role-icon.svg';
+import World2 from './world2.svg';
 
 const AtlasDataSetIcon = styled.img.attrs({
   alt: 'atlas-data-set-icon',
@@ -41,6 +42,11 @@ const RoleIcon = styled.img.attrs({
   src: RoleIconSVG,
 })``;
 
+const World2Icon = styled.img.attrs({
+  alt: 'role-icon',
+  src: World2,
+})``;
+
 export {
   AtlasDataSetIcon,
   AtlasDataSetIconSVG,
@@ -54,4 +60,5 @@ export {
   OpenLatticeIconSVG,
   RoleIcon,
   RoleIconSVG,
+  World2Icon,
 };
