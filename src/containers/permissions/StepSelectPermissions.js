@@ -7,6 +7,7 @@ import React from 'react';
 import _capitalize from 'lodash/capitalize';
 import { faToggleOn } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { List } from 'immutable';
 import {
   Colors,
   IconButton,
@@ -16,6 +17,7 @@ import {
 import type { PermissionType } from 'lattice';
 
 import { PERMISSION_TYPE_RS_OPTIONS } from './constants';
+
 import { SpaceBetweenGrid, StackGrid } from '../../components';
 import type { ReactSelectOption } from '../../types';
 
@@ -26,14 +28,14 @@ const StepSelectPermissions = ({
   isDataSet,
   setAssignPermissionsToAllProperties,
   setTargetPermissionOptions,
-  targetTitle,
+  targetTitles,
   targetPermissionOptions,
 } :{
   assignPermissionsToAllProperties :boolean;
   isDataSet :?boolean;
   setAssignPermissionsToAllProperties :(permissionsOnAllProperties :boolean) => void;
   setTargetPermissionOptions :(permissionTypes :ReactSelectOption<PermissionType>[]) => void;
-  targetTitle :string;
+  targetTitles :List<string>;
   targetPermissionOptions :ReactSelectOption<PermissionType>[];
 }) => {
 
@@ -54,7 +56,7 @@ const StepSelectPermissions = ({
   return (
     <StackGrid>
       <Typography>
-        {`Select permissions to assign to "${targetTitle}".`}
+        {`Select permissions to assign to the following data set(s): ${targetTitles.join(', ')}.`}
       </Typography>
       <Select
           isMulti
