@@ -2,25 +2,29 @@
  * @flow
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
+import { CollaborationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
-  AppNavigationWrapper,
   Badge,
   Colors,
+  FolderTab,
+  FolderTabs,
   Label,
   MarkdownPreview,
   Typography,
 } from 'lattice-ui-kit';
-import { LangUtils } from 'lattice-utils';
-import { useSelector } from 'react-redux';
-import { Route, Switch } from 'react-router';
-import { NavLink } from 'react-router-dom';
+import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { Route, Switch, useLocation } from 'react-router';
+import { Link } from 'react-router-dom';
 import type { Organization, UUID } from 'lattice';
+import type { RequestState } from 'redux-reqseq';
 
+import CollaborationsParticipationContainer from './CollaborationsParticipationContainer';
 import DataSetActionButton from './components/dataset/DataSetActionButton';
 import DataSetDataContainer from './DataSetDataContainer';
 import DataSetMetadataContainer from './DataSetMetadataContainer';
@@ -31,12 +35,13 @@ import {
   CrumbItem,
   CrumbLink,
   Crumbs,
-  NavContentWrapper,
   Pre,
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
+import { COLLABORATIONS } from '../../core/redux/constants';
 import {
+  selectCollaborationsByDataSetId,
   selectDataSetSchema,
   selectOrgDataSet,
   selectOrgDataSetColumns,
@@ -44,6 +49,7 @@ import {
   selectOrganization
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
+import { ORG_DATA_SET_COLLABORATIONS } from '../../core/router/Routes';
 import { clipboardWriteText, isAtlasDataSet } from '../../utils';
 import {
   CONTACTS,
@@ -55,6 +61,8 @@ import {
 
 const { BLUE } = Colors;
 const { isDefined, isNonEmptyString } = LangUtils;
+const { GET_COLLABORATIONS_WITH_DATA_SETS, getCollaborationsWithDataSets } = CollaborationsApiActions;
+const { isSuccess } = ReduxUtils;
 
 const ReducedMargin = styled.div`
   margin: -16px 0;
@@ -80,11 +88,20 @@ const OrgDataSetContainer = ({
   organizationRoute :string;
 |}) => {
 
+  const dispatch = useDispatch();
+  const location = useLocation();
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
   const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
   const dataSetSize :?number = useSelector(selectOrgDataSetSize(organizationId, dataSetId));
+  const getCollabWithDataSetRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS_WITH_DATA_SETS]);
+
+  const collaborationsByDataSetId = useSelector(selectCollaborationsByDataSetId(dataSetId));
+
+  useEffect(() => {
+    dispatch(getCollaborationsWithDataSets(dataSetId));
+  }, [dispatch, dataSetId]);
 
   const contacts :List<string> = dataSet.getIn([METADATA, CONTACTS]);
   const description :string = dataSet.getIn([METADATA, DESCRIPTION]);
@@ -92,16 +109,14 @@ const OrgDataSetContainer = ({
   const title :string = dataSet.getIn([METADATA, TITLE]);
 
   const hasContactInfo :boolean = contacts.some(isNonEmptyString);
+  const dataSetCollabRoute = ORG_DATA_SET_COLLABORATIONS
+    .replace(Routes.ORG_ID_PARAM, organizationId)
+    .replace(Routes.DATA_SET_ID_PARAM, dataSetId);
+
+  const collabCount = collaborationsByDataSetId.size;
+  const collabTabText = isSuccess(getCollabWithDataSetRS) ? `Collaborations (${collabCount})` : 'Collaborations';
 
   if (organization) {
-
-    const renderDataSetDataContainer = () => (
-      <DataSetDataContainer dataSetId={dataSetId} dataSetName={title || name} organizationId={organizationId} />
-    );
-
-    const renderDataSetMetaContainer = () => (
-      <DataSetMetadataContainer dataSetId={dataSetId} organizationId={organizationId} />
-    );
 
     return (
       <>
@@ -110,7 +125,7 @@ const OrgDataSetContainer = ({
             <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
-          <StackGrid gap={32}>
+          <StackGrid gap={16}>
             <StackGrid>
               <SpaceBetweenGrid>
                 <div>
@@ -172,26 +187,56 @@ const OrgDataSetContainer = ({
                 )
               }
             </StackGrid>
+            <FolderTabs
+                aria-label="tabs"
+                indicatorColor="primary"
+                textColor="primary"
+                value={location.pathname}>
+              <FolderTab
+                  component={Link}
+                  to={dataSetRoute}
+                  label="Properties"
+                  value={dataSetRoute} />
+              <FolderTab
+                  component={Link}
+                  to={dataSetDataRoute}
+                  label="Search"
+                  value={dataSetDataRoute} />
+              <FolderTab
+                  component={Link}
+                  to={dataSetCollabRoute}
+                  label={collabTabText}
+                  value={dataSetCollabRoute} />
+            </FolderTabs>
+            <Switch>
+              <Route
+                  exact
+                  path={Routes.ORG_DATA_SET_DATA}
+                  render={() => (
+                    <DataSetDataContainer
+                        dataSetId={dataSetId}
+                        dataSetName={title || name}
+                        organizationId={organizationId} />
+                  )} />
+              <Route
+                  exact
+                  path={Routes.ORG_DATA_SET}
+                  render={() => (
+                    <DataSetMetadataContainer
+                        dataSetId={dataSetId}
+                        organizationId={organizationId} />
+                  )} />
+              <Route
+                  exact
+                  path={Routes.ORG_DATA_SET_COLLABORATIONS}
+                  render={() => (
+                    <CollaborationsParticipationContainer
+                        collaborations={collaborationsByDataSetId}
+                        type="data set" />
+                  )} />
+            </Switch>
           </StackGrid>
         </AppContentWrapper>
-        <NavContentWrapper borderless bgColor="white">
-          <AppNavigationWrapper borderless>
-            <NavLink exact strict to={dataSetRoute}>
-              <Typography variant="h3">Properties</Typography>
-            </NavLink>
-            {
-              !isAtlasDataSet(dataSet) && (
-                <NavLink to={dataSetDataRoute}>
-                  <Typography variant="h3">Search</Typography>
-                </NavLink>
-              )
-            }
-          </AppNavigationWrapper>
-        </NavContentWrapper>
-        <Switch>
-          <Route exact path={Routes.ORG_DATA_SET_DATA} render={renderDataSetDataContainer} />
-          <Route exact path={Routes.ORG_DATA_SET} render={renderDataSetMetaContainer} />
-        </Switch>
       </>
     );
   }
