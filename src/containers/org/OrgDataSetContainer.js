@@ -26,10 +26,13 @@ import DataSetDataContainer from './DataSetDataContainer';
 import DataSetMetadataContainer from './DataSetMetadataContainer';
 
 import {
+  ActionsGrid,
+  CopyButton,
   CrumbItem,
   CrumbLink,
   Crumbs,
   NavContentWrapper,
+  Pre,
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
@@ -41,7 +44,7 @@ import {
   selectOrganization
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-import { isAtlasDataSet } from '../../utils';
+import { clipboardWriteText, isAtlasDataSet } from '../../utils';
 import {
   CONTACTS,
   DESCRIPTION,
@@ -111,9 +114,15 @@ const OrgDataSetContainer = ({
             <StackGrid>
               <SpaceBetweenGrid>
                 <div>
-                  <Typography variant="h1">{title || name}</Typography>
-                  <Typography variant="subtitle1">{`NAME: ${name}`}</Typography>
-                  <Typography variant="subtitle1">{`ID: ${dataSetId}`}</Typography>
+                  <Typography gutterBottom variant="h1">{title || name}</Typography>
+                  <Typography variant="subtitle1">DATASET ID</Typography>
+                  <ActionsGrid align={{ v: 'center' }} fit>
+                    <Pre>{dataSetId}</Pre>
+                    <CopyButton
+                        aria-label="copy organization id"
+                        onClick={() => clipboardWriteText(dataSetId)} />
+                  </ActionsGrid>
+                  <Typography variant="subtitle1">{name}</Typography>
                 </div>
                 <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
               </SpaceBetweenGrid>
