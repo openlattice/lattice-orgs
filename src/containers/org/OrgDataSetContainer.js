@@ -112,7 +112,8 @@ const OrgDataSetContainer = ({
               <SpaceBetweenGrid>
                 <div>
                   <Typography variant="h1">{title || name}</Typography>
-                  <Typography variant="subtitle1">{name}</Typography>
+                  <Typography variant="subtitle1">{`NAME: ${name}`}</Typography>
+                  <Typography variant="subtitle1">{`ID: ${dataSetId}`}</Typography>
                 </div>
                 <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
               </SpaceBetweenGrid>
