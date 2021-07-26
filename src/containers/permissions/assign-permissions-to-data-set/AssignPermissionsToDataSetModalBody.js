@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 
 import _capitalize from 'lodash/capitalize';
 import styled from 'styled-components';
+import { List } from 'immutable';
 import { ModalFooter as LUKModalFooter } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
@@ -40,8 +41,8 @@ const AssignPermissionsToDataSetModalBody = ({
   const dispatch = useDispatch();
 
   const [assignPermissionsToAllProperties, setAssignPermissionsToAllProperties] = useState(true);
-  const [targetDataSetId, setTargetDataSetId] = useState('');
-  const [targetDataSetTitle, setTargetDataSetTitle] = useState('');
+  const [targetDataSetIds, setTargetDataSetIds] = useState(List());
+  const [targetDataSetTitles, setTargetDataSetTitles] = useState(List());
   const [targetPermissionOptions, setTargetPermissionOptions] = useState([]);
 
   const assignPermissionsToDataSetRS :?RequestState = useRequestState([PERMISSIONS, ASSIGN_PERMISSIONS_TO_DATA_SET]);
@@ -54,7 +55,7 @@ const AssignPermissionsToDataSetModalBody = ({
   const onConfirm = () => {
     dispatch(
       assignPermissionsToDataSet({
-        dataSetId: targetDataSetId,
+        dataSetIds: targetDataSetIds,
         organizationId,
         permissionTypes: targetPermissionOptions.map((option) => option.value),
         principal,
@@ -71,8 +72,9 @@ const AssignPermissionsToDataSetModalBody = ({
     .join(', ');
 
   const confirmText = assignPermissionsToAllProperties
-    ? `Please confirm you want to assign ${permissions} to "${targetDataSetTitle}" and all its columns.`
-    : `Please confirm you want to assign ${permissions} to "${targetDataSetTitle}".`;
+    ? `Please confirm you want to assign ${permissions} to "${targetDataSetTitles.join(', ')}" `
+      + 'datasets and all of their columns.'
+    : `Please confirm you want to assign ${permissions} to "${targetDataSetTitles.join(', ')}" datasets.`;
 
   return (
     <StepsController>
@@ -85,9 +87,10 @@ const AssignPermissionsToDataSetModalBody = ({
                   <ModalBody>
                     <StepSelectDataSet
                         organizationId={organizationId}
-                        setTargetDataSetId={setTargetDataSetId}
-                        setTargetDataSetTitle={setTargetDataSetTitle}
-                        targetDataSetId={targetDataSetId} />
+                        setTargetDataSetIds={setTargetDataSetIds}
+                        setTargetDataSetTitles={setTargetDataSetTitles}
+                        targetDataSetIds={targetDataSetIds}
+                        targetDataSetTitles={targetDataSetTitles} />
                   </ModalBody>
                   <ModalFooter
                       onClickPrimary={stepNext}
@@ -104,10 +107,10 @@ const AssignPermissionsToDataSetModalBody = ({
                   <ModalBody>
                     <StepSelectPermissions
                         assignPermissionsToAllProperties={assignPermissionsToAllProperties}
-                        isDataSet={!!targetDataSetId}
+                        isDataSet={!targetDataSetIds.isEmpty()}
                         setAssignPermissionsToAllProperties={setAssignPermissionsToAllProperties}
                         setTargetPermissionOptions={setTargetPermissionOptions}
-                        targetTitle={targetDataSetTitle}
+                        targetTitles={targetDataSetTitles}
                         targetPermissionOptions={targetPermissionOptions} />
                   </ModalBody>
                   <ModalFooter
