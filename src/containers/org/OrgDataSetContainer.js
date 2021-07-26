@@ -128,19 +128,19 @@ const OrgDataSetContainer = ({
           <StackGrid gap={16}>
             <StackGrid>
               <SpaceBetweenGrid>
-                <div>
-                  <Typography gutterBottom variant="h1">{title || name}</Typography>
-                  <Typography variant="subtitle1">DATASET ID</Typography>
-                  <ActionsGrid align={{ v: 'center' }} fit>
-                    <Pre>{dataSetId}</Pre>
-                    <CopyButton
-                        aria-label="copy organization id"
-                        onClick={() => clipboardWriteText(dataSetId)} />
-                  </ActionsGrid>
-                  <Typography variant="subtitle1">{name}</Typography>
-                </div>
+                <Typography gutterBottom variant="h1">{title || name}</Typography>
                 <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
               </SpaceBetweenGrid>
+              <div>
+                <Typography variant="subtitle1">DATASET ID</Typography>
+                <ActionsGrid align={{ v: 'center' }} fit>
+                  <Pre>{dataSetId}</Pre>
+                  <CopyButton
+                      aria-label="copy organization id"
+                      onClick={() => clipboardWriteText(dataSetId)} />
+                </ActionsGrid>
+                <Typography variant="subtitle1">{name}</Typography>
+              </div>
               <div>
                 <CountBadge count={dataSetColumns.size} />
                 <Label subtle>Data Fields</Label>
