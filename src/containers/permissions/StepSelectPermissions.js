@@ -56,7 +56,7 @@ const StepSelectPermissions = ({
   return (
     <StackGrid>
       <Typography>
-        {`Select permissions to assign to the following data set(s): ${targetTitles.join(', ')}.`}
+        {`Select permissions to assign to the following: ${targetTitles.join(', ')}.`}
       </Typography>
       <Select
           isMulti
