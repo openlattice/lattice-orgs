@@ -11,10 +11,10 @@ export default function getDataSetsKeys(
 ) :List<List<UUID>> {
 
   return List().withMutations((keys :List<List<UUID>>) => {
-    dataSets.forEach((dataSet, dataSetId) => {
-      const dataSetColumns = dataSetsColumns.get(dataSetId);
+    dataSets.keySeq().forEach((dataSetId) => {
+      const dataSetColumns :Map<UUID, Map> = dataSetsColumns.get(dataSetId);
       keys.push(List([dataSetId]));
-      dataSetColumns.forEach((column :Map) => {
+      dataSetColumns.valueSeq().forEach((column :Map) => {
         const columnId :UUID = get(column, 'id');
         keys.push(List([dataSetId, columnId]));
       });
