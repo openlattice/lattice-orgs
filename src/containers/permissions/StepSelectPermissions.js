@@ -56,8 +56,13 @@ const StepSelectPermissions = ({
   return (
     <StackGrid>
       <Typography>
-        {`Select permissions to assign to the following: ${targetTitles.join(', ')}.`}
+        Select permissions to assign to the following:
       </Typography>
+      <ul>
+        {
+          targetTitles.map((title) => <li>{title}</li>)
+        }
+      </ul>
       <Select
           isMulti
           onChange={handleOnChange}
