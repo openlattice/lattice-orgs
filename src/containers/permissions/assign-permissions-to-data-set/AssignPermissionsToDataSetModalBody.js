@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import _capitalize from 'lodash/capitalize';
 import styled from 'styled-components';
 import { List } from 'immutable';
-import { ModalFooter as LUKModalFooter } from 'lattice-ui-kit';
+import { ModalFooter as LUKModalFooter, Typography } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -72,9 +72,36 @@ const AssignPermissionsToDataSetModalBody = ({
     .join(', ');
 
   const confirmText = assignPermissionsToAllProperties
-    ? `Please confirm you want to assign ${permissions} to "${targetDataSetTitles.join(', ')}" `
-      + 'datasets and all of their columns.'
-    : `Please confirm you want to assign ${permissions} to "${targetDataSetTitles.join(', ')}" datasets.`;
+    ? (
+      <>
+        <Typography>
+          {
+            `Please confirm you want to assign ${permissions} the following `
+              + 'datasets and all of their columns:'
+          }
+        </Typography>
+        <ul>
+          {
+            targetDataSetTitles.map((title) => <li>{title}</li>)
+          }
+        </ul>
+      </>
+    )
+    : (
+      <>
+        <Typography>
+          {
+            `Please confirm you want to assign ${permissions} the `
+              + 'following datasets (not all of their columns):'
+          }
+        </Typography>
+        <ul>
+          {
+            targetDataSetTitles.map((title) => <li>{title}</li>)
+          }
+        </ul>
+      </>
+    );
 
   return (
     <StepsController>
