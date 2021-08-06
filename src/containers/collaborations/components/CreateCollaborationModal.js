@@ -110,7 +110,7 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
         })
       );
     }
-    else if (!isNonEmptyString(modalState.title)) {
+    else {
       modalDispatch({ type: TITLE_IS_VALID, value: false });
     }
   };
