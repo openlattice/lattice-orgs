@@ -35,21 +35,16 @@ type Props = {
 
 const INITIAL_STATE :{
   description :string;
-  name :string;
-  nameIsValid :boolean;
   title :string;
   titleIsValid :boolean;
 } = {
   description: '',
-  name: '',
-  nameIsValid: true,
   title: '',
   titleIsValid: true,
 };
 
 const DESCRIPTION = 'DESCRIPTIOIN';
 const TITLE = 'TITLE';
-const NAME_IS_VALID = 'NAME_IS_VALID';
 const TITLE_IS_VALID = 'TITLE_IS_VALID';
 
 const reducer = (state, action) => {
@@ -58,11 +53,6 @@ const reducer = (state, action) => {
       return {
         ...state,
         description: action.value,
-      };
-    case NAME_IS_VALID:
-      return {
-        ...state,
-        nameIsValid: action.value,
       };
     case TITLE:
       return {
