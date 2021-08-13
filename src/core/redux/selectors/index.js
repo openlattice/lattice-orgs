@@ -14,6 +14,8 @@ export { default as selectAtlasCredentials } from './selectAtlasCredentials';
 export { default as selectCollaboration } from './selectCollaboration';
 export { default as selectCollaborationDatabaseDetails } from './selectCollaborationDatabaseDetails';
 export { default as selectCollaborationDataSets } from './selectCollaborationDataSets';
+export { default as selectCollaborationsByDataSetId } from './selectCollaborationsByDataSetId';
+export { default as selectCollaborationsByOrgId } from './selectCollaborationsByOrgId';
 export { default as selectCollaborationsOrgIds } from './selectCollaborationsOrgIds';
 export { default as selectCurrentAuthorization } from './selectCurrentAuthorization';
 export { default as selectCurrentRoleAuthorizations } from './selectCurrentRoleAuthorizations';

@@ -2,21 +2,17 @@
  * @flow
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
-import { faChevronDown } from '@fortawesome/pro-regular-svg-icons';
 import { faFileContract, faUser } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { List, Map } from 'immutable';
+import { CollaborationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
-  Box,
-  Collapse,
   Colors,
-  IconButton,
+  FolderTab,
+  FolderTabs,
   MarkdownPreview,
-  PaginationToolbar,
-  Select,
   Typography,
 } from 'lattice-ui-kit';
 import {
@@ -26,49 +22,46 @@ import {
   useRequestState,
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router';
+import { Link, Route, Switch } from 'react-router-dom';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import CollaborationsParticipationContainer from './CollaborationsParticipationContainer';
+import OrgDataSetsContainer from './OrgDataSetsContainer';
 import { DELETE_EXISTING_ORGANIZATION } from './actions';
-import { DataSetSearchResultCard, OrgActionButton } from './components';
+import { OrgActionButton } from './components';
 
 import { BadgeCheckIcon } from '../../assets';
 import {
   CrumbLink,
-  Flip,
   GapGrid,
-  SearchForm,
   SpaceBetweenGrid,
-  Spinner,
   StackGrid,
 } from '../../components';
-import { APPS, ES_FLAG_TYPE_RS_OPTIONS } from '../../core/edm/constants';
+import { APPS } from '../../core/edm/constants';
 import { resetRequestStates } from '../../core/redux/actions';
-import { ORGANIZATIONS, SEARCH } from '../../core/redux/constants';
+import { COLLABORATIONS, ORGANIZATIONS, SEARCH } from '../../core/redux/constants';
 import {
+  selectCollaborationsByOrgId,
   selectIsAppInstalled,
   selectOrganization,
-  selectSearchHits,
-  selectSearchPage,
-  selectSearchQuery,
-  selectSearchTotalHits,
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
+import { ORG, ORG_COLLABORATIONS, ORG_ID_PARAM } from '../../core/router/Routes';
 import {
   SEARCH_ORGANIZATION_DATA_SETS,
-  clearSearchState,
   searchOrganizationDataSets,
 } from '../../core/search/actions';
 import { MAX_HITS_10 } from '../../core/search/constants';
-import type { ReactSelectOption } from '../../types';
 
 const { PURPLE } = Colors;
 const { isNonEmptyString } = LangUtils;
 const {
-  isPending,
   isStandby,
   isSuccess,
 } = ReduxUtils;
+const { GET_COLLABORATIONS_WITH_ORGANIZATION, getCollaborationsWithOrganization } = CollaborationsApiActions;
 
 const OrgContainer = ({
   organizationId,
@@ -77,20 +70,22 @@ const OrgContainer = ({
 |}) => {
 
   const dispatch = useDispatch();
-
-  const [isOpenSearchOptions, setIsOpenSearchOptions] = useState(false);
-  const [flag, setFlag] = useState();
+  const location = useLocation();
 
   const deleteOrgRS :?RequestState = useRequestState([ORGANIZATIONS, DELETE_EXISTING_ORGANIZATION]);
   const searchOrgDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_ORGANIZATION_DATA_SETS]);
+  const getCollabWithOrgRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS_WITH_ORGANIZATION]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const isInstalled :boolean = useSelector(selectIsAppInstalled(APPS.ACCESS_REQUESTS, organizationId));
+  const collaborationsByOrganizationId = useSelector(selectCollaborationsByOrgId(organizationId));
 
-  const searchPage :number = useSelector(selectSearchPage(SEARCH_ORGANIZATION_DATA_SETS));
-  const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS)) || '*';
-  const searchHits :List = useSelector(selectSearchHits(SEARCH_ORGANIZATION_DATA_SETS));
-  const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_ORGANIZATION_DATA_SETS));
+  const collaborationHref = ORG_COLLABORATIONS.replace(ORG_ID_PARAM, organizationId);
+  const orgHref = ORG.replace(ORG_ID_PARAM, organizationId);
+
+  useEffect(() => {
+    dispatch(getCollaborationsWithOrganization(organizationId));
+  }, [dispatch, organizationId]);
 
   useEffect(() => {
     if (isStandby(searchOrgDataSetsRS)) {
@@ -104,25 +99,6 @@ const OrgContainer = ({
       );
     }
   }, [dispatch, organizationId, searchOrgDataSetsRS]);
-
-  const dispatchDataSetSearch = (params :{ page ?:number, query ?:string, start ?:number } = {}) => {
-    const { page = 1, query = searchQuery, start = 0 } = params;
-    if (isNonEmptyString(query)) {
-      dispatch(
-        searchOrganizationDataSets({
-          flags: [flag],
-          maxHits: MAX_HITS_10,
-          organizationId,
-          page,
-          query,
-          start,
-        })
-      );
-    }
-    else {
-      dispatch(clearSearchState(SEARCH_ORGANIZATION_DATA_SETS));
-    }
-  };
 
   const goToRoot = useGoToRoute(Routes.ROOT);
 
@@ -150,11 +126,13 @@ const OrgContainer = ({
   if (organization) {
     const rolesCount :number = organization.roles.length;
     const peopleCount :number = organization.members.length;
-    const toggleSearchOptions = () => setIsOpenSearchOptions(!isOpenSearchOptions);
+
+    const collabCount = collaborationsByOrganizationId.size;
+    const collabTabText = isSuccess(getCollabWithOrgRS) ? `Collaborations (${collabCount})` : 'Collaborations';
 
     return (
       <AppContentWrapper>
-        <StackGrid gap={24}>
+        <StackGrid>
           <StackGrid>
             <SpaceBetweenGrid>
               <GapGrid gap={32}>
@@ -196,59 +174,36 @@ const OrgContainer = ({
               )
             }
           </StackGrid>
-          <Typography variant="h2">Data Sets</Typography>
-          <StackGrid gap={8}>
-            <SearchForm
-                onSubmit={(query :string) => dispatchDataSetSearch({ query })}
-                searchQuery={searchQuery}
-                searchRequestState={searchOrgDataSetsRS} />
-            <GapGrid gap={8}>
-              <Typography variant="subtitle2">Search Options</Typography>
-              <Flip flip={isOpenSearchOptions}>
-                <IconButton aria-label="toggle search options" onClick={toggleSearchOptions}>
-                  <FontAwesomeIcon fixedWidth icon={faChevronDown} size="xs" />
-                </IconButton>
-              </Flip>
-            </GapGrid>
-            <Collapse in={isOpenSearchOptions}>
-              <Box maxWidth={240}>
-                <Typography gutterBottom variant="subtitle1">Flags</Typography>
-                <Select
-                    isClearable
-                    onChange={(option :?ReactSelectOption<string>) => setFlag(option?.value)}
-                    options={ES_FLAG_TYPE_RS_OPTIONS} />
-              </Box>
-            </Collapse>
-          </StackGrid>
-          {
-            !isStandby(searchOrgDataSetsRS) && (
-              <PaginationToolbar
-                  count={searchTotalHits}
-                  onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
-                  page={searchPage}
-                  rowsPerPage={MAX_HITS_10} />
-            )
-          }
-          {
-            isPending(searchOrgDataSetsRS) && (
-              <Spinner />
-            )
-          }
-          {
-            isSuccess(searchOrgDataSetsRS) && searchHits.isEmpty() && (
-              <Typography align="center">No data sets.</Typography>
-            )
-          }
-          {
-            isSuccess(searchOrgDataSetsRS) && !searchHits.isEmpty() && (
-              searchHits.valueSeq().map((searchHit :Map) => (
-                <DataSetSearchResultCard
-                    dataSet={searchHit}
-                    key={searchHit.get('id')}
-                    organizationId={organizationId} />
-              ))
-            )
-          }
+          <FolderTabs
+              aria-label="tabs"
+              indicatorColor="primary"
+              textColor="primary"
+              value={location.pathname}>
+            <FolderTab
+                component={Link}
+                to={orgHref}
+                label="Data Sets"
+                value={orgHref} />
+            <FolderTab
+                component={Link}
+                to={collaborationHref}
+                label={collabTabText}
+                value={collaborationHref} />
+          </FolderTabs>
+          <Switch>
+            <Route
+                path={ORG}
+                exact
+                render={() => <OrgDataSetsContainer organizationId={organizationId} />} />
+            <Route
+                exact
+                path={ORG_COLLABORATIONS}
+                render={() => (
+                  <CollaborationsParticipationContainer
+                      collaborations={collaborationsByOrganizationId}
+                      type="organization" />
+                )} />
+          </Switch>
         </StackGrid>
       </AppContentWrapper>
     );
