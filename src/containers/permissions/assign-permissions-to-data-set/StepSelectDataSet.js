@@ -5,11 +5,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import styled from 'styled-components';
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 import {
   CardSegment,
+  Checkbox,
   PaginationToolbar,
-  Radio,
   Typography,
 } from 'lattice-ui-kit';
 import { LangUtils, useRequestState } from 'lattice-utils';
@@ -52,14 +52,16 @@ const PaginationWrapper = styled.div`
 
 const StepSelectDataSet = ({
   organizationId,
-  setTargetDataSetId,
-  setTargetDataSetTitle,
-  targetDataSetId,
+  setTargetDataSetIds,
+  setTargetDataSetTitles,
+  targetDataSetIds,
+  targetDataSetTitles
 } :{
   organizationId :UUID;
-  setTargetDataSetId :(id :UUID) => void;
-  setTargetDataSetTitle :(title :string) => void;
-  targetDataSetId :UUID;
+  setTargetDataSetIds :(ids :List<UUID>) => void;
+  setTargetDataSetTitles :(titles :List<string>) => void;
+  targetDataSetIds :List<UUID>;
+  targetDataSetTitles :List<string>;
 }) => {
 
   const dispatch = useDispatch();
@@ -94,15 +96,24 @@ const StepSelectDataSet = ({
   }, [dispatchDataSetSearch, searchId]);
 
   const handleOnChangeSelectDataSet = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    const id = event.currentTarget.dataset.id;
-    const title = event.currentTarget.dataset.title;
-    setTargetDataSetId(id);
-    setTargetDataSetTitle(title);
+    const { id, title } = event.currentTarget.dataset;
+    if (targetDataSetIds.includes(id)) {
+      setTargetDataSetIds(targetDataSetIds.filter((dataSetId) => dataSetId !== id));
+    }
+    else {
+      setTargetDataSetIds(targetDataSetIds.push(id));
+    }
+    if (targetDataSetTitles.includes(title)) {
+      setTargetDataSetTitles(targetDataSetTitles.filter((dataSetTitle) => dataSetTitle !== title));
+    }
+    else {
+      setTargetDataSetTitles(targetDataSetTitles.push(title));
+    }
   };
 
   return (
     <StackGrid>
-      <Typography>Search for a data set to assign permissions.</Typography>
+      <Typography>Search for a data sets to assign permissions.</Typography>
       <SearchForm
           onSubmit={(query :string) => dispatchDataSetSearch({ query })}
           searchQuery={searchQuery}
@@ -120,8 +131,8 @@ const StepSelectDataSet = ({
                     <DataSetTitle dataSet={hit} />
                     <Typography variant="caption">{id}</Typography>
                   </div>
-                  <Radio
-                      checked={targetDataSetId === id}
+                  <Checkbox
+                      checked={targetDataSetIds.includes(id)}
                       data-id={id}
                       data-title={title || name}
                       name="select-data-set"
