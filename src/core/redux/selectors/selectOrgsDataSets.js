@@ -9,11 +9,11 @@ import { EDM, ORG_DATA_SETS } from '../constants';
 
 export default function selectOrgsDataSets(dataSetsByOrgId :Map<UUID, List<UUID>>) {
 
-  return (state :Map) :List<Map> => List().withMutations((mutableList) => {
+  return (state :Map) :Map<UUID, Map<UUID, Map>> => Map().withMutations((mutableMap) => {
     dataSetsByOrgId.forEach((dataSetIds, orgId) => {
       dataSetIds.forEach((dataSetId :UUID) => {
         const dataSet = getIn(state, [EDM, ORG_DATA_SETS, orgId, dataSetId]) || Map();
-        mutableList.push(dataSet);
+        mutableMap.setIn([orgId, dataSetId], dataSet);
       });
     });
   });
