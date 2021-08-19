@@ -4,8 +4,8 @@
 
 import React, { useEffect } from 'react';
 
-import { AppContentWrapper } from 'lattice-ui-kit';
 import { CollaborationsApiActions } from 'lattice-sagas';
+import { AppContentWrapper } from 'lattice-ui-kit';
 import {
   Logger,
   ReduxUtils,
@@ -14,7 +14,12 @@ import {
   useRequestState,
 } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
-import { Redirect, Route, Switch, useRouteMatch } from 'react-router';
+import {
+  Redirect,
+  Route,
+  Switch,
+  useRouteMatch
+} from 'react-router';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
