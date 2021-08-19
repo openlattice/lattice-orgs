@@ -96,7 +96,7 @@ const AddDataSetToCollaborationModalBody = ({
 
   return (
     <Modal
-        // eslint-disable-next-line
+      // eslint-disable-next-line
         {...rest}
         isVisible={isVisible}
         onClose={closeModal}
