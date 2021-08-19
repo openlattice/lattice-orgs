@@ -181,7 +181,6 @@ const AddDataSetToCollaborationModalBody = ({
                 isPendingPrimary={pending}
                 onClickPrimary={success ? onClose : handleOnClickPrimary}
                 onClickSecondary={stepBack}
-                shouldStretchButtons
                 textPrimary={success ? 'Close' : 'Add DataSets'}
                 textSecondary={success ? '' : 'Change Selection'} />
           </>
