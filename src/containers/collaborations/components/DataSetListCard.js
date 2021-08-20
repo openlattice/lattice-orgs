@@ -23,10 +23,16 @@ const { isValidUUID } = ValidationUtils;
 const { NEUTRAL } = Colors;
 
 const ListCard = styled(BasicListCard)`
+  a {
+    color: ${NEUTRAL.N700};
+    text-decoration: none;
+  }
+
   div > div:last-child > button:first-child {
     background-color: ${NEUTRAL.N100};
     margin-right: 10px;
     padding: 6px 12px;
+
 
     :hover {
       background-color: ${NEUTRAL.N200};
@@ -48,11 +54,11 @@ const DataSetListCard = ({
   const dataSetId = get(dataSet, ID);
   const organizationId = get(dataSet, ORGANIZATION_ID);
 
-  const goToOrganizationDataSet = useGoToRoute(
-    Routes.ORG_DATA_SET
-      .replace(Routes.ORG_ID_PARAM, organizationId)
-      .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
-  );
+  const dataSetRoute = Routes.ORG_DATA_SET
+    .replace(Routes.ORG_ID_PARAM, organizationId)
+    .replace(Routes.DATA_SET_ID_PARAM, dataSetId);
+
+  const goToOrganizationDataSet = useGoToRoute(dataSetRoute);
 
   const removeDataSetFromCollaboration = (e :SyntheticInputEvent<HTMLInputElement>) => {
     e.stopPropagation();
@@ -66,7 +72,7 @@ const DataSetListCard = ({
   return (
     <ListCard key={dataSetId} onClick={goToOrganizationDataSet}>
       <ContentGrid>
-        <DataSetTitle dataSet={fromJS(dataSet)} />
+        <a aria-label="To Data Set Details" href={dataSetRoute}><DataSetTitle dataSet={fromJS(dataSet)} /></a>
         <GapGrid gap={8}>
           <Button onClick={removeDataSetFromCollaboration} size="small">Remove</Button>
           <FontAwesomeIcon size="sm" icon={faChevronRight} />
