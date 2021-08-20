@@ -13,13 +13,14 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { ModalBody, StackGrid } from '../../../components';
-import { resetRequestStates } from '../../../core/redux/actions';
+import { ModalBody, ResetOnUnmount, StackGrid } from '../../../components';
 import { COLLABORATIONS } from '../../../core/redux/constants';
 import { selectOrganizations } from '../../../core/redux/selectors';
 import type { ReactSelectOption } from '../../../types';
 
 const { ADD_ORGANIZATIONS_TO_COLLABORATION, addOrganizationsToCollaboration } = CollaborationsApiActions;
+
+const RESET_ACTIONS = [ADD_ORGANIZATIONS_TO_COLLABORATION];
 
 const AddOrganizationsToCollaborationModal = ({
   collaborationId,
@@ -69,13 +70,6 @@ const AddOrganizationsToCollaborationModal = ({
     );
   };
 
-  const handleOnClose = () => {
-    onClose();
-    setTimeout(() => {
-      dispatch(resetRequestStates([ADD_ORGANIZATIONS_TO_COLLABORATION]));
-    }, 1000);
-  };
-
   const modalText = options.length
     ? 'Select organizations to add to collaboration.'
     : 'There are no eligible organizations to add to this collaboration.';
@@ -99,12 +93,16 @@ const AddOrganizationsToCollaborationModal = ({
     ),
     [RequestStates.SUCCESS]: (
       <ModalBody>
-        <span>Collaborations successfully added to collaboration!</span>
+        <ResetOnUnmount actions={RESET_ACTIONS}>
+          <span>Collaborations successfully added to collaboration!</span>
+        </ResetOnUnmount>
       </ModalBody>
     ),
     [RequestStates.FAILURE]: (
       <ModalBody>
-        <span>Failed to add organizations to collaboration. Please try again.</span>
+        <ResetOnUnmount actions={RESET_ACTIONS}>
+          <span>Failed to add organizations to collaboration. Please try again.</span>
+        </ResetOnUnmount>
       </ModalBody>
     ),
   };
@@ -114,8 +112,8 @@ const AddOrganizationsToCollaborationModal = ({
         isVisible={isVisible}
         isDisabledPrimary={!options.length}
         onClickPrimary={options.length ? handleOnClickPrimary : null}
-        onClickSecondary={handleOnClose}
-        onClose={handleOnClose}
+        onClickSecondary={onClose}
+        onClose={onClose}
         requestState={addOrgsToCollaborationRS}
         requestStateComponents={rsComponents}
         textPrimary={options.length ? 'Add Organization(s)' : null}
