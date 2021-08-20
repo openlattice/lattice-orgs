@@ -10,6 +10,7 @@ import { ValidationUtils, useGoToRoute } from 'lattice-utils';
 import type { UUID } from 'lattice';
 
 import {
+  BasicListCard,
   DataSetTitle,
   GapGrid,
   SpaceBetweenGrid,
@@ -21,14 +22,7 @@ const { isValidUUID } = ValidationUtils;
 
 const { NEUTRAL } = Colors;
 
-const BasicListCard = styled.div`
-  align-items: center;
-  background-color: ${NEUTRAL.N50};
-  border-radius: 5px;
-  cursor: pointer;
-  display: flex;
-  padding: 8px 16px;
-
+const ListCard = styled(BasicListCard)`
   div > div:last-child > button:first-child {
     background-color: ${NEUTRAL.N100};
     margin-right: 10px;
@@ -70,7 +64,7 @@ const DataSetListCard = ({
   }
 
   return (
-    <BasicListCard key={dataSetId} onClick={goToOrganizationDataSet}>
+    <ListCard key={dataSetId} onClick={goToOrganizationDataSet}>
       <ContentGrid>
         <DataSetTitle dataSet={fromJS(dataSet)} />
         <GapGrid gap={8}>
@@ -78,7 +72,7 @@ const DataSetListCard = ({
           <FontAwesomeIcon size="sm" icon={faChevronRight} />
         </GapGrid>
       </ContentGrid>
-    </BasicListCard>
+    </ListCard>
   );
 };
 
