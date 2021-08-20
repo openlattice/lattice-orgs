@@ -70,7 +70,7 @@ const AddDataSetToCollaborationModalBody = ({
       setModalTitle(<Typography variant="h3">Add these data sets?</Typography>);
     }
     else if (success && step === 2) {
-      setModalTitle(<Typography variant="h3">Data Sets Added!</Typography>);
+      setModalTitle(<Typography variant="h3">Data Sets Added</Typography>);
     }
   }, [setModalTitle, standby, step, success]);
 
