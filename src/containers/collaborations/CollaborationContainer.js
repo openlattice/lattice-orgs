@@ -52,7 +52,6 @@ const CollaborationsContainer = ({
 
   const closeRemoveDatSetModal = () => setDataSetToRemove(null);
 
-  // TODO: Add 'Add Dataset' button - need to develop desired workflow.
   return (
     <AppContentWrapper>
       <StackGrid gap={32}>
