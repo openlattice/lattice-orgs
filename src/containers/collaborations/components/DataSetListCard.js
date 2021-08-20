@@ -33,7 +33,6 @@ const ListCard = styled(BasicListCard)`
     margin-right: 10px;
     padding: 6px 12px;
 
-
     :hover {
       background-color: ${NEUTRAL.N200};
     }
