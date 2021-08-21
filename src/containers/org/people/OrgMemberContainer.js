@@ -153,7 +153,7 @@ const OrgMemberContainer = ({
                   </Typography>
                 </StackGrid>
                 <PermissionsActionsGrid
-                    assignPermissionsText="Add data set"
+                    assignPermissionsText="Add data sets"
                     onChangeFilterByFlag={setFilterByFlag}
                     onChangeFilterByPermissionTypes={setFilterByPermissionTypes}
                     onChangeFilterByQuery={setFilterByQuery}
@@ -187,7 +187,7 @@ const OrgMemberContainer = ({
             isVisible={isVisibleAddDataSetModal}
             onClose={() => setIsVisibleAddDataSetModal(false)}
             shouldCloseOnOutsideClick={false}
-            textTitle="Assign Permissions To Data Set"
+            textTitle="Assign Permissions To Data Sets"
             viewportScrolling
             withFooter={false}>
           <AssignPermissionsToDataSetModalBody
