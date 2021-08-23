@@ -10,19 +10,21 @@ import { DBMS_TYPES, TEMPLATE_CONSTANTS } from '../constants';
 const INTEGRATION_CONFIG_TEMPLATE = `
 name: "${TEMPLATE_CONSTANTS.ORG_NAME}_initial_transfer"
 description: "Copying over data from ${TEMPLATE_CONSTANTS.ORG_NAME} into OpenLattice server"
+sparkParameters:
+  spark.driver.extraClassPath: "<PATH_TO_sqljdbc_auth.dll>"
 datalakes:
 - name: "pdSQLDB"
   url: "jdbc:${TEMPLATE_CONSTANTS.TARGET_CONNECTION}://${TEMPLATE_CONSTANTS.TARGET_SERVER}:${TEMPLATE_CONSTANTS.TARGET_PORT}/${TEMPLATE_CONSTANTS.TARGET_DATABASE}${TEMPLATE_CONSTANTS.TARGET_CONNECTION_SUFFIX}"
   driver: ${TEMPLATE_CONSTANTS.TARGET_SQL_DRIVER}
-  dataFormat: ${TEMPLATE_CONSTANTS.TARGET_SQL_DRIVER}
   username: "<INSERT_USERNAME_HERE>"
   password: "<INSERT_PASSWORD_HERE>"
 - name: "openLatticeDB"
   url: "jdbc:postgresql://atlas.openlattice.com:30001/${TEMPLATE_CONSTANTS.ORG_ID}?ssl=true&sslmode=require"
   driver: "org.postgresql.Driver"
-  dataFormat: "org.postgresql.Driver"
+  latticeLogger: true
   username: "${TEMPLATE_CONSTANTS.ORG_USERNAME}"
   password: "${TEMPLATE_CONSTANTS.ORG_PASSWORD}"
+  writeMode: "Overwrite"
 integrations:
   pdSQLDB:
     openLatticeDB:
