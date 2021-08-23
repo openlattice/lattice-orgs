@@ -10,6 +10,7 @@ import { CollaborationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
   Badge,
+  Chip,
   Colors,
   FolderTab,
   FolderTabs,
@@ -39,7 +40,7 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
-import { COLLABORATIONS } from '../../core/redux/constants';
+import { COLLABORATIONS, TAGS } from '../../core/redux/constants';
 import {
   selectCollaborationsByDataSetId,
   selectDataSetSchema,
@@ -59,7 +60,7 @@ import {
   TITLE,
 } from '../../utils/constants';
 
-const { BLUE } = Colors;
+const { BLUE, NEUTRAL } = Colors;
 const { isDefined, isNonEmptyString } = LangUtils;
 const { GET_COLLABORATIONS_WITH_DATA_SETS, getCollaborationsWithDataSets } = CollaborationsApiActions;
 const { isSuccess } = ReduxUtils;
@@ -72,6 +73,12 @@ const CountBadge = styled(Badge)`
   background: ${BLUE.B300};
   color: white;
   margin-right: 5px;
+`;
+
+const StyledChip = styled(Chip)`
+  color: ${NEUTRAL.N700};
+  background: ${NEUTRAL.N100};
+  font-weight: 600;
 `;
 
 const OrgDataSetContainer = ({
@@ -107,6 +114,7 @@ const OrgDataSetContainer = ({
   const description :string = dataSet.getIn([METADATA, DESCRIPTION]);
   const name :string = dataSet.get(NAME);
   const title :string = dataSet.getIn([METADATA, TITLE]);
+  const metadata :Map = dataSet.getIn([METADATA, METADATA], Map());
 
   const hasContactInfo :boolean = contacts.some(isNonEmptyString);
   const dataSetCollabRoute = ORG_DATA_SET_COLLABORATIONS
@@ -115,6 +123,9 @@ const OrgDataSetContainer = ({
 
   const collabCount = collaborationsByDataSetId.size;
   const collabTabText = isSuccess(getCollabWithDataSetRS) ? `Collaborations (${collabCount})` : 'Collaborations';
+
+  const tags = metadata.get(TAGS, List());
+  const tagLabel = `Protections: ${tags.join(', ')}`;
 
   if (organization) {
 
@@ -153,6 +164,13 @@ const OrgDataSetContainer = ({
                   )
                 }
               </div>
+              {
+                !!tags.size && (
+                  <div>
+                    <StyledChip label={tagLabel} />
+                  </div>
+                )
+              }
             </StackGrid>
             {
               isNonEmptyString(description) && (
