@@ -60,7 +60,7 @@ import {
   TITLE,
 } from '../../utils/constants';
 
-const { BLUE, NEUTRAL } = Colors;
+const { BLUE } = Colors;
 const { isDefined, isNonEmptyString } = LangUtils;
 const { GET_COLLABORATIONS_WITH_DATA_SETS, getCollaborationsWithDataSets } = CollaborationsApiActions;
 const { isSuccess } = ReduxUtils;
@@ -73,12 +73,6 @@ const CountBadge = styled(Badge)`
   background: ${BLUE.B300};
   color: white;
   margin-right: 5px;
-`;
-
-const StyledChip = styled(Chip)`
-  color: ${NEUTRAL.N700};
-  background: ${NEUTRAL.N100};
-  font-weight: 600;
 `;
 
 const OrgDataSetContainer = ({
@@ -167,7 +161,7 @@ const OrgDataSetContainer = ({
               {
                 !!tags.size && (
                   <div>
-                    <StyledChip label={tagLabel} />
+                    <Chip label={tagLabel} />
                   </div>
                 )
               }
