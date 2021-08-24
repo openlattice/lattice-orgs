@@ -15,7 +15,8 @@ import SearchOrgDataSetsContainer from '../../org/components/dataset/SearchOrgDa
 import StyledFooter from '../../org/components/styled/StyledFooter';
 import { ModalBody, ResetOnUnmount, StackGrid } from '../../../components';
 import { COLLABORATIONS } from '../../../core/redux/constants';
-import { selectOrganizations } from '../../../core/redux/selectors';
+import { selectCollaboration, selectOrganizations } from '../../../core/redux/selectors';
+import { ORGANIZATION_IDS } from '../../../utils/constants';
 import { ADD_DATA_SETS_TO_COLLABORATION, addDataSetsToCollaboration } from '../actions';
 import type { ReactSelectOption } from '../../../types';
 
@@ -28,7 +29,6 @@ const AddDataSetToCollaborationModalBody = ({
   existingDataSets,
   isVisible,
   onClose,
-  organizationIds,
   ...rest
 } :{
   collaborationId :UUID;
@@ -45,6 +45,8 @@ const AddDataSetToCollaborationModalBody = ({
   const [selectedDataSetTitles, setSelectedDataSetTitles] = useState(List());
   const addDataSetToCollaborationRS :?RequestState = useRequestState([COLLABORATIONS, ADD_DATA_SETS_TO_COLLABORATION]);
 
+  const collaboration :Map<UUID, List<UUID>> = useSelector(selectCollaboration(collaborationId));
+  const organizationIds :List<UUID> = collaboration.get(ORGANIZATION_IDS, List());
   const organizations :Map<UUID, Organization> = useSelector(selectOrganizations());
 
   const pending = isPending(addDataSetToCollaborationRS);
@@ -96,7 +98,7 @@ const AddDataSetToCollaborationModalBody = ({
 
   return (
     <Modal
-      // eslint-disable-next-line
+        // eslint-disable-next-line
         {...rest}
         isVisible={isVisible}
         onClose={closeModal}
@@ -160,7 +162,10 @@ const AddDataSetToCollaborationModalBody = ({
                       ? (
                         <>
                           <Typography>
-                            {`${selectedDataSetTitles.size} data ${selectedDataSetTitles.size === 1 ? 'set' : 'sets'} successfully added to collaboration.`}
+                            {
+                              `${selectedDataSetTitles.size} data ${selectedDataSetTitles.size === 1 ? 'set' : 'sets'} `
+                              + 'successfully added to collaboration.'
+                            }
                           </Typography>
                         </>
                       )
