@@ -4,7 +4,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { faChevronRight } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Map, fromJS, get } from 'immutable';
+import { Map, get } from 'immutable';
 import { Button, Colors } from 'lattice-ui-kit';
 import { ValidationUtils, useGoToRoute } from 'lattice-utils';
 import type { UUID } from 'lattice';
@@ -50,7 +50,6 @@ const DataSetListCard = ({
   dataSet :Map;
   removeDataSet :(dataSetId :UUID) => void;
 }) => {
-  console.log(dataSet);
   const dataSetId = get(dataSet, ID);
   const organizationId = get(dataSet, ORGANIZATION_ID);
   const { origin, pathname } = window.location;
