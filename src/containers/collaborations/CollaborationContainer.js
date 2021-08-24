@@ -31,7 +31,6 @@ import {
 import {
   DESCRIPTION,
   ID,
-  ORGANIZATION_IDS,
   TITLE
 } from '../../utils/constants';
 
@@ -48,7 +47,6 @@ const CollaborationsContainer = ({
   const collaboration :Map<UUID, List<UUID>> = useSelector(selectCollaboration(collaborationId));
   const collaborationDataSetMap :Map<UUID, List<UUID>> = useSelector(selectCollaborationDataSets(collaborationId));
   const organizations :Map<UUID, Organization> = useSelector(selectOrganizations());
-  const collaborationOrganizationIds :List<UUID> = collaboration.get(ORGANIZATION_IDS, List());
   const collaborationTitle :string = collaboration.get(TITLE, '');
   const collaborationDescription :string = collaboration.get(DESCRIPTION, '');
 
@@ -109,8 +107,7 @@ const CollaborationsContainer = ({
       <AddOrganizationsToCollaborationModal
           collaborationId={collaborationId}
           isVisible={isVisibleAddOrganizationModal}
-          onClose={() => setIsVisibleAddOrganizationModal(false)}
-          participatingOrganizations={collaborationOrganizationIds} />
+          onClose={() => setIsVisibleAddOrganizationModal(false)} />
       <RemoveDataSetFromCollaborationModal
           collaborationId={collaborationId}
           dataSet={dataSetToRemove}

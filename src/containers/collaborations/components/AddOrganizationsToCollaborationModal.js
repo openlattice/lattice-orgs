@@ -15,7 +15,8 @@ import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody, ResetOnUnmount, StackGrid } from '../../../components';
 import { COLLABORATIONS } from '../../../core/redux/constants';
-import { selectOrganizations } from '../../../core/redux/selectors';
+import { ORGANIZATION_IDS } from '../../../utils/constants';
+import { selectCollaboration, selectOrganizations } from '../../../core/redux/selectors';
 import type { ReactSelectOption } from '../../../types';
 
 const { ADD_ORGANIZATIONS_TO_COLLABORATION, addOrganizationsToCollaboration } = CollaborationsApiActions;
@@ -25,26 +26,26 @@ const RESET_ACTIONS = [ADD_ORGANIZATIONS_TO_COLLABORATION];
 const AddOrganizationsToCollaborationModal = ({
   collaborationId,
   isVisible,
-  onClose,
-  participatingOrganizations
+  onClose
 } :{
   collaborationId :UUID;
   isVisible :boolean;
   onClose :() => void;
-  participatingOrganizations :List;
 }) => {
 
   const dispatch = useDispatch();
 
   const [collaborationOrganizations, setCollaborationOrganizations] = useState([]);
 
+  const collaboration :Map<UUID, List<UUID>> = useSelector(selectCollaboration(collaborationId));
+  const organizationIds :List<UUID> = collaboration.get(ORGANIZATION_IDS, List());
   const organizations :Map<UUID, Organization> = useSelector(selectOrganizations());
   const addOrgsToCollaborationRS :?RequestState = useRequestState([COLLABORATIONS, ADD_ORGANIZATIONS_TO_COLLABORATION]);
 
   const options = useMemo(() => {
     const selectOptions = [];
     organizations.forEach((org) => {
-      if (!participatingOrganizations.includes(org.id)) {
+      if (!organizationIds.includes(org.id)) {
         selectOptions.push({
           key: org.id,
           label: org.title,
@@ -54,7 +55,7 @@ const AddOrganizationsToCollaborationModal = ({
     });
 
     return selectOptions;
-  }, [organizations, participatingOrganizations]);
+  }, [organizations, organizationIds]);
 
   const handleOnChange = (orgOptions :ReactSelectOption<Organization>[]) => {
     const orgIds = orgOptions.map((org) => org.value);
