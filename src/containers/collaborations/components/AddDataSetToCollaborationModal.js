@@ -35,7 +35,6 @@ const AddDataSetToCollaborationModalBody = ({
   existingDataSets :List;
   isVisible :boolean;
   onClose :() => void;
-  organizationIds :List<UUID>;
 }) => {
   const dispatch = useDispatch();
   const [modalTitle, setModalTitle] = useState('Select Organization');
