@@ -160,7 +160,7 @@ const AddDataSetToCollaborationModalBody = ({
                       ? (
                         <>
                           <Typography>
-                            {`${selectedDataSetTitles.size} data set(s) successfully added to collaboration.`}
+                            {`${selectedDataSetTitles.size} data ${selectedDataSetTitles.size === 1 ? 'set' : 'sets'} successfully added to collaboration.`}
                           </Typography>
                         </>
                       )
