@@ -28,7 +28,12 @@ import {
   selectOrganizations,
   selectOrgsDataSets
 } from '../../core/redux/selectors';
-import { DESCRIPTION, ORGANIZATION_ID, TITLE } from '../../utils/constants';
+import {
+  DESCRIPTION,
+  ID,
+  ORGANIZATION_IDS,
+  TITLE
+} from '../../utils/constants';
 
 const CollaborationsContainer = ({
   collaborationId,
@@ -43,8 +48,7 @@ const CollaborationsContainer = ({
   const collaboration :Map<UUID, List<UUID>> = useSelector(selectCollaboration(collaborationId));
   const collaborationDataSetMap :Map<UUID, List<UUID>> = useSelector(selectCollaborationDataSets(collaborationId));
   const organizations :Map<UUID, Organization> = useSelector(selectOrganizations());
-
-  const collaborationOrganizationIds :List<UUID> = collaboration.get(ORGANIZATION_ID, List());
+  const collaborationOrganizationIds :List<UUID> = collaboration.get(ORGANIZATION_IDS, List());
   const collaborationTitle :string = collaboration.get(TITLE, '');
   const collaborationDescription :string = collaboration.get(DESCRIPTION, '');
 
@@ -83,11 +87,11 @@ const CollaborationsContainer = ({
             collaborationDataSets.entrySeq().map(([organizationId, dataSets]) => {
               const organization = get(organizations, organizationId, Map());
               return (
-                <StackGrid gap={8}>
+                <StackGrid key={organizationId} gap={8}>
                   <Typography variant="h5">{organization.title}</Typography>
                   {
                     dataSets.valueSeq().map((dataSet) => (
-                      <DataSetListCard dataSet={dataSet} removeDataSet={setDataSetToRemove} />
+                      <DataSetListCard key={dataSet.get(ID)} dataSet={dataSet} removeDataSet={setDataSetToRemove} />
                     ))
                   }
                 </StackGrid>
