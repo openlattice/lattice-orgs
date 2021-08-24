@@ -82,6 +82,7 @@ export default function* sagas() :Saga<*> {
     fork(AppSagas.initializeApplicationWatcher),
 
     // CollaborationsSagas
+    fork(CollaborationsSagas.addDataSetsToCollaborationWatcher),
     fork(CollaborationsSagas.createNewCollaborationWatcher),
     fork(CollaborationsSagas.getDataSetsInCollaborationWatcher),
 

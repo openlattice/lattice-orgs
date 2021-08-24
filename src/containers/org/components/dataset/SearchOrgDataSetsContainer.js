@@ -22,25 +22,27 @@ import {
   SearchForm,
   SpaceBetweenGrid,
   StackGrid,
-} from '../../../components';
-import { SEARCH } from '../../../core/redux/constants';
+} from '../../../../components';
+import { getOrgDataSetObjectPermissions } from '../../../../core/permissions/actions';
+import { SEARCH } from '../../../../core/redux/constants';
 import {
+  selectMyKeys,
   selectSearchHits,
   selectSearchPage,
   selectSearchQuery,
   selectSearchTotalHits,
-} from '../../../core/redux/selectors';
+} from '../../../../core/redux/selectors';
 import {
   SEARCH_ORGANIZATION_DATA_SETS,
   searchOrganizationDataSets,
-} from '../../../core/search/actions';
-import { MAX_HITS_10 } from '../../../core/search/constants';
+} from '../../../../core/search/actions';
+import { MAX_HITS_10 } from '../../../../core/search/constants';
 import {
   ID,
   METADATA,
   NAME,
   TITLE,
-} from '../../../utils/constants';
+} from '../../../../utils/constants';
 
 const { isNonEmptyString } = LangUtils;
 
@@ -50,14 +52,18 @@ const PaginationWrapper = styled.div`
   grid-template-columns: 1fr auto;
 `;
 
-const StepSelectDataSet = ({
+const SearchOrgDataSetsContainer = ({
+  excludedDataSets = List(),
   organizationId,
+  ownerRequired,
   setTargetDataSetIds,
   setTargetDataSetTitles,
   targetDataSetIds,
   targetDataSetTitles
 } :{
+  excludedDataSets ?:List<UUID>;
   organizationId :UUID;
+  ownerRequired ?:boolean;
   setTargetDataSetIds :(ids :List<UUID>) => void;
   setTargetDataSetTitles :(titles :List<string>) => void;
   targetDataSetIds :List<UUID>;
@@ -73,6 +79,10 @@ const StepSelectDataSet = ({
   const searchPage :number = useSelector(selectSearchPage(SEARCH_ORGANIZATION_DATA_SETS));
   const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS)) || '*';
   const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_ORGANIZATION_DATA_SETS));
+
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
+  const dataSetDisabled = (dataSetId :UUID) :boolean => excludedDataSets.includes(dataSetId)
+    || (ownerRequired && !myKeys.has(List([dataSetId])));
 
   const dispatchDataSetSearch = useCallback((params :{ page ?:number, query ?:string, start ?:number } = {}) => {
     const { page = 0, query = searchQuery, start = 0 } = params;
@@ -95,6 +105,13 @@ const StepSelectDataSet = ({
     }
   }, [dispatchDataSetSearch, searchId]);
 
+  useEffect(() => {
+    if (ownerRequired) {
+      const dataSetKeys :List<List<UUID>> = searchHits.map((hit :Map) => List([hit.get(ID)])).toList();
+      dispatch(getOrgDataSetObjectPermissions(dataSetKeys));
+    }
+  }, [dispatch, ownerRequired, searchHits]);
+
   const handleOnChangeSelectDataSet = (event :SyntheticInputEvent<HTMLInputElement>) => {
     const { id, title } = event.currentTarget.dataset;
     if (targetDataSetIds.includes(id)) {
@@ -113,7 +130,6 @@ const StepSelectDataSet = ({
 
   return (
     <StackGrid>
-      <Typography>Search for a data sets to assign permissions.</Typography>
       <SearchForm
           onSubmit={(query :string) => dispatchDataSetSearch({ query })}
           searchQuery={searchQuery}
@@ -132,9 +148,10 @@ const StepSelectDataSet = ({
                     <Typography variant="caption">{id}</Typography>
                   </div>
                   <Checkbox
-                      checked={targetDataSetIds.includes(id)}
+                      checked={targetDataSetIds.includes(id) || excludedDataSets.includes(id)}
                       data-id={id}
                       data-title={title || name}
+                      disabled={dataSetDisabled(id)}
                       name="select-data-set"
                       onChange={handleOnChangeSelectDataSet} />
                 </SpaceBetweenGrid>
@@ -158,4 +175,9 @@ const StepSelectDataSet = ({
   );
 };
 
-export default StepSelectDataSet;
+SearchOrgDataSetsContainer.defaultProps = {
+  excludedDataSets: List(),
+  ownerRequired: false
+};
+
+export default SearchOrgDataSetsContainer;
