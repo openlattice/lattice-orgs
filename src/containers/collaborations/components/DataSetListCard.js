@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { faChevronRight } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map, get } from 'immutable';
+import { Link } from 'react-router-dom';
 import { Button, Colors } from 'lattice-ui-kit';
 import { ValidationUtils, useGoToRoute } from 'lattice-utils';
 import type { UUID } from 'lattice';
@@ -52,12 +53,10 @@ const DataSetListCard = ({
 }) => {
   const dataSetId = get(dataSet, ID);
   const organizationId = get(dataSet, ORGANIZATION_ID);
-  const { origin, pathname } = window.location;
-  const dataSetRoute = `${origin}${pathname}#${
-    Routes.ORG_DATA_SET
-      .replace(Routes.ORG_ID_PARAM, organizationId)
-      .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
-  }`;
+
+  const dataSetRoute = Routes.ORG_DATA_SET
+    .replace(Routes.ORG_ID_PARAM, organizationId)
+    .replace(Routes.DATA_SET_ID_PARAM, dataSetId);
 
   const goToOrganizationDataSet = useGoToRoute(dataSetRoute);
 
@@ -73,7 +72,7 @@ const DataSetListCard = ({
   return (
     <ListCard key={dataSetId} onClick={goToOrganizationDataSet}>
       <ContentGrid>
-        <a aria-label="To Data Set Details" href={dataSetRoute}><DataSetTitle dataSet={dataSet} /></a>
+        <Link to={dataSetRoute}><DataSetTitle dataSet={dataSet} /></Link>
         <GapGrid gap={8}>
           <Button onClick={removeDataSetFromCollaboration} size="small">Remove</Button>
           <FontAwesomeIcon size="sm" icon={faChevronRight} />
