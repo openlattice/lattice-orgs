@@ -10,6 +10,7 @@ import { CollaborationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
   Badge,
+  Chip,
   Colors,
   FolderTab,
   FolderTabs,
@@ -39,7 +40,7 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
-import { COLLABORATIONS } from '../../core/redux/constants';
+import { COLLABORATIONS, TAGS } from '../../core/redux/constants';
 import {
   selectCollaborationsByDataSetId,
   selectDataSetSchema,
@@ -107,6 +108,7 @@ const OrgDataSetContainer = ({
   const description :string = dataSet.getIn([METADATA, DESCRIPTION]);
   const name :string = dataSet.get(NAME);
   const title :string = dataSet.getIn([METADATA, TITLE]);
+  const metadata :Map = dataSet.getIn([METADATA, METADATA], Map());
 
   const hasContactInfo :boolean = contacts.some(isNonEmptyString);
   const dataSetCollabRoute = ORG_DATA_SET_COLLABORATIONS
@@ -115,6 +117,9 @@ const OrgDataSetContainer = ({
 
   const collabCount = collaborationsByDataSetId.size;
   const collabTabText = isSuccess(getCollabWithDataSetRS) ? `Collaborations (${collabCount})` : 'Collaborations';
+
+  const tags = metadata.get(TAGS, List());
+  const tagLabel = tags.join(', ');
 
   if (organization) {
 
@@ -153,6 +158,13 @@ const OrgDataSetContainer = ({
                   )
                 }
               </div>
+              {
+                !!tags.size && (
+                  <div>
+                    <Chip label={tagLabel} />
+                  </div>
+                )
+              }
             </StackGrid>
             {
               isNonEmptyString(description) && (
