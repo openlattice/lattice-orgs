@@ -61,7 +61,7 @@ const SearchOrgDataSetsContainer = ({
   targetDataSetIds,
   targetDataSetTitles
 } :{
-  excludedDataSets ?:List;
+  excludedDataSets ?:List<UUID>;
   organizationId :UUID;
   ownerRequired ?:boolean;
   setTargetDataSetIds :(ids :List<UUID>) => void;
