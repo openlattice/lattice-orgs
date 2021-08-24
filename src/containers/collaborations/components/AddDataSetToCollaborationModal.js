@@ -38,7 +38,7 @@ const AddDataSetToCollaborationModalBody = ({
   organizationIds :List<UUID>;
 }) => {
   const dispatch = useDispatch();
-  const [modalTitle, setModalTitle] = useState(<Typography variant="h3">Select Organization</Typography>);
+  const [modalTitle, setModalTitle] = useState('Select Organization');
   const [step, stepBack, stepNext, setStep] = useStepState(3);
   const [selectedOrganization, setSelectedOrganization] = useState('');
   const [selectedDataSets, setSelectedDataSets] = useState(List());
@@ -61,16 +61,16 @@ const AddDataSetToCollaborationModalBody = ({
 
   useEffect(() => {
     if (step === 0) {
-      setModalTitle(<Typography variant="h3">Select Organization</Typography>);
+      setModalTitle('Select Organization');
     }
     else if (step === 1) {
-      setModalTitle(<Typography variant="h3">Add Data Sets</Typography>);
+      setModalTitle('Add Data Sets');
     }
     else if (standby && step === 2) {
-      setModalTitle(<Typography variant="h3">Add these data sets?</Typography>);
+      setModalTitle('Add these data sets?');
     }
     else if (success && step === 2) {
-      setModalTitle(<Typography variant="h3">Data Sets Added</Typography>);
+      setModalTitle('Data Sets Added');
     }
   }, [setModalTitle, standby, step, success]);
 
@@ -100,7 +100,7 @@ const AddDataSetToCollaborationModalBody = ({
         {...rest}
         isVisible={isVisible}
         onClose={closeModal}
-        textTitle={modalTitle}>
+        textTitle={<Typography variant="h3">{modalTitle}</Typography>}>
       {
         step === 0 && (
           <>
