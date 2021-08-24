@@ -106,7 +106,7 @@ const AddDataSetToCollaborationModalBody = ({
           <>
             <ModalBody>
               <StackGrid gap={16}>
-                <Typography gutterBottom htmlFor="selectOrganization">
+                <Typography gutterBottom htmlFor="select organization">
                   Which organization would you like to add a dataset from?
                 </Typography>
                 <Select
