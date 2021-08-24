@@ -2,16 +2,20 @@
  * @flow
  */
 
-import { Map } from 'immutable';
+import { List, Map } from 'immutable';
 import { ValidationUtils } from 'lattice-utils';
 import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
+  DESCRIPTION,
+  METADATA,
   ORG_DATA_SETS,
   ORG_DATA_SET_COLUMNS,
   REQUEST_STATE,
+  TAGS,
+  TITLE,
 } from '../../redux/constants';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../actions';
 
@@ -31,23 +35,30 @@ export default function reducer(state :Map, action :SequenceAction) {
           dataSetId,
           description,
           organizationId,
+          tags,
           title,
         } :{|
           columnId ?:UUID;
           dataSetId :UUID;
           description :string;
           organizationId :UUID;
+          tags ?:string[];
           title :string;
         |} = storedAction.value;
         if (isValidUUID(columnId)) {
           return state
-            .setIn([ORG_DATA_SET_COLUMNS, organizationId, dataSetId, columnId, 'metadata', 'description'], description)
-            .setIn([ORG_DATA_SET_COLUMNS, organizationId, dataSetId, columnId, 'metadata', 'title'], title)
+            .setIn([ORG_DATA_SET_COLUMNS, organizationId, dataSetId, columnId, METADATA, DESCRIPTION], description)
+            .setIn([ORG_DATA_SET_COLUMNS, organizationId, dataSetId, columnId, METADATA, TITLE], title)
+            .setIn(
+              [ORG_DATA_SET_COLUMNS, organizationId, dataSetId, columnId, METADATA, METADATA, TAGS],
+              List(tags)
+            )
             .setIn([UPDATE_ORGANIZATION_DATA_SET, REQUEST_STATE], RequestStates.SUCCESS);
         }
         return state
-          .setIn([ORG_DATA_SETS, organizationId, dataSetId, 'metadata', 'description'], description)
-          .setIn([ORG_DATA_SETS, organizationId, dataSetId, 'metadata', 'title'], title)
+          .setIn([ORG_DATA_SETS, organizationId, dataSetId, METADATA, DESCRIPTION], description)
+          .setIn([ORG_DATA_SETS, organizationId, dataSetId, METADATA, TITLE], title)
+          .setIn([ORG_DATA_SETS, organizationId, dataSetId, METADATA, METADATA, TAGS], List(tags))
           .setIn([UPDATE_ORGANIZATION_DATA_SET, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
