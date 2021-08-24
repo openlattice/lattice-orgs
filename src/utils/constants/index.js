@@ -85,7 +85,7 @@ const LAW_FLAGS = [
   },
 ];
 
-export const EDIT_TITLE_DESCRIPTION_FLAGS_DATA_SCHEMA = {
+export const EDIT_TITLE_DESCRIPTION_TAGS_DATA_SCHEMA = {
   type: 'object',
   title: '',
   properties: {
@@ -118,7 +118,7 @@ export const EDIT_TITLE_DESCRIPTION_FLAGS_DATA_SCHEMA = {
 
 };
 
-export const EDIT_TITLE_DESCRIPTION_FLAGS_UI_SCHEMA = {
+export const EDIT_TITLE_DESCRIPTION_TAGS_UI_SCHEMA = {
   fields: {
     classNames: 'column-span-12 grid-container',
     title: {

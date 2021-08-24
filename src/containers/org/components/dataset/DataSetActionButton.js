@@ -41,8 +41,8 @@ import {
 import { Routes } from '../../../../core/router';
 import { isAtlasDataSet } from '../../../../utils';
 import {
-  EDIT_TITLE_DESCRIPTION_FLAGS_DATA_SCHEMA as DATA_SCHEMA,
-  EDIT_TITLE_DESCRIPTION_FLAGS_UI_SCHEMA as UI_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_TAGS_DATA_SCHEMA as DATA_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_TAGS_UI_SCHEMA as UI_SCHEMA,
   FLAGS,
   NAME,
   OPENLATTICE,
