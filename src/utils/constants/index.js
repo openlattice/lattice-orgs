@@ -12,6 +12,7 @@ export const METADATA :'metadata' = 'metadata';
 export const NAME :'name' = 'name';
 export const OPENLATTICE :'openlattice' = 'openlattice';
 export const ORGANIZATION_ID :'organizationId' = 'organizationId';
+export const ORGANIZATION_IDS :'organizationIds' = 'organizationIds';
 export const PRINCIPAL :'principal' = 'principal';
 export const SECURABLE_PRINCIPAL_CLASS = 'com.openlattice.authorization.SecurablePrincipal';
 export const TITLE :'title' = 'title';
