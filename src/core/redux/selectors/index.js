@@ -11,8 +11,9 @@ export const {
 } = ReduxUtils;
 
 export { default as selectAtlasCredentials } from './selectAtlasCredentials';
+export { default as selectCollaboration } from './selectCollaboration';
 export { default as selectCollaborationDatabaseDetails } from './selectCollaborationDatabaseDetails';
-export { default as selectCollaborationDataSetMap } from './selectCollaborationDataSetMap';
+export { default as selectCollaborationDataSets } from './selectCollaborationDataSets';
 export { default as selectCollaborationsByDataSetId } from './selectCollaborationsByDataSetId';
 export { default as selectCollaborationsByOrgId } from './selectCollaborationsByOrgId';
 export { default as selectCollaborationsOrgIds } from './selectCollaborationsOrgIds';
@@ -35,6 +36,7 @@ export { default as selectOrgDataSet } from './selectOrgDataSet';
 export { default as selectOrgDataSetColumns } from './selectOrgDataSetColumns';
 export { default as selectOrgDataSetSize } from './selectOrgDataSetSize';
 export { default as selectOrgDataSets } from './selectOrgDataSets';
+export { default as selectOrgsDataSets } from './selectOrgsDataSets';
 export { default as selectOrgDataSetsColumns } from './selectOrgDataSetsColumns';
 export { default as selectOrgEntitySetData } from './selectOrgEntitySetData';
 export { default as selectPermissionsByPrincipal } from './selectPermissionsByPrincipal';

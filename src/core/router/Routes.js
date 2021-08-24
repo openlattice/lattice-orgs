@@ -4,6 +4,7 @@
 
 /* eslint-disable max-len */
 
+const COLLABORATION_ID_PARAM :':collaborationId' = ':collaborationId';
 const DATA_SET_ID_PARAM :':dataSetId' = ':dataSetId';
 const ENTITY_KEY_ID_PARAM :':entityKeyId' = ':entityKeyId';
 const ORG_ID_PARAM :':organizationId' = ':organizationId';
@@ -12,6 +13,7 @@ const REQUEST_ID_PARAM :':requestId' = ':requestId';
 const ROLE_ID_PARAM :':roleId' = ':roleId';
 
 export {
+  COLLABORATION_ID_PARAM,
   DATA_SET_ID_PARAM,
   ENTITY_KEY_ID_PARAM,
   ORG_ID_PARAM,
@@ -23,8 +25,11 @@ export {
 const ROOT :'/' = '/';
 
 const ACCOUNT :'/account' = '/account';
-const COLLABS :'/collabs' = '/collabs';
+const COLLABORATIONS :'/collaborations' = '/collaborations';
 const ORGS :'/orgs' = '/orgs';
+
+// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
+const COLLABORATION :'/collaborations/:collaborationId' = `${COLLABORATIONS}/${COLLABORATION_ID_PARAM}`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG :'/orgs/:organizationId' = `${ORGS}/${ORG_ID_PARAM}`;
@@ -79,7 +84,8 @@ const ORG_SETTINGS :'/orgs/:organizationId/settings' = `${ORGS}/${ORG_ID_PARAM}/
 
 export {
   ACCOUNT,
-  COLLABS,
+  COLLABORATION,
+  COLLABORATIONS,
   ENTITY,
   ORG,
   ORGS,

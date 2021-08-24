@@ -25,8 +25,11 @@ export default function addDataSetToCollaborationReducer(state :Map, action :Seq
       if (storedSeqAction) {
         const { collaborationId, dataSetId, organizationId } = storedSeqAction.value;
         return state
-          .updateIn([COLLABORATION_DATA_SETS, collaborationId], Map(), (prevDataSetMap) => prevDataSetMap
-            .update(organizationId, List(), (prevDataSetList) => prevDataSetList.push(dataSetId)))
+          .updateIn(
+            [COLLABORATION_DATA_SETS, collaborationId, organizationId],
+            List(),
+            (prevDataSetList) => prevDataSetList.push(dataSetId)
+          )
           .setIn([ADD_DATA_SET_TO_COLLABORATION, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
