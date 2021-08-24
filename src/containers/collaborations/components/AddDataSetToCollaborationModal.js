@@ -107,7 +107,7 @@ const AddDataSetToCollaborationModalBody = ({
             <ModalBody>
               <StackGrid gap={16}>
                 <Typography gutterBottom htmlFor="select organization">
-                  Which organization would you like to add a dataset from?
+                  Which organization would you like to add a data set from?
                 </Typography>
                 <Select
                     id="select organization"
@@ -181,7 +181,7 @@ const AddDataSetToCollaborationModalBody = ({
                 isPendingPrimary={pending}
                 onClickPrimary={success ? onClose : handleOnClickPrimary}
                 onClickSecondary={stepBack}
-                textPrimary={success ? 'Close' : 'Add DataSets'}
+                textPrimary={success ? 'Close' : 'Add Data Sets'}
                 textSecondary={success ? '' : 'Change Selection'} />
           </>
         )
