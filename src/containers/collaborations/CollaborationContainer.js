@@ -65,7 +65,7 @@ const CollaborationsContainer = ({
                   aria-label="add dataset"
                   color="default"
                   onClick={() => setIsVisibleAddDataSetModal(true)}>
-                <Typography component="span">Add DataSet</Typography>
+                <Typography component="span">Add Data Set</Typography>
               </PlusButton>
               <PlusButton
                   aria-label="add organization"
