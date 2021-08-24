@@ -58,9 +58,9 @@ const CollaborationsContainer = ({
       <StackGrid gap={32}>
         <StackGrid>
           <SpaceBetweenGrid>
-            <GapGrid>
+            <div>
               <Typography variant="h1">{collaborationTitle}</Typography>
-            </GapGrid>
+            </div>
             <GapGrid gap={10}>
               <PlusButton
                   aria-label="add data set"
