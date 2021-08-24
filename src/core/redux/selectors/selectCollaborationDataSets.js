@@ -10,7 +10,7 @@ import { COLLABORATIONS, COLLABORATION_DATA_SETS } from '../constants';
 
 const { isValidUUID } = ValidationUtils;
 
-export default function selectCollaborationDataSetMap(collaborationId :UUID) {
+export default function selectCollaborationDataSets(collaborationId :UUID) {
 
   return (state :Map) :Map<UUID, List<UUID>> => {
 

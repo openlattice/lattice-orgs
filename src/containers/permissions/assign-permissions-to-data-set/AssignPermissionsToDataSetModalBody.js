@@ -14,8 +14,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { Principal, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import StepSelectDataSet from './StepSelectDataSet';
-
+import SearchOrgDataSetsContainer from '../../org/components/dataset/SearchOrgDataSetsContainer';
 import StepConfirm from '../StepConfirm';
 import StepSelectPermissions from '../StepSelectPermissions';
 import { ModalBody, StepsController } from '../../../components';
@@ -112,7 +111,8 @@ const AssignPermissionsToDataSetModalBody = ({
               step === 0 && (
                 <>
                   <ModalBody>
-                    <StepSelectDataSet
+                    <Typography gutterBottom>Search for target data sets.</Typography>
+                    <SearchOrgDataSetsContainer
                         organizationId={organizationId}
                         setTargetDataSetIds={setTargetDataSetIds}
                         setTargetDataSetTitles={setTargetDataSetTitles}
