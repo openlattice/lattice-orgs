@@ -22,7 +22,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody, StackGrid } from '../../../components';
 import { resetRequestStates } from '../../../core/redux/actions';
-import { COLLABORATIONS } from '../../../core/redux/constants';
+import { COLLABORATIONS, ERROR } from '../../../core/redux/constants';
 import { selectOrganizations } from '../../../core/redux/selectors';
 import { CREATE_NEW_COLLABORATION, createNewCollaboration } from '../actions';
 import type { ReactSelectOption } from '../../../types';
@@ -79,6 +79,9 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
 
   const organizations :Map<UUID, Organization> = useSelector(selectOrganizations());
   const createNewCollaborationRS :?RequestState = useRequestState([COLLABORATIONS, CREATE_NEW_COLLABORATION]);
+  const createNewCollaborationError :Object = useSelector(
+    (state) => state.getIn([COLLABORATIONS, CREATE_NEW_COLLABORATION, ERROR])
+  );
 
   const options = useMemo(() => {
     const selectOptions = [];
@@ -180,7 +183,15 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
     ),
     [RequestStates.FAILURE]: (
       <ModalBody>
-        <span>Failed to create collaboration. Please try again.</span>
+        <span>
+          {
+            createNewCollaborationError.message
+              || 'Failed to create collaboration.'
+          }
+        </span>
+        <span>
+          { ' Please try again.' }
+        </span>
       </ModalBody>
     ),
   };
