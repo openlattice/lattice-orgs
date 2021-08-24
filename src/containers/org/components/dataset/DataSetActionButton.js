@@ -25,7 +25,13 @@ import PromoteTableModal from './PromoteTableModal';
 
 import { UpdateMetaModal } from '../../../../components';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../../../core/edm/actions';
-import { EDM } from '../../../../core/redux/constants';
+import {
+  DESCRIPTION,
+  EDM,
+  METADATA,
+  TAGS,
+  TITLE
+} from '../../../../core/redux/constants';
 import {
   selectCurrentAuthorization,
   selectDataSetSchema,
@@ -35,14 +41,11 @@ import {
 import { Routes } from '../../../../core/router';
 import { isAtlasDataSet } from '../../../../utils';
 import {
-  DESCRIPTION,
-  EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
-  EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_TAGS_DATA_SCHEMA as DATA_SCHEMA,
+  EDIT_TITLE_DESCRIPTION_TAGS_UI_SCHEMA as UI_SCHEMA,
   FLAGS,
-  METADATA,
   NAME,
   OPENLATTICE,
-  TITLE,
 } from '../../../../utils/constants';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
@@ -126,7 +129,8 @@ const DataSetActionButton = ({
 
   const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
   const dataSetDescription :string = dataSet.getIn([METADATA, DESCRIPTION]);
-  const dataSetFlags :List<string> = dataSet.getIn([METADATA, FLAGS]);
+  const dataSetFlags :List<string> = dataSet.getIn([METADATA, FLAGS], List());
+  const metadataTags :List<string> = dataSet.getIn([METADATA, METADATA, TAGS], List());
   const dataSetName :string = dataSet.get(NAME);
   const dataSetTitle :string = dataSet.getIn([METADATA, TITLE]);
   const isAtlas :boolean = isAtlasDataSet(dataSet);
@@ -153,8 +157,9 @@ const DataSetActionButton = ({
     dataSchema.properties.fields.properties.title.description = "Update this data set's title";
     dataSchema.properties.fields.properties.description.default = dataSetDescription;
     dataSchema.properties.fields.properties.description.description = "Update this data set's description";
+    dataSchema.properties.fields.properties.tags.default = metadataTags.toJS();
     setSchema({ dataSchema, uiSchema: UI_SCHEMA });
-  }, [dataSetDescription, dataSetTitle]);
+  }, [dataSetDescription, dataSetTitle, metadataTags]);
 
   const goToManagePermissions = useGoToRoute(
     Routes.ORG_DATA_SET_OBJECT_PERMISSIONS
@@ -188,12 +193,13 @@ const DataSetActionButton = ({
     stateDispatch({ type: CLOSE_DETAILS });
   };
 
-  const handleOnSubmitUpdate = ({ description, title }) => {
+  const handleOnSubmitUpdate = ({ description, title, tags }) => {
     dispatch(
       updateOrganizationDataSet({
         dataSetId,
         description,
         organizationId,
+        tags,
         title,
       })
     );
