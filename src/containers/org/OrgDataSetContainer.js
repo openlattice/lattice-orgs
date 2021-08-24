@@ -119,7 +119,7 @@ const OrgDataSetContainer = ({
   const collabTabText = isSuccess(getCollabWithDataSetRS) ? `Collaborations (${collabCount})` : 'Collaborations';
 
   const tags = metadata.get(TAGS, List());
-  const tagLabel = `Protections: ${tags.join(', ')}`;
+  const tagLabel = tags.join(', ');
 
   if (organization) {
 
