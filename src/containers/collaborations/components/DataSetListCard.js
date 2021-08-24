@@ -52,10 +52,12 @@ const DataSetListCard = ({
 }) => {
   const dataSetId = get(dataSet, ID);
   const organizationId = get(dataSet, ORGANIZATION_ID);
-
-  const dataSetRoute = Routes.ORG_DATA_SET
-    .replace(Routes.ORG_ID_PARAM, organizationId)
-    .replace(Routes.DATA_SET_ID_PARAM, dataSetId);
+  const { origin, pathname } = window.location;
+  const dataSetRoute = `${origin}${pathname}#${
+    Routes.ORG_DATA_SET
+      .replace(Routes.ORG_ID_PARAM, organizationId)
+      .replace(Routes.DATA_SET_ID_PARAM, dataSetId)
+  }`;
 
   const goToOrganizationDataSet = useGoToRoute(dataSetRoute);
 
