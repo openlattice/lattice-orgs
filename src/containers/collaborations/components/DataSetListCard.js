@@ -50,6 +50,7 @@ const DataSetListCard = ({
   dataSet :Map;
   removeDataSet :(dataSetId :UUID) => void;
 }) => {
+  console.log(dataSet);
   const dataSetId = get(dataSet, ID);
   const organizationId = get(dataSet, ORGANIZATION_ID);
   const { origin, pathname } = window.location;
@@ -73,7 +74,7 @@ const DataSetListCard = ({
   return (
     <ListCard key={dataSetId} onClick={goToOrganizationDataSet}>
       <ContentGrid>
-        <a aria-label="To Data Set Details" href={dataSetRoute}><DataSetTitle dataSet={fromJS(dataSet)} /></a>
+        <a aria-label="To Data Set Details" href={dataSetRoute}><DataSetTitle dataSet={dataSet} /></a>
         <GapGrid gap={8}>
           <Button onClick={removeDataSetFromCollaboration} size="small">Remove</Button>
           <FontAwesomeIcon size="sm" icon={faChevronRight} />
