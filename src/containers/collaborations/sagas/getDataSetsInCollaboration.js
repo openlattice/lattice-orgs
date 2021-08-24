@@ -51,7 +51,7 @@ function* getDataSetsInCollaborationWorker(action :SequenceAction) :Saga<*> {
     * collaboration from that organization.
     */
     const collaborationDataSets :Map<UUID, List<UUID>> = fromJS(getResponse.data);
-    const dataSetIds :Set<UUID> = collaborationDataSets.valueSeq().toSet().flatten();
+    const dataSetIds :Set<UUID> = collaborationDataSets.valueSeq().flatten().toSet();
 
     if (!dataSetIds.isEmpty()) {
       /*
