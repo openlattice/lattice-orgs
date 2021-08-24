@@ -62,7 +62,7 @@ const CollaborationsContainer = ({
             </GapGrid>
             <GapGrid gap={10}>
               <PlusButton
-                  aria-label="add dataset"
+                  aria-label="add data set"
                   color="default"
                   onClick={() => setIsVisibleAddDataSetModal(true)}>
                 <Typography component="span">Add Data Set</Typography>
