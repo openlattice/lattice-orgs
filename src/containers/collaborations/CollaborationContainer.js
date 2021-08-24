@@ -28,6 +28,7 @@ import {
   selectOrganizations,
   selectOrgsDataSets
 } from '../../core/redux/selectors';
+import { DESCRIPTION, ORGANIZATION_ID, TITLE } from '../../utils/constants';
 
 const CollaborationsContainer = ({
   collaborationId,
@@ -43,9 +44,9 @@ const CollaborationsContainer = ({
   const collaborationDataSetMap :Map<UUID, List<UUID>> = useSelector(selectCollaborationDataSets(collaborationId));
   const organizations :Map<UUID, Organization> = useSelector(selectOrganizations());
 
-  const collaborationOrganizationIds :List<UUID> = collaboration.get('organizationIds', List());
-  const collaborationTitle :string = collaboration.get('title', '');
-  const collaborationDescription :string = collaboration.get('description', '');
+  const collaborationOrganizationIds :List<UUID> = collaboration.get(ORGANIZATION_ID, List());
+  const collaborationTitle :string = collaboration.get(TITLE, '');
+  const collaborationDescription :string = collaboration.get(DESCRIPTION, '');
 
   const collaborationDataSetIds :List<UUID> = collaborationDataSetMap.valueSeq().flatten();
   const collaborationDataSets :Map<UUID, Map<UUID, Map>> = useSelector(selectOrgsDataSets(collaborationDataSetMap));
