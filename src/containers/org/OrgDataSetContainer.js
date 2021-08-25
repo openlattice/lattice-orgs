@@ -10,6 +10,7 @@ import { CollaborationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
   Badge,
+  Chip,
   Colors,
   FolderTab,
   FolderTabs,
@@ -30,13 +31,16 @@ import DataSetDataContainer from './DataSetDataContainer';
 import DataSetMetadataContainer from './DataSetMetadataContainer';
 
 import {
+  ActionsGrid,
+  CopyButton,
   CrumbItem,
   CrumbLink,
   Crumbs,
+  Pre,
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
-import { COLLABORATIONS } from '../../core/redux/constants';
+import { COLLABORATIONS, TAGS } from '../../core/redux/constants';
 import {
   selectCollaborationsByDataSetId,
   selectDataSetSchema,
@@ -47,7 +51,7 @@ import {
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { ORG_DATA_SET_COLLABORATIONS } from '../../core/router/Routes';
-import { isAtlasDataSet } from '../../utils';
+import { clipboardWriteText, isAtlasDataSet } from '../../utils';
 import {
   CONTACTS,
   DESCRIPTION,
@@ -104,6 +108,7 @@ const OrgDataSetContainer = ({
   const description :string = dataSet.getIn([METADATA, DESCRIPTION]);
   const name :string = dataSet.get(NAME);
   const title :string = dataSet.getIn([METADATA, TITLE]);
+  const metadata :Map = dataSet.getIn([METADATA, METADATA], Map());
 
   const hasContactInfo :boolean = contacts.some(isNonEmptyString);
   const dataSetCollabRoute = ORG_DATA_SET_COLLABORATIONS
@@ -112,6 +117,9 @@ const OrgDataSetContainer = ({
 
   const collabCount = collaborationsByDataSetId.size;
   const collabTabText = isSuccess(getCollabWithDataSetRS) ? `Collaborations (${collabCount})` : 'Collaborations';
+
+  const tags = metadata.get(TAGS, List());
+  const tagLabel = tags.join(', ');
 
   if (organization) {
 
@@ -125,12 +133,19 @@ const OrgDataSetContainer = ({
           <StackGrid gap={16}>
             <StackGrid>
               <SpaceBetweenGrid>
-                <div>
-                  <Typography variant="h1">{title || name}</Typography>
-                  <Typography variant="subtitle1">{name}</Typography>
-                </div>
+                <Typography gutterBottom variant="h1">{title || name}</Typography>
                 <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
               </SpaceBetweenGrid>
+              <div>
+                <Typography variant="subtitle1">DATASET ID</Typography>
+                <ActionsGrid align={{ v: 'center' }} fit>
+                  <Pre>{dataSetId}</Pre>
+                  <CopyButton
+                      aria-label="copy organization id"
+                      onClick={() => clipboardWriteText(dataSetId)} />
+                </ActionsGrid>
+                <Typography variant="subtitle1">{name}</Typography>
+              </div>
               <div>
                 <CountBadge count={dataSetColumns.size} />
                 <Label subtle>Data Fields</Label>
@@ -143,6 +158,13 @@ const OrgDataSetContainer = ({
                   )
                 }
               </div>
+              {
+                !!tags.size && (
+                  <div>
+                    <Chip label={tagLabel} />
+                  </div>
+                )
+              }
             </StackGrid>
             {
               isNonEmptyString(description) && (

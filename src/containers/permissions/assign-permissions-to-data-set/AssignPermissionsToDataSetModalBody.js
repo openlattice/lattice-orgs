@@ -6,15 +6,15 @@ import React, { useEffect, useState } from 'react';
 
 import _capitalize from 'lodash/capitalize';
 import styled from 'styled-components';
-import { ModalFooter as LUKModalFooter } from 'lattice-ui-kit';
+import { List } from 'immutable';
+import { ModalFooter as LUKModalFooter, Typography } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { Principal, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import StepSelectDataSet from './StepSelectDataSet';
-
+import SearchOrgDataSetsContainer from '../../org/components/dataset/SearchOrgDataSetsContainer';
 import StepConfirm from '../StepConfirm';
 import StepSelectPermissions from '../StepSelectPermissions';
 import { ModalBody, StepsController } from '../../../components';
@@ -40,8 +40,8 @@ const AssignPermissionsToDataSetModalBody = ({
   const dispatch = useDispatch();
 
   const [assignPermissionsToAllProperties, setAssignPermissionsToAllProperties] = useState(true);
-  const [targetDataSetId, setTargetDataSetId] = useState('');
-  const [targetDataSetTitle, setTargetDataSetTitle] = useState('');
+  const [targetDataSetIds, setTargetDataSetIds] = useState(List());
+  const [targetDataSetTitles, setTargetDataSetTitles] = useState(List());
   const [targetPermissionOptions, setTargetPermissionOptions] = useState([]);
 
   const assignPermissionsToDataSetRS :?RequestState = useRequestState([PERMISSIONS, ASSIGN_PERMISSIONS_TO_DATA_SET]);
@@ -54,7 +54,7 @@ const AssignPermissionsToDataSetModalBody = ({
   const onConfirm = () => {
     dispatch(
       assignPermissionsToDataSet({
-        dataSetId: targetDataSetId,
+        dataSetIds: targetDataSetIds,
         organizationId,
         permissionTypes: targetPermissionOptions.map((option) => option.value),
         principal,
@@ -71,8 +71,36 @@ const AssignPermissionsToDataSetModalBody = ({
     .join(', ');
 
   const confirmText = assignPermissionsToAllProperties
-    ? `Please confirm you want to assign ${permissions} to "${targetDataSetTitle}" and all its columns.`
-    : `Please confirm you want to assign ${permissions} to "${targetDataSetTitle}".`;
+    ? (
+      <>
+        <Typography>
+          {
+            `Please confirm you want to assign ${permissions} the following `
+              + 'datasets and all of their columns:'
+          }
+        </Typography>
+        <ul>
+          {
+            targetDataSetTitles.map((title) => <li>{title}</li>)
+          }
+        </ul>
+      </>
+    )
+    : (
+      <>
+        <Typography>
+          {
+            `Please confirm you want to assign ${permissions} the `
+              + 'following datasets (not all of their columns):'
+          }
+        </Typography>
+        <ul>
+          {
+            targetDataSetTitles.map((title) => <li>{title}</li>)
+          }
+        </ul>
+      </>
+    );
 
   return (
     <StepsController>
@@ -83,11 +111,13 @@ const AssignPermissionsToDataSetModalBody = ({
               step === 0 && (
                 <>
                   <ModalBody>
-                    <StepSelectDataSet
+                    <Typography gutterBottom>Search for target data sets.</Typography>
+                    <SearchOrgDataSetsContainer
                         organizationId={organizationId}
-                        setTargetDataSetId={setTargetDataSetId}
-                        setTargetDataSetTitle={setTargetDataSetTitle}
-                        targetDataSetId={targetDataSetId} />
+                        setTargetDataSetIds={setTargetDataSetIds}
+                        setTargetDataSetTitles={setTargetDataSetTitles}
+                        targetDataSetIds={targetDataSetIds}
+                        targetDataSetTitles={targetDataSetTitles} />
                   </ModalBody>
                   <ModalFooter
                       onClickPrimary={stepNext}
@@ -104,10 +134,10 @@ const AssignPermissionsToDataSetModalBody = ({
                   <ModalBody>
                     <StepSelectPermissions
                         assignPermissionsToAllProperties={assignPermissionsToAllProperties}
-                        isDataSet={!!targetDataSetId}
+                        isDataSet={!targetDataSetIds.isEmpty()}
                         setAssignPermissionsToAllProperties={setAssignPermissionsToAllProperties}
                         setTargetPermissionOptions={setTargetPermissionOptions}
-                        targetTitle={targetDataSetTitle}
+                        targetTitles={targetDataSetTitles}
                         targetPermissionOptions={targetPermissionOptions} />
                   </ModalBody>
                   <ModalFooter

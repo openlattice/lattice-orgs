@@ -36,12 +36,14 @@ function* updateOrganizationDataSetWorker(action :SequenceAction) :Saga<*> {
       dataSetId,
       description,
       organizationId,
+      tags,
       title,
     } :{|
       columnId ?:UUID;
       dataSetId :UUID;
       description :string;
       organizationId :UUID;
+      tags ?:string[];
       title :string;
     |} = action.value;
 
@@ -50,7 +52,7 @@ function* updateOrganizationDataSetWorker(action :SequenceAction) :Saga<*> {
       throw new Error(ERR_MISSING_ORG);
     }
 
-    const metadata = { description, title };
+    const metadata = { description, title, metadata: { tags } };
     const updateCall = isValidUUID(columnId)
       ? call(updateDataSetColumnMetadataWorker, updateDataSetColumnMetadata({ columnId, dataSetId, metadata }))
       : call(updateDataSetMetadataWorker, updateDataSetMetadata({ dataSetId, metadata }));

@@ -4,20 +4,10 @@ import React, { useState } from 'react';
 import debounce from 'lodash/debounce';
 import styled from 'styled-components';
 import { List } from 'immutable';
-import { Colors, SearchInput, Typography } from 'lattice-ui-kit';
+import { SearchInput, Typography } from 'lattice-ui-kit';
 
 import { World2Icon } from '../../assets';
-import { StackGrid } from '../../components';
-
-const { NEUTRAL } = Colors;
-
-const BasicListCard = styled.div`
-  align-items: center;
-  background-color: ${NEUTRAL.N50};
-  border-radius: 5px;
-  display: flex;
-  padding: 8px 16px;
-`;
+import { BasicListCard, StackGrid } from '../../components';
 
 const IconWrapper = styled.span`
   display: inline-flex;
