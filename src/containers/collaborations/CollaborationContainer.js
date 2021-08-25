@@ -108,14 +108,10 @@ const CollaborationsContainer = ({
               onClose={() => setIsVisibleAddDataSetModal(false)} />
         )
       }
-      {
-        isVisibleAddOrganizationModal && (
-          <AddOrganizationsToCollaborationModal
-              collaborationId={collaborationId}
-              isVisible={isVisibleAddOrganizationModal}
-              onClose={() => setIsVisibleAddOrganizationModal(false)} />
-        )
-      }
+      <AddOrganizationsToCollaborationModal
+          collaborationId={collaborationId}
+          isVisible={isVisibleAddOrganizationModal}
+          onClose={() => setIsVisibleAddOrganizationModal(false)} />
       <RemoveDataSetFromCollaborationModal
           collaborationId={collaborationId}
           dataSet={dataSetToRemove}
