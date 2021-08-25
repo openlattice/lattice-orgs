@@ -21,6 +21,7 @@ const { isFailure, isPending, isSuccess } = ReduxUtils;
 type MetaFields = {
   description :string;
   title :string;
+  tags ?:string[];
 };
 
 type FormData = {|
@@ -99,6 +100,7 @@ const UpdateMetaModal = ({
         isVisible={isVisible}
         onClose={onClose}
         textTitle="Edit Details"
+        viewportScrolling
         withFooter={withFooter}>
       <ResetOnUnmount actions={resetActions}>
         <ModalBody>

@@ -8,7 +8,9 @@ import {
   select,
   takeEvery,
 } from '@redux-saga/core/effects';
-import { List, Map, fromJS } from 'immutable';
+import {
+  List, Map, Set, fromJS
+} from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   DataSetMetadataApiActions,
@@ -22,8 +24,8 @@ import type { PermissionType, Principal, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { getDataSetKeys } from '../../../utils';
-import { selectOrgDataSet, selectOrgDataSetColumns } from '../../redux/selectors';
+import { getDataSetsKeys } from '../../../utils';
+import { selectOrgDataSets, selectOrgDataSetsColumns } from '../../redux/selectors';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../actions';
 
 const { AceBuilder, AclBuilder, AclDataBuilder } = Models;
@@ -42,13 +44,13 @@ function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
     yield put(assignPermissionsToDataSet.request(action.id, action.value));
 
     const {
-      dataSetId,
+      dataSetIds,
       organizationId,
       permissionTypes,
       principal,
       withColumns = false,
     } :{|
-      dataSetId :UUID;
+      dataSetIds :List<UUID>;
       organizationId :UUID;
       permissionTypes :PermissionType[];
       principal :Principal;
@@ -57,17 +59,26 @@ function* assignPermissionsToDataSetWorker(action :SequenceAction) :Saga<*> {
 
     let response :WorkerResponse;
 
-    let keys :List<List<UUID>> = List().push(List([dataSetId]));
+    let keys :List<List<UUID>> = List().push(dataSetIds);
     if (withColumns) {
-      const dataSet :Map = yield select(selectOrgDataSet(organizationId, dataSetId));
-      let dataSetColumns :Map<UUID, Map> = yield select(selectOrgDataSetColumns(organizationId, dataSetId));
-      // NOTE: if "dataSetColumns" is empty, it's very likely that we just haven't loaded columns
-      if (dataSetColumns.isEmpty()) {
-        response = yield call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata([dataSetId]));
+      const dataSets :Map = yield select(selectOrgDataSets(organizationId, dataSetIds));
+      let dataSetsColumns :Map = yield select(selectOrgDataSetsColumns(organizationId, dataSetIds));
+      const emptyColumnDataSetIds = Set().withMutations((mutableSet) => {
+        dataSets.forEach((dataSet, dataSetId) => {
+          const dataSetColumns :Map<UUID, Map> = dataSetsColumns.get(dataSetId);
+          // NOTE: if "dataSetColumns" is empty, it's very likely that we just haven't loaded columns
+          if (dataSetColumns.isEmpty()) {
+            mutableSet.add(dataSetId);
+          }
+        });
+      });
+      // NOTE: if any "dataSetColumns" were empty, we will call them here
+      if (!emptyColumnDataSetIds.isEmpty()) {
+        response = yield call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata(emptyColumnDataSetIds.toJS()));
         if (response.error) throw response.error;
-        dataSetColumns = fromJS(response.data).get(dataSetId) || List();
+        dataSetsColumns = fromJS(response.data) || Map();
       }
-      keys = getDataSetKeys(dataSet, dataSetColumns);
+      keys = getDataSetsKeys(dataSets, dataSetsColumns);
     }
 
     const updates = [];

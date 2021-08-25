@@ -2,6 +2,7 @@
  * @flow
  */
 
+export { default as BaseButton } from './BaseButton';
 export { default as CirclePlusButton } from './CirclePlusButton';
 export { default as CopyButton } from './CopyButton';
 export { default as EditButton } from './EditButton';

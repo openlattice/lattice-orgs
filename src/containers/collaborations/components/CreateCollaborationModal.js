@@ -22,7 +22,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody, StackGrid } from '../../../components';
 import { resetRequestStates } from '../../../core/redux/actions';
-import { COLLABORATIONS } from '../../../core/redux/constants';
+import { COLLABORATIONS, ERROR } from '../../../core/redux/constants';
 import { selectOrganizations } from '../../../core/redux/selectors';
 import { CREATE_NEW_COLLABORATION, createNewCollaboration } from '../actions';
 import type { ReactSelectOption } from '../../../types';
@@ -35,22 +35,16 @@ type Props = {
 
 const INITIAL_STATE :{
   description :string;
-  name :string;
-  nameIsValid :boolean;
   title :string;
   titleIsValid :boolean;
 } = {
   description: '',
-  name: '',
-  nameIsValid: true,
   title: '',
   titleIsValid: true,
 };
 
 const DESCRIPTION = 'DESCRIPTIOIN';
-const NAME = 'NAME';
 const TITLE = 'TITLE';
-const NAME_IS_VALID = 'NAME_IS_VALID';
 const TITLE_IS_VALID = 'TITLE_IS_VALID';
 
 const reducer = (state, action) => {
@@ -59,16 +53,6 @@ const reducer = (state, action) => {
       return {
         ...state,
         description: action.value,
-      };
-    case NAME:
-      return {
-        ...state,
-        name: action.value,
-      };
-    case NAME_IS_VALID:
-      return {
-        ...state,
-        nameIsValid: action.value,
       };
     case TITLE:
       return {
@@ -95,6 +79,9 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
 
   const organizations :Map<UUID, Organization> = useSelector(selectOrganizations());
   const createNewCollaborationRS :?RequestState = useRequestState([COLLABORATIONS, CREATE_NEW_COLLABORATION]);
+  const createNewCollaborationError :Object = useSelector(
+    (state) => state.getIn([COLLABORATIONS, CREATE_NEW_COLLABORATION, ERROR])
+  );
 
   const options = useMemo(() => {
     const selectOptions = [];
@@ -115,23 +102,19 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
   };
 
   const handleOnClickPrimary = () => {
-    if (isNonEmptyString(modalState.name) && isNonEmptyString(modalState.title)) {
+    if (isNonEmptyString(modalState.title)) {
+      const name = modalState.title.replace(/\W/g, '');
       dispatch(
         createNewCollaboration({
           description: modalState.description,
-          name: modalState.name,
+          name,
           organizationIds: collaborationOrganizations,
           title: modalState.title,
         })
       );
     }
     else {
-      if (!isNonEmptyString(modalState.name)) {
-        modalDispatch({ type: NAME_IS_VALID, value: false });
-      }
-      if (!isNonEmptyString(modalState.title)) {
-        modalDispatch({ type: TITLE_IS_VALID, value: false });
-      }
+      modalDispatch({ type: TITLE_IS_VALID, value: false });
     }
   };
 
@@ -139,11 +122,6 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
     switch (event.target.name) {
       case DESCRIPTION: {
         modalDispatch({ type: DESCRIPTION, value: event.target.value || '' });
-        break;
-      }
-      case NAME: {
-        modalDispatch({ type: NAME, value: event.target.value || '' });
-        modalDispatch({ type: NAME_IS_VALID, value: true });
         break;
       }
       case TITLE: {
@@ -168,21 +146,13 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
     [RequestStates.STANDBY]: (
       <ModalBody>
         <StackGrid>
-          <span>Enter a title, name, and optional description for this collaboration.</span>
+          <span>Enter a title and optional description for this collaboration.</span>
           <div>
             <Label htmlFor="new-collaboration-title">Title</Label>
             <Input
                 id="new-collaboration-title"
                 error={!modalState.titleIsValid}
                 name={TITLE}
-                onChange={handleOnInputChange} />
-          </div>
-          <div>
-            <Label htmlFor="new-collaboration-name">Name</Label>
-            <Input
-                id="new-collaboration-name"
-                error={!modalState.nameIsValid}
-                name={NAME}
                 onChange={handleOnInputChange} />
           </div>
           <div>
@@ -213,7 +183,15 @@ const CreateCollaborationModal = ({ onClose } :Props) => {
     ),
     [RequestStates.FAILURE]: (
       <ModalBody>
-        <span>Failed to create collaboration. Please try again.</span>
+        <span>
+          {
+            createNewCollaborationError.message
+              || 'Failed to create collaboration.'
+          }
+        </span>
+        <span>
+          { ' Please try again.' }
+        </span>
       </ModalBody>
     ),
   };

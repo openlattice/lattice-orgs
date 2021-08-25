@@ -8,9 +8,11 @@ import { faUserFriends } from '@fortawesome/pro-light-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map, get } from 'immutable';
 import { Card, CardSegment, Typography } from 'lattice-ui-kit';
+import { useGoToRoute } from 'lattice-utils';
 import type { UUID } from 'lattice';
 
 import { GapGrid, StackGrid } from '../grids';
+import { Routes } from '../../core/router';
 
 const SimpleCollaborationCard = ({
   collaboration,
@@ -23,9 +25,13 @@ const SimpleCollaborationCard = ({
   const collaborationDescription :string = get(collaboration, 'description');
   const collaborationOrganizations :List = get(collaboration, 'organizationIds', List());
   // TODO: add onclick to go to collaboration details page.
+  const goToCollaboration = useGoToRoute(
+    Routes.COLLABORATION.replace(Routes.COLLABORATION_ID_PARAM, collaborationId),
+    { collaboration },
+  );
 
   return (
-    <Card id={collaborationId}>
+    <Card id={collaborationId} onClick={goToCollaboration}>
       <CardSegment padding="24px">
         <StackGrid gap={8}>
           <Typography component="h2" variant="h4">{collaborationTitle}</Typography>
