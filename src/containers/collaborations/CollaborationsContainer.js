@@ -2,20 +2,17 @@
  * @flow
  */
 
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useReducer, useState } from 'react';
 
 import { Map, get } from 'immutable';
-import { CollaborationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
   PaginationToolbar,
   SearchInput,
   Typography,
 } from 'lattice-ui-kit';
-import { ReduxUtils, useRequestState } from 'lattice-utils';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
-import type { RequestState } from 'redux-reqseq';
 
 import { CreateCollaborationModal } from './components';
 
@@ -25,7 +22,6 @@ import {
   SimpleCollaborationCard,
   StackGrid,
 } from '../../components';
-import { COLLABORATIONS } from '../../core/redux/constants';
 import {
   selectUsersCollaborations
 } from '../../core/redux/selectors';
@@ -36,16 +32,12 @@ import {
   paginationReducer,
 } from '../../utils/stateReducers/pagination';
 
-const { isStandby } = ReduxUtils;
-const { GET_COLLABORATIONS, getCollaborations } = CollaborationsApiActions;
-
 const MAX_PER_PAGE = 10;
 
 const CollaborationsContainer = () => {
 
   const [isVisibleAddCollaborationModal, setIsVisibleCreateCollaborationModal] = useState(false);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
-  const dispatch = useDispatch();
   const collaborations :Map<UUID, Map> = useSelector(selectUsersCollaborations());
   const filteredCollaborations = collaborations.filter((collaboration :Map, collaborationId :UUID) => (
     collaboration && (collaborationId.includes(paginationState.query)
@@ -64,14 +56,6 @@ const CollaborationsContainer = () => {
   const handleOnPageChange = ({ page, start }) => {
     paginationDispatch({ type: PAGE, page, start });
   };
-
-  const getCollaborationsRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS]);
-
-  useEffect(() => {
-    if (isStandby(getCollaborationsRS)) {
-      dispatch(getCollaborations());
-    }
-  }, [dispatch, getCollaborationsRS]);
 
   return (
     <>
