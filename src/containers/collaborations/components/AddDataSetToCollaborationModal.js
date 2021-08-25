@@ -81,7 +81,6 @@ const AddDataSetToCollaborationModalBody = ({
 
   const closeModal = () => {
     onClose();
-    setStep(0);
   };
 
   const handleOnClickPrimary = () => {
