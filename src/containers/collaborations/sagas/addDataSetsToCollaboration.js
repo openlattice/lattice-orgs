@@ -64,10 +64,13 @@ function* addDataSetsToCollaborationWorker(action :SequenceAction) :Saga<*> {
     );
     if (responseError) throw responseError;
 
-    yield all([
-      call(getDataSetsMetadataWorker, getDataSetsMetadata(dataSetIdsToLoad)),
-      call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata(dataSetIdsToLoad)),
-    ]);
+    if (dataSetIdsToLoad.length) {
+      /* load data sets that are being added to collaboration */
+      yield all([
+        call(getDataSetsMetadataWorker, getDataSetsMetadata(dataSetIdsToLoad)),
+        call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata(dataSetIdsToLoad)),
+      ]);
+    }
 
     yield put(addDataSetsToCollaboration.success(action.id));
   }
