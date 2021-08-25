@@ -9,7 +9,12 @@ import {
   takeEvery,
 } from '@redux-saga/core/effects';
 import { List } from 'immutable';
-import { CollaborationsApiActions, CollaborationsApiSagas } from 'lattice-sagas';
+import {
+  CollaborationsApiActions,
+  CollaborationsApiSagas,
+  DataSetMetadataApiActions,
+  DataSetMetadataApiSagas,
+} from 'lattice-sagas';
 import { AxiosUtils, LangUtils, Logger } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
 import type { UUID } from 'lattice';
@@ -24,6 +29,8 @@ const LOG = new Logger('CollaborationSagas');
 
 const { addDataSetToCollaboration } = CollaborationsApiActions;
 const { addDataSetToCollaborationWorker } = CollaborationsApiSagas;
+const { getDataSetsMetadata, getDataSetColumnsMetadata } = DataSetMetadataApiActions;
+const { getDataSetsMetadataWorker, getDataSetColumnsMetadataWorker } = DataSetMetadataApiSagas;
 
 function* addDataSetsToCollaborationWorker(action :SequenceAction) :Saga<*> {
 
@@ -33,8 +40,10 @@ function* addDataSetsToCollaborationWorker(action :SequenceAction) :Saga<*> {
     const { collaborationId, dataSetIdsByOrgId } = action.value;
 
     const addDataSetCalls = [];
+    const dataSetIdsToLoad = [];
     dataSetIdsByOrgId.forEach((dataSetIds :List<UUID>, organizationId :UUID) => {
       dataSetIds.forEach((dataSetId :UUID) => {
+        dataSetIdsToLoad.push(dataSetId);
         addDataSetCalls.push(
           call(
             addDataSetToCollaborationWorker,
@@ -54,6 +63,11 @@ function* addDataSetsToCollaborationWorker(action :SequenceAction) :Saga<*> {
       undefined,
     );
     if (responseError) throw responseError;
+
+    yield all([
+      call(getDataSetsMetadataWorker, getDataSetsMetadata(dataSetIdsToLoad)),
+      call(getDataSetColumnsMetadataWorker, getDataSetColumnsMetadata(dataSetIdsToLoad)),
+    ]);
 
     yield put(addDataSetsToCollaboration.success(action.id));
   }
