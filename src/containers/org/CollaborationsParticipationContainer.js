@@ -8,6 +8,7 @@ import { SearchInput, Typography } from 'lattice-ui-kit';
 
 import { World2Icon } from '../../assets';
 import { BasicListCard, StackGrid } from '../../components';
+import { COLLABORATION, COLLABORATION_ID_PARAM } from '../../core/router/Routes';
 
 const IconWrapper = styled.span`
   display: inline-flex;
@@ -44,9 +45,10 @@ const CollaborationsParticipationContainer = ({ collaborations, type } :Props) =
           filteredCollaborations.map((collaboration) => {
             const id = collaboration.get('id');
             const title = collaboration.get('title');
+            const collabPath = COLLABORATION.replace(COLLABORATION_ID_PARAM, id);
 
             return (
-              <BasicListCard key={id}>
+              <BasicListCard as="a" key={id} href={`#${collabPath}`}>
                 <IconWrapper>
                   <World2Icon />
                 </IconWrapper>
