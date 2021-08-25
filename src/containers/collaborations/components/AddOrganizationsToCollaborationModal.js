@@ -6,18 +6,18 @@ import React, { useMemo, useState } from 'react';
 
 import { List, Map } from 'immutable';
 import { CollaborationsApiActions } from 'lattice-sagas';
-import { ActionModal, Label, Select } from 'lattice-ui-kit';
+import { ActionModal } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { ModalBody, ResetOnUnmount, StackGrid } from '../../../components';
+import SelectOrganizationsToAddToCollaboration from './SelectOrganizationsToAddToCollaboration';
+import { ModalBody, ResetOnUnmount } from '../../../components';
 import { COLLABORATIONS } from '../../../core/redux/constants';
 import { ORGANIZATION_IDS } from '../../../utils/constants';
 import { selectCollaboration, selectOrganizations } from '../../../core/redux/selectors';
-import type { ReactSelectOption } from '../../../types';
 
 const { ADD_ORGANIZATIONS_TO_COLLABORATION, addOrganizationsToCollaboration } = CollaborationsApiActions;
 
@@ -57,11 +57,6 @@ const AddOrganizationsToCollaborationModal = ({
     return selectOptions;
   }, [organizations, organizationIds]);
 
-  const handleOnChange = (orgOptions :ReactSelectOption<Organization>[]) => {
-    const orgIds = orgOptions.map((org) => org.value);
-    setCollaborationOrganizations(orgIds);
-  };
-
   const handleOnClickPrimary = () => {
     dispatch(
       addOrganizationsToCollaboration({
@@ -71,26 +66,12 @@ const AddOrganizationsToCollaborationModal = ({
     );
   };
 
-  const modalText = options.length
-    ? 'Select organizations to add to collaboration.'
-    : 'There are no eligible organizations to add to this collaboration.';
-
   const rsComponents = {
     [RequestStates.STANDBY]: (
-      <ModalBody>
-        <StackGrid>
-          <Label htmlFor="add-organizations-to-collabroation">{modalText}</Label>
-          <Select
-              id="add-organizations-to-collabroation"
-              isDisabled={!options.length}
-              isMulti
-              menuPortalTarget={document.body}
-              styles={{ menuPortal: (provided) => ({ ...provided, zIndex: 9999 }) }}
-              onChange={handleOnChange}
-              options={options}
-              placeholder="select organizations" />
-        </StackGrid>
-      </ModalBody>
+      <SelectOrganizationsToAddToCollaboration
+          collaborationId={collaborationId}
+          options={options}
+          setCollaborationOrganizations={setCollaborationOrganizations} />
     ),
     [RequestStates.SUCCESS]: (
       <ModalBody>
