@@ -99,15 +99,23 @@ const CollaborationsContainer = ({
         </StackGrid>
         <StackGrid />
       </StackGrid>
-      <AddDataSetToCollaborationModal
-          collaborationId={collaborationId}
-          existingDataSets={collaborationDataSetIds}
-          isVisible={isVisibleAddDataSetModal}
-          onClose={() => setIsVisibleAddDataSetModal(false)} />
-      <AddOrganizationsToCollaborationModal
-          collaborationId={collaborationId}
-          isVisible={isVisibleAddOrganizationModal}
-          onClose={() => setIsVisibleAddOrganizationModal(false)} />
+      {
+        isVisibleAddDataSetModal && (
+          <AddDataSetToCollaborationModal
+              collaborationId={collaborationId}
+              existingDataSets={collaborationDataSetIds}
+              isVisible={isVisibleAddDataSetModal}
+              onClose={() => setIsVisibleAddDataSetModal(false)} />
+        )
+      }
+      {
+        isVisibleAddOrganizationModal && (
+          <AddOrganizationsToCollaborationModal
+              collaborationId={collaborationId}
+              isVisible={isVisibleAddOrganizationModal}
+              onClose={() => setIsVisibleAddOrganizationModal(false)} />
+        )
+      }
       <RemoveDataSetFromCollaborationModal
           collaborationId={collaborationId}
           dataSet={dataSetToRemove}
