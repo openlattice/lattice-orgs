@@ -56,6 +56,12 @@ export const EDIT_TITLE_DESCRIPTION_UI_SCHEMA = {
 
 const LAW_FLAGS = [
   {
+    label: 'Health and Safety Code',
+    options: [
+      { label: 'HSC § 128766', value: 'HSC § 128766' }
+    ],
+  },
+  {
     label: 'Health Insurance Portability and Accountability Act',
     options: [
       { label: 'HIPAA', value: 'HIPAA' }
@@ -82,6 +88,7 @@ const LAW_FLAGS = [
       { label: 'WIC', value: 'WIC' },
       { label: 'WIC § 4515', value: 'WIC § 4515' },
       { label: 'WIC § 10850(f)', value: 'WIC § 10850(f)' },
+      { label: 'WIC § 16521.6', value: 'WIC § 16521.6' },
     ]
   },
 ];
