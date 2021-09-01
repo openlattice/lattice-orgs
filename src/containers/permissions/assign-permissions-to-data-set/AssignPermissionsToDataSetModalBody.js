@@ -6,8 +6,13 @@ import React, { useEffect, useState } from 'react';
 
 import _capitalize from 'lodash/capitalize';
 import styled from 'styled-components';
-import { List } from 'immutable';
-import { ModalFooter as LUKModalFooter, Typography } from 'lattice-ui-kit';
+import { List, Map } from 'immutable';
+import {
+  CardSegment,
+  Checkbox,
+  ModalFooter as LUKModalFooter,
+  Typography
+} from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
@@ -17,11 +22,22 @@ import type { RequestState } from 'redux-reqseq';
 import SearchOrgDataSetsContainer from '../../org/components/dataset/SearchOrgDataSetsContainer';
 import StepConfirm from '../StepConfirm';
 import StepSelectPermissions from '../StepSelectPermissions';
-import { ModalBody, StepsController } from '../../../components';
+import {
+  DataSetTitle,
+  ModalBody,
+  SpaceBetweenGrid,
+  StepsController,
+} from '../../../components';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../../core/permissions/actions';
 import { resetRequestStates } from '../../../core/redux/actions';
 import { PERMISSIONS } from '../../../core/redux/constants';
 import { SEARCH_ORGANIZATION_DATA_SETS, clearSearchState } from '../../../core/search/actions';
+import {
+  ID,
+  METADATA,
+  NAME,
+  TITLE,
+} from '../../../utils/constants';
 
 const ModalFooter = styled(LUKModalFooter)`
   padding: 30px 0;
@@ -102,6 +118,22 @@ const AssignPermissionsToDataSetModalBody = ({
       </>
     );
 
+  const handleOnChangeSelectDataSet = (event :SyntheticInputEvent<HTMLInputElement>) => {
+    const { id, title } = event.currentTarget.dataset;
+    if (targetDataSetIds.includes(id)) {
+      setTargetDataSetIds(targetDataSetIds.filter((dataSetId) => dataSetId !== id));
+    }
+    else {
+      setTargetDataSetIds(targetDataSetIds.push(id));
+    }
+    if (targetDataSetTitles.includes(title)) {
+      setTargetDataSetTitles(targetDataSetTitles.filter((dataSetTitle) => dataSetTitle !== title));
+    }
+    else {
+      setTargetDataSetTitles(targetDataSetTitles.push(title));
+    }
+  };
+
   return (
     <StepsController>
       {
@@ -112,12 +144,35 @@ const AssignPermissionsToDataSetModalBody = ({
                 <>
                   <ModalBody>
                     <Typography gutterBottom>Search for target data sets.</Typography>
-                    <SearchOrgDataSetsContainer
-                        organizationId={organizationId}
-                        setTargetDataSetIds={setTargetDataSetIds}
-                        setTargetDataSetTitles={setTargetDataSetTitles}
-                        targetDataSetIds={targetDataSetIds}
-                        targetDataSetTitles={targetDataSetTitles} />
+                    <SearchOrgDataSetsContainer organizationId={organizationId}>
+                      {(dataSets :List<Map>) => (
+                        <div>
+                          {
+                            dataSets.map((dataSet :Map) => {
+                              const id :UUID = dataSet.get(ID);
+                              const name :string = dataSet.get(NAME);
+                              const title :string = dataSet.getIn([METADATA, TITLE]);
+                              return (
+                                <CardSegment key={id} padding="8px 0">
+                                  <SpaceBetweenGrid>
+                                    <div>
+                                      <DataSetTitle dataSet={dataSet} />
+                                      <Typography variant="caption">{id}</Typography>
+                                    </div>
+                                    <Checkbox
+                                        checked={targetDataSetIds.includes(id)}
+                                        data-id={id}
+                                        data-title={title || name}
+                                        name="select-data-set"
+                                        onChange={handleOnChangeSelectDataSet} />
+                                  </SpaceBetweenGrid>
+                                </CardSegment>
+                              );
+                            })
+                          }
+                        </div>
+                      )}
+                    </SearchOrgDataSetsContainer>
                   </ModalBody>
                   <ModalFooter
                       onClickPrimary={stepNext}

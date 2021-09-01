@@ -6,6 +6,7 @@ import React, { useEffect, useMemo } from 'react';
 
 import { faFileContract, faUser } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { List, Map } from 'immutable';
 import { CollaborationsApiActions } from 'lattice-sagas';
 import {
   AppContentWrapper,
@@ -28,9 +29,8 @@ import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import CollaborationsParticipationContainer from './CollaborationsParticipationContainer';
-import OrgDataSetsContainer from './OrgDataSetsContainer';
 import { DELETE_EXISTING_ORGANIZATION } from './actions';
-import { OrgActionButton } from './components';
+import { DataSetSearchResultCard, OrgActionButton, SearchOrgDataSetsContainer } from './components';
 
 import { BadgeCheckIcon } from '../../assets';
 import {
@@ -41,7 +41,7 @@ import {
 } from '../../components';
 import { APPS } from '../../core/edm/constants';
 import { resetRequestStates } from '../../core/redux/actions';
-import { COLLABORATIONS, ORGANIZATIONS, SEARCH } from '../../core/redux/constants';
+import { COLLABORATIONS, ORGANIZATIONS } from '../../core/redux/constants';
 import {
   selectCollaborationsByOrgId,
   selectIsAppInstalled,
@@ -49,16 +49,10 @@ import {
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { ORG, ORG_COLLABORATIONS, ORG_ID_PARAM } from '../../core/router/Routes';
-import {
-  SEARCH_ORGANIZATION_DATA_SETS,
-  searchOrganizationDataSets,
-} from '../../core/search/actions';
-import { MAX_HITS_10 } from '../../core/search/constants';
 
 const { PURPLE } = Colors;
 const { isNonEmptyString } = LangUtils;
 const {
-  isStandby,
   isSuccess,
 } = ReduxUtils;
 const { GET_COLLABORATIONS_WITH_ORGANIZATION, getCollaborationsWithOrganization } = CollaborationsApiActions;
@@ -73,7 +67,6 @@ const OrgContainer = ({
   const location = useLocation();
 
   const deleteOrgRS :?RequestState = useRequestState([ORGANIZATIONS, DELETE_EXISTING_ORGANIZATION]);
-  const searchOrgDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_ORGANIZATION_DATA_SETS]);
   const getCollabWithOrgRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS_WITH_ORGANIZATION]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
@@ -86,19 +79,6 @@ const OrgContainer = ({
   useEffect(() => {
     dispatch(getCollaborationsWithOrganization(organizationId));
   }, [dispatch, organizationId]);
-
-  useEffect(() => {
-    if (isStandby(searchOrgDataSetsRS)) {
-      dispatch(
-        searchOrganizationDataSets({
-          maxHits: MAX_HITS_10,
-          organizationId,
-          query: '*',
-          start: 0,
-        })
-      );
-    }
-  }, [dispatch, organizationId, searchOrgDataSetsRS]);
 
   const goToRoot = useGoToRoute(Routes.ROOT);
 
@@ -194,7 +174,22 @@ const OrgContainer = ({
             <Route
                 path={ORG}
                 exact
-                render={() => <OrgDataSetsContainer organizationId={organizationId} />} />
+                render={() => (
+                  <SearchOrgDataSetsContainer organizationId={organizationId}>
+                    {(dataSets :List<Map>) => (
+                      <StackGrid>
+                        {
+                          dataSets.map((dataSet :Map) => (
+                            <DataSetSearchResultCard
+                                dataSet={dataSet}
+                                key={dataSet.get('id')}
+                                organizationId={organizationId} />
+                          ))
+                        }
+                      </StackGrid>
+                    )}
+                  </SearchOrgDataSetsContainer>
+                )} />
             <Route
                 exact
                 path={ORG_COLLABORATIONS}
