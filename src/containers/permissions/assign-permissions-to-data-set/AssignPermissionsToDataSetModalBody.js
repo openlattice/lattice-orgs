@@ -88,7 +88,7 @@ const AssignPermissionsToDataSetModalBody = ({
         <Typography>
           {
             `Please confirm you want to assign ${permissions} the following `
-              + 'datasets and all of their columns:'
+              + 'data sets and all of their columns:'
           }
         </Typography>
         <ul>
@@ -103,7 +103,7 @@ const AssignPermissionsToDataSetModalBody = ({
         <Typography>
           {
             `Please confirm you want to assign ${permissions} the `
-              + 'following datasets (not all of their columns):'
+              + 'following data sets (not all of their columns):'
           }
         </Typography>
         <ul>
