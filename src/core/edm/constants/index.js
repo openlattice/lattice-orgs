@@ -53,9 +53,21 @@ const ES_FLAG_TYPE_RS_OPTIONS :ReactSelectOption<EntitySetFlagType>[] = [
   { label: _capitalize(EntitySetFlagTypes.UNVERSIONED), value: EntitySetFlagTypes.UNVERSIONED },
 ];
 
-const DATA_SET_TYPE_RS_OPTIONS :ReactSelectOption<string>[] = [
-  { label: 'Entity Set', value: 'EntitySet' },
-  { label: 'External Table', value: 'ExternalTable' },
+type DataSetTypesEnum = {|
+  ENTITY_SET :'EntitySet';
+  EXTERNAL_TABLE :'ExternalTable';
+|};
+
+const DataSetTypes :{| ...DataSetTypesEnum |} = Object.freeze({
+  ENTITY_SET: 'EntitySet',
+  EXTERNAL_TABLE: 'ExternalTable',
+});
+
+type DataSetType = $Values<typeof DataSetTypes>;
+
+const DATA_SET_TYPE_RS_OPTIONS :ReactSelectOption<DataSetType>[] = [
+  { label: 'Entity Set', value: DataSetTypes.ENTITY_SET },
+  { label: 'External Table', value: DataSetTypes.EXTERNAL_TABLE },
 ];
 
 export {
@@ -63,4 +75,6 @@ export {
   DATA_SET_TYPE_RS_OPTIONS,
   ES_FLAG_TYPE_RS_OPTIONS,
   FQNS,
+  DataSetTypes,
 };
+export type { DataSetType };
