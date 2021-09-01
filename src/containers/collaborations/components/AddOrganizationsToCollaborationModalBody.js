@@ -71,11 +71,10 @@ const AddOrganizationsToCollaborationModalBody = ({
   const success = isSuccess(addOrgsToCollaborationRS);
 
   useEffect(() => {
-    if (success || failure) {
+    if (step === 0 && (success || failure)) {
       stepNext();
-      setCollaborationOrganizations([]);
     }
-  }, [failure, stepNext, success]);
+  }, [failure, step, stepNext, success]);
 
   return (
     <>
@@ -100,31 +99,29 @@ const AddOrganizationsToCollaborationModalBody = ({
         step === 1 && (
           <>
             <ModalBody>
-              {
-                success && (
-                  <ResetOnUnmount actions={RESET_ACTIONS}>
+              <ResetOnUnmount actions={RESET_ACTIONS}>
+                {
+                  success && (
                     <span>
                       {
                         `${collaborationOrganizations.length === 1 ? 'Organization' : 'Organizations'} `
                           + 'successfully added to collaboration!'
                       }
                     </span>
-                  </ResetOnUnmount>
-                )
-              }
-              {
-                failure && (
-                  <ResetOnUnmount actions={RESET_ACTIONS}>
+                  )
+                }
+                {
+                  failure && (
                     <span>
                       {
                         'Failed to add '
                           + `${collaborationOrganizations.length === 1 ? 'organization' : 'organizations'} `
-                        + 'to collaboration. Please try again.'
+                            + 'to collaboration. Please try again.'
                       }
                     </span>
-                  </ResetOnUnmount>
-                )
-              }
+                  )
+                }
+              </ResetOnUnmount>
             </ModalBody>
             <StyledFooter
                 onClickPrimary={onClose}
