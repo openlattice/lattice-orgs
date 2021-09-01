@@ -54,8 +54,8 @@ const ES_FLAG_TYPE_RS_OPTIONS :ReactSelectOption<EntitySetFlagType>[] = [
 ];
 
 const DATA_SET_TYPE_RS_OPTIONS :ReactSelectOption<string>[] = [
-  { label: 'EntitySet', value: 'Entity Set' },
-  { label: 'ExternalTable', value: 'External Table' },
+  { label: 'Entity Set', value: 'EntitySet' },
+  { label: 'External Table', value: 'ExternalTable' },
 ];
 
 export {
