@@ -7,6 +7,7 @@ import { List, Map } from 'immutable';
 import {
   Box,
   Collapse,
+  Grid,
   IconButton,
   PaginationToolbar,
   Select,
@@ -30,7 +31,7 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { ES_FLAG_TYPE_RS_OPTIONS } from '../../core/edm/constants';
+import { DATA_SET_TYPE_RS_OPTIONS, ES_FLAG_TYPE_RS_OPTIONS } from '../../core/edm/constants';
 import { SEARCH } from '../../core/redux/constants';
 import {
   selectSearchHits,
@@ -58,9 +59,11 @@ type Props = {
 };
 
 const OrgDataSetsContainer = ({ organizationId } :Props) => {
+
   const dispatch = useDispatch();
   const [isOpenSearchOptions, setIsOpenSearchOptions] = useState(false);
   const [flag, setFlag] = useState();
+  const [dataSetType, setDataSetType] = useState();
 
   const searchOrgDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_ORGANIZATION_DATA_SETS]);
 
@@ -74,6 +77,7 @@ const OrgDataSetsContainer = ({ organizationId } :Props) => {
     if (isNonEmptyString(query)) {
       dispatch(
         searchOrganizationDataSets({
+          dataSetType,
           flags: [flag],
           maxHits: MAX_HITS_10,
           organizationId,
@@ -91,7 +95,7 @@ const OrgDataSetsContainer = ({ organizationId } :Props) => {
   const toggleSearchOptions = () => setIsOpenSearchOptions(!isOpenSearchOptions);
 
   return (
-    <StackGrid gap={0}>
+    <StackGrid>
       <StackGrid gap={8}>
         <SearchForm
             onSubmit={(query :string) => dispatchDataSetSearch({ query })}
@@ -106,24 +110,28 @@ const OrgDataSetsContainer = ({ organizationId } :Props) => {
           </Flip>
         </GapGrid>
         <Collapse in={isOpenSearchOptions}>
-          <Box maxWidth={240}>
-            <Typography gutterBottom variant="subtitle1">Flags</Typography>
-            <Select
-                isClearable
-                onChange={(option :?ReactSelectOption<string>) => setFlag(option?.value)}
-                options={ES_FLAG_TYPE_RS_OPTIONS} />
-          </Box>
+          <Grid container justifyContent="flex-start" spacing={2}>
+            <Grid item xs={2}>
+              <Box>
+                <Typography gutterBottom variant="subtitle1">Data Set Types</Typography>
+                <Select
+                    isClearable
+                    onChange={(option :?ReactSelectOption<string>) => setDataSetType(option?.value)}
+                    options={DATA_SET_TYPE_RS_OPTIONS} />
+              </Box>
+            </Grid>
+            <Grid item xs={2}>
+              <Box>
+                <Typography gutterBottom variant="subtitle1">Flags</Typography>
+                <Select
+                    isClearable
+                    onChange={(option :?ReactSelectOption<string>) => setFlag(option?.value)}
+                    options={ES_FLAG_TYPE_RS_OPTIONS} />
+              </Box>
+            </Grid>
+          </Grid>
         </Collapse>
       </StackGrid>
-      {
-        !isStandby(searchOrgDataSetsRS) && (
-          <PaginationToolbar
-              count={searchTotalHits}
-              onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
-              page={searchPage}
-              rowsPerPage={MAX_HITS_10} />
-        )
-      }
       {
         isPending(searchOrgDataSetsRS) && (
           <Spinner />
@@ -146,6 +154,15 @@ const OrgDataSetsContainer = ({ organizationId } :Props) => {
               ))
             }
           </StackGrid>
+        )
+      }
+      {
+        !isStandby(searchOrgDataSetsRS) && (
+          <PaginationToolbar
+              count={searchTotalHits}
+              onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
+              page={searchPage}
+              rowsPerPage={MAX_HITS_10} />
         )
       }
     </StackGrid>

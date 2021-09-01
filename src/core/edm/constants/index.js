@@ -53,8 +53,14 @@ const ES_FLAG_TYPE_RS_OPTIONS :ReactSelectOption<EntitySetFlagType>[] = [
   { label: _capitalize(EntitySetFlagTypes.UNVERSIONED), value: EntitySetFlagTypes.UNVERSIONED },
 ];
 
+const DATA_SET_TYPE_RS_OPTIONS :ReactSelectOption<string>[] = [
+  { label: 'EntitySet', value: 'Entity Set' },
+  { label: 'ExternalTable', value: 'External Table' },
+];
+
 export {
   APPS,
+  DATA_SET_TYPE_RS_OPTIONS,
   ES_FLAG_TYPE_RS_OPTIONS,
   FQNS,
 };
