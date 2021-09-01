@@ -24,7 +24,7 @@ const { ADD_ORGANIZATIONS_TO_COLLABORATION, addOrganizationsToCollaboration } = 
 
 const RESET_ACTIONS = [ADD_ORGANIZATIONS_TO_COLLABORATION];
 
-const AddOrganizationsToCollaborationModal = ({
+const AddOrganizationsToCollaborationModalBody = ({
   collaborationId,
   onClose
 } :{
@@ -138,4 +138,4 @@ const AddOrganizationsToCollaborationModal = ({
   );
 };
 
-export default AddOrganizationsToCollaborationModal;
+export default AddOrganizationsToCollaborationModalBody;
