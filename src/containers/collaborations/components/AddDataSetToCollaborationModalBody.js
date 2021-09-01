@@ -25,6 +25,7 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../../components';
+import { DataSetTypes } from '../../../core/edm/constants';
 import { COLLABORATIONS } from '../../../core/redux/constants';
 import { selectCollaboration, selectMyKeys, selectOrganizations } from '../../../core/redux/selectors';
 import {
@@ -157,7 +158,9 @@ const AddDataSetToCollaborationModalBody = ({
             <ModalBody>
               <StackGrid gap={16}>
                 <Typography gutterBottom>Search and select data set(s) to add to this collaboration.</Typography>
-                <SearchOrgDataSetsContainer organizationId={targetOrganizationId}>
+                <SearchOrgDataSetsContainer
+                    filterByDataSetType={DataSetTypes.EXTERNAL_TABLE}
+                    organizationId={targetOrganizationId}>
                   {(dataSets :List<Map>) => (
                     <div>
                       {

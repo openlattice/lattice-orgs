@@ -52,6 +52,7 @@ import {
 } from '../../../../core/search/actions';
 import { MAX_HITS_10 } from '../../../../core/search/constants';
 import { ID } from '../../../../utils/constants';
+import type { DataSetType } from '../../../../core/edm/constants';
 import type { ReactSelectOption } from '../../../../types';
 
 const { isNonEmptyString } = LangUtils;
@@ -64,14 +65,16 @@ const {
 
 const SearchOrgDataSetsContainer = ({
   children,
+  filterByDataSetType,
   organizationId,
 } :{
   children :any;
+  filterByDataSetType ?:DataSetType;
   organizationId :UUID;
 }) => {
 
   const dispatch = useDispatch();
-  const [dataSetType, setDataSetType] = useState();
+  const [dataSetType, setDataSetType] = useState(filterByDataSetType);
   const [flag, setFlag] = useState();
   const [isOpenSearchOptions, setIsOpenSearchOptions] = useState(false);
   const [searchId, setSearchId] = useState();
@@ -143,7 +146,8 @@ const SearchOrgDataSetsContainer = ({
                 <Select
                     isClearable
                     onChange={(option :?ReactSelectOption<string>) => setDataSetType(option?.value)}
-                    options={DATA_SET_TYPE_RS_OPTIONS} />
+                    options={DATA_SET_TYPE_RS_OPTIONS}
+                    value={DATA_SET_TYPE_RS_OPTIONS.find((o) => o.value === dataSetType)} />
               </Box>
             </Grid>
             <Grid item xs={3}>
@@ -182,6 +186,10 @@ const SearchOrgDataSetsContainer = ({
       }
     </StackGrid>
   );
+};
+
+SearchOrgDataSetsContainer.defaultProps = {
+  filterByDataSetType: undefined,
 };
 
 export default SearchOrgDataSetsContainer;
