@@ -62,7 +62,7 @@ const {
   reduceRequestStates,
 } = ReduxUtils;
 
-const OrgDataSetsContainer = ({
+const SearchOrgDataSetsContainer = ({
   children,
   organizationId,
 } :{
@@ -184,4 +184,4 @@ const OrgDataSetsContainer = ({
   );
 };
 
-export default OrgDataSetsContainer;
+export default SearchOrgDataSetsContainer;
