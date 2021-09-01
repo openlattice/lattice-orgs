@@ -13,7 +13,7 @@ import {
   ModalFooter as LUKModalFooter,
   Typography
 } from 'lattice-ui-kit';
-import { useRequestState } from 'lattice-utils';
+import { useRequestState, useStepState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import { RequestStates } from 'redux-reqseq';
 import type { Principal, UUID } from 'lattice';
@@ -22,12 +22,7 @@ import type { RequestState } from 'redux-reqseq';
 import SearchOrgDataSetsContainer from '../../org/components/dataset/SearchOrgDataSetsContainer';
 import StepConfirm from '../StepConfirm';
 import StepSelectPermissions from '../StepSelectPermissions';
-import {
-  DataSetTitle,
-  ModalBody,
-  SpaceBetweenGrid,
-  StepsController,
-} from '../../../components';
+import { DataSetTitle, ModalBody, SpaceBetweenGrid } from '../../../components';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../../core/permissions/actions';
 import { resetRequestStates } from '../../../core/redux/actions';
 import { PERMISSIONS } from '../../../core/redux/constants';
@@ -56,6 +51,7 @@ const AssignPermissionsToDataSetModalBody = ({
   const dispatch = useDispatch();
 
   const [assignPermissionsToAllProperties, setAssignPermissionsToAllProperties] = useState(true);
+  const [step, stepBack, stepNext] = useStepState(3);
   const [targetDataSetIds, setTargetDataSetIds] = useState(List());
   const [targetDataSetTitles, setTargetDataSetTitles] = useState(List());
   const [targetPermissionOptions, setTargetPermissionOptions] = useState([]);
@@ -135,97 +131,91 @@ const AssignPermissionsToDataSetModalBody = ({
   };
 
   return (
-    <StepsController>
+    <>
       {
-        ({ step, stepBack, stepNext }) => (
+        step === 0 && (
           <>
-            {
-              step === 0 && (
-                <>
-                  <ModalBody>
-                    <Typography gutterBottom>Search for target data sets.</Typography>
-                    <SearchOrgDataSetsContainer organizationId={organizationId}>
-                      {(dataSets :List<Map>) => (
-                        <div>
-                          {
-                            dataSets.map((dataSet :Map) => {
-                              const id :UUID = dataSet.get(ID);
-                              const name :string = dataSet.get(NAME);
-                              const title :string = dataSet.getIn([METADATA, TITLE]);
-                              return (
-                                <CardSegment key={id} padding="8px 0">
-                                  <SpaceBetweenGrid>
-                                    <div>
-                                      <DataSetTitle dataSet={dataSet} />
-                                      <Typography variant="caption">{id}</Typography>
-                                    </div>
-                                    <Checkbox
-                                        checked={targetDataSetIds.includes(id)}
-                                        data-id={id}
-                                        data-title={title || name}
-                                        name="select-data-set"
-                                        onChange={handleOnChangeSelectDataSet} />
-                                  </SpaceBetweenGrid>
-                                </CardSegment>
-                              );
-                            })
-                          }
-                        </div>
-                      )}
-                    </SearchOrgDataSetsContainer>
-                  </ModalBody>
-                  <ModalFooter
-                      onClickPrimary={stepNext}
-                      onClickSecondary={stepBack}
-                      shouldStretchButtons
-                      textPrimary="Continue"
-                      textSecondary="" />
-                </>
-              )
-            }
-            {
-              step === 1 && (
-                <>
-                  <ModalBody>
-                    <StepSelectPermissions
-                        assignPermissionsToAllProperties={assignPermissionsToAllProperties}
-                        isDataSet={!targetDataSetIds.isEmpty()}
-                        setAssignPermissionsToAllProperties={setAssignPermissionsToAllProperties}
-                        setTargetPermissionOptions={setTargetPermissionOptions}
-                        targetTitles={targetDataSetTitles}
-                        targetPermissionOptions={targetPermissionOptions} />
-                  </ModalBody>
-                  <ModalFooter
-                      onClickPrimary={stepNext}
-                      onClickSecondary={stepBack}
-                      shouldStretchButtons
-                      textPrimary="Continue"
-                      textSecondary="Back" />
-                </>
-              )
-            }
-            {
-              step === 2 && (
-                <>
-                  <ModalBody>
-                    <StepConfirm
-                        confirmText={confirmText}
-                        requestState={assignPermissionsToDataSetRS} />
-                  </ModalBody>
-                  <ModalFooter
-                      isPendingPrimary={assignPermissionsToDataSetRS === RequestStates.PENDING}
-                      onClickPrimary={isSuccess ? onClose : onConfirm}
-                      onClickSecondary={stepBack}
-                      shouldStretchButtons
-                      textPrimary={isSuccess ? 'Close' : 'Confirm'}
-                      textSecondary={isSuccess ? '' : 'Back'} />
-                </>
-              )
-            }
+            <ModalBody>
+              <Typography gutterBottom>Search for target data sets.</Typography>
+              <SearchOrgDataSetsContainer organizationId={organizationId}>
+                {(dataSets :List<Map>) => (
+                  <div>
+                    {
+                      dataSets.map((dataSet :Map) => {
+                        const id :UUID = dataSet.get(ID);
+                        const name :string = dataSet.get(NAME);
+                        const title :string = dataSet.getIn([METADATA, TITLE]);
+                        return (
+                          <CardSegment key={id} padding="8px 0">
+                            <SpaceBetweenGrid>
+                              <div>
+                                <DataSetTitle dataSet={dataSet} />
+                                <Typography variant="caption">{id}</Typography>
+                              </div>
+                              <Checkbox
+                                  checked={targetDataSetIds.includes(id)}
+                                  data-id={id}
+                                  data-title={title || name}
+                                  name="select-data-set"
+                                  onChange={handleOnChangeSelectDataSet} />
+                            </SpaceBetweenGrid>
+                          </CardSegment>
+                        );
+                      })
+                    }
+                  </div>
+                )}
+              </SearchOrgDataSetsContainer>
+            </ModalBody>
+            <ModalFooter
+                onClickPrimary={stepNext}
+                onClickSecondary={stepBack}
+                shouldStretchButtons
+                textPrimary="Continue"
+                textSecondary="" />
           </>
         )
       }
-    </StepsController>
+      {
+        step === 1 && (
+          <>
+            <ModalBody>
+              <StepSelectPermissions
+                  assignPermissionsToAllProperties={assignPermissionsToAllProperties}
+                  isDataSet={!targetDataSetIds.isEmpty()}
+                  setAssignPermissionsToAllProperties={setAssignPermissionsToAllProperties}
+                  setTargetPermissionOptions={setTargetPermissionOptions}
+                  targetTitles={targetDataSetTitles}
+                  targetPermissionOptions={targetPermissionOptions} />
+            </ModalBody>
+            <ModalFooter
+                onClickPrimary={stepNext}
+                onClickSecondary={stepBack}
+                shouldStretchButtons
+                textPrimary="Continue"
+                textSecondary="Back" />
+          </>
+        )
+      }
+      {
+        step === 2 && (
+          <>
+            <ModalBody>
+              <StepConfirm
+                  confirmText={confirmText}
+                  requestState={assignPermissionsToDataSetRS} />
+            </ModalBody>
+            <ModalFooter
+                isPendingPrimary={assignPermissionsToDataSetRS === RequestStates.PENDING}
+                onClickPrimary={isSuccess ? onClose : onConfirm}
+                onClickSecondary={stepBack}
+                shouldStretchButtons
+                textPrimary={isSuccess ? 'Close' : 'Confirm'}
+                textSecondary={isSuccess ? '' : 'Back'} />
+          </>
+        )
+      }
+    </>
   );
 };
 
