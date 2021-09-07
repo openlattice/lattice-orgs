@@ -32,7 +32,7 @@ import { COLLABORATIONS } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
 import { ERR_INVALID_UUID } from '../../utils/constants/errors';
 
-const { GET_COLLABORATIONS, getCollaborations } = CollaborationsApiActions;
+const { GET_ALL_COLLABORATIONS, getAllCollaborations } = CollaborationsApiActions;
 
 const {
   isFailure,
@@ -58,14 +58,14 @@ const CollaborationRouter = () => {
     collaborationId = getParamFromMatch(matchCollaboration, Routes.COLLABORATION_ID_PARAM);
   }
 
-  const getCollaborationsRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS]);
+  const getAllCollaborationsRS :?RequestState = useRequestState([COLLABORATIONS, GET_ALL_COLLABORATIONS]);
   const getDataSetsInCollaborationRS :?RequestState = useRequestState([COLLABORATIONS, GET_DATA_SETS_IN_COLLABORATION]);
 
   useEffect(() => {
-    if (isStandby(getCollaborationsRS)) {
-      dispatch(getCollaborations());
+    if (isStandby(getAllCollaborationsRS)) {
+      dispatch(getAllCollaborations());
     }
-  }, [dispatch, getCollaborationsRS]);
+  }, [dispatch, getAllCollaborationsRS]);
 
   useEffect(() => {
     if (isValidUUID(collaborationId)) {
@@ -73,8 +73,8 @@ const CollaborationRouter = () => {
     }
   }, [dispatch, collaborationId]);
 
-  const collaborationsSpinner = isStandby(getCollaborationsRS) || isPending(getCollaborationsRS);
-  const collaborationSpinner = isValidUUID(collaborationId) && isSuccess(getCollaborationsRS) && (
+  const collaborationsSpinner = isStandby(getAllCollaborationsRS) || isPending(getAllCollaborationsRS);
+  const collaborationSpinner = isValidUUID(collaborationId) && isSuccess(getAllCollaborationsRS) && (
     isStandby(getDataSetsInCollaborationRS) || isPending(getDataSetsInCollaborationRS)
   );
 
@@ -86,7 +86,7 @@ const CollaborationRouter = () => {
     );
   }
 
-  if (isFailure(getCollaborationsRS) || isFailure(getDataSetsInCollaborationRS)) {
+  if (isFailure(getAllCollaborationsRS) || isFailure(getDataSetsInCollaborationRS)) {
     return (
       <AppContentWrapper>
         <BasicErrorComponent />
@@ -94,7 +94,7 @@ const CollaborationRouter = () => {
     );
   }
 
-  if (isSuccess(getCollaborationsRS)) {
+  if (isSuccess(getAllCollaborationsRS)) {
 
     const renderCollaborationContainer = () => (
       (collaborationId)
