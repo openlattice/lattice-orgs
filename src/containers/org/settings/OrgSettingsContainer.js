@@ -4,6 +4,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 
+import _endsWith from 'lodash/endsWith';
 import styled from 'styled-components';
 import {
   List,
@@ -135,9 +136,11 @@ const OrgSettingsContainer = ({
   const databaseCredential :string = get(integrationDetails, 'credential', '');
   const databaseUserName :string = get(integrationDetails, 'userName', '');
 
-  const jdbcURL = useMemo(() => (
-    `jdbc:postgresql://atlas.openlattice.com:30001/org_${organizationId.replace(/-/g, '')}`
-  ), [organizationId]);
+  const jdbcURL = useMemo(() => {
+    const { hostname } = window.location;
+    const atlas = _endsWith(hostname, 'ca.openlattice.com') ? 'atlas.ca' : 'atlas';
+    return `jdbc:postgresql://${atlas}.openlattice.com:30001/${databaseName}`;
+  }, [databaseName]);
 
   const isUnauthorized :boolean = getIntegrationDetailsError?.status === 401;
 
