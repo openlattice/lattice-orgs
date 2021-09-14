@@ -58,7 +58,7 @@ function* setPublicVisibilityWorker(action :SequenceAction) :Saga<WorkerResponse
 
     yield put(setPublicVisibility.success(action.id, acl));
     workerResponse = { data: acl };
-    yield call(getOrgObjectPermissionsWorker, getOrgObjectPermissions(fromJS([[organizationId]])));
+    yield put(getOrgObjectPermissions(fromJS([[organizationId]])));
   }
   catch (error) {
     LOG.error(action.type, error);
