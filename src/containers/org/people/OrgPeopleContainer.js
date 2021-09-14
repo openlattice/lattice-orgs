@@ -31,7 +31,7 @@ import { resetUserSearchResults } from '../../../core/users/actions';
 const { PermissionTypes } = Types;
 
 const MEMBERS_DESCRIPTION = 'People can be granted data permissions on an individual level or by an assigned role.'
-  + ' Click on a role to manage its people or datasets.';
+  + ' Click on a role to manage its people or data sets.';
 
 // HACK: Very long NestedMenuItem menus will not scroll unless the parent can also scroll.
 // force inner wrapper to always be oversized by 1px
