@@ -20,7 +20,6 @@ import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { getOrgObjectPermissions } from '../../../core/permissions/actions';
-import { getOrgObjectPermissionsWorker } from '../../../core/permissions/sagas';
 import { ERR_INVALID_UUID } from '../../../utils/constants/errors';
 import { REMOVE_PUBLIC_VISIBILITY, removePublicVisibility } from '../actions';
 import { createOrganizationVisibilityAcl } from '../utils';
