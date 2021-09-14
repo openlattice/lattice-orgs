@@ -13,8 +13,14 @@ import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Set } from 'immutable';
 // $FlowFixMe
-import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
-import { useGoToRoute, useRequestState } from 'lattice-utils';
+import {
+  IconButton,
+  ListItemSecondaryAction,
+  Menu,
+  MenuItem,
+  Switch,
+} from 'lattice-ui-kit';
+import { ReduxUtils, useGoToRoute, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -22,14 +28,24 @@ import type { RequestState } from 'redux-reqseq';
 import DeleteOrgModal from './DeleteOrgModal';
 
 import { UpdateMetaModal } from '../../../components';
-import { ORGANIZATIONS } from '../../../core/redux/constants';
-import { selectMyKeys } from '../../../core/redux/selectors';
+import { GET_ORG_OBJECT_PERMISSIONS } from '../../../core/permissions/actions';
+import { ORGANIZATIONS, PERMISSIONS } from '../../../core/redux/constants';
+import { selectMyKeys, selectPublicVisibility } from '../../../core/redux/selectors';
 import { Routes } from '../../../core/router';
 import {
   EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
   EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
 } from '../../../utils/constants';
-import { EDIT_ORGANIZATION_DETAILS, editOrganizationDetails } from '../actions';
+import {
+  EDIT_ORGANIZATION_DETAILS,
+  REMOVE_PUBLIC_VISIBILITY,
+  SET_PUBLIC_VISIBILITY,
+  editOrganizationDetails,
+  removePublicVisibility,
+  setPublicVisibility
+} from '../actions';
+
+const { isPending, reduceRequestStates } = ReduxUtils;
 
 const CLOSE_DELETE = 'CLOSE_DELETE';
 const CLOSE_DETAILS = 'CLOSE_DETAILS';
@@ -102,9 +118,13 @@ const OrgActionButton = ({
   const [schema, setSchema] = useState({ dataSchema: DATA_SCHEMA, uiSchema: UI_SCHEMA });
 
   const editOrgRS :?RequestState = useRequestState([ORGANIZATIONS, EDIT_ORGANIZATION_DETAILS]);
+  const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORG_OBJECT_PERMISSIONS]);
+  const setPublicVisibilityRS :?RequestState = useRequestState([ORGANIZATIONS, SET_PUBLIC_VISIBILITY]);
+  const removePublicVisibilityRS :?RequestState = useRequestState([ORGANIZATIONS, REMOVE_PUBLIC_VISIBILITY]);
 
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
   const isOwner :boolean = myKeys.has(List([organizationId]));
+  const publicVisibility :boolean = useSelector(selectPublicVisibility(organizationId));
   const anchorRef = useRef(null);
 
   useEffect(() => {
@@ -123,6 +143,11 @@ const OrgActionButton = ({
   const goToSettings = useGoToRoute(
     Routes.ORG_SETTINGS.replace(Routes.ORG_ID_PARAM, organizationId)
   );
+
+  const togglePublicVisibility = () => {
+    const visibilityAction = publicVisibility ? removePublicVisibility : setPublicVisibility;
+    dispatch(visibilityAction(organizationId));
+  };
 
   const handleOpenMenu = () => {
     stateDispatch({ type: OPEN_MENU });
@@ -153,6 +178,12 @@ const OrgActionButton = ({
       editOrganizationDetails({ description, organizationId, title })
     );
   };
+
+  const pendingPublicVisibility = isPending(reduceRequestStates([
+    getOrgObjectPermissionsRS,
+    setPublicVisibilityRS,
+    removePublicVisibilityRS
+  ]));
 
   return (
     <>
@@ -186,6 +217,17 @@ const OrgActionButton = ({
         </MenuItem>
         <MenuItem onClick={goToSettings}>
           Database Details
+        </MenuItem>
+        <MenuItem
+            disabled={!isOwner || pendingPublicVisibility}
+            onClick={togglePublicVisibility}>
+          <span>Public</span>
+          <ListItemSecondaryAction>
+            <Switch
+                checked={publicVisibility}
+                disabled={!isOwner || pendingPublicVisibility}
+                onChange={togglePublicVisibility} />
+          </ListItemSecondaryAction>
         </MenuItem>
         <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
           Manage Permissions

@@ -7,6 +7,7 @@ import {
   put,
   takeEvery,
 } from '@redux-saga/core/effects';
+import { fromJS } from 'immutable';
 import { Models, Types } from 'lattice';
 import {
   PermissionsApiActions,
@@ -18,6 +19,8 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { getOrgObjectPermissions } from '../../../core/permissions/actions';
+import { getOrgObjectPermissionsWorker } from '../../../core/permissions/sagas';
 import { ERR_INVALID_UUID } from '../../../utils/constants/errors';
 import { SET_PUBLIC_VISIBILITY, setPublicVisibility } from '../actions';
 import { createOrganizationVisibilityAcl } from '../utils';
@@ -55,6 +58,7 @@ function* setPublicVisibilityWorker(action :SequenceAction) :Saga<WorkerResponse
 
     yield put(setPublicVisibility.success(action.id, acl));
     workerResponse = { data: acl };
+    yield call(getOrgObjectPermissionsWorker, getOrgObjectPermissions(fromJS([[organizationId]])));
   }
   catch (error) {
     LOG.error(action.type, error);

@@ -20,9 +20,11 @@ import getOrganizationMembersReducer from './getOrganizationMembersReducer';
 import getOrganizationReducer from './getOrganizationReducer';
 import initializeOrganizationReducer from './initializeOrganizationReducer';
 import removeMemberFromOrganizationReducer from './removeMemberFromOrganizationReducer';
+import removePublicVisibilityReducer from './removePublicVisibilityReducer';
 import removeRoleFromMemberReducer from './removeRoleFromMemberReducer';
 import removeRoleFromOrganizationReducer from './removeRoleFromOrganizationReducer';
 import renameOrganizationDatabaseReducer from './renameOrganizationDatabaseReducer';
+import setPublicVisibilityReducer from './setPublicVisibilityReducer';
 
 import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
@@ -55,7 +57,9 @@ import {
   editRoleDetails,
   getOrganizationIntegrationDetails,
   initializeOrganization,
+  removePublicVisibility,
   removeRoleFromOrganization,
+  setPublicVisibility,
 } from '../actions';
 
 const {
@@ -184,6 +188,14 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case renameOrganizationDatabase.case(action.type): {
       return renameOrganizationDatabaseReducer(state, action);
+    }
+
+    case setPublicVisibility.case(action.type): {
+      return setPublicVisibilityReducer(state, action);
+    }
+
+    case removePublicVisibility.case(action.type): {
+      return removePublicVisibilityReducer(state, action);
     }
 
     default: {
