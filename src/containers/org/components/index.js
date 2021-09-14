@@ -11,3 +11,4 @@ export { default as RemoveMemberFromOrgModal } from './RemoveMemberFromOrgModal'
 export { default as RemoveRoleFromMemberModal } from './RemoveRoleFromMemberModal';
 export { default as RenameOrgDatabaseModal } from './RenameOrgDatabaseModal';
 export { default as RoleActionButton } from './RoleActionButton';
+export { default as SearchOrgDataSetsContainer } from './dataset/SearchOrgDataSetsContainer';
