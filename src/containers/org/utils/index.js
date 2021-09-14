@@ -2,6 +2,7 @@
  * @flow
  */
 
+export { default as createOrganizationVisibilityAcl } from './createOrganizationVisibilityAcl';
 export { default as filterOrganizationMember } from './filterOrganizationMember';
 export { default as generateIntegrationConfig } from './generateIntegrationConfig';
 export { default as isRoleAssignedToMember } from './isRoleAssignedToMember';
