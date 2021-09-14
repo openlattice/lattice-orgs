@@ -9,16 +9,17 @@ import React, {
   useState,
 } from 'react';
 
-import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
+import styled from 'styled-components';
+import { faEllipsisV, faInfoCircle } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Set } from 'immutable';
-// $FlowFixMe
 import {
   IconButton,
   ListItemSecondaryAction,
   Menu,
   MenuItem,
   Switch,
+  Tooltip,
 } from 'lattice-ui-kit';
 import { ReduxUtils, useGoToRoute, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -53,6 +54,12 @@ const CLOSE_MENU = 'CLOSE_MENU';
 const OPEN_DELETE = 'OPEN_DELETE';
 const OPEN_DETAILS = 'OPEN_DETAILS';
 const OPEN_MENU = 'OPEN_MENU';
+
+const PUBLIC_TOOLTIP = 'Allows the organization to be discovered by users who are not members.';
+
+const TooltipWrapper = styled.div`
+  margin-left: 4px;
+`;
 
 const INITIAL_STATE :{|
   deleteOpen :boolean;
@@ -218,17 +225,26 @@ const OrgActionButton = ({
         <MenuItem onClick={goToSettings}>
           Database Details
         </MenuItem>
-        <MenuItem
-            disabled={!isOwner || pendingPublicVisibility}
-            onClick={togglePublicVisibility}>
-          <span>Public</span>
-          <ListItemSecondaryAction>
-            <Switch
-                checked={publicVisibility}
-                disabled={!isOwner || pendingPublicVisibility}
-                onChange={togglePublicVisibility} />
-          </ListItemSecondaryAction>
-        </MenuItem>
+        {
+          isOwner && (
+            <MenuItem
+                disabled={pendingPublicVisibility}
+                onClick={togglePublicVisibility}>
+              <span>Public</span>
+              <Tooltip arrow placement="top" title={PUBLIC_TOOLTIP}>
+                <TooltipWrapper>
+                  <FontAwesomeIcon icon={faInfoCircle} fixedWidth />
+                </TooltipWrapper>
+              </Tooltip>
+              <ListItemSecondaryAction>
+                <Switch
+                    checked={publicVisibility}
+                    disabled={pendingPublicVisibility}
+                    onChange={togglePublicVisibility} />
+              </ListItemSecondaryAction>
+            </MenuItem>
+          )
+        }
         <MenuItem disabled={!isOwner} onClick={goToManagePermissions}>
           Manage Permissions
         </MenuItem>
