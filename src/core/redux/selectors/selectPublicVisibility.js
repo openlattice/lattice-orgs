@@ -20,12 +20,8 @@ export default function selectPublicVisibility(organizationId :UUID) {
     if (isValidUUID(organizationId)) {
       const orgAce = getIn(state, [PERMISSIONS, ACES, List([organizationId])], List());
       orgAce.forEach((ace) => {
-        if (ace.principal.id === AUTHENTICATED_USER) {
-          ace.permissions.forEach((permission) => {
-            if (permission === PermissionTypes.READ) {
-              isVisible = true;
-            }
-          });
+        if (ace.principal.id === AUTHENTICATED_USER && ace.permissions.includes(PermissionTypes.READ)) {
+          isVisible = true;
         }
       });
     }
