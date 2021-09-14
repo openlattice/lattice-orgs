@@ -67,7 +67,7 @@ const CollaborationsContainer = () => {
               {
                 'Collaborations are where you can view your partnerships and shared data '
                 + 'with other organizations. Click on a collaboration to start managing the '
-                + 'participating organizations or add datasets.'
+                + 'participating organizations or add data sets.'
               }
             </Typography>
           </StackGrid>
