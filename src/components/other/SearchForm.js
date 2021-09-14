@@ -6,22 +6,20 @@ import React, { useState } from 'react';
 
 import _isFunction from 'lodash/isFunction';
 import { SearchInput } from 'lattice-ui-kit';
-import { RequestStates } from 'redux-reqseq';
-import type { RequestState } from 'redux-reqseq';
 
 import { SearchButton } from '../buttons';
 import { ActionsGrid } from '../grids';
 
 const SearchForm = ({
+  isPending,
   onSubmit,
   placeholder,
   searchQuery,
-  searchRequestState,
 } :{|
+  isPending :boolean;
   onSubmit :(query :string) => void;
   placeholder ?:string;
   searchQuery ?:string;
-  searchRequestState :?RequestState;
 |}) => {
 
   const [query, setQuery] = useState(searchQuery || '');
@@ -44,7 +42,7 @@ const SearchForm = ({
         <SearchButton
             aria-label="search button"
             color="primary"
-            isPending={searchRequestState === RequestStates.PENDING}
+            isPending={isPending}
             type="submit">
           Search
         </SearchButton>
