@@ -109,7 +109,6 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
         start,
       }),
     );
-
     if (response.error) throw response.error;
 
     workerResponse = {
