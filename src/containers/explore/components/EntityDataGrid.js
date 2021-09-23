@@ -127,7 +127,7 @@ const EntityDataGrid = ({
           <InfoText>
             <Typography variant="subtitle1">See</Typography>
             <CountText variant="button">{` ${hiddenItems.length} `}</CountText>
-            <Typography variant="subtitle1">more properties used in this dataset</Typography>
+            <Typography variant="subtitle1">more properties used in this data set</Typography>
             <Flip flip={showFull}>
               <IconButton aria-label="toggle show all fields" onClick={expandFields}>
                 { downIcon }

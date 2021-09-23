@@ -27,7 +27,7 @@ const { EntitySetFlagTypes } = Types;
 const { searchDataSetMetadata } = SearchApiActions;
 const { searchDataSetMetadataWorker } = SearchApiSagas;
 const { toSagaError } = AxiosUtils;
-const { isDefined } = LangUtils;
+const { isDefined, isNonEmptyString } = LangUtils;
 
 const LOG = new Logger('SearchSagas');
 
@@ -39,12 +39,14 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
     yield put(searchOrganizationDataSets.request(action.id, action.value));
 
     const {
+      dataSetType,
       flags = [],
       maxHits = MAX_HITS_10,
       organizationId,
       query,
       start = 0,
     } :{|
+      dataSetType ?:string;
       flags ?:string[];
       maxHits ?:number;
       organizationId :UUID;
@@ -79,6 +81,14 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
             { searchTerm: `dataset.metadata.flags:${flag}` },
           ],
         });
+      });
+    }
+
+    if (isNonEmptyString(dataSetType)) {
+      constraints.push({
+        constraints: [
+          { searchTerm: `dataset.dataSetType:${dataSetType}` },
+        ],
       });
     }
 
