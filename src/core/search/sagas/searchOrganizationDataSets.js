@@ -60,11 +60,19 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
       throw new Error(ERR_MISSING_ORG);
     }
 
-    const constraints = [{
-      constraints: [{
-        searchTerm: query,
-      }],
-    }];
+    /*
+      allows for partial strings so titles that have no spaces and have not been
+      tokenized in elasticsearch as separate words are also returned in results
+    */
+    const searchQuery = (query.length > 1) ? `*${query}*` : query;
+
+    const constraints = [
+      {
+        constraints: [{
+          searchTerm: searchQuery,
+        }],
+      },
+    ];
 
     const searchFlags = flags.filter(isDefined);
     if (searchFlags.length === 0) {
@@ -101,6 +109,7 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
         start,
       }),
     );
+
     if (response.error) throw response.error;
 
     workerResponse = {
