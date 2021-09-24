@@ -36,6 +36,7 @@ export const ACCOUNT :'account' = 'account';
 export const ACES :'aces' = 'aces';
 export const APP_INSTALLS :'appInstalls' = 'appInstalls';
 export const ATLAS_CREDENTIALS :'atlasCredentials' = 'atlasCredentials';
+export const AUTHENTICATED_USER :'AuthenticatedUser' = 'AuthenticatedUser';
 export const COLLABORATIONS_BY_ORGANIZATION_ID :'collaborationsByOrganizationId' = 'collaborationsByOrganizationId';
 export const COLLABORATIONS_BY_DATA_SET_ID :'collaborationsByDataSetId' = 'collaborationsByDataSetId';
 export const COLLABORATION_DATA_SETS :'collaborationDataSets' = 'collaborationDataSets';
@@ -70,6 +71,7 @@ export const TAGS :'tags' = 'tags';
 export const TITLE :'title' = 'title';
 export const TOTAL_PERMISSIONS :'totalPermissions' = 'totalPermissions';
 export const USER_SEARCH_RESULTS :'userSearchResults' = 'userSearchResults';
+export const VISIBILITY :'visibility' = 'visibility';
 
 // TODO: does this belong here?
 export const RS_INITIAL_STATE = {
