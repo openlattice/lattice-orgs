@@ -64,7 +64,7 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
       allows for partial strings so titles that have no spaces and have not been
       tokenized in elasticsearch as separate words are also returned in results
     */
-    const searchQuery = (query !== '*') ? `*${query}*` : query;
+    const searchQuery = query.includes('*') ? query : `*${query}*`;
 
     const constraints = [
       {
