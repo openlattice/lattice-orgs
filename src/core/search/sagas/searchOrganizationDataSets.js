@@ -27,7 +27,7 @@ const { EntitySetFlagTypes } = Types;
 const { searchDataSetMetadata } = SearchApiActions;
 const { searchDataSetMetadataWorker } = SearchApiSagas;
 const { toSagaError } = AxiosUtils;
-const { isDefined } = LangUtils;
+const { isDefined, isNonEmptyString } = LangUtils;
 
 const LOG = new Logger('SearchSagas');
 
@@ -39,12 +39,14 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
     yield put(searchOrganizationDataSets.request(action.id, action.value));
 
     const {
+      dataSetType,
       flags = [],
       maxHits = MAX_HITS_10,
       organizationId,
       query,
       start = 0,
     } :{|
+      dataSetType ?:string;
       flags ?:string[];
       maxHits ?:number;
       organizationId :UUID;
@@ -58,11 +60,19 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
       throw new Error(ERR_MISSING_ORG);
     }
 
-    const constraints = [{
-      constraints: [{
-        searchTerm: query,
-      }],
-    }];
+    /*
+      allows for partial strings so titles that have no spaces and have not been
+      tokenized in elasticsearch as separate words are also returned in results
+    */
+    const searchQuery = query.includes('*') ? query : `*${query}*`;
+
+    const constraints = [
+      {
+        constraints: [{
+          searchTerm: searchQuery,
+        }],
+      },
+    ];
 
     const searchFlags = flags.filter(isDefined);
     if (searchFlags.length === 0) {
@@ -79,6 +89,14 @@ function* searchOrganizationDataSetsWorker(action :SequenceAction) :Saga<WorkerR
             { searchTerm: `dataset.metadata.flags:${flag}` },
           ],
         });
+      });
+    }
+
+    if (isNonEmptyString(dataSetType)) {
+      constraints.push({
+        constraints: [
+          { searchTerm: `dataset.dataSetType:${dataSetType}` },
+        ],
       });
     }
 

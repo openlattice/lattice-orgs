@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { Models, Types } from 'lattice';
 import { ModalFooter as LUKModalFooter } from 'lattice-ui-kit';
-import { ReduxUtils, useRequestState } from 'lattice-utils';
+import { ReduxUtils, useRequestState, useStepState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import type { Ace, Principal, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -18,7 +18,7 @@ import StepSelectRoleOrUser from './StepSelectRoleOrUser';
 
 import StepConfirm from '../StepConfirm';
 import StepSelectPermissions from '../StepSelectPermissions';
-import { ModalBody, StepsController } from '../../../components';
+import { ModalBody } from '../../../components';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
   UPDATE_PERMISSIONS,
@@ -55,6 +55,7 @@ const AssignPermissionsToObjectModalBody = ({
   const dispatch = useDispatch();
 
   const [assignPermissionsToAllProperties, setAssignPermissionsToAllProperties] = useState(true);
+  const [step, stepBack, stepNext] = useStepState(3);
   const [targetRoleOrUserPrincipleId, setRoleOrUserPrincipleId] = useState('');
   const [targetRoleOrUserPrincipleType, setTargetRoleOrUserPrincipleType] = useState('');
   const [targetRoleOrUserTitle, setTargetRoleOrUserTitle] = useState('');
@@ -113,75 +114,69 @@ const AssignPermissionsToObjectModalBody = ({
   const confirmText = `Please confirm you want to assign ${permissionsString} to "${targetRoleOrUserTitle}".`;
 
   return (
-    <StepsController>
+    <>
       {
-        ({ step, stepBack, stepNext }) => (
+        step === 0 && (
           <>
-            {
-              step === 0 && (
-                <>
-                  <ModalBody>
-                    <StepSelectRoleOrUser
-                        existingPermissions={flattenedPermissions}
-                        organizationId={organizationId}
-                        setRoleOrUserPrincipleId={setRoleOrUserPrincipleId}
-                        setTargetRoleOrUserPrincipleType={setTargetRoleOrUserPrincipleType}
-                        setTargetRoleOrUserTitle={setTargetRoleOrUserTitle}
-                        targetRoleOrUserPrincipal={targetRoleOrUserPrincipal} />
-                  </ModalBody>
-                  <ModalFooter
-                      isDisabledPrimary={!targetRoleOrUserPrincipal}
-                      onClickPrimary={stepNext}
-                      onClickSecondary={stepBack}
-                      shouldStretchButtons
-                      textPrimary="Continue"
-                      textSecondary="" />
-                </>
-              )
-            }
-            {
-              step === 1 && (
-                <>
-                  <ModalBody>
-                    <StepSelectPermissions
-                        assignPermissionsToAllProperties={assignPermissionsToAllProperties}
-                        isDataSet={isDataSet}
-                        setAssignPermissionsToAllProperties={setAssignPermissionsToAllProperties}
-                        setTargetPermissionOptions={setTargetPermissionOptions}
-                        targetTitles={List([targetRoleOrUserTitle])}
-                        targetPermissionOptions={targetPermissionOptions} />
-                  </ModalBody>
-                  <ModalFooter
-                      onClickPrimary={stepNext}
-                      onClickSecondary={stepBack}
-                      shouldStretchButtons
-                      textPrimary="Continue"
-                      textSecondary="Back" />
-                </>
-              )
-            }
-            {
-              step === 2 && (
-                <>
-                  <ModalBody>
-                    <StepConfirm
-                        requestState={assignPermissionsRS}
-                        confirmText={confirmText} />
-                  </ModalBody>
-                  <ModalFooter
-                      isPendingPrimary={updateIsPending}
-                      onClickPrimary={updateIsSuccess ? onClose : onConfirm}
-                      onClickSecondary={stepBack}
-                      shouldStretchButtons
-                      textPrimary={updateIsSuccess ? 'Close' : 'Confirm'}
-                      textSecondary={updateIsSuccess ? '' : 'Back'} />
-                </>
-              )
-            }
+            <ModalBody>
+              <StepSelectRoleOrUser
+                  existingPermissions={flattenedPermissions}
+                  organizationId={organizationId}
+                  setRoleOrUserPrincipleId={setRoleOrUserPrincipleId}
+                  setTargetRoleOrUserPrincipleType={setTargetRoleOrUserPrincipleType}
+                  setTargetRoleOrUserTitle={setTargetRoleOrUserTitle}
+                  targetRoleOrUserPrincipal={targetRoleOrUserPrincipal} />
+            </ModalBody>
+            <ModalFooter
+                isDisabledPrimary={!targetRoleOrUserPrincipal}
+                onClickPrimary={stepNext}
+                onClickSecondary={stepBack}
+                shouldStretchButtons
+                textPrimary="Continue"
+                textSecondary="" />
           </>
         )
       }
-    </StepsController>
+      {
+        step === 1 && (
+          <>
+            <ModalBody>
+              <StepSelectPermissions
+                  assignPermissionsToAllProperties={assignPermissionsToAllProperties}
+                  isDataSet={isDataSet}
+                  setAssignPermissionsToAllProperties={setAssignPermissionsToAllProperties}
+                  setTargetPermissionOptions={setTargetPermissionOptions}
+                  targetTitles={List([targetRoleOrUserTitle])}
+                  targetPermissionOptions={targetPermissionOptions} />
+            </ModalBody>
+            <ModalFooter
+                onClickPrimary={stepNext}
+                onClickSecondary={stepBack}
+                shouldStretchButtons
+                textPrimary="Continue"
+                textSecondary="Back" />
+          </>
+        )
+      }
+      {
+        step === 2 && (
+          <>
+            <ModalBody>
+              <StepConfirm
+                  requestState={assignPermissionsRS}
+                  confirmText={confirmText} />
+            </ModalBody>
+            <ModalFooter
+                isPendingPrimary={updateIsPending}
+                onClickPrimary={updateIsSuccess ? onClose : onConfirm}
+                onClickSecondary={stepBack}
+                shouldStretchButtons
+                textPrimary={updateIsSuccess ? 'Close' : 'Confirm'}
+                textSecondary={updateIsSuccess ? '' : 'Back'} />
+          </>
+        )
+      }
+    </>
   );
 };
 
