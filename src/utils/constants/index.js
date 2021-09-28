@@ -6,6 +6,7 @@ export const CONTACTS :'contacts' = 'contacts';
 export const DATA_SET_ID :'dataSetId' = 'dataSetId';
 export const DATA_TYPE :'dataType' = 'dataType';
 export const DESCRIPTION :'description' = 'description';
+export const ENTITY_TYPE_ID :'entityTypeId' = 'entityTypeId';
 export const FLAGS :'flags' = 'flags';
 export const ID :'id' = 'id';
 export const METADATA :'metadata' = 'metadata';
