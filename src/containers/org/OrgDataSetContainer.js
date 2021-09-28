@@ -147,7 +147,7 @@ const OrgDataSetContainer = ({
                   entityType && (
                     <>
                       <Typography variant="subtitle1">DATA SET TYPE</Typography>
-                      <Typography gutterBottom>{entityType.toString()}</Typography>
+                      <Typography gutterBottom>{entityType.type.toString()}</Typography>
                     </>
                   )
                 }
