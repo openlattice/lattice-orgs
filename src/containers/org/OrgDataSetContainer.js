@@ -22,7 +22,7 @@ import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { Route, Switch, useLocation } from 'react-router';
 import { Link } from 'react-router-dom';
-import type { Organization, UUID } from 'lattice';
+import type { EntityType, Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import CollaborationsParticipationContainer from './CollaborationsParticipationContainer';
@@ -44,6 +44,7 @@ import { COLLABORATIONS, TAGS } from '../../core/redux/constants';
 import {
   selectCollaborationsByDataSetId,
   selectDataSetSchema,
+  selectEntityType,
   selectOrgDataSet,
   selectOrgDataSetColumns,
   selectOrgDataSetSize,
@@ -55,6 +56,7 @@ import { clipboardWriteText, isAtlasDataSet } from '../../utils';
 import {
   CONTACTS,
   DESCRIPTION,
+  ENTITY_TYPE_ID,
   METADATA,
   NAME,
   TITLE,
@@ -93,9 +95,11 @@ const OrgDataSetContainer = ({
   const location = useLocation();
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
+  const dataSetEntityTypeId :UUID = dataSet.get(ENTITY_TYPE_ID);
   const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
   const dataSetSize :?number = useSelector(selectOrgDataSetSize(organizationId, dataSetId));
+  const entityType :?EntityType = useSelector(selectEntityType(dataSetEntityTypeId));
   const getCollabWithDataSetRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS_WITH_DATA_SETS]);
 
   const collaborationsByDataSetId = useSelector(selectCollaborationsByDataSetId(dataSetId));
@@ -137,14 +141,23 @@ const OrgDataSetContainer = ({
                 <DataSetActionButton dataSetId={dataSetId} organizationId={organizationId} />
               </SpaceBetweenGrid>
               <div>
-                <Typography variant="subtitle1">DATASET ID</Typography>
+                <Typography variant="subtitle1">DATA SET NAME</Typography>
+                <Typography gutterBottom>{name}</Typography>
+                {
+                  entityType && (
+                    <>
+                      <Typography variant="subtitle1">DATA SET TYPE</Typography>
+                      <Typography gutterBottom>{entityType.type.toString()}</Typography>
+                    </>
+                  )
+                }
+                <Typography variant="subtitle1">DATA SET ID</Typography>
                 <ActionsGrid align={{ v: 'center' }} fit>
                   <Pre>{dataSetId}</Pre>
                   <CopyButton
                       aria-label="copy organization id"
                       onClick={() => clipboardWriteText(dataSetId)} />
                 </ActionsGrid>
-                <Typography variant="subtitle1">{name}</Typography>
               </div>
               <div>
                 <CountBadge count={dataSetColumns.size} />
