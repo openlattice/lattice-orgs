@@ -99,12 +99,8 @@ const OrgDataSetContainer = ({
   const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
   const dataSetSize :?number = useSelector(selectOrgDataSetSize(organizationId, dataSetId));
-  const dataSetEntityType :?EntityType = useSelector(selectEntityType(dataSetEntityTypeId));
+  const entityType :?EntityType = useSelector(selectEntityType(dataSetEntityTypeId));
   const getCollabWithDataSetRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS_WITH_DATA_SETS]);
-
-  const entityTypeString :?string = dataSetEntityType?.type
-    ? `${dataSetEntityType?.type.namespace}.${dataSetEntityType?.type.name}`
-    : null;
 
   const collaborationsByDataSetId = useSelector(selectCollaborationsByDataSetId(dataSetId));
 
@@ -148,10 +144,10 @@ const OrgDataSetContainer = ({
                 <Typography variant="subtitle1">DATA SET NAME</Typography>
                 <Typography gutterBottom>{name}</Typography>
                 {
-                  entityTypeString && (
+                  entityType && (
                     <>
                       <Typography variant="subtitle1">DATA SET TYPE</Typography>
-                      <Typography gutterBottom>{entityTypeString}</Typography>
+                      <Typography gutterBottom>{entityType.toString()}</Typography>
                     </>
                   )
                 }
