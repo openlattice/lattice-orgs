@@ -5,9 +5,7 @@ import { faAngleDown } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Button,
-  // $FlowFixMe[missing-export]
   Menu,
-  // $FlowFixMe[missing-export]
   MenuItem,
 } from 'lattice-ui-kit';
 
@@ -15,10 +13,12 @@ const ChevronDown = <FontAwesomeIcon icon={faAngleDown} />;
 
 type Props = {
   onAddRolesClick :() => void;
+  onRemoveRolesClick :() => void;
 };
 
 const BulkActionButton = ({
-  onAddRolesClick
+  onAddRolesClick,
+  onRemoveRolesClick,
 } :Props) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
@@ -32,6 +32,11 @@ const BulkActionButton = ({
 
   const handleAddRolesClick = () => {
     onAddRolesClick();
+    handleMenuOnClose();
+  };
+
+  const handleRemoveRolesClick = () => {
+    onRemoveRolesClick();
     handleMenuOnClose();
   };
 
@@ -60,6 +65,9 @@ const BulkActionButton = ({
           }}>
         <MenuItem onClick={handleAddRolesClick}>
           Add Roles
+        </MenuItem>
+        <MenuItem onClick={handleRemoveRolesClick}>
+          Remove Roles
         </MenuItem>
       </Menu>
     </>
