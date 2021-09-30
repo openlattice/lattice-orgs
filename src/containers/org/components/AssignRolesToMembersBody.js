@@ -5,21 +5,17 @@
 import React, { useState } from 'react';
 
 import { Map } from 'immutable';
-import { ReduxUtils, useRequestState, useStepState } from 'lattice-utils';
+import { useRequestState, useStepState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import SelectRoles from './SelectRoles';
-import StyledFooter from './styled/StyledFooter';
+import BulkRoleSelectionStep from './BulkRoleSelectionStep';
+import ConfirmStepBody from './ConfirmStepBody';
 
-import StepConfirm from '../../permissions/StepConfirm';
-import { ModalBody, ResetOnUnmount } from '../../../components';
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserProfile } from '../../../utils';
 import { ASSIGN_ROLES_TO_MEMBERS, assignRolesToMembers } from '../actions';
-
-const { isPending, isSuccess } = ReduxUtils;
 
 const RESET_ACTIONS = [ASSIGN_ROLES_TO_MEMBERS];
 
@@ -40,9 +36,6 @@ const AssignRolesToMembersModalBody = ({
   const [step, stepBack, stepNext] = useStepState(2);
   const requestState :?RequestState = useRequestState([ORGANIZATIONS, ASSIGN_ROLES_TO_MEMBERS]);
   const [selectedRoles, setSelectedRoles] = useState(Map());
-
-  const pending = isPending(requestState);
-  const success = isSuccess(requestState);
 
   const handleSelectRole = (role :Role) => {
     const { id } = role;
@@ -65,48 +58,32 @@ const AssignRolesToMembersModalBody = ({
     ? (name || email)
     : `${members.size} users`;
 
-  const confirmText = `Add ${selectedRoles.size} role(s) to ${membersText}?`;
-  const successText = `${selectedRoles.size} roles were added to ${membersText}.`;
+  const confirmMessage = `Add ${selectedRoles.size} role(s) to ${membersText}?`;
+  const successMessage = `${selectedRoles.size} roles were added to ${membersText}.`;
 
   return (
     <>
       {
         step === 0 && (
-          <>
-            <ModalBody>
-              <SelectRoles
-                  members={members}
-                  onClick={handleSelectRole}
-                  roles={roles}
-                  selectedRoles={selectedRoles} />
-            </ModalBody>
-            <StyledFooter
-                isDisabledPrimary={!selectedRoles.size}
-                onClickPrimary={stepNext}
-                shouldStretchButtons
-                textPrimary="Continue" />
-          </>
+          <BulkRoleSelectionStep
+              members={members}
+              onNext={stepNext}
+              onSelectRole={handleSelectRole}
+              roles={roles}
+              selectedRoles={selectedRoles} />
         )
       }
       {
         step === 1 && (
-          <>
-            <ModalBody>
-              <ResetOnUnmount actions={RESET_ACTIONS}>
-                <StepConfirm
-                    confirmText={confirmText}
-                    requestState={requestState}
-                    successText={successText} />
-              </ResetOnUnmount>
-            </ModalBody>
-            <StyledFooter
-                isPendingPrimary={pending}
-                onClickPrimary={success ? onClose : handleSave}
-                onClickSecondary={stepBack}
-                shouldStretchButtons
-                textPrimary={success ? 'Close' : 'Save'}
-                textSecondary={success ? '' : 'Back'} />
-          </>
+          <ConfirmStepBody
+              actionText="Add"
+              actions={RESET_ACTIONS}
+              confirmMessage={confirmMessage}
+              onBack={stepBack}
+              onClose={onClose}
+              onConfirm={handleSave}
+              requestState={requestState}
+              successMessage={successMessage} />
         )
       }
     </>
