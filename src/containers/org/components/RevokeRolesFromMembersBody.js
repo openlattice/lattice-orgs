@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 
-import { Map } from 'immutable';
+import { Map, Set } from 'immutable';
 import { useRequestState, useStepState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import type { Role, UUID } from 'lattice';
@@ -15,9 +15,9 @@ import ConfirmStepBody from './ConfirmStepBody';
 
 import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { getUserProfile } from '../../../utils';
-import { ASSIGN_ROLES_TO_MEMBERS, assignRolesToMembers } from '../actions';
+import { REVOKE_ROLES_FROM_MEMBERS, revokeRolesFromMembers } from '../actions';
 
-const RESET_ACTIONS = [ASSIGN_ROLES_TO_MEMBERS];
+const RESET_ACTIONS = [REVOKE_ROLES_FROM_MEMBERS];
 
 type Props = {
   members :Map;
@@ -26,7 +26,7 @@ type Props = {
   roles :Role[];
 };
 
-const AssignRolesToMembersModalBody = ({
+const RevokeRolesFromMembersModalBody = ({
   members,
   onClose,
   organizationId,
@@ -34,19 +34,19 @@ const AssignRolesToMembersModalBody = ({
 } :Props) => {
   const dispatch = useDispatch();
   const [step, stepBack, stepNext] = useStepState(2);
-  const requestState :?RequestState = useRequestState([ORGANIZATIONS, ASSIGN_ROLES_TO_MEMBERS]);
-  const [selectedRoles, setSelectedRoles] = useState(Map());
+  const requestState :?RequestState = useRequestState([ORGANIZATIONS, REVOKE_ROLES_FROM_MEMBERS]);
+  const [selectedRoles, setSelectedRoles] = useState(Set());
 
   const handleSelectRole = (role :Role) => {
     const { id } = role;
     const newSelection = selectedRoles.has(id)
       ? selectedRoles.remove(id)
-      : selectedRoles.set(id, role);
+      : selectedRoles.add(id);
     setSelectedRoles(newSelection);
   };
 
   const handleSave = () => {
-    dispatch(assignRolesToMembers({
+    dispatch(revokeRolesFromMembers({
       organizationId,
       roles: selectedRoles,
       members,
@@ -58,8 +58,8 @@ const AssignRolesToMembersModalBody = ({
     ? (name || email)
     : `${members.size} users`;
 
-  const confirmMessage = `Add ${selectedRoles.size} role(s) to ${membersText}?`;
-  const successMessage = `${selectedRoles.size} roles were added to ${membersText}.`;
+  const confirmMessage = `Remove ${selectedRoles.size} role(s) from ${membersText}?`;
+  const successMessage = `${selectedRoles.size} roles were removed from ${membersText}.`;
 
   return (
     <>
@@ -76,7 +76,7 @@ const AssignRolesToMembersModalBody = ({
       {
         step === 1 && (
           <ConfirmStepBody
-              actionText="Add"
+              actionText="Remove"
               actions={RESET_ACTIONS}
               confirmMessage={confirmMessage}
               onBack={stepBack}
@@ -90,4 +90,4 @@ const AssignRolesToMembersModalBody = ({
   );
 };
 
-export default AssignRolesToMembersModalBody;
+export default RevokeRolesFromMembersModalBody;
