@@ -66,7 +66,7 @@ const SelectRoles = ({
   return (
     <div>
       <Typography color="textSecondary" gutterBottom>
-        {`These are all the roles you can add to ${selectedText}.`}
+        {`${selectedText} selected`}
       </Typography>
       <SearchInput
           onChange={onSearchInputChange}

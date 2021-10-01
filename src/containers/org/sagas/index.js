@@ -13,4 +13,5 @@ export * from './getOrganizationIntegrationDetails';
 export * from './initializeOrganization';
 export * from './removePublicVisibility';
 export * from './removeRoleFromOrganization';
+export * from './revokeRolesFromMembers';
 export * from './setPublicVisibility';

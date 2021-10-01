@@ -16,6 +16,9 @@ const addMembersToOrganization :RequestSequence = newRequestSequence(ADD_MEMBERS
 const ASSIGN_ROLES_TO_MEMBERS :'ASSIGN_ROLES_TO_MEMBERS' = 'ASSIGN_ROLES_TO_MEMBERS';
 const assignRolesToMembers :RequestSequence = newRequestSequence(ASSIGN_ROLES_TO_MEMBERS);
 
+const REVOKE_ROLES_FROM_MEMBERS :'REVOKE_ROLES_FROM_MEMBERS' = 'REVOKE_ROLES_FROM_MEMBERS';
+const revokeRolesFromMembers :RequestSequence = newRequestSequence(REVOKE_ROLES_FROM_MEMBERS);
+
 const CREATE_NEW_ORGANIZATION :'CREATE_NEW_ORGANIZATION' = 'CREATE_NEW_ORGANIZATION';
 const createNewOrganization :RequestSequence = newRequestSequence(CREATE_NEW_ORGANIZATION);
 
@@ -56,6 +59,7 @@ export {
   REMOVE_PUBLIC_VISIBILITY,
   REMOVE_ROLE_FROM_ORGANIZATION,
   SET_PUBLIC_VISIBILITY,
+  REVOKE_ROLES_FROM_MEMBERS,
   addMembersToOrganization,
   addRoleToOrganization,
   assignRolesToMembers,
@@ -68,4 +72,5 @@ export {
   removePublicVisibility,
   removeRoleFromOrganization,
   setPublicVisibility,
+  revokeRolesFromMembers,
 };

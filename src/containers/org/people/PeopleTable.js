@@ -29,6 +29,7 @@ import memberHasSelectedRoles from './utils/memberHasSelectedRoles';
 
 import AddMembersToOrganizationModal from '../components/AddMembersToOrganizationModal';
 import AssignRolesToMembersModal from '../components/AssignRolesToMembersModal';
+import RevokeRolesFromMembersModal from '../components/RevokeRolesFromMembersModal';
 import { selectCurrentRoleAuthorizations } from '../../../core/redux/selectors';
 import { getUserProfile } from '../../../utils';
 import {
@@ -89,6 +90,7 @@ const PeopleTable = ({
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
   const [isVisibleAddMembersToOrganizationModal, setIsVisibleAddMembersToOrganizationModal] = useState(false);
   const [isVisibleAssignRolesModal, setIsVisibleAssignRolesModal] = useState(false);
+  const [isVisibleRevokeRolesModal, setIsVisibleRevokeRolesModal] = useState(false);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
   const [targetMember, setTargetMember] = useState();
   const [targetRole, setTargetRole] = useState();
@@ -191,7 +193,9 @@ const PeopleTable = ({
               onChange={selectedMembers.size ? onDeselectAll : onSelectAll} />
           <Selection>{selectionText}</Selection>
         </MembersCheckboxWrapper>
-        <BulkActionButton onAddRolesClick={() => setIsVisibleAssignRolesModal(true)} />
+        <BulkActionButton
+            onAddRolesClick={() => setIsVisibleAssignRolesModal(true)}
+            onRemoveRolesClick={() => setIsVisibleRevokeRolesModal(true)} />
         <SearchInput onChange={handleOnChangeMemberFilterQuery} />
         <FilterButton
             filter={selectedFilters}
@@ -276,6 +280,19 @@ const PeopleTable = ({
               roles={roles}
               shouldCloseOnOutsideClick={false}
               textTitle="Add Roles"
+              withFooter={false} />
+        )
+      }
+      {
+        isOwner && (
+          <RevokeRolesFromMembersModal
+              isVisible={isVisibleRevokeRolesModal}
+              members={selectedMembers}
+              onClose={() => setIsVisibleRevokeRolesModal(false)}
+              organizationId={organizationId}
+              roles={roles}
+              shouldCloseOnOutsideClick={false}
+              textTitle="Remove Roles"
               withFooter={false} />
         )
       }

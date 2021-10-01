@@ -24,6 +24,7 @@ import removePublicVisibilityReducer from './removePublicVisibilityReducer';
 import removeRoleFromMemberReducer from './removeRoleFromMemberReducer';
 import removeRoleFromOrganizationReducer from './removeRoleFromOrganizationReducer';
 import renameOrganizationDatabaseReducer from './renameOrganizationDatabaseReducer';
+import revokeRolesFromMembersReducer from './revokeRolesFromMembersReducer';
 import setPublicVisibilityReducer from './setPublicVisibilityReducer';
 
 import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
@@ -47,6 +48,7 @@ import {
   INITIALIZE_ORGANIZATION,
   REMOVE_PUBLIC_VISIBILITY,
   REMOVE_ROLE_FROM_ORGANIZATION,
+  REVOKE_ROLES_FROM_MEMBERS,
   SET_PUBLIC_VISIBILITY,
   addMembersToOrganization,
   addRoleToOrganization,
@@ -59,6 +61,7 @@ import {
   initializeOrganization,
   removePublicVisibility,
   removeRoleFromOrganization,
+  revokeRolesFromMembers,
   setPublicVisibility,
 } from '../actions';
 
@@ -102,6 +105,7 @@ const INITIAL_STATE :Map = fromJS({
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [RENAME_ORGANIZATION_DATABASE]: RS_INITIAL_STATE,
+  [REVOKE_ROLES_FROM_MEMBERS]: RS_INITIAL_STATE,
   [SET_PUBLIC_VISIBILITY]: RS_INITIAL_STATE,
   // data
   [INTEGRATION_DETAILS]: Map(),
@@ -188,6 +192,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case renameOrganizationDatabase.case(action.type): {
       return renameOrganizationDatabaseReducer(state, action);
+    }
+
+    case revokeRolesFromMembers.case(action.type): {
+      return revokeRolesFromMembersReducer(state, action);
     }
 
     case setPublicVisibility.case(action.type): {
