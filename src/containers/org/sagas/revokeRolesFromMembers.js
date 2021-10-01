@@ -10,7 +10,7 @@ import { Map } from 'immutable';
 import { OrganizationsApiActions, OrganizationsApiSagas } from 'lattice-sagas';
 import { LangUtils, Logger, ValidationUtils } from 'lattice-utils';
 import type { Saga } from '@redux-saga/core';
-import type { Role, UUID } from 'lattice';
+import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -35,7 +35,7 @@ function* revokeRolesFromMembersWorker(action :SequenceAction) :Saga<void> {
       members,
     } :{|
       organizationId :UUID;
-      roles :Map<UUID, Role>;
+      roles :Set<UUID>;
       members :Map<string, Map>;
     |} = action.value;
 
@@ -45,13 +45,13 @@ function* revokeRolesFromMembersWorker(action :SequenceAction) :Saga<void> {
 
     const allRevokeRequests = [];
     members.forEach((member :Map, memberId :string) => {
-      roles.forEach((role :Role, roleId :UUID) => {
-        const assignment = call(removeRoleFromMemberWorker, removeRoleFromMember({
+      roles.forEach((roleId :UUID) => {
+        const revokeCall = call(removeRoleFromMemberWorker, removeRoleFromMember({
           memberId,
           organizationId,
           roleId,
         }));
-        allRevokeRequests.push(assignment);
+        allRevokeRequests.push(revokeCall);
       });
     });
 

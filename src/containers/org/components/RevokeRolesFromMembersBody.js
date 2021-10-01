@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 
-import { Map } from 'immutable';
+import { Map, Set } from 'immutable';
 import { useRequestState, useStepState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
 import type { Role, UUID } from 'lattice';
@@ -35,13 +35,13 @@ const RevokeRolesFromMembersModalBody = ({
   const dispatch = useDispatch();
   const [step, stepBack, stepNext] = useStepState(2);
   const requestState :?RequestState = useRequestState([ORGANIZATIONS, REVOKE_ROLES_FROM_MEMBERS]);
-  const [selectedRoles, setSelectedRoles] = useState(Map());
+  const [selectedRoles, setSelectedRoles] = useState(Set());
 
   const handleSelectRole = (role :Role) => {
     const { id } = role;
     const newSelection = selectedRoles.has(id)
       ? selectedRoles.remove(id)
-      : selectedRoles.set(id, role);
+      : selectedRoles.add(id);
     setSelectedRoles(newSelection);
   };
 
