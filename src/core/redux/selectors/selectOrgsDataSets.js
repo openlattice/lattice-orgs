@@ -5,7 +5,7 @@
 import { List, Map, getIn } from 'immutable';
 import type { UUID } from 'lattice';
 
-import { EDM, ORG_DATA_SETS } from '../constants';
+import { EDM, ORG_DATA_SETS } from '../../../common/constants';
 
 export default function selectOrgsDataSets(dataSetsByOrgId :Map<UUID, List<UUID>>) {
 

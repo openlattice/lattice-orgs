@@ -26,19 +26,25 @@ import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import {
+  DATA_SET_TYPE_RS_OPTIONS,
+  ES_FLAG_TYPE_RS_OPTIONS,
+  ID,
+  MAX_HITS_10,
+  PERMISSIONS,
+  SEARCH,
+} from '../../../../common/constants';
+import {
   Flip,
   GapGrid,
   SearchForm,
   Spinner,
   StackGrid,
 } from '../../../../components';
-import { DATA_SET_TYPE_RS_OPTIONS, ES_FLAG_TYPE_RS_OPTIONS } from '../../../../core/edm/constants';
 import {
   GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
   getOrgDataSetObjectPermissions,
 } from '../../../../core/permissions/actions';
 import { resetRequestStates } from '../../../../core/redux/actions';
-import { PERMISSIONS, SEARCH } from '../../../../core/redux/constants';
 import {
   selectSearchHits,
   selectSearchPage,
@@ -50,10 +56,8 @@ import {
   clearSearchState,
   searchOrganizationDataSets,
 } from '../../../../core/search/actions';
-import { MAX_HITS_10 } from '../../../../core/search/constants';
-import { ID } from '../../../../utils/constants';
-import type { DataSetType } from '../../../../core/edm/constants';
-import type { ReactSelectOption } from '../../../../types';
+import type { DataSetType } from '../../../../common/constants';
+import type { ReactSelectOption } from '../../../../common/types';
 
 const { isNonEmptyString } = LangUtils;
 const {

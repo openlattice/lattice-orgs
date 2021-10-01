@@ -6,11 +6,7 @@ import { Map, fromJS } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  ERROR,
-  REQUEST_STATE,
-  SELECTED_ENTITY_DATA
-} from '../../../core/redux/constants';
+import { ERROR, REQUEST_STATE, SELECTED_ENTITY_DATA } from '../../../common/constants';
 import { EXPLORE_ENTITY_DATA, exploreEntityData } from '../actions';
 
 export default function exploreEntityDataReducer(state :Map, action :SequenceAction) {

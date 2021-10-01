@@ -9,7 +9,10 @@ import {
   takeEvery,
 } from '@redux-saga/core/effects';
 import {
-  List, Map, Set, fromJS
+  List,
+  Map,
+  Set,
+  fromJS
 } from 'immutable';
 import { Models, Types } from 'lattice';
 import {
@@ -24,7 +27,7 @@ import type { PermissionType, Principal, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { getDataSetsKeys } from '../../../utils';
+import { getDataSetsKeys } from '../../../common/utils';
 import { selectOrgDataSets, selectOrgDataSetsColumns } from '../../redux/selectors';
 import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../actions';
 

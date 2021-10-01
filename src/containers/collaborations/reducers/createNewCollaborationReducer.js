@@ -6,11 +6,7 @@ import { Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  COLLABORATIONS,
-  ERROR,
-  REQUEST_STATE
-} from '../../../core/redux/constants';
+import { COLLABORATIONS, ERROR, REQUEST_STATE } from '../../../common/constants';
 import { CREATE_NEW_COLLABORATION, createNewCollaboration } from '../actions';
 
 export default function createNewCollaborationReducer(state :Map, action :SequenceAction) {

@@ -13,14 +13,14 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import { ModalBody, ResetOnUnmount } from '../../../components';
-import { COLLABORATIONS } from '../../../core/redux/constants';
 import {
+  COLLABORATIONS,
   ID,
   NAME,
   ORGANIZATION_ID,
-  TITLE
-} from '../../../utils/constants';
+  TITLE,
+} from '../../../common/constants';
+import { ModalBody, ResetOnUnmount } from '../../../components';
 
 const { isSuccess } = ReduxUtils;
 

@@ -7,7 +7,7 @@ import { Types } from 'lattice';
 import { ValidationUtils } from 'lattice-utils';
 import type { UUID } from 'lattice';
 
-import { ACES, AUTHENTICATED_USER, PERMISSIONS } from '../constants';
+import { ACES, AUTHENTICATED_USER, PERMISSIONS } from '../../../common/constants';
 
 const { isValidUUID } = ValidationUtils;
 const { PermissionTypes } = Types;

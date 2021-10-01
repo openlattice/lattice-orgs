@@ -7,15 +7,8 @@ import { RequestStates } from 'redux-reqseq';
 import type { Ace, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  ACES,
-  ERROR,
-  REQUEST_STATE,
-} from '../../redux/constants';
-import {
-  SET_PERMISSIONS,
-  setPermissions,
-} from '../actions';
+import { ACES, ERROR, REQUEST_STATE } from '../../../common/constants';
+import { SET_PERMISSIONS, setPermissions } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {
 

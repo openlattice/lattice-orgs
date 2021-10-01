@@ -5,7 +5,7 @@
 import { Models, Types } from 'lattice';
 import type { Principal, UUID } from 'lattice';
 
-import { AUTHENTICATED_USER } from '../../../core/redux/constants';
+import { AUTHENTICATED_USER } from '../../../common/constants';
 
 const {
   Ace,

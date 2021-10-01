@@ -7,7 +7,7 @@ import { CollaborationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { DATABASE_DETAILS, ERROR, REQUEST_STATE } from '../../../core/redux/constants';
+import { DATABASE_DETAILS, ERROR, REQUEST_STATE } from '../../../common/constants';
 
 const { GET_COLLABORATION_DATABASE_INFO, getCollaborationDatabaseInfo } = CollaborationsApiActions;
 

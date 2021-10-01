@@ -13,14 +13,14 @@ import {
 } from 'lattice-utils';
 import type { UUID } from 'lattice';
 
-import { DataSetTitle, StackGrid } from '../../../components';
-import { Routes } from '../../../core/router';
 import {
   DESCRIPTION,
   ID,
   METADATA,
   NAME,
-} from '../../../utils/constants';
+} from '../../../common/constants';
+import { DataSetTitle, StackGrid } from '../../../components';
+import { Routes } from '../../../core/router';
 
 const { isNonEmptyString } = LangUtils;
 const { isValidUUID } = ValidationUtils;

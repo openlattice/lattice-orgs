@@ -26,7 +26,6 @@ import promoteStagingTableReducer from './promoteStagingTableReducer';
 import transportOrganizationEntitySetReducer from './transportOrganizationEntitySetReducer';
 import updateOrganizationDataSetReducer from './updateOrganizationDataSetReducer';
 
-import { RESET_REQUEST_STATES } from '../../redux/actions';
 import {
   APP_INSTALLS,
   DATA_SET_SCHEMA,
@@ -40,7 +39,8 @@ import {
   PROPERTY_TYPES,
   PROPERTY_TYPES_INDEX_MAP,
   RS_INITIAL_STATE,
-} from '../../redux/constants';
+} from '../../../common/constants';
+import { RESET_REQUEST_STATES } from '../../redux/actions';
 import { resetRequestStatesReducer } from '../../redux/reducers';
 import {
   GET_EDM_TYPES,

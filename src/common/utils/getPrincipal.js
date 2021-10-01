@@ -5,7 +5,7 @@
 import { get, getIn, has } from 'immutable';
 import { Constants, Models } from 'lattice';
 
-import { PRINCIPAL, SECURABLE_PRINCIPAL_CLASS } from './constants';
+import { PRINCIPAL, SECURABLE_PRINCIPAL_CLASS } from '../constants';
 
 const { AT_CLASS } = Constants;
 const { Principal, PrincipalBuilder } = Models;
