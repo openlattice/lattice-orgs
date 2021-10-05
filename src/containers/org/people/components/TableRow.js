@@ -185,7 +185,7 @@ const TableRow = ({
                 horizontal: 'right',
                 vertical: 'top',
               }}>
-            <MenuItem onClick={handleAssignRoles}>
+            <MenuItem disabled={!isOwner} onClick={handleAssignRoles}>
               Add role
             </MenuItem>
             <MenuItem disabled={isDeleteOptionDisabled} onClick={handleRemoveMember}>
