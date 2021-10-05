@@ -29,6 +29,7 @@ import memberHasSelectedRoles from './utils/memberHasSelectedRoles';
 
 import AddMembersToOrganizationModal from '../components/AddMembersToOrganizationModal';
 import AssignRolesToMembersModal from '../components/AssignRolesToMembersModal';
+import RemoveMembersFromOrgModal from '../components/RemoveMembersFromOrgModal';
 import RevokeRolesFromMembersModal from '../components/RevokeRolesFromMembersModal';
 import { selectCurrentRoleAuthorizations } from '../../../core/redux/selectors';
 import { getUserProfile } from '../../../utils';
@@ -89,6 +90,7 @@ const PeopleTable = ({
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
   const [isVisibleAddMembersToOrganizationModal, setIsVisibleAddMembersToOrganizationModal] = useState(false);
+  const [isVisibleRemoveMembersFromOrganizationModal, setIsVisibleRemoveMembersFromOrganizationModal] = useState(false);
   const [isVisibleAssignRolesModal, setIsVisibleAssignRolesModal] = useState(false);
   const [isVisibleRevokeRolesModal, setIsVisibleRevokeRolesModal] = useState(false);
   const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
@@ -194,7 +196,9 @@ const PeopleTable = ({
           <Selection>{selectionText}</Selection>
         </MembersCheckboxWrapper>
         <BulkActionButton
+            isOwner
             onAddRolesClick={() => setIsVisibleAssignRolesModal(true)}
+            onRemoveMembersClick={() => setIsVisibleRemoveMembersFromOrganizationModal(true)}
             onRemoveRolesClick={() => setIsVisibleRevokeRolesModal(true)} />
         <SearchInput onChange={handleOnChangeMemberFilterQuery} />
         <FilterButton
@@ -294,6 +298,15 @@ const PeopleTable = ({
               shouldCloseOnOutsideClick={false}
               textTitle="Remove Roles"
               withFooter={false} />
+        )
+      }
+      {
+        isOwner && (
+          <RemoveMembersFromOrgModal
+              isVisible={isVisibleRemoveMembersFromOrganizationModal}
+              members={selectedMembers}
+              onClose={() => setIsVisibleRemoveMembersFromOrganizationModal(false)}
+              organizationId={organizationId} />
         )
       }
     </div>

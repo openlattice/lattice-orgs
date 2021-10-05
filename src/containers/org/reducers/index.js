@@ -20,6 +20,7 @@ import getOrganizationMembersReducer from './getOrganizationMembersReducer';
 import getOrganizationReducer from './getOrganizationReducer';
 import initializeOrganizationReducer from './initializeOrganizationReducer';
 import removeMemberFromOrganizationReducer from './removeMemberFromOrganizationReducer';
+import removeMembersFromOrganizationReducer from './removeMembersFromOrganizationReducer';
 import removePublicVisibilityReducer from './removePublicVisibilityReducer';
 import removeRoleFromMemberReducer from './removeRoleFromMemberReducer';
 import removeRoleFromOrganizationReducer from './removeRoleFromOrganizationReducer';
@@ -46,6 +47,7 @@ import {
   EDIT_ROLE_DETAILS,
   GET_ORGANIZATION_INTEGRATION_DETAILS,
   INITIALIZE_ORGANIZATION,
+  REMOVE_MEMBERS_FROM_ORGANIZATION,
   REMOVE_PUBLIC_VISIBILITY,
   REMOVE_ROLE_FROM_ORGANIZATION,
   REVOKE_ROLES_FROM_MEMBERS,
@@ -59,6 +61,7 @@ import {
   editRoleDetails,
   getOrganizationIntegrationDetails,
   initializeOrganization,
+  removeMembersFromOrganization,
   removePublicVisibility,
   removeRoleFromOrganization,
   revokeRolesFromMembers,
@@ -100,6 +103,7 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORGANIZATION_INTEGRATION_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION]: RS_INITIAL_STATE,
+  [REMOVE_MEMBERS_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_MEMBER_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_PUBLIC_VISIBILITY]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
@@ -180,6 +184,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case removeMemberFromOrganization.case(action.type): {
       return removeMemberFromOrganizationReducer(state, action);
+    }
+
+    case removeMembersFromOrganization.case(action.type): {
+      return removeMembersFromOrganizationReducer(state, action);
     }
 
     case removeRoleFromMember.case(action.type): {
