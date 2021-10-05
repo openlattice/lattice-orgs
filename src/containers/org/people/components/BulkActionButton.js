@@ -12,12 +12,16 @@ import {
 const ChevronDown = <FontAwesomeIcon icon={faAngleDown} />;
 
 type Props = {
+  isOwner :boolean;
   onAddRolesClick :() => void;
+  onRemoveMembersClick :() => void;
   onRemoveRolesClick :() => void;
 };
 
 const BulkActionButton = ({
+  isOwner,
   onAddRolesClick,
+  onRemoveMembersClick,
   onRemoveRolesClick,
 } :Props) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
@@ -37,6 +41,11 @@ const BulkActionButton = ({
 
   const handleRemoveRolesClick = () => {
     onRemoveRolesClick();
+    handleMenuOnClose();
+  };
+
+  const handleRemoveMembersClick = () => {
+    onRemoveMembersClick();
     handleMenuOnClose();
   };
 
@@ -63,11 +72,14 @@ const BulkActionButton = ({
             horizontal: 'right',
             vertical: 'top',
           }}>
-        <MenuItem onClick={handleAddRolesClick}>
+        <MenuItem disabled={!isOwner} onClick={handleAddRolesClick}>
           Add Roles
         </MenuItem>
-        <MenuItem onClick={handleRemoveRolesClick}>
+        <MenuItem disabled={!isOwner} onClick={handleRemoveRolesClick}>
           Remove Roles
+        </MenuItem>
+        <MenuItem disabled={!isOwner} onClick={handleRemoveMembersClick}>
+          Remove Members
         </MenuItem>
       </Menu>
     </>
