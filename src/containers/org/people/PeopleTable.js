@@ -207,6 +207,7 @@ const PeopleTable = ({
             organizationId={organizationId}
             roles={roles} />
         <Button
+            disabled={!isOwner}
             color="primary"
             onClick={handleAddMember}
             startIcon={PlusIcon}>
@@ -256,7 +257,7 @@ const PeopleTable = ({
           onClose={() => setIsVisibleRemoveMemberFromOrgModal(false)}
           organizationId={organizationId} />
       {
-        isOwner && targetRole && (
+        targetRole && (
           <RemoveRoleFromMemberModal
               isVisible={isVisibleRemoveRoleFromMemberModal}
               member={targetMember}
@@ -274,32 +275,24 @@ const PeopleTable = ({
               organizationId={organizationId} />
         )
       }
-      {
-        isOwner && (
-          <AssignRolesToMembersModal
-              isVisible={isVisibleAssignRolesModal}
-              members={selectedMembers}
-              onClose={() => setIsVisibleAssignRolesModal(false)}
-              organizationId={organizationId}
-              roles={roles}
-              shouldCloseOnOutsideClick={false}
-              textTitle="Add Roles"
-              withFooter={false} />
-        )
-      }
-      {
-        isOwner && (
-          <RevokeRolesFromMembersModal
-              isVisible={isVisibleRevokeRolesModal}
-              members={selectedMembers}
-              onClose={() => setIsVisibleRevokeRolesModal(false)}
-              organizationId={organizationId}
-              roles={roles}
-              shouldCloseOnOutsideClick={false}
-              textTitle="Remove Roles"
-              withFooter={false} />
-        )
-      }
+      <AssignRolesToMembersModal
+          isVisible={isVisibleAssignRolesModal}
+          members={selectedMembers}
+          onClose={() => setIsVisibleAssignRolesModal(false)}
+          organizationId={organizationId}
+          roles={roles}
+          shouldCloseOnOutsideClick={false}
+          textTitle="Add Roles"
+          withFooter={false} />
+      <RevokeRolesFromMembersModal
+          isVisible={isVisibleRevokeRolesModal}
+          members={selectedMembers}
+          onClose={() => setIsVisibleRevokeRolesModal(false)}
+          organizationId={organizationId}
+          roles={roles}
+          shouldCloseOnOutsideClick={false}
+          textTitle="Remove Roles"
+          withFooter={false} />
       {
         isOwner && (
           <RemoveMembersFromOrgModal

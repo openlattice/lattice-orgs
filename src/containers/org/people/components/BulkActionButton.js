@@ -72,10 +72,10 @@ const BulkActionButton = ({
             horizontal: 'right',
             vertical: 'top',
           }}>
-        <MenuItem disabled={!isOwner} onClick={handleAddRolesClick}>
+        <MenuItem onClick={handleAddRolesClick}>
           Add Roles
         </MenuItem>
-        <MenuItem disabled={!isOwner} onClick={handleRemoveRolesClick}>
+        <MenuItem onClick={handleRemoveRolesClick}>
           Remove Roles
         </MenuItem>
         <MenuItem disabled={!isOwner} onClick={handleRemoveMembersClick}>
