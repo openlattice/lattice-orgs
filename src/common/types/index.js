@@ -9,7 +9,9 @@ import type {
   UUID,
 } from 'lattice';
 
-type AuthorizationObject = {|
+import { DataSetTypes } from '../constants';
+
+export type AuthorizationObject = {|
   aclKey :UUID[];
   permissions :{
     OWNER ?:boolean;
@@ -18,17 +20,24 @@ type AuthorizationObject = {|
   };
 |};
 
-type DataSetPermissionTypeSelection = {|
+export type DataSetPermissionTypeSelection = {|
   dataSetId :UUID;
   permissionType :PermissionType;
 |};
 
-type ReactSelectOption<V> = {|
+export type DataSetType = $Values<typeof DataSetTypes>;
+
+export type DataSetTypesEnum = {|
+  ENTITY_SET :'EntitySet';
+  EXTERNAL_TABLE :'ExternalTable';
+|};
+
+export type ReactSelectOption<V> = {|
   label :string;
   value :V;
 |};
 
-type RJSFError = {
+export type RJSFError = {
   message :string;
   name :string;
   params :Object;
@@ -37,31 +46,21 @@ type RJSFError = {
   stack :string;
 };
 
-type SagaError = {
+export type SagaError = {
   message :string;
   status :number;
   statusText :string;
 };
 
-type SearchEntitySetsHit = {
+export type SearchEntitySetsHit = {
   entitySet :EntitySetObject;
   propertyTypes :PropertyTypeObject[];
 };
 
-type UserProfile = {
+export type UserProfile = {
   email :string;
   familyName :string;
   givenName :string;
   id :string;
   name :string;
-};
-
-export type {
-  AuthorizationObject,
-  DataSetPermissionTypeSelection,
-  RJSFError,
-  ReactSelectOption,
-  SagaError,
-  SearchEntitySetsHit,
-  UserProfile,
 };

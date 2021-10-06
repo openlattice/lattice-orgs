@@ -56,8 +56,7 @@ import {
   clearSearchState,
   searchOrganizationDataSets,
 } from '../../../../core/search/actions';
-import type { DataSetType } from '../../../../common/constants';
-import type { ReactSelectOption } from '../../../../common/types';
+import type { DataSetType, ReactSelectOption } from '../../../../common/types';
 
 const { isNonEmptyString } = LangUtils;
 const {
