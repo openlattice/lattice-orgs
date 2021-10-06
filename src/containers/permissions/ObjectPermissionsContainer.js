@@ -25,22 +25,22 @@ import type { RequestState } from 'redux-reqseq';
 import ObjectPermissionsCard from './ObjectPermissionsCard';
 import { AssignPermissionsToObjectModalBody } from './assign-permissions-to-object';
 
+import { MAX_HITS_10, PAGE, PERMISSIONS } from '../../common/constants';
+import { getDataSetKeys, getPrincipalTitle } from '../../common/utils';
 import { Spinner, StackGrid } from '../../components';
 import { INITIALIZE_OBJECT_PERMISSIONS, initializeObjectPermissions } from '../../core/permissions/actions';
-import { PERMISSIONS } from '../../core/redux/constants';
 import {
   selectOrgDataSet,
   selectOrgDataSetColumns,
   selectPermissionsByPrincipal,
   selectUsers,
 } from '../../core/redux/selectors';
-import { getDataSetKeys, getPrincipalTitle } from '../../utils';
-import { INITIAL_PAGINATION_STATE, PAGE, paginationReducer } from '../../utils/stateReducers/pagination';
-import type { State as PaginationState } from '../../utils/stateReducers/pagination';
 
-const { isPending, isSuccess } = ReduxUtils;
-
-const MAX_PER_PAGE = 10;
+const {
+  isPending,
+  isSuccess,
+  pagination,
+} = ReduxUtils;
 
 const ObjectPermissionsContainer = ({
   filterByPermissionTypes,
@@ -62,7 +62,7 @@ const ObjectPermissionsContainer = ({
 
   const dispatch = useDispatch();
 
-  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
+  const [paginationState, paginationDispatch] = useReducer(pagination.reducer, pagination.INITIAL_STATE);
   const { page, start } = paginationState;
 
   const initializeRS :?RequestState = useRequestState([PERMISSIONS, INITIALIZE_OBJECT_PERMISSIONS]);
@@ -117,13 +117,13 @@ const ObjectPermissionsContainer = ({
   ]);
 
   const filteredPermissionsCount :number = filteredPermissions.count();
-  const pagePermissions :Map<Principal, Map<List<UUID>, Ace>> = filteredPermissions.slice(start, start + MAX_PER_PAGE);
+  const pagePermissions :Map<Principal, Map<List<UUID>, Ace>> = filteredPermissions.slice(start, start + MAX_HITS_10);
 
   useEffect(() => {
     dispatch(initializeObjectPermissions({ isDataSet, objectKey, organizationId }));
   }, [dispatch, isDataSet, objectKey, organizationId]);
 
-  const handleOnPageChange = (state :PaginationState) => {
+  const handleOnPageChange = (state) => {
     paginationDispatch({
       page: state.page,
       start: state.start,
@@ -157,12 +157,12 @@ const ObjectPermissionsContainer = ({
         )
       }
       {
-        filteredPermissionsCount > MAX_PER_PAGE && (
+        filteredPermissionsCount > MAX_HITS_10 && (
           <PaginationToolbar
               count={filteredPermissionsCount}
               onPageChange={handleOnPageChange}
               page={page}
-              rowsPerPage={MAX_PER_PAGE} />
+              rowsPerPage={MAX_HITS_10} />
         )
       }
       <Modal

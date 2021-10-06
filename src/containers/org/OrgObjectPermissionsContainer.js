@@ -12,6 +12,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import { PERMISSIONS } from '../../common/constants';
 import {
   CrumbItem,
   CrumbLink,
@@ -21,7 +22,6 @@ import {
 } from '../../components';
 import { GET_ORG_OBJECT_PERMISSIONS, getOrgObjectPermissions } from '../../core/permissions/actions';
 import { resetRequestStates } from '../../core/redux/actions';
-import { PERMISSIONS } from '../../core/redux/constants';
 import { selectOrganization } from '../../core/redux/selectors';
 import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
 

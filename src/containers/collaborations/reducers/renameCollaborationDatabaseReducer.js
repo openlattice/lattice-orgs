@@ -10,10 +10,9 @@ import type { SequenceAction } from 'redux-reqseq';
 import {
   DATABASE_DETAILS,
   ERROR,
+  NAME,
   REQUEST_STATE,
-} from '../../../core/redux/constants';
-
-import { NAME } from '../../../utils/constants';
+} from '../../../common/constants';
 
 const { RENAME_COLLABORATION_DATABASE, renameCollaborationDatabase } = CollaborationsApiActions;
 

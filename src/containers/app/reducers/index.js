@@ -7,7 +7,7 @@ import { Map, fromJS } from 'immutable';
 import initializeApplicationReducer from './initializeApplicationReducer';
 
 import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
-import { RS_INITIAL_STATE } from '../../../core/redux/constants';
+import { RS_INITIAL_STATE } from '../../../common/constants';
 import { resetRequestStatesReducer } from '../../../core/redux/reducers';
 import { INITIALIZE_APPLICATION, initializeApplication } from '../actions';
 

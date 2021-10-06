@@ -20,20 +20,20 @@ import setPermissionsReducer from './setPermissionsReducer';
 import updatePermissionsReducer from './updatePermissionsReducer';
 
 import {
-  createNewOrganization,
-  deleteExistingOrganization,
-  initializeOrganization,
-} from '../../../containers/org/actions';
-import { initializeOrganizationDataSet } from '../../edm/actions';
-import { RESET_REQUEST_STATES } from '../../redux/actions';
-import {
   ACES,
   CURRENT,
   CURRENT_ROLE_AUTHORIZATIONS,
   DATA_SET_PERMISSIONS_PAGE,
   MY_KEYS,
   RS_INITIAL_STATE,
-} from '../../redux/constants';
+} from '../../../common/constants';
+import {
+  createNewOrganization,
+  deleteExistingOrganization,
+  initializeOrganization,
+} from '../../../containers/org/actions';
+import { initializeOrganizationDataSet } from '../../edm/actions';
+import { RESET_REQUEST_STATES } from '../../redux/actions';
 import { resetRequestStatesReducer } from '../../redux/reducers';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,

@@ -19,24 +19,24 @@ import type { RequestState } from 'redux-reqseq';
 import SearchOrgDataSetsContainer from '../../org/components/dataset/SearchOrgDataSetsContainer';
 import StyledFooter from '../../org/components/styled/StyledFooter';
 import {
+  COLLABORATIONS,
+  DataSetTypes,
+  ID,
+  METADATA,
+  NAME,
+  ORGANIZATION_IDS,
+  TITLE,
+} from '../../../common/constants';
+import {
   DataSetTitle,
   ModalBody,
   ResetOnUnmount,
   SpaceBetweenGrid,
   StackGrid,
 } from '../../../components';
-import { DataSetTypes } from '../../../core/edm/constants';
-import { COLLABORATIONS } from '../../../core/redux/constants';
 import { selectCollaboration, selectMyKeys, selectOrganizations } from '../../../core/redux/selectors';
-import {
-  ID,
-  METADATA,
-  NAME,
-  ORGANIZATION_IDS,
-  TITLE,
-} from '../../../utils/constants';
 import { ADD_DATA_SETS_TO_COLLABORATION, addDataSetsToCollaboration } from '../actions';
-import type { ReactSelectOption } from '../../../types';
+import type { ReactSelectOption } from '../../../common/types';
 
 const { isPending, isStandby, isSuccess } = ReduxUtils;
 

@@ -26,8 +26,8 @@ import type { UserInfo } from 'lattice-auth';
 import RoleChipsList from './RoleChipsList';
 
 import AssignRolesToMembersModal from '../../components/AssignRolesToMembersModal';
+import { getSecurablePrincipalId, getUserProfile } from '../../../../common/utils';
 import { Routes } from '../../../../core/router';
-import { getSecurablePrincipalId, getUserProfile } from '../../../../utils';
 
 const { NEUTRAL } = Colors;
 

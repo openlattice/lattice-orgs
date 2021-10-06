@@ -17,6 +17,7 @@ import {
   PaginationToolbar,
   SearchInput,
 } from 'lattice-ui-kit';
+import { ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 
@@ -31,18 +32,14 @@ import AddMembersToOrganizationModal from '../components/AddMembersToOrganizatio
 import AssignRolesToMembersModal from '../components/AssignRolesToMembersModal';
 import RemoveMembersFromOrgModal from '../components/RemoveMembersFromOrgModal';
 import RevokeRolesFromMembersModal from '../components/RevokeRolesFromMembersModal';
+import { FILTER, PAGE } from '../../../common/constants';
+import { getUserProfile } from '../../../common/utils';
 import { selectCurrentRoleAuthorizations } from '../../../core/redux/selectors';
-import { getUserProfile } from '../../../utils';
-import {
-  FILTER,
-  INITIAL_PAGINATION_STATE,
-  PAGE,
-  paginationReducer
-} from '../../../utils/stateReducers/pagination';
 import { RemoveMemberFromOrgModal, RemoveRoleFromMemberModal } from '../components';
 import { filterOrganizationMember } from '../utils';
 
 const { NEUTRAL } = Colors;
+const { pagination } = ReduxUtils;
 
 const TableToolbar = styled.div`
   align-items: center;
@@ -93,7 +90,7 @@ const PeopleTable = ({
   const [isVisibleRemoveMembersFromOrganizationModal, setIsVisibleRemoveMembersFromOrganizationModal] = useState(false);
   const [isVisibleAssignRolesModal, setIsVisibleAssignRolesModal] = useState(false);
   const [isVisibleRevokeRolesModal, setIsVisibleRevokeRolesModal] = useState(false);
-  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
+  const [paginationState, paginationDispatch] = useReducer(pagination.reducer, pagination.INITIAL_STATE);
   const [targetMember, setTargetMember] = useState();
   const [targetRole, setTargetRole] = useState();
   const [selectedFilters, setSelectedFilters] = useState(Map({

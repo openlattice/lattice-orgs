@@ -8,8 +8,14 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { DATA_SET_ID, ID, ORGANIZATION_ID } from '../../../utils/constants';
-import { ERROR, ORG_DATA_SET_COLUMNS, REQUEST_STATE } from '../../redux/constants';
+import {
+  DATA_SET_ID,
+  ERROR,
+  ID,
+  ORGANIZATION_ID,
+  ORG_DATA_SET_COLUMNS,
+  REQUEST_STATE,
+} from '../../../common/constants';
 
 const { GET_DATA_SET_COLUMNS_METADATA, getDataSetColumnsMetadata } = DataSetMetadataApiActions;
 

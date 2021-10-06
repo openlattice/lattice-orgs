@@ -16,6 +16,7 @@ import {
   RemoveDataSetFromCollaborationModal
 } from './components';
 
+import { DESCRIPTION, ID, TITLE } from '../../common/constants';
 import {
   GapGrid,
   PlusButton,
@@ -28,11 +29,6 @@ import {
   selectOrganizations,
   selectOrgsDataSets
 } from '../../core/redux/selectors';
-import {
-  DESCRIPTION,
-  ID,
-  TITLE
-} from '../../utils/constants';
 
 const CollaborationsContainer = ({
   collaborationId,

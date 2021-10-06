@@ -17,7 +17,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody, ResetOnUnmount } from '../../../components';
 import { resetRequestStates } from '../../../core/redux/actions';
-import { ORGANIZATIONS } from '../../../core/redux/constants';
+import { ORGANIZATIONS } from '../../../common/constants';
 import { DELETE_EXISTING_ORGANIZATION, deleteExistingOrganization } from '../actions';
 
 const {

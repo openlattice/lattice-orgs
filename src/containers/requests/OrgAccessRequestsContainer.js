@@ -11,8 +11,8 @@ import { useSelector } from 'react-redux';
 import { Redirect, useRouteMatch } from 'react-router';
 import type { Organization, UUID } from 'lattice';
 
+import { APPS } from '../../common/constants';
 import { CrumbItem, CrumbLink, Crumbs } from '../../components';
-import { APPS } from '../../core/edm/constants';
 import { selectIsAppInstalled, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 

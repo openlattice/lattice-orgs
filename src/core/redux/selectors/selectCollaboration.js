@@ -6,7 +6,7 @@ import { List, Map, getIn } from 'immutable';
 import { ValidationUtils } from 'lattice-utils';
 import type { UUID } from 'lattice';
 
-import { COLLABORATIONS } from '../constants';
+import { COLLABORATIONS } from '../../../common/constants';
 
 const { isValidUUID } = ValidationUtils;
 

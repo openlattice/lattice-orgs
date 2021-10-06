@@ -9,15 +9,14 @@ import { applyMiddleware, compose, createStore } from 'redux';
 
 import reduxReducer from './ReduxReducer';
 
+import sagas from '../sagas/Sagas';
 import {
   EDM,
   ENTITY_TYPES,
   ENTITY_TYPES_INDEX_MAP,
   PROPERTY_TYPES,
   PROPERTY_TYPES_INDEX_MAP
-} from './constants';
-
-import sagas from '../sagas/Sagas';
+} from '../../common/constants';
 
 const HIDDEN = 'HIDDEN';
 

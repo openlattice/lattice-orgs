@@ -16,12 +16,9 @@ import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import EntityDataContainer from '../EntityDataContainer';
+import { EXPLORE } from '../../../common/constants';
 import { ModalBody } from '../../../components';
-import { EXPLORE } from '../../../core/redux/constants';
-import {
-  EXPLORE_ENTITY_DATA,
-  EXPLORE_ENTITY_NEIGHBORS
-} from '../actions';
+import { EXPLORE_ENTITY_DATA, EXPLORE_ENTITY_NEIGHBORS } from '../actions';
 
 const { NEUTRAL } = Colors;
 const { isPending, reduceRequestStates } = ReduxUtils;

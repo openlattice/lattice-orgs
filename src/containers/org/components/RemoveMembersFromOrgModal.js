@@ -15,8 +15,8 @@ import type { UUID } from 'lattice';
 import type { UserInfo } from 'lattice-auth';
 import type { RequestState } from 'redux-reqseq';
 
+import { ORGANIZATIONS } from '../../../common/constants';
 import { ModalBody, ResetOnUnmount } from '../../../components';
-import { ORGANIZATIONS } from '../../../core/redux/constants';
 import { REMOVE_MEMBERS_FROM_ORGANIZATION, removeMembersFromOrganization } from '../actions';
 
 const { getUserId } = PersonUtils;

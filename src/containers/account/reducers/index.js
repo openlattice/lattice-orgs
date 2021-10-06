@@ -9,7 +9,7 @@ import clearAtlasCredentialsReducer from './clearAtlasCredentialsReducer';
 import getAtlasCredentialsReducer from './getAtlasCredentialsReducer';
 import regenerateCredentialReducer from './regenerateCredentialReducer';
 
-import { ATLAS_CREDENTIALS, RS_INITIAL_STATE } from '../../../core/redux/constants';
+import { ATLAS_CREDENTIALS, RS_INITIAL_STATE } from '../../../common/constants';
 import { CLEAR_ATLAS_CREDENTIALS } from '../actions';
 
 const {

@@ -13,12 +13,14 @@ import {
   SearchInput,
   Typography,
 } from 'lattice-ui-kit';
+import { ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import type { Organization, Role, UUID } from 'lattice';
 
 import { AddRoleToOrgModal } from './components';
 
+import { FILTER, MAX_HITS_20, PAGE } from '../../common/constants';
 import {
   ActionsGrid,
   CrumbItem,
@@ -29,14 +31,8 @@ import {
 } from '../../components';
 import { selectMyKeys, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-import {
-  FILTER,
-  INITIAL_PAGINATION_STATE,
-  PAGE,
-  paginationReducer,
-} from '../../utils/stateReducers/pagination';
 
-const MAX_PER_PAGE = 20;
+const { pagination } = ReduxUtils;
 
 const RoleLink = styled(Link)`
   color: inherit;
@@ -57,7 +53,7 @@ const OrgRolesContainer = ({
 |}) => {
 
   const [isVisibleAddRoleToOrgModal, setIsVisibleAddRoleToOrgModal] = useState(false);
-  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
+  const [paginationState, paginationDispatch] = useReducer(pagination.reducer, pagination.INITIAL_STATE);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
@@ -72,7 +68,7 @@ const OrgRolesContainer = ({
       ));
     }
 
-    const pageRoles = filteredRoles.slice(paginationState.start, paginationState.start + MAX_PER_PAGE);
+    const pageRoles = filteredRoles.slice(paginationState.start, paginationState.start + MAX_HITS_20);
 
     const handleOnChangeFilterQuery = (event :SyntheticInputEvent<HTMLInputElement>) => {
       paginationDispatch({ type: FILTER, query: event.target.value || '' });
@@ -107,12 +103,12 @@ const OrgRolesContainer = ({
           </ActionsGrid>
           <div>
             {
-              filteredRoles.length > MAX_PER_PAGE && (
+              filteredRoles.length > MAX_HITS_20 && (
                 <PaginationToolbar
                     count={filteredRoles.length}
                     onPageChange={handleOnPageChange}
                     page={paginationState.page}
-                    rowsPerPage={MAX_PER_PAGE} />
+                    rowsPerPage={MAX_HITS_20} />
               )
             }
             {

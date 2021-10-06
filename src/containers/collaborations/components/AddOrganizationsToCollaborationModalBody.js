@@ -11,11 +11,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import StyledFooter from '../../org/components/styled/StyledFooter';
 import SelectOrganizationsToAddToCollaboration from './SelectOrganizationsToAddToCollaboration';
+
+import StyledFooter from '../../org/components/styled/StyledFooter';
+import { COLLABORATIONS, ORGANIZATION_IDS } from '../../../common/constants';
 import { ModalBody, ResetOnUnmount } from '../../../components';
-import { COLLABORATIONS } from '../../../core/redux/constants';
-import { ORGANIZATION_IDS } from '../../../utils/constants';
 import { selectCollaboration, selectOrganizations } from '../../../core/redux/selectors';
 
 const { isPending, isFailure, isSuccess } = ReduxUtils;

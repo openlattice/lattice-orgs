@@ -12,9 +12,9 @@ import { RequestStates } from 'redux-reqseq';
 import type { Role, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import { ORGANIZATIONS } from '../../../common/constants';
+import { getUserTitle } from '../../../common/utils';
 import { ModalBody, ResetOnUnmount } from '../../../components';
-import { ORGANIZATIONS } from '../../../core/redux/constants';
-import { getUserTitle } from '../../../utils';
 
 const { getUserId } = PersonUtils;
 
