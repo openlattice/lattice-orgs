@@ -6,7 +6,7 @@ import { Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { REQUEST_STATE } from '../../../core/redux/constants';
+import { REQUEST_STATE } from '../../../common/constants';
 import { REMOVE_MEMBERS_FROM_ORGANIZATION, removeMembersFromOrganization } from '../actions';
 
 export default function removeMembersFromOrganizationReducer(state :Map, action :SequenceAction) {
