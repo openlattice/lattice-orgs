@@ -13,7 +13,7 @@ import {
   ERROR,
   INTEGRATION_DETAILS,
   REQUEST_STATE
-} from '../../../core/redux/constants';
+} from '../../../common/constants';
 
 const { RENAME_ORGANIZATION_DATABASE, renameOrganizationDatabase } = OrganizationsApiActions;
 

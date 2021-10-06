@@ -28,15 +28,16 @@ import type { RequestState } from 'redux-reqseq';
 
 import DeleteOrgModal from './DeleteOrgModal';
 
-import { UpdateMetaModal } from '../../../components';
-import { GET_ORG_OBJECT_PERMISSIONS } from '../../../core/permissions/actions';
-import { ORGANIZATIONS, PERMISSIONS } from '../../../core/redux/constants';
-import { selectMyKeys, selectPublicVisibility } from '../../../core/redux/selectors';
-import { Routes } from '../../../core/router';
 import {
   EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
   EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
-} from '../../../utils/constants';
+  ORGANIZATIONS,
+  PERMISSIONS,
+} from '../../../common/constants';
+import { UpdateMetaModal } from '../../../components';
+import { GET_ORG_OBJECT_PERMISSIONS } from '../../../core/permissions/actions';
+import { selectMyKeys, selectPublicVisibility } from '../../../core/redux/selectors';
+import { Routes } from '../../../core/router';
 import {
   EDIT_ORGANIZATION_DETAILS,
   REMOVE_PUBLIC_VISIBILITY,

@@ -15,7 +15,7 @@ import {
   MEMBERS,
   ORGANIZATIONS,
   REQUEST_STATE,
-} from '../../../core/redux/constants';
+} from '../../../common/constants';
 
 const { OrganizationBuilder } = Models;
 const { REMOVE_MEMBER_FROM_ORGANIZATION, removeMemberFromOrganization } = OrganizationsApiActions;

@@ -1,11 +1,13 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React, { useState } from 'react';
 
 import debounce from 'lodash/debounce';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
 import {
-  // $FlowFixMe[missing-export]
   List as LUKList,
   SearchInput,
   Typography,
@@ -16,11 +18,11 @@ import type { Role } from 'lattice';
 
 import RoleListItem from './RoleListItem';
 
+import { PERMISSIONS } from '../../../common/constants';
+import { getUserProfile } from '../../../common/utils';
 import { Spinner } from '../../../components';
 import { GET_CURRENT_ROLE_AUTHORIZATIONS } from '../../../core/permissions/actions';
-import { PERMISSIONS } from '../../../core/redux/constants';
 import { selectCurrentRoleAuthorizations } from '../../../core/redux/selectors';
-import { getUserProfile } from '../../../utils';
 
 const { isSuccess } = ReduxUtils;
 const { PermissionTypes } = Types;

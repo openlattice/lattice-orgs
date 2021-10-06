@@ -6,6 +6,16 @@ import { connectRouter } from 'connected-react-router/immutable';
 import { AuthReducer } from 'lattice-auth';
 import { combineReducers } from 'redux-immutable';
 
+import AccountReducer from '../../containers/account/reducers';
+import AppReducer from '../../containers/app/reducers';
+import CollaborationsReducer from '../../containers/collaborations/reducers';
+import DataReducer from '../data/reducers';
+import EDMReducer from '../edm/reducers';
+import ExploreReducer from '../../containers/explore/reducers';
+import OrgsReducer from '../../containers/org/reducers';
+import PermissionsReducer from '../permissions/reducers';
+import SearchReducer from '../search/reducers';
+import UsersReducer from '../users/reducers';
 import {
   ACCOUNT,
   APP,
@@ -18,18 +28,7 @@ import {
   PERMISSIONS,
   SEARCH,
   USERS,
-} from './constants';
-
-import AccountReducer from '../../containers/account/reducers';
-import AppReducer from '../../containers/app/reducers';
-import CollaborationsReducer from '../../containers/collaborations/reducers';
-import DataReducer from '../data/reducers';
-import EDMReducer from '../edm/reducers';
-import ExploreReducer from '../../containers/explore/reducers';
-import OrgsReducer from '../../containers/org/reducers';
-import PermissionsReducer from '../permissions/reducers';
-import SearchReducer from '../search/reducers';
-import UsersReducer from '../users/reducers';
+} from '../../common/constants';
 
 export default function reduxReducer(routerHistory :any) {
 

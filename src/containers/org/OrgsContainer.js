@@ -11,11 +11,13 @@ import {
   SearchInput,
   Typography,
 } from 'lattice-ui-kit';
+import { ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
 import { CreateOrgModal } from './components';
 
+import { FILTER, MAX_HITS_10, PAGE } from '../../common/constants';
 import {
   ActionsGrid,
   PlusButton,
@@ -23,19 +25,13 @@ import {
   StackGrid,
 } from '../../components';
 import { selectOrganizations } from '../../core/redux/selectors';
-import {
-  FILTER,
-  INITIAL_PAGINATION_STATE,
-  PAGE,
-  paginationReducer,
-} from '../../utils/stateReducers/pagination';
 
-const MAX_PER_PAGE = 10;
+const { pagination } = ReduxUtils;
 
 const OrgsContainer = () => {
 
   const [isVisibleAddOrgModal, setIsVisibleCreateOrgModal] = useState(false);
-  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
+  const [paginationState, paginationDispatch] = useReducer(pagination.reducer, pagination.INITIAL_STATE);
 
   const organizations :Map<UUID, Organization> = useSelector(selectOrganizations());
   const filteredOrganizations = organizations.filter((org :Organization, orgId :UUID) => (
@@ -44,7 +40,7 @@ const OrgsContainer = () => {
   const filteredOrganizationsCount = filteredOrganizations.count();
   const pageOrganizations :Map<UUID, Organization> = filteredOrganizations.slice(
     paginationState.start,
-    paginationState.start + MAX_PER_PAGE,
+    paginationState.start + MAX_HITS_10,
   );
 
   const handleOnChangeOrgFilter = (event :SyntheticInputEvent<HTMLInputElement>) => {
@@ -74,12 +70,12 @@ const OrgsContainer = () => {
               !pageOrganizations.isEmpty() && (
                 <>
                   {
-                    filteredOrganizationsCount > MAX_PER_PAGE && (
+                    filteredOrganizationsCount > MAX_HITS_10 && (
                       <PaginationToolbar
                           page={paginationState.page}
                           count={filteredOrganizationsCount}
                           onPageChange={handleOnPageChange}
-                          rowsPerPage={MAX_PER_PAGE} />
+                          rowsPerPage={MAX_HITS_10} />
                     )
                   }
                   {

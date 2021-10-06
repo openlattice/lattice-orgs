@@ -6,7 +6,6 @@ import React, { useCallback, useState } from 'react';
 
 import { Map } from 'immutable';
 import {
-  // $FlowFixMe[missing-export]
   List as LUKList,
   Typography,
 } from 'lattice-ui-kit';
@@ -21,11 +20,11 @@ import SearchMemberBar from './SearchMemberBar';
 import StyledFooter from './styled/StyledFooter';
 
 import StepConfirm from '../../permissions/StepConfirm';
+import { ORGANIZATIONS } from '../../../common/constants';
+import { getUserProfile } from '../../../common/utils';
 import { ModalBody, ResetOnUnmount } from '../../../components';
-import { ORGANIZATIONS } from '../../../core/redux/constants';
-import { getUserProfile } from '../../../utils';
 import { ADD_MEMBERS_TO_ORGANIZATION, addMembersToOrganization } from '../actions';
-import type { ReactSelectOption } from '../../../types';
+import type { ReactSelectOption } from '../../../common/types';
 
 const { isPending, isSuccess } = ReduxUtils;
 

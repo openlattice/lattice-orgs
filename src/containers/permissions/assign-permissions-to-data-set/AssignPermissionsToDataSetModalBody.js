@@ -22,17 +22,17 @@ import type { RequestState } from 'redux-reqseq';
 import SearchOrgDataSetsContainer from '../../org/components/dataset/SearchOrgDataSetsContainer';
 import StepConfirm from '../StepConfirm';
 import StepSelectPermissions from '../StepSelectPermissions';
-import { DataSetTitle, ModalBody, SpaceBetweenGrid } from '../../../components';
-import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../../core/permissions/actions';
-import { resetRequestStates } from '../../../core/redux/actions';
-import { PERMISSIONS } from '../../../core/redux/constants';
-import { SEARCH_ORGANIZATION_DATA_SETS, clearSearchState } from '../../../core/search/actions';
 import {
   ID,
   METADATA,
   NAME,
+  PERMISSIONS,
   TITLE,
-} from '../../../utils/constants';
+} from '../../../common/constants';
+import { DataSetTitle, ModalBody, SpaceBetweenGrid } from '../../../components';
+import { ASSIGN_PERMISSIONS_TO_DATA_SET, assignPermissionsToDataSet } from '../../../core/permissions/actions';
+import { resetRequestStates } from '../../../core/redux/actions';
+import { SEARCH_ORGANIZATION_DATA_SETS, clearSearchState } from '../../../core/search/actions';
 
 const ModalFooter = styled(LUKModalFooter)`
   padding: 30px 0;

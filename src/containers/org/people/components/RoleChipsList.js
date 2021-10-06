@@ -1,18 +1,20 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React, { useRef, useState } from 'react';
 
 import styled from 'styled-components';
 import { List, Map } from 'immutable';
 import { Types } from 'lattice';
-// $FlowFixMe[missing-export]
 import { Chip } from 'lattice-ui-kit';
 import type { Role, UUID } from 'lattice';
 
-import MemberRoleChip from '../../MemberRoleChip';
 import RoleOverflowPopover from './RoleOverflowPopover';
 import usePriorityVisibility from './usePriorityVisibility';
 
-import { getUserProfile } from '../../../../utils';
+import MemberRoleChip from '../../MemberRoleChip';
+import { getUserProfile } from '../../../../common/utils';
 
 const { PermissionTypes } = Types;
 

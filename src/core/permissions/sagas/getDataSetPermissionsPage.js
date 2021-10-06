@@ -26,13 +26,14 @@ import type { SequenceAction } from 'redux-reqseq';
 import { getPermissionsWorker } from './getPermissions';
 
 import {
+  ERR_MISSING_ORG,
   FLAGS,
   ID,
   METADATA,
+  PAGE_PERMISSIONS_BY_DATA_SET,
   TITLE,
-} from '../../../utils/constants';
-import { ERR_MISSING_ORG } from '../../../utils/constants/errors';
-import { PAGE_PERMISSIONS_BY_DATA_SET, TOTAL_PERMISSIONS } from '../../redux/constants';
+  TOTAL_PERMISSIONS,
+} from '../../../common/constants';
 import {
   selectOrgDataSets,
   selectOrgDataSetsColumns,

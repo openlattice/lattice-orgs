@@ -19,7 +19,6 @@ import removeDataSetFromCollaborationReducer from './removeDataSetFromCollaborat
 import removeOrganizationsFromCollaborationReducer from './removeOrganizationsFromCollaborationReducer';
 import renameCollaborationDatabaseReducer from './renameCollaborationDatabaseReducer';
 
-import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
   COLLABORATIONS,
   COLLABORATIONS_BY_DATA_SET_ID,
@@ -27,7 +26,8 @@ import {
   COLLABORATION_DATA_SETS,
   DATABASE_DETAILS,
   RS_INITIAL_STATE,
-} from '../../../core/redux/constants';
+} from '../../../common/constants';
+import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import { resetRequestStatesReducer } from '../../../core/redux/reducers';
 import {
   ADD_DATA_SETS_TO_COLLABORATION,

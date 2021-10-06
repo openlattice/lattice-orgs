@@ -9,10 +9,10 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import {
   COLLABORATIONS,
-  ORGANIZATION_IDS,
   ERROR,
-  REQUEST_STATE
-} from '../../../core/redux/constants';
+  ORGANIZATION_IDS,
+  REQUEST_STATE,
+} from '../../../common/constants';
 
 const { ADD_ORGANIZATIONS_TO_COLLABORATION, addOrganizationsToCollaboration } = CollaborationsApiActions;
 

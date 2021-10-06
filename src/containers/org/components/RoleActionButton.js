@@ -12,7 +12,6 @@ import React, {
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Set } from 'immutable';
-// $FlowFixMe
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { useGoToRoute, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -21,14 +20,14 @@ import type { RequestState } from 'redux-reqseq';
 
 import RemoveRoleFromOrgModal from './RemoveRoleFromOrgModal';
 
-import { UpdateMetaModal } from '../../../components';
-import { ORGANIZATIONS } from '../../../core/redux/constants';
-import { selectMyKeys } from '../../../core/redux/selectors';
-import { Routes } from '../../../core/router';
 import {
   EDIT_TITLE_DESCRIPTION_DATA_SCHEMA as DATA_SCHEMA,
   EDIT_TITLE_DESCRIPTION_UI_SCHEMA as UI_SCHEMA,
-} from '../../../utils/constants';
+  ORGANIZATIONS,
+} from '../../../common/constants';
+import { UpdateMetaModal } from '../../../components';
+import { selectMyKeys } from '../../../core/redux/selectors';
+import { Routes } from '../../../core/router';
 import { EDIT_ROLE_DETAILS, editRoleDetails } from '../actions';
 
 const CLOSE_DETAILS = 'CLOSE_DETAILS';

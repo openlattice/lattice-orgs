@@ -22,8 +22,7 @@ import {
 import { useBoolean } from 'lattice-utils';
 import type { PermissionType } from 'lattice';
 
-import { PERMISSION_TYPE_RS_OPTIONS } from './constants';
-
+import { ES_FLAG_TYPE_RS_OPTIONS, PERMISSION_TYPE_RS_OPTIONS } from '../../common/constants';
 import {
   ActionsGrid,
   Flip,
@@ -31,9 +30,8 @@ import {
   PlusButton,
   StackGrid,
 } from '../../components';
-import { ES_FLAG_TYPE_RS_OPTIONS } from '../../core/edm/constants';
+import type { ReactSelectOption } from '../../common/types';
 import type { ActionsGridProps } from '../../components';
-import type { ReactSelectOption } from '../../types';
 
 const StyledActionsGrid :ComponentType<ActionsGridProps> = styled(ActionsGrid)`
   grid-template-columns: 2fr minmax(200px, 1fr) auto;

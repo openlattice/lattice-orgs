@@ -31,6 +31,17 @@ import DataSetDataContainer from './DataSetDataContainer';
 import DataSetMetadataContainer from './DataSetMetadataContainer';
 
 import {
+  COLLABORATIONS,
+  CONTACTS,
+  DESCRIPTION,
+  ENTITY_TYPE_ID,
+  METADATA,
+  NAME,
+  TAGS,
+  TITLE
+} from '../../common/constants';
+import { clipboardWriteText, isEntitySet } from '../../common/utils';
+import {
   ActionsGrid,
   CopyButton,
   CrumbItem,
@@ -40,7 +51,6 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
-import { COLLABORATIONS, TAGS } from '../../core/redux/constants';
 import {
   selectCollaborationsByDataSetId,
   selectDataSetSchema,
@@ -52,15 +62,6 @@ import {
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { ORG_DATA_SET_COLLABORATIONS } from '../../core/router/Routes';
-import { clipboardWriteText, isAtlasDataSet } from '../../utils';
-import {
-  CONTACTS,
-  DESCRIPTION,
-  ENTITY_TYPE_ID,
-  METADATA,
-  NAME,
-  TITLE,
-} from '../../utils/constants';
 
 const { BLUE } = Colors;
 const { isDefined, isNonEmptyString } = LangUtils;
@@ -163,7 +164,7 @@ const OrgDataSetContainer = ({
                 <CountBadge count={dataSetColumns.size} />
                 <Label subtle>Data Fields</Label>
                 {
-                  isDefined(dataSetSize) && !isAtlasDataSet(dataSet) && (
+                  isDefined(dataSetSize) && isEntitySet(dataSet) && (
                     <>
                       <CountBadge count={dataSetSize} max={1000000} />
                       <Label subtle>Records</Label>
