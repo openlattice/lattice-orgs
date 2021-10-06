@@ -5,7 +5,7 @@
 import { Map, getIn } from 'immutable';
 import type { UUID } from 'lattice';
 
-import { COLLABORATIONS } from '../constants';
+import { COLLABORATIONS } from '../../../common/constants';
 
 export default function selectUsersCollaborations() {
 

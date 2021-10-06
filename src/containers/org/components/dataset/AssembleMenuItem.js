@@ -1,8 +1,10 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React from 'react';
 
 import { OrganizationsApiActions } from 'lattice-sagas';
-// $FlowFixMe
 import { MenuItem } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
@@ -11,7 +13,7 @@ import type { RequestState } from 'redux-reqseq';
 
 import AssembleMenuItemContent from './AssembleMenuItemContent';
 
-import { EDM } from '../../../../core/redux/constants';
+import { EDM } from '../../../../common/constants';
 
 const { isPending, reduceRequestStates } = ReduxUtils;
 const {

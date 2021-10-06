@@ -19,8 +19,8 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { getPermissionsWorker } from './getPermissions';
 
-import { getDataSetKeys } from '../../../utils';
-import { ERR_INVALID_UUID } from '../../../utils/constants/errors';
+import { ERR_INVALID_UUID } from '../../../common/constants';
+import { getDataSetKeys } from '../../../common/utils';
 import { selectOrgDataSet, selectOrgDataSetColumns, selectPermissionsByPrincipal } from '../../redux/selectors';
 import { INITIALIZE_OBJECT_PERMISSIONS, getPermissions, initializeObjectPermissions } from '../actions';
 

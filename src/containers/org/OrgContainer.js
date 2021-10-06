@@ -34,19 +34,19 @@ import { DataSetSearchResultCard, OrgActionButton, SearchOrgDataSetsContainer } 
 
 import { BadgeCheckIcon } from '../../assets';
 import {
+  APPS,
+  COLLABORATIONS,
+  ORGANIZATIONS,
+  PERMISSIONS,
+} from '../../common/constants';
+import {
   CrumbLink,
   GapGrid,
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
-import { APPS } from '../../core/edm/constants';
 import { GET_ORG_OBJECT_PERMISSIONS, getOrgObjectPermissions } from '../../core/permissions/actions';
 import { resetRequestStates } from '../../core/redux/actions';
-import {
-  COLLABORATIONS,
-  ORGANIZATIONS,
-  PERMISSIONS,
-} from '../../core/redux/constants';
 import {
   selectCollaborationsByOrgId,
   selectIsAppInstalled,

@@ -20,6 +20,13 @@ import {
 import { EntityDataGrid } from './components';
 
 import {
+  EXPLORE,
+  METADATA,
+  NAME,
+  TITLE,
+} from '../../common/constants';
+import { clipboardWriteText } from '../../common/utils';
+import {
   CrumbItem,
   CrumbLink,
   Crumbs,
@@ -28,7 +35,6 @@ import {
   Spinner,
   StackGrid,
 } from '../../components';
-import { EXPLORE } from '../../core/redux/constants';
 import {
   selectEntityNeighborsMap,
   selectOrgDataSet,
@@ -36,8 +42,6 @@ import {
   selectSelectedEntityData
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-import { clipboardWriteText } from '../../utils';
-import { METADATA, NAME, TITLE } from '../../utils/constants';
 
 const { isPending } = ReduxUtils;
 

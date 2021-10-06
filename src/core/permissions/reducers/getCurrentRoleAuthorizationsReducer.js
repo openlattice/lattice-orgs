@@ -6,15 +6,8 @@ import { Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  CURRENT_ROLE_AUTHORIZATIONS,
-  ERROR,
-  REQUEST_STATE,
-} from '../../redux/constants';
-import {
-  GET_CURRENT_ROLE_AUTHORIZATIONS,
-  getCurrentRoleAuthorizations,
-} from '../actions';
+import { CURRENT_ROLE_AUTHORIZATIONS, ERROR, REQUEST_STATE } from '../../../common/constants';
+import { GET_CURRENT_ROLE_AUTHORIZATIONS, getCurrentRoleAuthorizations } from '../actions';
 
 export default function getCurrentRoleAuthorizationsReducer(state :Map, action :SequenceAction) {
 

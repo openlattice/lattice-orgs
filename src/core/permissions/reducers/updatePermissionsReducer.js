@@ -4,22 +4,11 @@
 
 import { List, Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
-import type {
-  Ace,
-  ActionType,
-  UUID,
-} from 'lattice';
+import type { Ace, ActionType, UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  ACES,
-  ERROR,
-  REQUEST_STATE,
-} from '../../redux/constants';
-import {
-  UPDATE_PERMISSIONS,
-  updatePermissions,
-} from '../actions';
+import { ACES, ERROR, REQUEST_STATE } from '../../../common/constants';
+import { UPDATE_PERMISSIONS, updatePermissions } from '../actions';
 import { updatePermissionsInState } from '../utils';
 
 export default function reducer(state :Map, action :SequenceAction) {

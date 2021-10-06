@@ -7,12 +7,12 @@ import { OrganizationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { OPENLATTICE } from '../../../utils/constants';
 import {
   DATA_SET_SCHEMA,
   ERROR,
+  OPENLATTICE,
   REQUEST_STATE,
-} from '../../redux/constants';
+} from '../../../common/constants';
 
 const { PROMOTE_STAGING_TABLE, promoteStagingTable } = OrganizationsApiActions;
 

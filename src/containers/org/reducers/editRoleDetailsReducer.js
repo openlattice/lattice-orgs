@@ -7,7 +7,7 @@ import { Models } from 'lattice';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { ERROR, ORGANIZATIONS, REQUEST_STATE } from '../../../core/redux/constants';
+import { ERROR, ORGANIZATIONS, REQUEST_STATE } from '../../../common/constants';
 import { EDIT_ROLE_DETAILS, editRoleDetails } from '../actions';
 
 const {

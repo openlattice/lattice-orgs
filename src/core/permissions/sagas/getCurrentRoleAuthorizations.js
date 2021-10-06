@@ -17,7 +17,7 @@ import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
 import { GET_CURRENT_ROLE_AUTHORIZATIONS, getCurrentRoleAuthorizations } from '../actions';
-import type { AuthorizationObject } from '../../../types';
+import type { AuthorizationObject } from '../../../common/types';
 
 const { AccessCheck, AccessCheckBuilder } = Models;
 const { getAuthorizations } = AuthorizationsApiActions;

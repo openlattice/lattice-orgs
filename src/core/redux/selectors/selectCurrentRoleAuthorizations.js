@@ -7,7 +7,7 @@ import {
   getIn
 } from 'immutable';
 
-import { CURRENT_ROLE_AUTHORIZATIONS, PERMISSIONS } from '../constants';
+import { CURRENT_ROLE_AUTHORIZATIONS, PERMISSIONS } from '../../../common/constants';
 
 export default function selectCurrentRoleAuthorizations() {
 

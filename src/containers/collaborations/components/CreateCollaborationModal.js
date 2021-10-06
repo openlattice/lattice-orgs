@@ -22,10 +22,10 @@ import type { RequestState } from 'redux-reqseq';
 
 import { ModalBody, StackGrid } from '../../../components';
 import { resetRequestStates } from '../../../core/redux/actions';
-import { COLLABORATIONS, ERROR } from '../../../core/redux/constants';
+import { COLLABORATIONS, ERROR } from '../../../common/constants';
 import { selectOrganizations } from '../../../core/redux/selectors';
 import { CREATE_NEW_COLLABORATION, createNewCollaboration } from '../actions';
-import type { ReactSelectOption } from '../../../types';
+import type { ReactSelectOption } from '../../../common/types';
 
 const { isNonEmptyString } = LangUtils;
 

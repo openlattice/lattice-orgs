@@ -12,8 +12,8 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
+import { ORGANIZATIONS } from '../../../common/constants';
 import { ModalBody, ResetOnUnmount, StackGrid } from '../../../components';
-import { ORGANIZATIONS } from '../../../core/redux/constants';
 
 const { RENAME_ORGANIZATION_DATABASE, renameOrganizationDatabase } = OrganizationsApiActions;
 

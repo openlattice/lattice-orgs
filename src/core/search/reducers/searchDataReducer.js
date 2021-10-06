@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { Map, List } from 'immutable';
+import { List, Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
@@ -13,7 +13,7 @@ import {
   QUERY,
   REQUEST_STATE,
   TOTAL_HITS,
-} from '../../redux/constants';
+} from '../../../common/constants';
 import {
   SEARCH_DATA,
   searchData,

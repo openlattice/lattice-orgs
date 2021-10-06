@@ -13,8 +13,8 @@ import type { RequestState } from 'redux-reqseq';
 import BulkRoleSelectionStep from './BulkRoleSelectionStep';
 import ConfirmStepBody from './ConfirmStepBody';
 
-import { ORGANIZATIONS } from '../../../core/redux/constants';
-import { getUserProfile } from '../../../utils';
+import { ORGANIZATIONS } from '../../../common/constants';
+import { getUserProfile } from '../../../common/utils';
 import { ASSIGN_ROLES_TO_MEMBERS, assignRolesToMembers } from '../actions';
 
 const RESET_ACTIONS = [ASSIGN_ROLES_TO_MEMBERS];

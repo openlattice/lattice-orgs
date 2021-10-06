@@ -9,7 +9,7 @@ import {
 } from 'immutable';
 import type { PermissionType } from 'lattice';
 
-import { CURRENT, PERMISSIONS } from '../constants';
+import { CURRENT, PERMISSIONS } from '../../../common/constants';
 
 export default function selectCurrentAuthorization(acl :List, permission :PermissionType) {
 

@@ -8,13 +8,11 @@ import { Map } from 'immutable';
 import { AuthUtils } from 'lattice-auth';
 import { PrincipalsApiActions } from 'lattice-sagas';
 import {
-  // $FlowFixMe
   Alert,
   AppContentWrapper,
   Input,
-  // $FlowFixMe
   Snackbar,
-  Typography
+  Typography,
 } from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
@@ -23,6 +21,8 @@ import type { RequestState } from 'redux-reqseq';
 
 import { clearAtlasCredentials } from './actions';
 
+import { ACCOUNT } from '../../common/constants';
+import { clipboardWriteText } from '../../common/utils';
 import {
   ActionsGrid,
   CopyButton,
@@ -30,9 +30,7 @@ import {
   RefreshButton,
   StackGrid,
 } from '../../components';
-import { ACCOUNT } from '../../core/redux/constants';
 import { selectAtlasCredentials } from '../../core/redux/selectors';
-import { clipboardWriteText } from '../../utils';
 
 const REGENERATE_SUCCESS = 'Atlas credential successfully regenerated.';
 const REGENERATE_FAILURE = 'Atlas credential failed to regenerate.';

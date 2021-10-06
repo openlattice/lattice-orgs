@@ -8,7 +8,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { COLLABORATIONS, ERROR, REQUEST_STATE } from '../../../core/redux/constants';
+import { COLLABORATIONS, ERROR, REQUEST_STATE } from '../../../common/constants';
 
 const { GET_COLLABORATIONS, getCollaborations } = CollaborationsApiActions;
 
