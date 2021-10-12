@@ -68,6 +68,7 @@ export const ORDERED_PERMISSIONS = [
   PermissionTypes.OWNER,
   PermissionTypes.READ,
   PermissionTypes.WRITE,
+  PermissionTypes.INTEGRATE,
   PermissionTypes.LINK,
   PermissionTypes.MATERIALIZE,
 ];

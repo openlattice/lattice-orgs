@@ -26,6 +26,7 @@ export const PERMISSION_TYPE_RS_OPTIONS :ReactSelectOption<PermissionType>[] = [
   { label: _capitalize(PermissionTypes.OWNER), value: PermissionTypes.OWNER },
   { label: _capitalize(PermissionTypes.READ), value: PermissionTypes.READ },
   { label: _capitalize(PermissionTypes.WRITE), value: PermissionTypes.WRITE },
+  { label: _capitalize(PermissionTypes.INTEGRATE), value: PermissionTypes.INTEGRATE },
   { label: _capitalize(PermissionTypes.LINK), value: PermissionTypes.LINK },
   { label: _capitalize(PermissionTypes.MATERIALIZE), value: PermissionTypes.MATERIALIZE },
 ];
