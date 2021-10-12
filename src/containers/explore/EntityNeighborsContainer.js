@@ -15,13 +15,13 @@ import type { RequestState } from 'redux-reqseq';
 import EntityNeighborsTable from './EntityNeighborsTable';
 import { EXPLORE_ENTITY_NEIGHBORS } from './actions';
 
+import { EXPLORE } from '../../common/constants';
 import {
   CrumbSeparator,
   DataSetTitle,
   Spinner,
   StackGrid,
 } from '../../components';
-import { EXPLORE } from '../../core/redux/constants';
 import { selectOrgDataSets } from '../../core/redux/selectors';
 
 const { isPending } = ReduxUtils;

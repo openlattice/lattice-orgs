@@ -8,8 +8,8 @@ import { Typography } from 'lattice-ui-kit';
 import type { Map } from 'immutable';
 
 import { AtlasDataSetIcon, EntitySetIcon } from '../../assets/svg/icons';
-import { isAtlasDataSet } from '../../utils';
-import { METADATA, NAME, TITLE } from '../../utils/constants';
+import { METADATA, NAME, TITLE } from '../../common/constants';
+import { isEntitySet } from '../../common/utils';
 import { GapGrid } from '../grids';
 
 const DataSetTitle = ({
@@ -23,9 +23,9 @@ const DataSetTitle = ({
 }) => (
   <GapGrid gap={8}>
     {
-      isAtlasDataSet(dataSet)
-        ? <AtlasDataSetIcon />
-        : <EntitySetIcon />
+      isEntitySet(dataSet)
+        ? <EntitySetIcon />
+        : <AtlasDataSetIcon />
     }
     <Typography component={component} variant={variant}>
       {

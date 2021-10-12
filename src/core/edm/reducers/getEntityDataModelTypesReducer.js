@@ -21,7 +21,7 @@ import {
   PROPERTY_TYPES,
   PROPERTY_TYPES_INDEX_MAP,
   REQUEST_STATE,
-} from '../../redux/constants';
+} from '../../../common/constants';
 import {
   GET_EDM_TYPES,
   getEntityDataModelTypes,

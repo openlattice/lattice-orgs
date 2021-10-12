@@ -27,10 +27,9 @@ import CollaborationContainer from './CollaborationContainer';
 import CollaborationsContainer from './CollaborationsContainer';
 import { GET_DATA_SETS_IN_COLLABORATION, getDataSetsInCollaboration } from './actions';
 
+import { COLLABORATIONS, ERR_INVALID_UUID } from '../../common/constants';
 import { BasicErrorComponent, Spinner } from '../../components';
-import { COLLABORATIONS } from '../../core/redux/constants';
 import { Routes } from '../../core/router';
-import { ERR_INVALID_UUID } from '../../utils/constants/errors';
 
 const { GET_COLLABORATIONS, getCollaborations } = CollaborationsApiActions;
 

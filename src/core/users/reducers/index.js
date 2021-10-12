@@ -13,7 +13,7 @@ import {
   RS_INITIAL_STATE,
   USERS,
   USER_SEARCH_RESULTS,
-} from '../../redux/constants';
+} from '../../../common/constants';
 import {
   RESET_USER_SEARCH_RESULTS,
   SEARCH_ALL_USERS,

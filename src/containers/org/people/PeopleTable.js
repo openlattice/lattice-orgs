@@ -17,6 +17,7 @@ import {
   PaginationToolbar,
   SearchInput,
 } from 'lattice-ui-kit';
+import { ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { Role, UUID } from 'lattice';
 
@@ -29,19 +30,16 @@ import memberHasSelectedRoles from './utils/memberHasSelectedRoles';
 
 import AddMembersToOrganizationModal from '../components/AddMembersToOrganizationModal';
 import AssignRolesToMembersModal from '../components/AssignRolesToMembersModal';
+import RemoveMembersFromOrgModal from '../components/RemoveMembersFromOrgModal';
 import RevokeRolesFromMembersModal from '../components/RevokeRolesFromMembersModal';
+import { FILTER, PAGE } from '../../../common/constants';
+import { getUserProfile } from '../../../common/utils';
 import { selectCurrentRoleAuthorizations } from '../../../core/redux/selectors';
-import { getUserProfile } from '../../../utils';
-import {
-  FILTER,
-  INITIAL_PAGINATION_STATE,
-  PAGE,
-  paginationReducer
-} from '../../../utils/stateReducers/pagination';
 import { RemoveMemberFromOrgModal, RemoveRoleFromMemberModal } from '../components';
 import { filterOrganizationMember } from '../utils';
 
 const { NEUTRAL } = Colors;
+const { pagination } = ReduxUtils;
 
 const TableToolbar = styled.div`
   align-items: center;
@@ -89,9 +87,10 @@ const PeopleTable = ({
   const [isVisibleRemoveMemberFromOrgModal, setIsVisibleRemoveMemberFromOrgModal] = useState(false);
   const [isVisibleRemoveRoleFromMemberModal, setIsVisibleRemoveRoleFromMemberModal] = useState(false);
   const [isVisibleAddMembersToOrganizationModal, setIsVisibleAddMembersToOrganizationModal] = useState(false);
+  const [isVisibleRemoveMembersFromOrganizationModal, setIsVisibleRemoveMembersFromOrganizationModal] = useState(false);
   const [isVisibleAssignRolesModal, setIsVisibleAssignRolesModal] = useState(false);
   const [isVisibleRevokeRolesModal, setIsVisibleRevokeRolesModal] = useState(false);
-  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
+  const [paginationState, paginationDispatch] = useReducer(pagination.reducer, pagination.INITIAL_STATE);
   const [targetMember, setTargetMember] = useState();
   const [targetRole, setTargetRole] = useState();
   const [selectedFilters, setSelectedFilters] = useState(Map({
@@ -194,7 +193,9 @@ const PeopleTable = ({
           <Selection>{selectionText}</Selection>
         </MembersCheckboxWrapper>
         <BulkActionButton
+            isOwner
             onAddRolesClick={() => setIsVisibleAssignRolesModal(true)}
+            onRemoveMembersClick={() => setIsVisibleRemoveMembersFromOrganizationModal(true)}
             onRemoveRolesClick={() => setIsVisibleRevokeRolesModal(true)} />
         <SearchInput onChange={handleOnChangeMemberFilterQuery} />
         <FilterButton
@@ -203,6 +204,7 @@ const PeopleTable = ({
             organizationId={organizationId}
             roles={roles} />
         <Button
+            disabled={!isOwner}
             color="primary"
             onClick={handleAddMember}
             startIcon={PlusIcon}>
@@ -252,7 +254,7 @@ const PeopleTable = ({
           onClose={() => setIsVisibleRemoveMemberFromOrgModal(false)}
           organizationId={organizationId} />
       {
-        isOwner && targetRole && (
+        targetRole && (
           <RemoveRoleFromMemberModal
               isVisible={isVisibleRemoveRoleFromMemberModal}
               member={targetMember}
@@ -270,30 +272,31 @@ const PeopleTable = ({
               organizationId={organizationId} />
         )
       }
+      <AssignRolesToMembersModal
+          isVisible={isVisibleAssignRolesModal}
+          members={selectedMembers}
+          onClose={() => setIsVisibleAssignRolesModal(false)}
+          organizationId={organizationId}
+          roles={roles}
+          shouldCloseOnOutsideClick={false}
+          textTitle="Add Roles"
+          withFooter={false} />
+      <RevokeRolesFromMembersModal
+          isVisible={isVisibleRevokeRolesModal}
+          members={selectedMembers}
+          onClose={() => setIsVisibleRevokeRolesModal(false)}
+          organizationId={organizationId}
+          roles={roles}
+          shouldCloseOnOutsideClick={false}
+          textTitle="Remove Roles"
+          withFooter={false} />
       {
         isOwner && (
-          <AssignRolesToMembersModal
-              isVisible={isVisibleAssignRolesModal}
+          <RemoveMembersFromOrgModal
+              isVisible={isVisibleRemoveMembersFromOrganizationModal}
               members={selectedMembers}
-              onClose={() => setIsVisibleAssignRolesModal(false)}
-              organizationId={organizationId}
-              roles={roles}
-              shouldCloseOnOutsideClick={false}
-              textTitle="Add Roles"
-              withFooter={false} />
-        )
-      }
-      {
-        isOwner && (
-          <RevokeRolesFromMembersModal
-              isVisible={isVisibleRevokeRolesModal}
-              members={selectedMembers}
-              onClose={() => setIsVisibleRevokeRolesModal(false)}
-              organizationId={organizationId}
-              roles={roles}
-              shouldCloseOnOutsideClick={false}
-              textTitle="Remove Roles"
-              withFooter={false} />
+              onClose={() => setIsVisibleRemoveMembersFromOrganizationModal(false)}
+              organizationId={organizationId} />
         )
       }
     </div>

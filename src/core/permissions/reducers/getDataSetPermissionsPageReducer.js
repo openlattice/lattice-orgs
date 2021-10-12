@@ -6,7 +6,7 @@ import { Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { DATA_SET_PERMISSIONS_PAGE, ERROR, REQUEST_STATE } from '../../redux/constants';
+import { DATA_SET_PERMISSIONS_PAGE, ERROR, REQUEST_STATE } from '../../../common/constants';
 import { GET_DATA_SET_PERMISSIONS_PAGE, getDataSetPermissionsPage } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {

@@ -6,7 +6,7 @@ import { Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { REQUEST_STATE } from '../../../core/redux/constants';
+import { REQUEST_STATE } from '../../../common/constants';
 import { REVOKE_ROLES_FROM_MEMBERS, revokeRolesFromMembers } from '../actions';
 
 export default function revokeRolesFromMembersReducer(state :Map, action :SequenceAction) {

@@ -7,10 +7,7 @@ import { PrincipalsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  REQUEST_STATE,
-  USERS,
-} from '../../redux/constants';
+import { REQUEST_STATE, USERS } from '../../../common/constants';
 
 const {
   GET_USERS,

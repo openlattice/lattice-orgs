@@ -2,22 +2,6 @@
  * @flow
  */
 
-export const CONTACTS :'contacts' = 'contacts';
-export const DATA_SET_ID :'dataSetId' = 'dataSetId';
-export const DATA_TYPE :'dataType' = 'dataType';
-export const DESCRIPTION :'description' = 'description';
-export const ENTITY_TYPE_ID :'entityTypeId' = 'entityTypeId';
-export const FLAGS :'flags' = 'flags';
-export const ID :'id' = 'id';
-export const METADATA :'metadata' = 'metadata';
-export const NAME :'name' = 'name';
-export const OPENLATTICE :'openlattice' = 'openlattice';
-export const ORGANIZATION_ID :'organizationId' = 'organizationId';
-export const ORGANIZATION_IDS :'organizationIds' = 'organizationIds';
-export const PRINCIPAL :'principal' = 'principal';
-export const SECURABLE_PRINCIPAL_CLASS = 'com.openlattice.authorization.SecurablePrincipal';
-export const TITLE :'title' = 'title';
-
 export const EDIT_TITLE_DESCRIPTION_DATA_SCHEMA = {
   properties: {
     fields: {
@@ -95,12 +79,8 @@ const LAW_FLAGS = [
 ];
 
 export const EDIT_TITLE_DESCRIPTION_TAGS_DATA_SCHEMA = {
-  type: 'object',
-  title: '',
   properties: {
     fields: {
-      type: 'object',
-      title: '',
       properties: {
         title: {
           type: 'string',
@@ -122,9 +102,12 @@ export const EDIT_TITLE_DESCRIPTION_TAGS_DATA_SCHEMA = {
         },
       },
       required: ['title', 'description'],
+      title: '',
+      type: 'object',
     },
   },
-
+  title: '',
+  type: 'object',
 };
 
 export const EDIT_TITLE_DESCRIPTION_TAGS_UI_SCHEMA = {

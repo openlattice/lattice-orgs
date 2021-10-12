@@ -9,6 +9,7 @@ import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
 
+import { METADATA, NAME, TITLE } from '../../common/constants';
 import {
   CrumbItem,
   CrumbLink,
@@ -19,7 +20,6 @@ import {
 import { GET_ORG_DATA_SET_OBJECT_PERMISSIONS } from '../../core/permissions/actions';
 import { resetRequestStates } from '../../core/redux/actions';
 import { selectOrgDataSet, selectOrganization } from '../../core/redux/selectors';
-import { METADATA, NAME, TITLE } from '../../utils/constants';
 import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
 
 const OrgDataSetObjectPermissionsContainer = ({

@@ -18,6 +18,8 @@ import StepSelectRoleOrUser from './StepSelectRoleOrUser';
 
 import StepConfirm from '../StepConfirm';
 import StepSelectPermissions from '../StepSelectPermissions';
+import { PERMISSIONS } from '../../../common/constants';
+import { getPrincipal } from '../../../common/utils';
 import { ModalBody } from '../../../components';
 import {
   ASSIGN_PERMISSIONS_TO_DATA_SET,
@@ -26,8 +28,6 @@ import {
   updatePermissions
 } from '../../../core/permissions/actions';
 import { resetRequestStates } from '../../../core/redux/actions';
-import { PERMISSIONS } from '../../../core/redux/constants';
-import { getPrincipal } from '../../../utils';
 
 const { AceBuilder } = Models;
 const { ActionTypes } = Types;

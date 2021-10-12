@@ -29,7 +29,7 @@ import { INITIALIZE_APPLICATION, initializeApplication } from './actions';
 
 import { OpenLatticeIconSVG } from '../../assets/svg/icons';
 import { BasicErrorComponent } from '../../components';
-import { APP } from '../../core/redux/constants';
+import { APP } from '../../common/constants';
 import { Routes } from '../../core/router';
 import { AccountContainer } from '../account';
 import { OrgRouter, OrgsContainer } from '../org';

@@ -11,42 +11,38 @@ import {
   SearchInput,
   Typography,
 } from 'lattice-ui-kit';
+import { ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
 
 import { CreateCollaborationModal } from './components';
 
+import { FILTER, MAX_HITS_10, PAGE } from '../../common/constants';
 import {
   ActionsGrid,
   PlusButton,
   SimpleCollaborationCard,
   StackGrid,
 } from '../../components';
-import {
-  selectUsersCollaborations
-} from '../../core/redux/selectors';
-import {
-  FILTER,
-  INITIAL_PAGINATION_STATE,
-  PAGE,
-  paginationReducer,
-} from '../../utils/stateReducers/pagination';
+import { selectUsersCollaborations } from '../../core/redux/selectors';
 
-const MAX_PER_PAGE = 10;
+const { pagination } = ReduxUtils;
 
 const CollaborationsContainer = () => {
 
   const [isVisibleAddCollaborationModal, setIsVisibleCreateCollaborationModal] = useState(false);
-  const [paginationState, paginationDispatch] = useReducer(paginationReducer, INITIAL_PAGINATION_STATE);
+  const [paginationState, paginationDispatch] = useReducer(pagination.reducer, pagination.INITIAL_STATE);
   const collaborations :Map<UUID, Map> = useSelector(selectUsersCollaborations());
   const filteredCollaborations = collaborations.filter((collaboration :Map, collaborationId :UUID) => (
-    collaboration && (collaborationId.includes(paginationState.query)
-      || get(collaboration, 'title', '').toLowerCase().includes(paginationState.query.toLowerCase()))
+    collaboration && (
+      collaborationId.includes(paginationState.query)
+      || get(collaboration, 'title', '').toLowerCase().includes(paginationState.query.toLowerCase())
+    )
   ));
   const filteredCollaborationsCount = filteredCollaborations.count();
   const pageCollaborations :Map<UUID, Map> = filteredCollaborations.slice(
     paginationState.start,
-    paginationState.start + MAX_PER_PAGE,
+    paginationState.start + MAX_HITS_10,
   );
 
   const handleOnChangeCollaborationFilter = (event :SyntheticInputEvent<HTMLInputElement>) => {
@@ -90,12 +86,12 @@ const CollaborationsContainer = () => {
               !pageCollaborations.isEmpty() && (
                 <>
                   {
-                    filteredCollaborationsCount > MAX_PER_PAGE && (
+                    filteredCollaborationsCount > MAX_HITS_10 && (
                       <PaginationToolbar
                           count={filteredCollaborationsCount}
                           onPageChange={handleOnPageChange}
                           page={paginationState.page}
-                          rowsPerPage={MAX_PER_PAGE} />
+                          rowsPerPage={MAX_HITS_10} />
                     )
                   }
                   {

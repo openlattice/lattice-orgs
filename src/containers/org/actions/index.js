@@ -46,6 +46,9 @@ const setPublicVisibility :RequestSequence = newRequestSequence(SET_PUBLIC_VISIB
 const REMOVE_PUBLIC_VISIBILITY :'REMOVE_PUBLIC_VISIBILITY' = 'REMOVE_PUBLIC_VISIBILITY';
 const removePublicVisibility :RequestSequence = newRequestSequence(REMOVE_PUBLIC_VISIBILITY);
 
+const REMOVE_MEMBERS_FROM_ORGANIZATION :'REMOVE_MEMBERS_FROM_ORGANIZATION' = 'REMOVE_MEMBERS_FROM_ORGANIZATION';
+const removeMembersFromOrganization :RequestSequence = newRequestSequence(REMOVE_MEMBERS_FROM_ORGANIZATION);
+
 export {
   ADD_MEMBERS_TO_ORGANIZATION,
   ADD_ROLE_TO_ORGANIZATION,
@@ -56,10 +59,11 @@ export {
   EDIT_ROLE_DETAILS,
   GET_ORGANIZATION_INTEGRATION_DETAILS,
   INITIALIZE_ORGANIZATION,
+  REMOVE_MEMBERS_FROM_ORGANIZATION,
   REMOVE_PUBLIC_VISIBILITY,
   REMOVE_ROLE_FROM_ORGANIZATION,
-  SET_PUBLIC_VISIBILITY,
   REVOKE_ROLES_FROM_MEMBERS,
+  SET_PUBLIC_VISIBILITY,
   addMembersToOrganization,
   addRoleToOrganization,
   assignRolesToMembers,
@@ -69,8 +73,9 @@ export {
   editRoleDetails,
   getOrganizationIntegrationDetails,
   initializeOrganization,
+  removeMembersFromOrganization,
   removePublicVisibility,
   removeRoleFromOrganization,
-  setPublicVisibility,
   revokeRolesFromMembers,
+  setPublicVisibility,
 };

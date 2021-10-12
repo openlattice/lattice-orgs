@@ -13,8 +13,8 @@ import {
   COLLABORATION_DATA_SETS,
   ERROR,
   ORGANIZATION_IDS,
-  REQUEST_STATE
-} from '../../../core/redux/constants';
+  REQUEST_STATE,
+} from '../../../common/constants';
 
 const { REMOVE_ORGANIZATIONS_FROM_COLLABORATION, removeOrganizationsFromCollaboration } = CollaborationsApiActions;
 

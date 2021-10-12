@@ -7,11 +7,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  ERROR,
-  INTEGRATION_DETAILS,
-  REQUEST_STATE,
-} from '../../../core/redux/constants';
+import { ERROR, INTEGRATION_DETAILS, REQUEST_STATE } from '../../../common/constants';
 import { GET_ORGANIZATION_INTEGRATION_DETAILS, getOrganizationIntegrationDetails } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {

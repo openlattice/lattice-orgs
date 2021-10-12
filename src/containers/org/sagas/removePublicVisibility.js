@@ -19,8 +19,8 @@ import type { UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
+import { ERR_INVALID_UUID } from '../../../common/constants';
 import { getOrgObjectPermissions } from '../../../core/permissions/actions';
-import { ERR_INVALID_UUID } from '../../../utils/constants/errors';
 import { REMOVE_PUBLIC_VISIBILITY, removePublicVisibility } from '../actions';
 import { createOrganizationVisibilityAcl } from '../utils';
 

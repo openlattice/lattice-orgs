@@ -2,7 +2,6 @@
  * @flow
  */
 
-import { Map } from 'immutable';
 import { Types } from 'lattice';
 import { LangUtils } from 'lattice-utils';
 import type { Principal } from 'lattice';
@@ -12,7 +11,7 @@ import getUserTitle from './getUserTitle';
 const { PrincipalTypes } = Types;
 const { isNonEmptyString } = LangUtils;
 
-export default function getPrincipalTitle(principal :Principal, user :?Map, thisUserId :?string) :string {
+export default function getPrincipalTitle(principal :Principal, user :?any, thisUserId :?string) :string {
 
   let principalTitle = '';
 

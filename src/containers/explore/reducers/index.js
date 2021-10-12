@@ -13,7 +13,7 @@ import {
   ENTITY_NEIGHBORS_MAP,
   RS_INITIAL_STATE,
   SELECTED_ENTITY_DATA
-} from '../../../core/redux/constants';
+} from '../../../common/constants';
 import { resetRequestStatesReducer } from '../../../core/redux/reducers';
 import { Routes, RoutingActions } from '../../../core/router';
 import {

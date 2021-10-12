@@ -8,11 +8,11 @@ import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
 import {
-  ERROR,
   COLLABORATIONS,
   COLLABORATION_DATA_SETS,
-  REQUEST_STATE
-} from '../../../core/redux/constants';
+  ERROR,
+  REQUEST_STATE,
+} from '../../../common/constants';
 
 const { DELETE_COLLABORATION, deleteCollaboration } = CollaborationsApiActions;
 

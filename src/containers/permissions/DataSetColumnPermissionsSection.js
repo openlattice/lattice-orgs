@@ -24,13 +24,12 @@ import type { RequestState } from 'redux-reqseq';
 
 import { PermissionsLock } from './components';
 
+import { ID, PERMISSIONS } from '../../common/constants';
 import { SpaceBetweenGrid, Spinner } from '../../components';
 import { UPDATE_PERMISSIONS, updatePermissions } from '../../core/permissions/actions';
 import { computePermissionAssignments } from '../../core/permissions/utils';
 import { resetRequestStates } from '../../core/redux/actions';
-import { PERMISSIONS } from '../../core/redux/constants';
 import { selectMyKeys, selectPropertyTypes } from '../../core/redux/selectors';
-import { ID } from '../../utils/constants';
 
 const { NEUTRAL, PURPLE } = Colors;
 const { AceBuilder } = Models;

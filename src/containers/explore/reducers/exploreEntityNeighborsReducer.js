@@ -6,10 +6,7 @@ import { Map, fromJS } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  ENTITY_NEIGHBORS_MAP,
-  REQUEST_STATE
-} from '../../../core/redux/constants';
+import { ENTITY_NEIGHBORS_MAP, REQUEST_STATE } from '../../../common/constants';
 import { EXPLORE_ENTITY_NEIGHBORS, exploreEntityNeighbors } from '../actions';
 
 export default function exploreEntityDataReducer(state :Map, action :SequenceAction) {

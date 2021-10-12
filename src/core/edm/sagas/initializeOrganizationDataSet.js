@@ -22,9 +22,8 @@ import type { AccessCheck, Organization, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { isAtlasDataSet } from '../../../utils';
-import { ERR_MISSING_ORG } from '../../../utils/constants/errors';
-import { DATA_SET_ID, IS_OWNER } from '../../redux/constants';
+import { DATA_SET_ID, ERR_MISSING_ORG, IS_OWNER } from '../../../common/constants';
+import { isEntitySet } from '../../../common/utils';
 import { selectOrganization } from '../../redux/selectors';
 import { INITIALIZE_ORGANIZATION_DATA_SET, getOrgDataSetSize, initializeOrganizationDataSet } from '../actions';
 
@@ -76,7 +75,7 @@ function* initializeOrganizationDataSetWorker(action :SequenceAction) :Saga<*> {
     if (dataSetResponse.error) throw dataSetResponse.error;
     if (dataSetColumnsResponse.error) throw dataSetColumnsResponse.error;
 
-    if (!isAtlasDataSet(dataSetResponse.data)) {
+    if (isEntitySet(dataSetResponse.data)) {
       yield put(getOrgDataSetSize({ dataSetId, organizationId }));
     }
 
