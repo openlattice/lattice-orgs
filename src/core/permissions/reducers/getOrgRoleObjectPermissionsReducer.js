@@ -6,11 +6,8 @@ import { Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { REQUEST_STATE } from '../../redux/constants';
-import {
-  GET_ORG_ROLE_OBJECT_PERMISSIONS,
-  getOrgRoleObjectPermissions,
-} from '../actions';
+import { REQUEST_STATE } from '../../../common/constants';
+import { GET_ORG_ROLE_OBJECT_PERMISSIONS, getOrgRoleObjectPermissions } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {
 

@@ -1,15 +1,19 @@
-// @flow
+/*
+ * @flow
+ */
+
 import React from 'react';
 
 import styled from 'styled-components';
 import { faChevronRight } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Map, get } from 'immutable';
-import { Link } from 'react-router-dom';
 import { Button, Colors } from 'lattice-ui-kit';
 import { ValidationUtils, useGoToRoute } from 'lattice-utils';
+import { Link } from 'react-router-dom';
 import type { UUID } from 'lattice';
 
+import { ID, ORGANIZATION_ID } from '../../../common/constants';
 import {
   BasicListCard,
   DataSetTitle,
@@ -17,7 +21,6 @@ import {
   SpaceBetweenGrid,
 } from '../../../components';
 import { Routes } from '../../../core/router';
-import { ID, ORGANIZATION_ID } from '../../../utils/constants';
 
 const { isValidUUID } = ValidationUtils;
 

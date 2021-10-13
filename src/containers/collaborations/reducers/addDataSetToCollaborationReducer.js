@@ -7,11 +7,7 @@ import { CollaborationsApiActions } from 'lattice-sagas';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  COLLABORATION_DATA_SETS,
-  ERROR,
-  REQUEST_STATE
-} from '../../../core/redux/constants';
+import { COLLABORATION_DATA_SETS, ERROR, REQUEST_STATE } from '../../../common/constants';
 
 const { ADD_DATA_SET_TO_COLLABORATION, addDataSetToCollaboration } = CollaborationsApiActions;
 

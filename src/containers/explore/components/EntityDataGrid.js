@@ -17,9 +17,9 @@ import {
 import { useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
 
+import { METADATA, NAME, TITLE } from '../../../common/constants';
 import { Flip } from '../../../components';
 import { selectOrgDataSetColumns } from '../../../core/redux/selectors';
-import { METADATA, NAME, TITLE } from '../../../utils/constants';
 
 const { NEUTRAL, PURPLE } = Colors;
 
@@ -127,7 +127,7 @@ const EntityDataGrid = ({
           <InfoText>
             <Typography variant="subtitle1">See</Typography>
             <CountText variant="button">{` ${hiddenItems.length} `}</CountText>
-            <Typography variant="subtitle1">more properties used in this dataset</Typography>
+            <Typography variant="subtitle1">more properties used in this data set</Typography>
             <Flip flip={showFull}>
               <IconButton aria-label="toggle show all fields" onClick={expandFields}>
                 { downIcon }

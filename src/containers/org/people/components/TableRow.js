@@ -26,8 +26,8 @@ import type { UserInfo } from 'lattice-auth';
 import RoleChipsList from './RoleChipsList';
 
 import AssignRolesToMembersModal from '../../components/AssignRolesToMembersModal';
+import { getSecurablePrincipalId, getUserProfile } from '../../../../common/utils';
 import { Routes } from '../../../../core/router';
-import { getSecurablePrincipalId, getUserProfile } from '../../../../utils';
 
 const { NEUTRAL } = Colors;
 
@@ -185,7 +185,7 @@ const TableRow = ({
                 horizontal: 'right',
                 vertical: 'top',
               }}>
-            <MenuItem onClick={handleAssignRoles}>
+            <MenuItem disabled={!isOwner} onClick={handleAssignRoles}>
               Add role
             </MenuItem>
             <MenuItem disabled={isDeleteOptionDisabled} onClick={handleRemoveMember}>

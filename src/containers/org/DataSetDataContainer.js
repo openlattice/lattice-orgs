@@ -18,15 +18,22 @@ import {
 import {
   DataUtils,
   LangUtils,
+  ReduxUtils,
   ValidationUtils,
   useRequestState
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import EntityDataModal from '../explore/components/EntityDataModal';
+import {
+  MAX_HITS_10,
+  METADATA,
+  NAME,
+  SEARCH,
+  TITLE,
+} from '../../common/constants';
 import {
   DataTableWrapper,
   SearchForm,
@@ -34,7 +41,6 @@ import {
   StackGrid,
   ValueCell,
 } from '../../components';
-import { SEARCH } from '../../core/redux/constants';
 import {
   selectOrgDataSetColumns,
   selectSearchHits,
@@ -43,11 +49,10 @@ import {
   selectSearchTotalHits,
 } from '../../core/redux/selectors';
 import { SEARCH_DATA, clearSearchState, searchData } from '../../core/search/actions';
-import { MAX_HITS_10 } from '../../core/search/constants';
-import { METADATA, NAME, TITLE } from '../../utils/constants';
 
 const { getEntityKeyId } = DataUtils;
 const { isNonEmptyString } = LangUtils;
+const { isPending, isSuccess } = ReduxUtils;
 const { isValidUUID } = ValidationUtils;
 
 const DataSetDataContainer = ({
@@ -131,8 +136,8 @@ const DataSetDataContainer = ({
     <StackGrid gap={0}>
       <StackGrid gap={16}>
         <SearchForm
-            onSubmit={(query :string) => dispatchSearch({ query })}
-            searchRequestState={searchDataSetDataRS} />
+            isPending={isPending(searchDataSetDataRS)}
+            onSubmit={(query :string) => dispatchSearch({ query })} />
         {
           <PaginationToolbar
               count={searchTotalHits}
@@ -141,17 +146,17 @@ const DataSetDataContainer = ({
               rowsPerPage={MAX_HITS_10} />
         }
         {
-          searchDataSetDataRS === RequestStates.PENDING && (
+          isPending(searchDataSetDataRS) && (
             <Spinner />
           )
         }
         {
-          searchDataSetDataRS === RequestStates.SUCCESS && searchHits.count() === 0 && (
+          isSuccess(searchDataSetDataRS) && searchHits.count() === 0 && (
             <Typography>No search results.</Typography>
           )
         }
         {
-          searchDataSetDataRS === RequestStates.SUCCESS && searchHits.count() > 0 && (
+          isSuccess(searchDataSetDataRS) && searchHits.count() > 0 && (
             <DataTableWrapper>
               <Table components={components} data={tableData} headers={tableHeaders} />
             </DataTableWrapper>

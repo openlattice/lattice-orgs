@@ -16,7 +16,7 @@ import {
   REQUEST_STATE,
   TAGS,
   TITLE,
-} from '../../redux/constants';
+} from '../../../common/constants';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../actions';
 
 const { isValidUUID } = ValidationUtils;

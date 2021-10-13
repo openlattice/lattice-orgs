@@ -4,29 +4,48 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 
-import styled from 'styled-components';
-import { List, Map } from 'immutable';
+import { faChevronDown } from '@fortawesome/pro-regular-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { List } from 'immutable';
 import {
-  CardSegment,
-  Checkbox,
+  Box,
+  Collapse,
+  Grid,
+  IconButton,
   PaginationToolbar,
+  Select,
   Typography,
 } from 'lattice-ui-kit';
-import { LangUtils, useRequestState } from 'lattice-utils';
+import {
+  LangUtils,
+  ReduxUtils,
+  useRequestState,
+} from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import {
-  DataSetTitle,
+  DATA_SET_TYPE_RS_OPTIONS,
+  ES_FLAG_TYPE_RS_OPTIONS,
+  ID,
+  MAX_HITS_10,
+  PERMISSIONS,
+  SEARCH,
+} from '../../../../common/constants';
+import {
+  Flip,
+  GapGrid,
   SearchForm,
-  SpaceBetweenGrid,
+  Spinner,
   StackGrid,
 } from '../../../../components';
-import { getOrgDataSetObjectPermissions } from '../../../../core/permissions/actions';
-import { SEARCH } from '../../../../core/redux/constants';
 import {
-  selectMyKeys,
+  GET_ORG_DATA_SET_OBJECT_PERMISSIONS,
+  getOrgDataSetObjectPermissions,
+} from '../../../../core/permissions/actions';
+import { resetRequestStates } from '../../../../core/redux/actions';
+import {
   selectSearchHits,
   selectSearchPage,
   selectSearchQuery,
@@ -34,60 +53,49 @@ import {
 } from '../../../../core/redux/selectors';
 import {
   SEARCH_ORGANIZATION_DATA_SETS,
+  clearSearchState,
   searchOrganizationDataSets,
 } from '../../../../core/search/actions';
-import { MAX_HITS_10 } from '../../../../core/search/constants';
-import {
-  ID,
-  METADATA,
-  NAME,
-  TITLE,
-} from '../../../../utils/constants';
+import type { DataSetType, ReactSelectOption } from '../../../../common/types';
 
 const { isNonEmptyString } = LangUtils;
-
-const PaginationWrapper = styled.div`
-  align-items: center;
-  display: grid;
-  grid-template-columns: 1fr auto;
-`;
+const {
+  isPending,
+  isStandby,
+  isSuccess,
+  reduceRequestStates,
+} = ReduxUtils;
 
 const SearchOrgDataSetsContainer = ({
-  excludedDataSets = List(),
+  children,
+  filterByDataSetType,
   organizationId,
-  ownerRequired,
-  setTargetDataSetIds,
-  setTargetDataSetTitles,
-  targetDataSetIds,
-  targetDataSetTitles
 } :{
-  excludedDataSets ?:List<UUID>;
+  children :any;
+  filterByDataSetType ?:DataSetType;
   organizationId :UUID;
-  ownerRequired ?:boolean;
-  setTargetDataSetIds :(ids :List<UUID>) => void;
-  setTargetDataSetTitles :(titles :List<string>) => void;
-  targetDataSetIds :List<UUID>;
-  targetDataSetTitles :List<string>;
 }) => {
 
   const dispatch = useDispatch();
+  const [dataSetType, setDataSetType] = useState(filterByDataSetType);
+  const [flag, setFlag] = useState();
+  const [isOpenSearchOptions, setIsOpenSearchOptions] = useState(false);
   const [searchId, setSearchId] = useState();
 
   const searchOrgDataSetsRS :?RequestState = useRequestState([SEARCH, SEARCH_ORGANIZATION_DATA_SETS]);
+  const getPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORG_DATA_SET_OBJECT_PERMISSIONS]);
 
-  const searchHits :Map = useSelector(selectSearchHits(SEARCH_ORGANIZATION_DATA_SETS));
   const searchPage :number = useSelector(selectSearchPage(SEARCH_ORGANIZATION_DATA_SETS));
   const searchQuery :string = useSelector(selectSearchQuery(SEARCH_ORGANIZATION_DATA_SETS)) || '*';
+  const searchHits :List = useSelector(selectSearchHits(SEARCH_ORGANIZATION_DATA_SETS));
   const searchTotalHits :number = useSelector(selectSearchTotalHits(SEARCH_ORGANIZATION_DATA_SETS));
 
-  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
-  const dataSetDisabled = (dataSetId :UUID) :boolean => excludedDataSets.includes(dataSetId)
-    || (ownerRequired && !myKeys.has(List([dataSetId])));
-
   const dispatchDataSetSearch = useCallback((params :{ page ?:number, query ?:string, start ?:number } = {}) => {
-    const { page = 0, query = searchQuery, start = 0 } = params;
+    const { page = 1, query = searchQuery, start = 0 } = params;
     if (isNonEmptyString(query)) {
       const action = searchOrganizationDataSets({
+        dataSetType,
+        flags: [flag],
         maxHits: MAX_HITS_10,
         organizationId,
         page,
@@ -96,8 +104,12 @@ const SearchOrgDataSetsContainer = ({
       });
       dispatch(action);
       setSearchId(action.id);
+      dispatch(resetRequestStates([GET_ORG_DATA_SET_OBJECT_PERMISSIONS]));
     }
-  }, [dispatch, organizationId, searchQuery]);
+    else {
+      dispatch(clearSearchState(SEARCH_ORGANIZATION_DATA_SETS));
+    }
+  }, [dispatch, dataSetType, flag, organizationId, searchQuery]);
 
   useEffect(() => {
     if (!searchId) {
@@ -106,69 +118,73 @@ const SearchOrgDataSetsContainer = ({
   }, [dispatchDataSetSearch, searchId]);
 
   useEffect(() => {
-    if (ownerRequired) {
-      const dataSetKeys :List<List<UUID>> = searchHits.map((hit :Map) => List([hit.get(ID)])).toList();
-      dispatch(getOrgDataSetObjectPermissions(dataSetKeys));
-    }
-  }, [dispatch, ownerRequired, searchHits]);
+    const dataSetKeys :List<List<UUID>> = searchHits.map((hit) => List([hit.get(ID)])).toList();
+    dispatch(getOrgDataSetObjectPermissions(dataSetKeys));
+  }, [dispatch, searchHits]);
 
-  const handleOnChangeSelectDataSet = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    const { id, title } = event.currentTarget.dataset;
-    if (targetDataSetIds.includes(id)) {
-      setTargetDataSetIds(targetDataSetIds.filter((dataSetId) => dataSetId !== id));
-    }
-    else {
-      setTargetDataSetIds(targetDataSetIds.push(id));
-    }
-    if (targetDataSetTitles.includes(title)) {
-      setTargetDataSetTitles(targetDataSetTitles.filter((dataSetTitle) => dataSetTitle !== title));
-    }
-    else {
-      setTargetDataSetTitles(targetDataSetTitles.push(title));
-    }
-  };
+  const toggleSearchOptions = () => setIsOpenSearchOptions(!isOpenSearchOptions);
+
+  const reducedRS = reduceRequestStates([searchOrgDataSetsRS, getPermissionsRS]);
 
   return (
     <StackGrid>
-      <SearchForm
-          onSubmit={(query :string) => dispatchDataSetSearch({ query })}
-          searchQuery={searchQuery}
-          searchRequestState={searchOrgDataSetsRS} />
-      <div>
-        {
-          searchHits.map((hit :Map) => {
-            const id :UUID = hit.get(ID);
-            const name :string = hit.get(NAME);
-            const title :string = hit.getIn([METADATA, TITLE]);
-            return (
-              <CardSegment key={id} padding="8px 0">
-                <SpaceBetweenGrid>
-                  <div>
-                    <DataSetTitle dataSet={hit} />
-                    <Typography variant="caption">{id}</Typography>
-                  </div>
-                  <Checkbox
-                      checked={targetDataSetIds.includes(id) || excludedDataSets.includes(id)}
-                      data-id={id}
-                      data-title={title || name}
-                      disabled={dataSetDisabled(id)}
-                      name="select-data-set"
-                      onChange={handleOnChangeSelectDataSet} />
-                </SpaceBetweenGrid>
-              </CardSegment>
-            );
-          })
-        }
-      </div>
+      <StackGrid gap={8}>
+        <SearchForm
+            isPending={isPending(reducedRS)}
+            onSubmit={(query :string) => dispatchDataSetSearch({ query })}
+            searchQuery={searchQuery} />
+        <GapGrid gap={8}>
+          <Typography variant="subtitle2">Search Options</Typography>
+          <Flip flip={isOpenSearchOptions}>
+            <IconButton aria-label="toggle search options" onClick={toggleSearchOptions}>
+              <FontAwesomeIcon fixedWidth icon={faChevronDown} size="xs" />
+            </IconButton>
+          </Flip>
+        </GapGrid>
+        <Collapse in={isOpenSearchOptions}>
+          <Grid container spacing={2}>
+            <Grid item xs={3}>
+              <Box>
+                <Typography gutterBottom variant="subtitle1">Data Set Types</Typography>
+                <Select
+                    isClearable
+                    onChange={(option :?ReactSelectOption<string>) => setDataSetType(option?.value)}
+                    options={DATA_SET_TYPE_RS_OPTIONS}
+                    value={DATA_SET_TYPE_RS_OPTIONS.find((o) => o.value === dataSetType)} />
+              </Box>
+            </Grid>
+            <Grid item xs={3}>
+              <Box>
+                <Typography gutterBottom variant="subtitle1">Flags</Typography>
+                <Select
+                    isClearable
+                    onChange={(option :?ReactSelectOption<string>) => setFlag(option?.value)}
+                    options={ES_FLAG_TYPE_RS_OPTIONS} />
+              </Box>
+            </Grid>
+          </Grid>
+        </Collapse>
+      </StackGrid>
       {
-        searchTotalHits > MAX_HITS_10 && (
-          <PaginationWrapper>
-            <PaginationToolbar
-                count={searchTotalHits}
-                onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
-                page={searchPage}
-                rowsPerPage={MAX_HITS_10} />
-          </PaginationWrapper>
+        isPending(reducedRS) && (
+          <Spinner />
+        )
+      }
+      {
+        isSuccess(searchOrgDataSetsRS) && searchHits.isEmpty() && (
+          <Typography align="center">No data sets.</Typography>
+        )
+      }
+      {
+        isSuccess(reducedRS) && !searchHits.isEmpty() && children(searchHits)
+      }
+      {
+        !isStandby(searchOrgDataSetsRS) && (
+          <PaginationToolbar
+              count={searchTotalHits}
+              onPageChange={({ page, start }) => dispatchDataSetSearch({ page, start })}
+              page={searchPage}
+              rowsPerPage={MAX_HITS_10} />
         )
       }
     </StackGrid>
@@ -176,8 +192,7 @@ const SearchOrgDataSetsContainer = ({
 };
 
 SearchOrgDataSetsContainer.defaultProps = {
-  excludedDataSets: List(),
-  ownerRequired: false
+  filterByDataSetType: undefined,
 };
 
 export default SearchOrgDataSetsContainer;

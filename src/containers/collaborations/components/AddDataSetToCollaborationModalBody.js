@@ -5,7 +5,12 @@
 import React, { useEffect, useState } from 'react';
 
 import { List, Map } from 'immutable';
-import { Select, Typography } from 'lattice-ui-kit';
+import {
+  CardSegment,
+  Checkbox,
+  Select,
+  Typography,
+} from 'lattice-ui-kit';
 import { ReduxUtils, useRequestState, useStepState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
 import type { Organization, UUID } from 'lattice';
@@ -13,12 +18,25 @@ import type { RequestState } from 'redux-reqseq';
 
 import SearchOrgDataSetsContainer from '../../org/components/dataset/SearchOrgDataSetsContainer';
 import StyledFooter from '../../org/components/styled/StyledFooter';
-import { ModalBody, ResetOnUnmount, StackGrid } from '../../../components';
-import { COLLABORATIONS } from '../../../core/redux/constants';
-import { selectCollaboration, selectOrganizations } from '../../../core/redux/selectors';
-import { ORGANIZATION_IDS } from '../../../utils/constants';
+import {
+  COLLABORATIONS,
+  DataSetTypes,
+  ID,
+  METADATA,
+  NAME,
+  ORGANIZATION_IDS,
+  TITLE,
+} from '../../../common/constants';
+import {
+  DataSetTitle,
+  ModalBody,
+  ResetOnUnmount,
+  SpaceBetweenGrid,
+  StackGrid,
+} from '../../../components';
+import { selectCollaboration, selectMyKeys, selectOrganizations } from '../../../core/redux/selectors';
 import { ADD_DATA_SETS_TO_COLLABORATION, addDataSetsToCollaboration } from '../actions';
-import type { ReactSelectOption } from '../../../types';
+import type { ReactSelectOption } from '../../../common/types';
 
 const { isPending, isStandby, isSuccess } = ReduxUtils;
 
@@ -35,28 +53,32 @@ const AddDataSetToCollaborationModalBody = ({
   onClose :() => void;
   setModalTitle :(title :string) => void;
 }) => {
+
   const dispatch = useDispatch();
   const [step, stepBack, stepNext] = useStepState(3);
-  const [selectedOrganization, setSelectedOrganization] = useState('');
-  const [selectedDataSets, setSelectedDataSets] = useState(List());
-  const [selectedDataSetTitles, setSelectedDataSetTitles] = useState(List());
+  const [targetDataSetIds, setTargetDataSetIds] = useState(List());
+  const [targetDataSetTitles, setTargetDataSetTitles] = useState(List());
+  const [targetOrganizationId, setTargetOrganizationId] = useState('');
   const addDataSetToCollaborationRS :?RequestState = useRequestState([COLLABORATIONS, ADD_DATA_SETS_TO_COLLABORATION]);
 
   const collaboration :Map<UUID, List<UUID>> = useSelector(selectCollaboration(collaborationId));
   const organizationIds :List<UUID> = collaboration.get(ORGANIZATION_IDS, List());
   const organizations :Map<UUID, Organization> = useSelector(selectOrganizations());
+  const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
 
   const pending = isPending(addDataSetToCollaborationRS);
   const standby = isStandby(addDataSetToCollaborationRS);
   const success = isSuccess(addDataSetToCollaborationRS);
 
-  const orgOptions = organizationIds.filter((orgId) => organizations.has(orgId))
+  const orgOptions = organizationIds
+    .filter((orgId) => organizations.has(orgId))
     .map((orgId) => {
       const organization = organizations.get(orgId);
       const label = organization.title;
       const value = organization.id;
       return { label, value };
-    }).toJS();
+    })
+    .toJS();
 
   useEffect(() => {
     if (step === 0) {
@@ -73,8 +95,8 @@ const AddDataSetToCollaborationModalBody = ({
     }
   }, [setModalTitle, standby, step, success]);
 
-  const handleOrgSelect = (organizationOption :ReactSelectOption<Object>) => {
-    setSelectedOrganization(organizationOption.value);
+  const handleOrgSelect = (organizationOption :ReactSelectOption<UUID>) => {
+    setTargetOrganizationId(organizationOption.value);
   };
 
   const handleOnClickPrimary = () => {
@@ -82,10 +104,26 @@ const AddDataSetToCollaborationModalBody = ({
       addDataSetsToCollaboration({
         collaborationId,
         dataSetIdsByOrgId: Map({
-          [selectedOrganization]: selectedDataSets
+          [targetOrganizationId]: targetDataSetIds
         })
       })
     );
+  };
+
+  const handleOnChangeSelectDataSet = (event :SyntheticInputEvent<HTMLInputElement>) => {
+    const { id, title } = event.currentTarget.dataset;
+    if (targetDataSetIds.includes(id)) {
+      setTargetDataSetIds(targetDataSetIds.filter((dataSetId) => dataSetId !== id));
+    }
+    else {
+      setTargetDataSetIds(targetDataSetIds.push(id));
+    }
+    if (targetDataSetTitles.includes(title)) {
+      setTargetDataSetTitles(targetDataSetTitles.filter((dataSetTitle) => dataSetTitle !== title));
+    }
+    else {
+      setTargetDataSetTitles(targetDataSetTitles.push(title));
+    }
   };
 
   return (
@@ -108,7 +146,7 @@ const AddDataSetToCollaborationModalBody = ({
               </StackGrid>
             </ModalBody>
             <StyledFooter
-                isDisabledPrimary={!selectedOrganization}
+                isDisabledPrimary={!targetOrganizationId}
                 onClickPrimary={stepNext}
                 textPrimary="Next: Select Data Sets" />
           </>
@@ -121,17 +159,41 @@ const AddDataSetToCollaborationModalBody = ({
               <StackGrid gap={16}>
                 <Typography gutterBottom>Search and select data set(s) to add to this collaboration.</Typography>
                 <SearchOrgDataSetsContainer
-                    excludedDataSets={existingDataSets}
-                    organizationId={selectedOrganization}
-                    ownerRequired
-                    setTargetDataSetIds={setSelectedDataSets}
-                    setTargetDataSetTitles={setSelectedDataSetTitles}
-                    targetDataSetIds={selectedDataSets}
-                    targetDataSetTitles={selectedDataSetTitles} />
+                    filterByDataSetType={DataSetTypes.EXTERNAL_TABLE}
+                    organizationId={targetOrganizationId}>
+                  {(dataSets :List<Map>) => (
+                    <div>
+                      {
+                        dataSets.map((dataSet :Map) => {
+                          const id :UUID = dataSet.get(ID);
+                          const name :string = dataSet.get(NAME);
+                          const title :string = dataSet.getIn([METADATA, TITLE]);
+                          return (
+                            <CardSegment key={id} padding="8px 0">
+                              <SpaceBetweenGrid>
+                                <div>
+                                  <DataSetTitle dataSet={dataSet} />
+                                  <Typography variant="caption">{id}</Typography>
+                                </div>
+                                <Checkbox
+                                    checked={targetDataSetIds.includes(id) || existingDataSets.includes(id)}
+                                    data-id={id}
+                                    data-title={title || name}
+                                    disabled={existingDataSets.includes(id) || !myKeys.has(List([id]))}
+                                    name="select-data-set"
+                                    onChange={handleOnChangeSelectDataSet} />
+                              </SpaceBetweenGrid>
+                            </CardSegment>
+                          );
+                        })
+                      }
+                    </div>
+                  )}
+                </SearchOrgDataSetsContainer>
               </StackGrid>
             </ModalBody>
             <StyledFooter
-                isDisabledPrimary={!selectedDataSets.size}
+                isDisabledPrimary={!targetDataSetIds.size}
                 onClickPrimary={stepNext}
                 textPrimary="Next: Review Selection" />
 
@@ -150,7 +212,7 @@ const AddDataSetToCollaborationModalBody = ({
                         <>
                           <Typography>
                             {
-                              `${selectedDataSetTitles.size} data ${selectedDataSetTitles.size === 1 ? 'set' : 'sets'} `
+                              `${targetDataSetTitles.size} data ${targetDataSetTitles.size === 1 ? 'set' : 'sets'} `
                                 + 'successfully added to collaboration.'
                             }
                           </Typography>
@@ -160,7 +222,7 @@ const AddDataSetToCollaborationModalBody = ({
                         <>
                           <ol>
                             {
-                              selectedDataSetTitles.map((title) => <li>{title}</li>)
+                              targetDataSetTitles.map((title) => <li>{title}</li>)
                             }
                           </ol>
                         </>

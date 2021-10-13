@@ -15,13 +15,13 @@ import type { RequestState } from 'redux-reqseq';
 import EntityNeighborsTable from './EntityNeighborsTable';
 import { EXPLORE_ENTITY_NEIGHBORS } from './actions';
 
+import { EXPLORE } from '../../common/constants';
 import {
   CrumbSeparator,
   DataSetTitle,
   Spinner,
   StackGrid,
 } from '../../components';
-import { EXPLORE } from '../../core/redux/constants';
 import { selectOrgDataSets } from '../../core/redux/selectors';
 
 const { isPending } = ReduxUtils;
@@ -46,8 +46,6 @@ const EntityNeighborsContainer = ({
   neighbors :Map;
   organizationId :UUID;
 |}) => {
-
-  const [selectedAssociationDataSetIds, setSelectedAssociationDataSetIds] = useState(Set());
   const [selectedNeighborDataSetIds, setSelectedNeighborDataSetIds] = useState(Set());
 
   const exploreEntityNeighborsRS :?RequestState = useRequestState([EXPLORE, EXPLORE_ENTITY_NEIGHBORS]);
@@ -68,55 +66,33 @@ const EntityNeighborsContainer = ({
 
   const dataSets :Map<UUID, Map> = useSelector(selectOrgDataSets(organizationId, dataSetIds));
 
-  const toggleSelectedAssociation = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    const dataSetId :UUID = event.currentTarget.value;
-    if (selectedAssociationDataSetIds.has(dataSetId)) {
-      setSelectedAssociationDataSetIds(selectedAssociationDataSetIds.delete(dataSetId));
-    }
-    else {
-      setSelectedAssociationDataSetIds(selectedAssociationDataSetIds.add(dataSetId));
-    }
-  };
+  const neighborChips = useMemo(() => {
+    const toggleSelectedNeighbor = (event :SyntheticInputEvent<HTMLInputElement>) => {
+      const dataSetId :UUID = event.currentTarget.value;
+      if (selectedNeighborDataSetIds.has(dataSetId)) {
+        setSelectedNeighborDataSetIds(selectedNeighborDataSetIds.delete(dataSetId));
+      }
+      else {
+        setSelectedNeighborDataSetIds(selectedNeighborDataSetIds.add(dataSetId));
+      }
+    };
+    return neighborDataSetIds.map((neighborDataSetId :UUID) => dataSets.get(neighborDataSetId))
+      .sortBy((neighborDataSet) => (neighborDataSet.getIn(['metadata', 'title'])))
+      .map((neighborDataSet) => {
+        const dataSetId = neighborDataSet.get('id');
+        return (
+          <Checkbox
+              checked={selectedNeighborDataSetIds.has(dataSetId)}
+              key={dataSetId}
+              label={neighborDataSet.getIn(['metadata', 'title'])}
+              mode="chip"
+              onChange={toggleSelectedNeighbor}
+              value={dataSetId} />
+        );
+      }).flatten();
+  }, [dataSets, neighborDataSetIds, selectedNeighborDataSetIds]);
 
-  const toggleSelectedNeighbor = (event :SyntheticInputEvent<HTMLInputElement>) => {
-    const dataSetId :UUID = event.currentTarget.value;
-    if (selectedNeighborDataSetIds.has(dataSetId)) {
-      setSelectedNeighborDataSetIds(selectedNeighborDataSetIds.delete(dataSetId));
-    }
-    else {
-      setSelectedNeighborDataSetIds(selectedNeighborDataSetIds.add(dataSetId));
-    }
-  };
-
-  const associationChips = associationDataSetIds.map((associationDataSetId :UUID) => {
-    const associationDataSet :Map = dataSets.get(associationDataSetId);
-    return (
-      <Checkbox
-          checked={selectedAssociationDataSetIds.has(associationDataSetId)}
-          key={associationDataSetId}
-          label={associationDataSet.getIn(['metadata', 'title'])}
-          mode="chip"
-          onChange={toggleSelectedAssociation}
-          value={associationDataSetId} />
-    );
-  });
-
-  const neighborChips = selectedAssociationDataSetIds.map((associationDataSetId :UUID) => (
-    neighbors.get(associationDataSetId, Map()).keySeq().map((neighborDataSetId :UUID) => {
-      const neighborDataSet :Map = dataSets.get(neighborDataSetId);
-      return (
-        <Checkbox
-            checked={selectedNeighborDataSetIds.has(neighborDataSetId)}
-            key={neighborDataSetId}
-            label={neighborDataSet.getIn(['metadata', 'title'])}
-            mode="chip"
-            onChange={toggleSelectedNeighbor}
-            value={neighborDataSetId} />
-      );
-    })
-  )).flatten();
-
-  const neighborTables = selectedAssociationDataSetIds.map((associationDataSetId :UUID) => (
+  const neighborTables = associationDataSetIds.map((associationDataSetId :UUID) => (
     selectedNeighborDataSetIds.map((neighborDataSetId :UUID) => {
       const associationDataSet :Map = dataSets.get(associationDataSetId);
       const neighborDataSet :Map = dataSets.get(neighborDataSetId);
@@ -154,17 +130,9 @@ const EntityNeighborsContainer = ({
 
   return (
     <StackGrid>
-      <Typography variant="subtitle1">Association Entity Sets:</Typography>
-      <div>{associationChips}</div>
-      {
-        !selectedAssociationDataSetIds.isEmpty() && (
-          <>
-            <Typography variant="subtitle1">Destination Entity Sets:</Typography>
-            <div>{neighborChips}</div>
-            {neighborTables}
-          </>
-        )
-      }
+      <Typography variant="subtitle1">Destination Entity Sets:</Typography>
+      <div>{neighborChips}</div>
+      {neighborTables}
     </StackGrid>
   );
 };

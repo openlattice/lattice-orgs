@@ -5,20 +5,24 @@ import { faAngleDown } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   Button,
-  // $FlowFixMe[missing-export]
   Menu,
-  // $FlowFixMe[missing-export]
   MenuItem,
 } from 'lattice-ui-kit';
 
 const ChevronDown = <FontAwesomeIcon icon={faAngleDown} />;
 
 type Props = {
+  isOwner :boolean;
   onAddRolesClick :() => void;
+  onRemoveMembersClick :() => void;
+  onRemoveRolesClick :() => void;
 };
 
 const BulkActionButton = ({
-  onAddRolesClick
+  isOwner,
+  onAddRolesClick,
+  onRemoveMembersClick,
+  onRemoveRolesClick,
 } :Props) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
 
@@ -32,6 +36,16 @@ const BulkActionButton = ({
 
   const handleAddRolesClick = () => {
     onAddRolesClick();
+    handleMenuOnClose();
+  };
+
+  const handleRemoveRolesClick = () => {
+    onRemoveRolesClick();
+    handleMenuOnClose();
+  };
+
+  const handleRemoveMembersClick = () => {
+    onRemoveMembersClick();
     handleMenuOnClose();
   };
 
@@ -60,6 +74,12 @@ const BulkActionButton = ({
           }}>
         <MenuItem onClick={handleAddRolesClick}>
           Add Roles
+        </MenuItem>
+        <MenuItem onClick={handleRemoveRolesClick}>
+          Remove Roles
+        </MenuItem>
+        <MenuItem disabled={!isOwner} onClick={handleRemoveMembersClick}>
+          Remove Members
         </MenuItem>
       </Menu>
     </>

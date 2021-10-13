@@ -7,11 +7,7 @@ import { RequestStates } from 'redux-reqseq';
 import type { UUID } from 'lattice';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  APP_INSTALLS,
-  ERROR,
-  REQUEST_STATE,
-} from '../../redux/constants';
+import { APP_INSTALLS, ERROR, REQUEST_STATE } from '../../../common/constants';
 import { IS_APP_INSTALLED, isAppInstalled } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {

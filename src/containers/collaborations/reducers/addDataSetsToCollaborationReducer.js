@@ -6,10 +6,7 @@ import { Map } from 'immutable';
 import { RequestStates } from 'redux-reqseq';
 import type { SequenceAction } from 'redux-reqseq';
 
-import {
-  ERROR,
-  REQUEST_STATE
-} from '../../../core/redux/constants';
+import { ERROR, REQUEST_STATE } from '../../../common/constants';
 import { ADD_DATA_SETS_TO_COLLABORATION, addDataSetsToCollaboration } from '../actions';
 
 export default function addDataSetsToCollaborationReducer(state :Map, action :SequenceAction) {

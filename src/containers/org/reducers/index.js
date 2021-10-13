@@ -20,18 +20,22 @@ import getOrganizationMembersReducer from './getOrganizationMembersReducer';
 import getOrganizationReducer from './getOrganizationReducer';
 import initializeOrganizationReducer from './initializeOrganizationReducer';
 import removeMemberFromOrganizationReducer from './removeMemberFromOrganizationReducer';
+import removeMembersFromOrganizationReducer from './removeMembersFromOrganizationReducer';
+import removePublicVisibilityReducer from './removePublicVisibilityReducer';
 import removeRoleFromMemberReducer from './removeRoleFromMemberReducer';
 import removeRoleFromOrganizationReducer from './removeRoleFromOrganizationReducer';
 import renameOrganizationDatabaseReducer from './renameOrganizationDatabaseReducer';
+import revokeRolesFromMembersReducer from './revokeRolesFromMembersReducer';
+import setPublicVisibilityReducer from './setPublicVisibilityReducer';
 
-import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import {
   INTEGRATION_DETAILS,
   MEMBERS,
   NEW_ORGANIZATION_ID,
   ORGANIZATIONS,
   RS_INITIAL_STATE,
-} from '../../../core/redux/constants';
+} from '../../../common/constants';
+import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import { resetRequestStatesReducer } from '../../../core/redux/reducers';
 import {
   ADD_MEMBERS_TO_ORGANIZATION,
@@ -43,7 +47,11 @@ import {
   EDIT_ROLE_DETAILS,
   GET_ORGANIZATION_INTEGRATION_DETAILS,
   INITIALIZE_ORGANIZATION,
+  REMOVE_MEMBERS_FROM_ORGANIZATION,
+  REMOVE_PUBLIC_VISIBILITY,
   REMOVE_ROLE_FROM_ORGANIZATION,
+  REVOKE_ROLES_FROM_MEMBERS,
+  SET_PUBLIC_VISIBILITY,
   addMembersToOrganization,
   addRoleToOrganization,
   assignRolesToMembers,
@@ -53,7 +61,11 @@ import {
   editRoleDetails,
   getOrganizationIntegrationDetails,
   initializeOrganization,
+  removeMembersFromOrganization,
+  removePublicVisibility,
   removeRoleFromOrganization,
+  revokeRolesFromMembers,
+  setPublicVisibility,
 } from '../actions';
 
 const {
@@ -91,10 +103,14 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORGANIZATION_INTEGRATION_DETAILS]: RS_INITIAL_STATE,
   [GET_ORGANIZATION_MEMBERS]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION]: RS_INITIAL_STATE,
+  [REMOVE_MEMBERS_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [REMOVE_MEMBER_FROM_ORGANIZATION]: RS_INITIAL_STATE,
+  [REMOVE_PUBLIC_VISIBILITY]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_MEMBER]: RS_INITIAL_STATE,
   [REMOVE_ROLE_FROM_ORGANIZATION]: RS_INITIAL_STATE,
   [RENAME_ORGANIZATION_DATABASE]: RS_INITIAL_STATE,
+  [REVOKE_ROLES_FROM_MEMBERS]: RS_INITIAL_STATE,
+  [SET_PUBLIC_VISIBILITY]: RS_INITIAL_STATE,
   // data
   [INTEGRATION_DETAILS]: Map(),
   [MEMBERS]: Map(),
@@ -170,6 +186,10 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return removeMemberFromOrganizationReducer(state, action);
     }
 
+    case removeMembersFromOrganization.case(action.type): {
+      return removeMembersFromOrganizationReducer(state, action);
+    }
+
     case removeRoleFromMember.case(action.type): {
       return removeRoleFromMemberReducer(state, action);
     }
@@ -180,6 +200,18 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case renameOrganizationDatabase.case(action.type): {
       return renameOrganizationDatabaseReducer(state, action);
+    }
+
+    case revokeRolesFromMembers.case(action.type): {
+      return revokeRolesFromMembersReducer(state, action);
+    }
+
+    case setPublicVisibility.case(action.type): {
+      return setPublicVisibilityReducer(state, action);
+    }
+
+    case removePublicVisibility.case(action.type): {
+      return removePublicVisibilityReducer(state, action);
     }
 
     default: {

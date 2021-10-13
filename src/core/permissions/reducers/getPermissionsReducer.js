@@ -12,7 +12,7 @@ import {
   ERROR,
   MY_KEYS,
   REQUEST_STATE,
-} from '../../redux/constants';
+} from '../../../common/constants';
 import { GET_PERMISSIONS, getPermissions } from '../actions';
 
 export default function reducer(state :Map, action :SequenceAction) {

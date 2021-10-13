@@ -6,13 +6,10 @@ import { Map, fromJS } from 'immutable';
 
 import fetchEntitySetDataReducer from './fetchEntitySetDataReducer';
 
+import { ENTITY_SET_DATA } from '../../../common/constants';
 import { RESET_REQUEST_STATES } from '../../redux/actions';
-import { ENTITY_SET_DATA } from '../../redux/constants';
 import { resetRequestStatesReducer } from '../../redux/reducers';
-import {
-  FETCH_ENTITY_SET_DATA,
-  fetchEntitySetData,
-} from '../actions';
+import { FETCH_ENTITY_SET_DATA, fetchEntitySetData } from '../actions';
 
 const INITIAL_STATE :Map = fromJS({
   // actions

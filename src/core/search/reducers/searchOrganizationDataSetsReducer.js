@@ -13,7 +13,7 @@ import {
   QUERY,
   REQUEST_STATE,
   TOTAL_HITS,
-} from '../../redux/constants';
+} from '../../../common/constants';
 import {
   SEARCH_ORGANIZATION_DATA_SETS,
   searchOrganizationDataSets,

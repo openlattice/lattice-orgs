@@ -15,7 +15,7 @@ import type { Organization, UUID } from 'lattice';
 import type { WorkerResponse } from 'lattice-sagas';
 import type { SequenceAction } from 'redux-reqseq';
 
-import { ERR_MISSING_ORG } from '../../../utils/constants/errors';
+import { ERR_MISSING_ORG } from '../../../common/constants';
 import { selectOrganization } from '../../redux/selectors';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../actions';
 
