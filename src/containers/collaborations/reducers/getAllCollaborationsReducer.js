@@ -10,10 +10,10 @@ import type { SequenceAction } from 'redux-reqseq';
 
 import { COLLABORATIONS, ERROR, REQUEST_STATE } from '../../../common/constants';
 
-const { GET_ALL_COLLABORATIONS, getCollaborations } = CollaborationsApiActions;
+const { GET_ALL_COLLABORATIONS, getAllCollaborations } = CollaborationsApiActions;
 
 export default function getCollaborationsReducer(state :Map, action :SequenceAction) {
-  return getCollaborations.reducer(state, action, {
+  return getAllCollaborations.reducer(state, action, {
     REQUEST: () => state
       .setIn([GET_ALL_COLLABORATIONS, REQUEST_STATE], RequestStates.PENDING)
       .setIn([GET_ALL_COLLABORATIONS, action.id], action),

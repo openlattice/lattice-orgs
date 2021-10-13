@@ -10,8 +10,8 @@ import addDataSetsToCollaborationReducer from './addDataSetsToCollaborationReduc
 import addOrganizationsToCollaborationReducer from './addOrganizationsToCollaborationReducer';
 import createNewCollaborationReducer from './createNewCollaborationReducer';
 import deleteCollaborationReducer from './deleteCollaborationReducer';
+import getAllCollaborationsReducer from './getAllCollaborationsReducer';
 import getCollaborationDatabaseInfoReducer from './getCollaborationDatabaseInfoReducer';
-import getCollaborationsReducer from './getCollaborationsReducer';
 import getCollaborationsWithDataSetsReducer from './getCollaborationsWithDataSetsReducer';
 import getCollaborationsWithOrganizationReducer from './getCollaborationsWithOrganizationReducer';
 import getDataSetsInCollaborationReducer from './getDataSetsInCollaborationReducer';
@@ -53,7 +53,7 @@ const {
   addOrganizationsToCollaboration,
   deleteCollaboration,
   getCollaborationDatabaseInfo,
-  getCollaborations,
+  getAllCollaborations,
   getCollaborationsWithDataSets,
   getCollaborationsWithOrganization,
   removeDataSetFromCollaboration,
@@ -112,8 +112,8 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
       return deleteCollaborationReducer(state, action);
     }
 
-    case getCollaborations.case(action.type): {
-      return getCollaborationsReducer(state, action);
+    case getAllCollaborations.case(action.type): {
+      return getAllCollaborationsReducer(state, action);
     }
 
     case getCollaborationsWithDataSets.case(action.type): {
