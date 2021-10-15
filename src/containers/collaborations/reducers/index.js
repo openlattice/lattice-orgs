@@ -31,6 +31,9 @@ import { RESET_REQUEST_STATES } from '../../../core/redux/actions';
 import { resetRequestStatesReducer } from '../../../core/redux/reducers';
 import {
   ADD_DATA_SETS_TO_COLLABORATION,
+  CLEAR_COLLABORATIONS,
+  CLEAR_COLLABORATIONS_BY_DATA_SET_ID,
+  CLEAR_COLLABORATION_DATA_SETS,
   CREATE_NEW_COLLABORATION,
   GET_DATA_SETS_IN_COLLABORATION,
   addDataSetsToCollaboration,
@@ -142,6 +145,16 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case renameCollaborationDatabase.case(action.type): {
       return renameCollaborationDatabaseReducer(state, action);
+    }
+
+    case CLEAR_COLLABORATIONS: {
+      return state.set(COLLABORATIONS, INITIAL_STATE.get(COLLABORATIONS));
+    }
+    case CLEAR_COLLABORATIONS_BY_DATA_SET_ID: {
+      return state.set(COLLABORATIONS_BY_DATA_SET_ID, INITIAL_STATE.get(COLLABORATIONS_BY_DATA_SET_ID));
+    }
+    case CLEAR_COLLABORATION_DATA_SETS: {
+      return state.set(COLLABORATION_DATA_SETS, INITIAL_STATE.get(COLLABORATION_DATA_SETS));
     }
 
     default: {

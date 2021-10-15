@@ -51,6 +51,7 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
+import { resetRequestStates } from '../../core/redux/actions';
 import {
   selectCollaborationsByDataSetId,
   selectDataSetSchema,
@@ -62,6 +63,7 @@ import {
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { ORG_DATA_SET_COLLABORATIONS } from '../../core/router/Routes';
+import { clearCollaborationsByDataSetId } from '../collaborations/actions';
 
 const { BLUE } = Colors;
 const { isDefined, isNonEmptyString } = LangUtils;
@@ -107,6 +109,11 @@ const OrgDataSetContainer = ({
 
   useEffect(() => {
     dispatch(getCollaborationsWithDataSets(dataSetId));
+
+    return () => {
+      dispatch(resetRequestStates([GET_COLLABORATIONS_WITH_DATA_SETS]));
+      dispatch(clearCollaborationsByDataSetId());
+    };
   }, [dispatch, dataSetId]);
 
   const contacts :List<string> = dataSet.getIn([METADATA, CONTACTS]);
