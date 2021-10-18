@@ -19,9 +19,8 @@ export default function getCollaborationsWithDataSetsReducer(state :Map, action 
     SUCCESS: () => {
       const storedSeqAction = state.getIn([GET_COLLABORATIONS_WITH_DATA_SETS, action.id]);
       if (storedSeqAction) {
-        const dataSetId = storedSeqAction.value;
         return state
-          .setIn([COLLABORATIONS_BY_DATA_SET_ID, dataSetId], fromJS(action.value))
+          .mergeIn([COLLABORATIONS_BY_DATA_SET_ID], fromJS(action.value))
           .setIn([GET_COLLABORATIONS_WITH_DATA_SETS, REQUEST_STATE], RequestStates.SUCCESS);
       }
       return state;
