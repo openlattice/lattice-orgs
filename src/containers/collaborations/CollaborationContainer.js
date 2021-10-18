@@ -2,13 +2,21 @@
  * @flow
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { List, Map, get } from 'immutable';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
-import { useSelector } from 'react-redux';
+import {
+  ReduxUtils,
+  RoutingUtils,
+  useRequestState
+} from 'lattice-utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { useRouteMatch } from 'react-router';
 import type { Organization, UUID } from 'lattice';
+import type { RequestState } from 'redux-reqseq';
 
+import { GET_DATA_SETS_IN_COLLABORATION, clearCollaborationDataSets, getDataSetsInCollaboration } from './actions';
 import {
   AddDataSetToCollaborationModal,
   AddOrganizationsToCollaborationModal,
@@ -16,25 +24,50 @@ import {
   RemoveDataSetFromCollaborationModal
 } from './components';
 
-import { DESCRIPTION, ID, TITLE } from '../../common/constants';
 import {
+  COLLABORATIONS,
+  DESCRIPTION,
+  ID,
+  TITLE
+} from '../../common/constants';
+import {
+  BasicErrorComponent,
   GapGrid,
   PlusButton,
   SpaceBetweenGrid,
+  Spinner,
   StackGrid
 } from '../../components';
+import { resetRequestStates } from '../../core/redux/actions';
 import {
   selectCollaboration,
   selectCollaborationDataSets,
   selectOrganizations,
   selectOrgsDataSets
 } from '../../core/redux/selectors';
+import { Routes } from '../../core/router';
 
-const CollaborationsContainer = ({
-  collaborationId,
-} :{|
-  collaborationId :UUID;
-|}) => {
+const {
+  isFailure,
+  isPending,
+  isStandby,
+} = ReduxUtils;
+
+const { getParamFromMatch } = RoutingUtils;
+
+const CollaborationsContainer = () => {
+  const dispatch = useDispatch();
+  const matchCollaboration = useRouteMatch(Routes.COLLABORATION);
+  const collaborationId = getParamFromMatch(matchCollaboration, Routes.COLLABORATION_ID_PARAM) || '';
+
+  useEffect(() => {
+    dispatch(getDataSetsInCollaboration(collaborationId));
+    return () => {
+      dispatch(resetRequestStates([GET_DATA_SETS_IN_COLLABORATION]));
+      dispatch(clearCollaborationDataSets());
+    };
+  }, [dispatch, collaborationId]);
+
   const [isVisibleAddDataSetModal, setIsVisibleAddDataSetModal] = useState(false);
   const [isVisibleAddOrganizationModal, setIsVisibleAddOrganizationModal] = useState(false);
 
@@ -48,6 +81,26 @@ const CollaborationsContainer = ({
 
   const collaborationDataSetIds :List<UUID> = collaborationDataSetMap.valueSeq().flatten();
   const collaborationDataSets :Map<UUID, Map<UUID, Map>> = useSelector(selectOrgsDataSets(collaborationDataSetMap));
+
+  const getDataSetsInCollaborationRS :?RequestState = useRequestState([COLLABORATIONS, GET_DATA_SETS_IN_COLLABORATION]);
+
+  if (isStandby(getDataSetsInCollaborationRS) || isPending(getDataSetsInCollaborationRS)) {
+    return (
+      <AppContentWrapper>
+        <Spinner />
+      </AppContentWrapper>
+    );
+  }
+
+  if (isFailure(getDataSetsInCollaborationRS)) {
+    return (
+      <AppContentWrapper>
+        <BasicErrorComponent>
+          Failed to load collaboration data sets. Please try again or contact support.
+        </BasicErrorComponent>
+      </AppContentWrapper>
+    );
+  }
 
   const closeRemoveDatSetModal = () => setDataSetToRemove(null);
 

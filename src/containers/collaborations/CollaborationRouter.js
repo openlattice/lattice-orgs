@@ -7,10 +7,7 @@ import React, { useEffect } from 'react';
 import { CollaborationsApiActions } from 'lattice-sagas';
 import { AppContentWrapper } from 'lattice-ui-kit';
 import {
-  Logger,
   ReduxUtils,
-  RoutingUtils,
-  ValidationUtils,
   useRequestState,
 } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
@@ -18,66 +15,41 @@ import {
   Redirect,
   Route,
   Switch,
-  useRouteMatch
 } from 'react-router';
-import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import CollaborationContainer from './CollaborationContainer';
 import CollaborationsContainer from './CollaborationsContainer';
-import { GET_DATA_SETS_IN_COLLABORATION, getDataSetsInCollaboration } from './actions';
+import { clearCollaborations } from './actions';
 
-import { COLLABORATIONS, ERR_INVALID_UUID } from '../../common/constants';
+import { COLLABORATIONS } from '../../common/constants';
 import { BasicErrorComponent, Spinner } from '../../components';
+import { resetRequestStates } from '../../core/redux/actions';
 import { Routes } from '../../core/router';
 
-const { GET_COLLABORATIONS, getCollaborations } = CollaborationsApiActions;
+const { GET_ALL_COLLABORATIONS, getAllCollaborations } = CollaborationsApiActions;
 
 const {
   isFailure,
   isPending,
   isStandby,
-  isSuccess,
 } = ReduxUtils;
-const { getParamFromMatch } = RoutingUtils;
-const { isValidUUID } = ValidationUtils;
-
-const LOG = new Logger('CollaborationRouter');
 
 const CollaborationRouter = () => {
 
   const dispatch = useDispatch();
 
-  let collaborationId :?UUID;
-
-  const matchCollaboration = useRouteMatch(Routes.COLLABORATION);
-
-  // TODO: having to match each route is a pain. how do we avoid this pattern?
-  if (matchCollaboration) {
-    collaborationId = getParamFromMatch(matchCollaboration, Routes.COLLABORATION_ID_PARAM);
-  }
-
-  const getCollaborationsRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS]);
-  const getDataSetsInCollaborationRS :?RequestState = useRequestState([COLLABORATIONS, GET_DATA_SETS_IN_COLLABORATION]);
+  const getAllCollaborationsRS :?RequestState = useRequestState([COLLABORATIONS, GET_ALL_COLLABORATIONS]);
 
   useEffect(() => {
-    if (isStandby(getCollaborationsRS)) {
-      dispatch(getCollaborations());
-    }
-  }, [dispatch, getCollaborationsRS]);
+    dispatch(getAllCollaborations());
+    return () => {
+      dispatch(resetRequestStates([GET_ALL_COLLABORATIONS]));
+      dispatch(clearCollaborations());
+    };
+  }, [dispatch]);
 
-  useEffect(() => {
-    if (isValidUUID(collaborationId)) {
-      dispatch(getDataSetsInCollaboration(collaborationId));
-    }
-  }, [dispatch, collaborationId]);
-
-  const collaborationsSpinner = isStandby(getCollaborationsRS) || isPending(getCollaborationsRS);
-  const collaborationSpinner = isValidUUID(collaborationId) && isSuccess(getCollaborationsRS) && (
-    isStandby(getDataSetsInCollaborationRS) || isPending(getDataSetsInCollaborationRS)
-  );
-
-  if (collaborationsSpinner || collaborationSpinner) {
+  if (isStandby(getAllCollaborationsRS) || isPending(getAllCollaborationsRS)) {
     return (
       <AppContentWrapper>
         <Spinner />
@@ -85,36 +57,23 @@ const CollaborationRouter = () => {
     );
   }
 
-  if (isFailure(getCollaborationsRS) || isFailure(getDataSetsInCollaborationRS)) {
+  if (isFailure(getAllCollaborationsRS)) {
     return (
       <AppContentWrapper>
-        <BasicErrorComponent />
+        <BasicErrorComponent>
+          Failed to load collaborations. Please try again or contact support.
+        </BasicErrorComponent>
       </AppContentWrapper>
     );
   }
 
-  if (isSuccess(getCollaborationsRS)) {
-
-    const renderCollaborationContainer = () => (
-      (collaborationId)
-        ? <CollaborationContainer collaborationId={collaborationId} />
-        : null
-    );
-
-    return (
-      <Switch>
-        <Route path={Routes.COLLABORATION} render={renderCollaborationContainer} />
-        <Route path={Routes.COLLABORATIONS} component={CollaborationsContainer} />
-        <Redirect to={Routes.COLLABORATIONS} />
-      </Switch>
-    );
-  }
-
-  if (!isValidUUID(collaborationId)) {
-    LOG.error(ERR_INVALID_UUID, collaborationId);
-  }
-
-  return null;
+  return (
+    <Switch>
+      <Route path={Routes.COLLABORATION} component={CollaborationContainer} />
+      <Route path={Routes.COLLABORATIONS} component={CollaborationsContainer} />
+      <Redirect to={Routes.COLLABORATIONS} />
+    </Switch>
+  );
 };
 
 export default CollaborationRouter;
