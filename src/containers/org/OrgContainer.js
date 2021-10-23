@@ -64,7 +64,9 @@ const OrgContainer = () => {
 
   const dispatch = useDispatch();
   const location = useLocation();
-  const { organizationId } = useParams();
+
+  const pathParams = useParams();
+  const { organizationId } = pathParams;
 
   const deleteOrgRS :?RequestState = useRequestState([ORGANIZATIONS, DELETE_EXISTING_ORGANIZATION]);
   const getCollabWithOrgRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS_WITH_ORGANIZATION]);
@@ -99,12 +101,11 @@ const OrgContainer = () => {
     }
   });
 
-  const collaborationPath = generatePath(ORG_COLLABORATIONS, { organizationId });
-  const orgPath = generatePath(ORG, { organizationId });
-  const peoplePath = generatePath(Routes.ORG_PEOPLE, { organizationId });
-  const requestsPath = generatePath(Routes.ORG_ACCESS_REQUESTS, { organizationId });
-  const rolesPath = generatePath(Routes.ORG_ROLES, { organizationId });
-
+  const collaborationPath = generatePath(ORG_COLLABORATIONS, pathParams);
+  const orgPath = generatePath(ORG, pathParams);
+  const peoplePath = generatePath(Routes.ORG_PEOPLE, pathParams);
+  const requestsPath = generatePath(Routes.ORG_ACCESS_REQUESTS, pathParams);
+  const rolesPath = generatePath(Routes.ORG_ROLES, pathParams);
   if (organization) {
     const rolesCount :number = organization.roles.length;
     const peopleCount :number = organization.members.length;

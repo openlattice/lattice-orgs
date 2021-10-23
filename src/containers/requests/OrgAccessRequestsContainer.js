@@ -27,7 +27,9 @@ const { isValidUUID } = ValidationUtils;
 const OrgAccessRequestsContainer = () => {
 
   const match = useRouteMatch();
-  const { organizationId } = useParams();
+  const pathParams = useParams();
+  const { organizationId } = pathParams;
+
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const isInstalled :boolean = useSelector(selectIsAppInstalled(APPS.ACCESS_REQUESTS, organizationId));
 
@@ -38,7 +40,6 @@ const OrgAccessRequestsContainer = () => {
     requestId = getParamFromMatch(matchOrganizationAccessRequest, Routes.REQUEST_ID_PARAM);
   }
 
-  const pathParams = { organizationId };
   const organizationPath = generatePath(Routes.ORG, pathParams);
   const requestsPath = generatePath(Routes.ORG_ACCESS_REQUESTS, pathParams);
 
