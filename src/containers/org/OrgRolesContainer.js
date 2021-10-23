@@ -15,6 +15,7 @@ import {
 } from 'lattice-ui-kit';
 import { ReduxUtils } from 'lattice-utils';
 import { useSelector } from 'react-redux';
+import { generatePath, useParams } from 'react-router';
 import { Link } from 'react-router-dom';
 import type { Organization, Role, UUID } from 'lattice';
 
@@ -44,20 +45,18 @@ const RoleLink = styled(Link)`
   }
 `;
 
-const OrgRolesContainer = ({
-  organizationId,
-  organizationRoute,
-} :{|
-  organizationId :UUID;
-  organizationRoute :string;
-|}) => {
+const OrgRolesContainer = () => {
 
+  const pathParams = useParams();
+  const { organizationId } = pathParams;
   const [isVisibleAddRoleToOrgModal, setIsVisibleAddRoleToOrgModal] = useState(false);
   const [paginationState, paginationDispatch] = useReducer(pagination.reducer, pagination.INITIAL_STATE);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
   const isOwner :boolean = myKeys.has(List([organizationId]));
+
+  const organizationPath = generatePath(Routes.ORG, pathParams);
 
   if (organization) {
 
@@ -81,7 +80,7 @@ const OrgRolesContainer = ({
     return (
       <AppContentWrapper>
         <Crumbs>
-          <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+          <CrumbLink to={organizationPath}>{organization.title || 'Organization'}</CrumbLink>
           <CrumbItem>Roles</CrumbItem>
         </Crumbs>
         <StackGrid gap={24}>
@@ -114,9 +113,10 @@ const OrgRolesContainer = ({
             {
               pageRoles.map((role :Role) => {
                 const roleId :UUID = (role.id :any);
-                const rolePath = Routes.ORG_ROLE
-                  .replace(Routes.ORG_ID_PARAM, organizationId)
-                  .replace(Routes.ROLE_ID_PARAM, roleId);
+                const rolePath = generatePath(Routes.ORG_ROLE, {
+                  organizationId,
+                  roleId
+                });
                 return (
                   <CardSegment key={roleId} padding="24px 0">
                     <RoleLink to={rolePath}>{role.title}</RoleLink>
