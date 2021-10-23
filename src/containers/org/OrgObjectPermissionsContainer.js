@@ -8,8 +8,9 @@ import { List } from 'immutable';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
+import { generatePath, useParams } from 'react-router';
 import { RequestStates } from 'redux-reqseq';
-import type { Organization, UUID } from 'lattice';
+import type { Organization } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import { PERMISSIONS } from '../../common/constants';
@@ -23,17 +24,14 @@ import {
 import { GET_ORG_OBJECT_PERMISSIONS, getOrgObjectPermissions } from '../../core/permissions/actions';
 import { resetRequestStates } from '../../core/redux/actions';
 import { selectOrganization } from '../../core/redux/selectors';
+import { Routes } from '../../core/router';
 import { ObjectPermissionsContainer, PermissionsActionsGrid } from '../permissions';
 
-const OrgObjectPermissionsContainer = ({
-  organizationId,
-  organizationRoute,
-} :{
-  organizationId :UUID;
-  organizationRoute :string;
-}) => {
+const OrgObjectPermissionsContainer = () => {
 
   const dispatch = useDispatch();
+  const pathParams = useParams();
+  const { organizationId } = pathParams;
 
   const [filterByPermissionTypes, setFilterByPermissionTypes] = useState([]);
   const [filterByQuery, setFilterByQuery] = useState('');
@@ -58,12 +56,13 @@ const OrgObjectPermissionsContainer = ({
   const onOpenPermissionsModal = () => setIsVisibleAssignPermissionsModal(true);
   const onClosePermissionsModal = () => setIsVisibleAssignPermissionsModal(false);
 
-  if (organization) {
+  const organizationPath = generatePath(Routes.ORG_OBJECT_PERMISSIONS, pathParams);
 
+  if (organization) {
     return (
       <AppContentWrapper>
         <Crumbs>
-          <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+          <CrumbLink to={organizationPath}>{organization.title || 'Organization'}</CrumbLink>
           <CrumbItem>Permissions</CrumbItem>
         </Crumbs>
         <StackGrid>

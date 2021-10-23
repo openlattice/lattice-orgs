@@ -182,12 +182,6 @@ const OrgRouter = () => {
         : null
     );
 
-    const renderOrgObjectPermissionsContainer = () => (
-      (organizationId)
-        ? <OrgObjectPermissionsContainer organizationId={organizationId} organizationRoute={organizationRoute} />
-        : null
-    );
-
     const renderOrgPeopleContainer = () => (
       (organizationId)
         ? <OrgPeopleContainer organizationId={organizationId} organizationRoute={organizationRoute} />
@@ -243,7 +237,7 @@ const OrgRouter = () => {
         <Route path={Routes.ORG_ROLE} render={renderOrgRoleContainer} />
         <Route path={Routes.ORG_ROLES} render={renderOrgRolesContainer} />
         <Route path={Routes.ORG_SETTINGS} render={renderOrgSettingsContainer} />
-        <Route path={Routes.ORG_OBJECT_PERMISSIONS} render={renderOrgObjectPermissionsContainer} />
+        <Route path={Routes.ORG_OBJECT_PERMISSIONS} component={OrgObjectPermissionsContainer} />
         <Route path={Routes.ORG} component={OrgContainer} />
       </Switch>
     );
