@@ -105,8 +105,8 @@ const DataSetActionButton = ({
   dataSetId,
   organizationId,
 } :{|
-  dataSetId :UUID;
-  organizationId :UUID;
+  dataSetId :?UUID;
+  organizationId :?UUID;
 |}) => {
 
   const dataSetKey :List<UUID> = List([dataSetId]);

@@ -10,7 +10,7 @@ import { ORGANIZATIONS } from '../../../common/constants';
 
 const { isValidUUID } = ValidationUtils;
 
-export default function selectOrganization(organizationId :UUID) {
+export default function selectOrganization(organizationId :?UUID) {
 
   return (state :Map) :?Organization => {
 

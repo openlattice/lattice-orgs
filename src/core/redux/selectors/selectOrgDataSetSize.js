@@ -10,7 +10,7 @@ import { EDM, ENTITY_SET_SIZE_MAP } from '../../../common/constants';
 
 const { isValidUUID } = ValidationUtils;
 
-export default function selectOrgDataSetSize(organizationId :UUID, dataSetId :UUID) {
+export default function selectOrgDataSetSize(organizationId :?UUID, dataSetId :?UUID) {
 
   return (state :Map) :?number => {
 

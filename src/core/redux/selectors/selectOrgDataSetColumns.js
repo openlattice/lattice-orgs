@@ -10,7 +10,7 @@ import { EDM, ORG_DATA_SET_COLUMNS } from '../../../common/constants';
 
 const { isValidUUID } = ValidationUtils;
 
-export default function selectOrgDataSetColumns(organizationId :UUID, dataSetId :UUID) {
+export default function selectOrgDataSetColumns(organizationId :?UUID, dataSetId :?UUID) {
 
   return (state :Map) :Map<UUID, Map> => {
 
