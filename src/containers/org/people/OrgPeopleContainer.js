@@ -9,6 +9,7 @@ import { List, Set, fromJS } from 'immutable';
 import { Types } from 'lattice';
 import { AppContentWrapper, Typography } from 'lattice-ui-kit';
 import { useDispatch, useSelector } from 'react-redux';
+import { generatePath, useParams } from 'react-router';
 import type { Organization, UUID } from 'lattice';
 
 import PeopleTable from './PeopleTable';
@@ -26,6 +27,7 @@ import {
 } from '../../../core/permissions/actions';
 import { resetRequestStates } from '../../../core/redux/actions';
 import { selectMyKeys, selectOrganization, selectOrganizationMembers } from '../../../core/redux/selectors';
+import { Routes } from '../../../core/router';
 import { resetUserSearchResults } from '../../../core/users/actions';
 
 const { PermissionTypes } = Types;
@@ -41,15 +43,11 @@ const StyledContentWrapper = styled(AppContentWrapper)`
   }
 `;
 
-const OrgPeopleContainer = ({
-  organizationId,
-  organizationRoute,
-} :{|
-  organizationId :UUID;
-  organizationRoute :string;
-|}) => {
+const OrgPeopleContainer = () => {
 
   const dispatch = useDispatch();
+  const pathParams = useParams();
+  const { organizationId } = pathParams;
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
@@ -77,12 +75,14 @@ const OrgPeopleContainer = ({
     };
   }, [dispatch, roleAclKeys]);
 
+  const organizationPath = generatePath(Routes.ORG, pathParams);
+
   if (organization) {
     const roles = organization.roles.sort((roleA, roleB) => roleA.title.localeCompare(roleB.title));
     return (
       <StyledContentWrapper>
         <Crumbs>
-          <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+          <CrumbLink to={organizationPath}>{organization.title || 'Organization'}</CrumbLink>
           <CrumbItem>People</CrumbItem>
         </Crumbs>
         <Typography variant="h1">People</Typography>
