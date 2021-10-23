@@ -8,13 +8,15 @@ import { AppContentWrapper } from 'lattice-ui-kit';
 import {
   Logger,
   ReduxUtils,
-  RoutingUtils,
   ValidationUtils,
   useRequestState,
 } from 'lattice-utils';
 import { useDispatch } from 'react-redux';
-import { Route, Switch, useRouteMatch } from 'react-router';
-import type { UUID } from 'lattice';
+import {
+  Route,
+  Switch,
+  useParams,
+} from 'react-router';
 import type { RequestState } from 'redux-reqseq';
 
 import OrgContainer from './OrgContainer';
@@ -31,7 +33,7 @@ import { OrgMemberContainer, OrgPeopleContainer } from './people';
 import EntityDataContainer from '../explore/EntityDataContainer';
 import { EDM, ERR_INVALID_UUID, ORGANIZATIONS } from '../../common/constants';
 import { BasicErrorComponent, Spinner } from '../../components';
-import { INITIALIZE_ORGANIZATION_DATA_SET, initializeOrganizationDataSet } from '../../core/edm/actions';
+import { INITIALIZE_ORGANIZATION_DATA_SET } from '../../core/edm/actions';
 import { resetRequestStates } from '../../core/redux/actions';
 import { Routes } from '../../core/router';
 import { SEARCH_DATA, SEARCH_ORGANIZATION_DATA_SETS, clearSearchState } from '../../core/search/actions';
@@ -43,7 +45,6 @@ const {
   isStandby,
   isSuccess,
 } = ReduxUtils;
-const { getParamFromMatch } = RoutingUtils;
 const { isValidUUID } = ValidationUtils;
 
 const NO_ROUTE :'#' = '#';
@@ -54,66 +55,13 @@ const OrgRouter = () => {
 
   const dispatch = useDispatch();
 
-  let dataSetId :?UUID;
-  let entityKeyId :?UUID;
-  let memberPrincipalId :?UUID;
-  let organizationId :?UUID;
-  let roleId :?UUID;
-
-  const matchEntity = useRouteMatch(Routes.ENTITY);
-  const matchOrganization = useRouteMatch(Routes.ORG);
-  const matchOrganizationAccessRequests = useRouteMatch(Routes.ORG_ACCESS_REQUESTS);
-  const matchOrganizationDataSet = useRouteMatch(Routes.ORG_DATA_SET);
-  const matchOrganizationDataSets = useRouteMatch(Routes.ORG_DATA_SETS);
-  const matchOrganizationMember = useRouteMatch(Routes.ORG_MEMBER);
-  const matchOrganizationRole = useRouteMatch(Routes.ORG_ROLE);
-  const matchOrganizationRoles = useRouteMatch(Routes.ORG_ROLES);
-  const matchOrgObjectPermissions = useRouteMatch(Routes.ORG_OBJECT_PERMISSIONS);
-  const matchOrgRoleObjectPermissions = useRouteMatch(Routes.ORG_ROLE_OBJECT_PERMISSIONS);
-  const matchOrgDataSetObjectPermissions = useRouteMatch(Routes.ORG_DATA_SET_OBJECT_PERMISSIONS);
-
-  // TODO: having to match each route is a pain. how do we avoid this pattern?
-  if (matchOrganizationAccessRequests) {
-    organizationId = getParamFromMatch(matchOrganizationAccessRequests, Routes.ORG_ID_PARAM);
-  }
-  else if (matchEntity) {
-    dataSetId = getParamFromMatch(matchEntity, Routes.DATA_SET_ID_PARAM);
-    entityKeyId = getParamFromMatch(matchEntity, Routes.ENTITY_KEY_ID_PARAM);
-    organizationId = getParamFromMatch(matchEntity, Routes.ORG_ID_PARAM);
-  }
-  else if (matchOrgDataSetObjectPermissions) {
-    organizationId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.ORG_ID_PARAM);
-    dataSetId = getParamFromMatch(matchOrgDataSetObjectPermissions, Routes.DATA_SET_ID_PARAM);
-  }
-  else if (matchOrganizationDataSet) {
-    organizationId = getParamFromMatch(matchOrganizationDataSet, Routes.ORG_ID_PARAM);
-    dataSetId = getParamFromMatch(matchOrganizationDataSet, Routes.DATA_SET_ID_PARAM);
-  }
-  else if (matchOrganizationDataSets) {
-    organizationId = getParamFromMatch(matchOrganizationDataSets, Routes.ORG_ID_PARAM);
-  }
-  else if (matchOrganizationMember) {
-    organizationId = getParamFromMatch(matchOrganizationMember, Routes.ORG_ID_PARAM);
-    memberPrincipalId = getParamFromMatch(matchOrganizationMember, Routes.PRINCIPAL_ID_PARAM);
-  }
-  else if (matchOrgRoleObjectPermissions) {
-    organizationId = getParamFromMatch(matchOrgRoleObjectPermissions, Routes.ORG_ID_PARAM);
-    roleId = getParamFromMatch(matchOrgRoleObjectPermissions, Routes.ROLE_ID_PARAM);
-  }
-  else if (matchOrganizationRole) {
-    organizationId = getParamFromMatch(matchOrganizationRole, Routes.ORG_ID_PARAM);
-    roleId = getParamFromMatch(matchOrganizationRole, Routes.ROLE_ID_PARAM);
-  }
-  else if (matchOrganizationRoles) {
-    organizationId = getParamFromMatch(matchOrganizationRoles, Routes.ORG_ID_PARAM);
-  }
-  else if (matchOrgObjectPermissions) {
-    organizationId = getParamFromMatch(matchOrgObjectPermissions, Routes.ORG_ID_PARAM);
-  }
-  // NOTE: check matchOrganization last because it's less specific than the others
-  else if (matchOrganization) {
-    organizationId = getParamFromMatch(matchOrganization, Routes.ORG_ID_PARAM);
-  }
+  const {
+    dataSetId,
+    entityKeyId,
+    organizationId,
+    memberPrincipalId,
+    roleId,
+  } = useParams();
 
   const initializeOrganizationRS :?RequestState = useRequestState([ORGANIZATIONS, INITIALIZE_ORGANIZATION]);
   const initializeOrgDataSetRS :?RequestState = useRequestState([EDM, INITIALIZE_ORGANIZATION_DATA_SET]);
@@ -128,19 +76,6 @@ const OrgRouter = () => {
       dispatch(resetRequestStates([INITIALIZE_ORGANIZATION]));
     };
   }, [dispatch, organizationId]);
-
-  useEffect(() => {
-    // reset INITIALIZE_ORGANIZATION_DATA_SET RequestState when the data set id changes
-    dispatch(resetRequestStates([INITIALIZE_ORGANIZATION_DATA_SET]));
-    if (isSuccess(initializeOrganizationRS) && isValidUUID(dataSetId)) {
-      dispatch(initializeOrganizationDataSet({ dataSetId, organizationId }));
-    }
-  }, [
-    dispatch,
-    dataSetId,
-    initializeOrganizationRS,
-    organizationId,
-  ]);
 
   const organizationRoute = useMemo(() => {
     if (organizationId) {
@@ -210,28 +145,9 @@ const OrgRouter = () => {
 
   if (isSuccess(initializeOrganizationRS)) {
 
-    const renderOrgContainer = () => (
-      (organizationId)
-        ? <OrgContainer organizationId={organizationId} />
-        : null
-    );
-
     const renderOrgAccessRequestsContainer = () => (
       (organizationId)
         ? <OrgAccessRequestsContainer organizationId={organizationId} organizationRoute={organizationRoute} />
-        : null
-    );
-
-    const renderOrgDataSetContainer = () => (
-      (organizationId && dataSetId)
-        ? (
-          <OrgDataSetContainer
-              dataSetDataRoute={dataSetDataRoute}
-              dataSetId={dataSetId}
-              dataSetRoute={dataSetRoute}
-              organizationId={organizationId}
-              organizationRoute={organizationRoute} />
-        )
         : null
     );
 
@@ -326,7 +242,7 @@ const OrgRouter = () => {
         <Route path={Routes.ENTITY} render={renderEntityDataContainer} />
         <Route path={Routes.ORG_ACCESS_REQUESTS} render={renderOrgAccessRequestsContainer} />
         <Route path={Routes.ORG_DATA_SET_OBJECT_PERMISSIONS} render={renderOrgDataSetObjectPermissionsContainer} />
-        <Route path={Routes.ORG_DATA_SET} render={renderOrgDataSetContainer} />
+        <Route path={Routes.ORG_DATA_SET} component={OrgDataSetContainer} />
         <Route path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
         <Route path={Routes.ORG_PEOPLE} render={renderOrgPeopleContainer} />
         <Route path={Routes.ORG_ROLE_OBJECT_PERMISSIONS} render={renderOrgRoleObjectPermissionsContainer} />
@@ -334,7 +250,7 @@ const OrgRouter = () => {
         <Route path={Routes.ORG_ROLES} render={renderOrgRolesContainer} />
         <Route path={Routes.ORG_SETTINGS} render={renderOrgSettingsContainer} />
         <Route path={Routes.ORG_OBJECT_PERMISSIONS} render={renderOrgObjectPermissionsContainer} />
-        <Route path={Routes.ORG} render={renderOrgContainer} />
+        <Route path={Routes.ORG} component={OrgContainer} />
       </Switch>
     );
   }

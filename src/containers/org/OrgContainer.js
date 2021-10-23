@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect } from 'react';
 
 import { faFileContract, faUser } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -23,9 +23,9 @@ import {
   useRequestState,
 } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { useLocation } from 'react-router';
+import { generatePath, useLocation, useParams } from 'react-router';
 import { Link, Route, Switch } from 'react-router-dom';
-import type { Organization, UUID } from 'lattice';
+import type { Organization } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
 import CollaborationsParticipationContainer from './CollaborationsParticipationContainer';
@@ -53,33 +53,26 @@ import {
   selectOrganization,
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-import { ORG, ORG_COLLABORATIONS, ORG_ID_PARAM } from '../../core/router/Routes';
+import { ORG, ORG_COLLABORATIONS } from '../../core/router/Routes';
 
 const { PURPLE } = Colors;
 const { isNonEmptyString } = LangUtils;
 const { isStandby, isSuccess } = ReduxUtils;
 const { GET_COLLABORATIONS_WITH_ORGANIZATION, getCollaborationsWithOrganization } = CollaborationsApiActions;
 
-const OrgContainer = ({
-  organizationId,
-} :{|
-  organizationId :UUID;
-|}) => {
+const OrgContainer = () => {
 
   const dispatch = useDispatch();
   const location = useLocation();
+  const { organizationId } = useParams();
 
   const deleteOrgRS :?RequestState = useRequestState([ORGANIZATIONS, DELETE_EXISTING_ORGANIZATION]);
   const getCollabWithOrgRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS_WITH_ORGANIZATION]);
+  const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORG_OBJECT_PERMISSIONS]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const isInstalled :boolean = useSelector(selectIsAppInstalled(APPS.ACCESS_REQUESTS, organizationId));
   const collaborationsByOrganizationId = useSelector(selectCollaborationsByOrgId(organizationId));
-
-  const collaborationHref = ORG_COLLABORATIONS.replace(ORG_ID_PARAM, organizationId);
-  const orgHref = ORG.replace(ORG_ID_PARAM, organizationId);
-
-  const getOrgObjectPermissionsRS :?RequestState = useRequestState([PERMISSIONS, GET_ORG_OBJECT_PERMISSIONS]);
 
   useEffect(() => {
     if (isStandby(getOrgObjectPermissionsRS)) {
@@ -106,17 +99,11 @@ const OrgContainer = ({
     }
   });
 
-  const peoplePath = useMemo(() => (
-    Routes.ORG_PEOPLE.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
-  const rolesPath = useMemo(() => (
-    Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
-  const requestsPath = useMemo(() => (
-    Routes.ORG_ACCESS_REQUESTS.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
+  const collaborationPath = generatePath(ORG_COLLABORATIONS, { organizationId });
+  const orgPath = generatePath(ORG, { organizationId });
+  const peoplePath = generatePath(Routes.ORG_PEOPLE, { organizationId });
+  const requestsPath = generatePath(Routes.ORG_ACCESS_REQUESTS, { organizationId });
+  const rolesPath = generatePath(Routes.ORG_ROLES, { organizationId });
 
   if (organization) {
     const rolesCount :number = organization.roles.length;
@@ -176,14 +163,14 @@ const OrgContainer = ({
               value={location.pathname}>
             <FolderTab
                 component={Link}
-                to={orgHref}
+                to={orgPath}
                 label="Data Sets"
-                value={orgHref} />
+                value={orgPath} />
             <FolderTab
                 component={Link}
-                to={collaborationHref}
+                to={collaborationPath}
                 label={collabTabText}
-                value={collaborationHref} />
+                value={collaborationPath} />
           </FolderTabs>
           <Switch>
             <Route

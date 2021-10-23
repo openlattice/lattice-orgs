@@ -20,7 +20,13 @@ import {
 } from 'lattice-ui-kit';
 import { LangUtils, ReduxUtils, useRequestState } from 'lattice-utils';
 import { useDispatch, useSelector } from 'react-redux';
-import { Route, Switch, useLocation } from 'react-router';
+import {
+  Route,
+  Switch,
+  generatePath,
+  useLocation,
+  useParams,
+} from 'react-router';
 import { Link } from 'react-router-dom';
 import type { EntityType, Organization, UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
@@ -51,6 +57,7 @@ import {
   SpaceBetweenGrid,
   StackGrid,
 } from '../../components';
+import { INITIALIZE_ORGANIZATION_DATA_SET, initializeOrganizationDataSet } from '../../core/edm/actions';
 import { resetRequestStates } from '../../core/redux/actions';
 import {
   selectCollaborationsByDataSetId,
@@ -62,7 +69,12 @@ import {
   selectOrganization
 } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
-import { ORG_DATA_SET_COLLABORATIONS } from '../../core/router/Routes';
+import {
+  ORG,
+  ORG_DATA_SET,
+  ORG_DATA_SET_COLLABORATIONS,
+  ORG_DATA_SET_DATA
+} from '../../core/router/Routes';
 import { clearCollaborationsByDataSetId } from '../collaborations/actions';
 
 const { BLUE } = Colors;
@@ -80,24 +92,14 @@ const CountBadge = styled(Badge)`
   margin-right: 5px;
 `;
 
-const OrgDataSetContainer = ({
-  dataSetDataRoute,
-  dataSetId,
-  dataSetRoute,
-  organizationId,
-  organizationRoute,
-} :{|
-  dataSetDataRoute :string;
-  dataSetId :UUID;
-  dataSetRoute :string;
-  organizationId :UUID;
-  organizationRoute :string;
-|}) => {
+const OrgDataSetContainer = () => {
 
   const dispatch = useDispatch();
   const location = useLocation();
+  const { organizationId = '', dataSetId = '' } = useParams();
   const organization :?Organization = useSelector(selectOrganization(organizationId));
   const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
+
   const dataSetEntityTypeId :UUID = dataSet.get(ENTITY_TYPE_ID);
   const dataSetColumns :Map<UUID, Map> = useSelector(selectOrgDataSetColumns(organizationId, dataSetId));
   const dataSetSchema :?string = useSelector(selectDataSetSchema(dataSetId));
@@ -109,23 +111,38 @@ const OrgDataSetContainer = ({
 
   useEffect(() => {
     dispatch(getCollaborationsWithDataSets(dataSetId));
+    dispatch(initializeOrganizationDataSet({ dataSetId, organizationId }));
 
     return () => {
       dispatch(resetRequestStates([GET_COLLABORATIONS_WITH_DATA_SETS]));
+      dispatch(resetRequestStates([INITIALIZE_ORGANIZATION_DATA_SET]));
       dispatch(clearCollaborationsByDataSetId());
     };
-  }, [dispatch, dataSetId]);
+  }, [dispatch, dataSetId, organizationId]);
 
-  const contacts :List<string> = dataSet.getIn([METADATA, CONTACTS]);
+  const contacts :List<string> = dataSet.getIn([METADATA, CONTACTS], List());
   const description :string = dataSet.getIn([METADATA, DESCRIPTION]);
   const name :string = dataSet.get(NAME);
   const title :string = dataSet.getIn([METADATA, TITLE]);
   const metadata :Map = dataSet.getIn([METADATA, METADATA], Map());
 
   const hasContactInfo :boolean = contacts.some(isNonEmptyString);
-  const dataSetCollabRoute = ORG_DATA_SET_COLLABORATIONS
-    .replace(Routes.ORG_ID_PARAM, organizationId)
-    .replace(Routes.DATA_SET_ID_PARAM, dataSetId);
+
+  const dataSetCollabPath = generatePath(ORG_DATA_SET_COLLABORATIONS, {
+    organizationId,
+    dataSetId
+  });
+  const dataSetDataPath = generatePath(ORG_DATA_SET_DATA, {
+    organizationId,
+    dataSetId,
+  });
+  const organizationPath = generatePath(ORG, {
+    organizationId
+  });
+  const dataSetPath = generatePath(ORG_DATA_SET, {
+    organizationId,
+    dataSetId,
+  });
 
   const collabCount = collaborationsByDataSetId.size;
   const collabTabText = isSuccess(getCollabWithDataSetRS) ? `Collaborations (${collabCount})` : 'Collaborations';
@@ -139,7 +156,7 @@ const OrgDataSetContainer = ({
       <>
         <AppContentWrapper>
           <Crumbs>
-            <CrumbLink to={organizationRoute}>{organization.title || 'Organization'}</CrumbLink>
+            <CrumbLink to={organizationPath}>{organization.title || 'Organization'}</CrumbLink>
             <CrumbItem>{title || name}</CrumbItem>
           </Crumbs>
           <StackGrid gap={16}>
@@ -227,19 +244,19 @@ const OrgDataSetContainer = ({
                 value={location.pathname}>
               <FolderTab
                   component={Link}
-                  to={dataSetRoute}
+                  to={dataSetPath}
                   label="Properties"
-                  value={dataSetRoute} />
+                  value={dataSetPath} />
               <FolderTab
                   component={Link}
-                  to={dataSetDataRoute}
+                  to={dataSetDataPath}
                   label="Search"
-                  value={dataSetDataRoute} />
+                  value={dataSetDataPath} />
               <FolderTab
                   component={Link}
-                  to={dataSetCollabRoute}
+                  to={dataSetCollabPath}
                   label={collabTabText}
-                  value={dataSetCollabRoute} />
+                  value={dataSetCollabPath} />
             </FolderTabs>
             <Switch>
               <Route
