@@ -145,12 +145,6 @@ const OrgRouter = () => {
 
   if (isSuccess(initializeOrganizationRS)) {
 
-    const renderOrgAccessRequestsContainer = () => (
-      (organizationId)
-        ? <OrgAccessRequestsContainer organizationId={organizationId} organizationRoute={organizationRoute} />
-        : null
-    );
-
     const renderEntityDataContainer = () => (
       (dataSetId && entityKeyId && organizationId)
         ? (
@@ -240,7 +234,7 @@ const OrgRouter = () => {
     return (
       <Switch>
         <Route path={Routes.ENTITY} render={renderEntityDataContainer} />
-        <Route path={Routes.ORG_ACCESS_REQUESTS} render={renderOrgAccessRequestsContainer} />
+        <Route path={Routes.ORG_ACCESS_REQUESTS} component={OrgAccessRequestsContainer} />
         <Route path={Routes.ORG_DATA_SET_OBJECT_PERMISSIONS} render={renderOrgDataSetObjectPermissionsContainer} />
         <Route path={Routes.ORG_DATA_SET} component={OrgDataSetContainer} />
         <Route path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
