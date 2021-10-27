@@ -10,7 +10,6 @@ import {
   OrganizationsApiActions,
 } from 'lattice-sagas';
 
-import destroyTransportedOrganizationEntitySetReducer from './destroyTransportedOrganizationEntitySetReducer';
 import getDataSetColumnsMetadataReducer from './getDataSetColumnsMetadataReducer';
 import getDataSetMetadataReducer from './getDataSetMetadataReducer';
 import getDataSetsMetadataReducer from './getDataSetsMetadataReducer';
@@ -23,7 +22,6 @@ import getOrganizationDataSetsMetadataReducer from './getOrganizationDataSetsMet
 import initializeOrganizationDataSetReducer from './initializeOrganizationDataSetReducer';
 import isAppInstalledReducer from './isAppInstalledReducer';
 import promoteStagingTableReducer from './promoteStagingTableReducer';
-import transportOrganizationEntitySetReducer from './transportOrganizationEntitySetReducer';
 import updateOrganizationDataSetReducer from './updateOrganizationDataSetReducer';
 
 import {
@@ -79,17 +77,12 @@ const {
 } = EntitySetsApiActions;
 
 const {
-  DESTROY_TRANSPORTED_ORGANIZATION_ENTITY_SET,
   PROMOTE_STAGING_TABLE,
-  TRANSPORT_ORGANIZATION_ENTITY_SET,
-  destroyTransportedOrganizationEntitySet,
   promoteStagingTable,
-  transportOrganizationEntitySet,
 } = OrganizationsApiActions;
 
 const INITIAL_STATE :Map = fromJS({
   // actions
-  [DESTROY_TRANSPORTED_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
   [GET_DATA_SETS_METADATA]: RS_INITIAL_STATE,
   [GET_DATA_SET_COLUMNS_METADATA]: RS_INITIAL_STATE,
   [GET_DATA_SET_METADATA]: RS_INITIAL_STATE,
@@ -102,7 +95,6 @@ const INITIAL_STATE :Map = fromJS({
   [INITIALIZE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
   [IS_APP_INSTALLED]: RS_INITIAL_STATE,
   [PROMOTE_STAGING_TABLE]: RS_INITIAL_STATE,
-  [TRANSPORT_ORGANIZATION_ENTITY_SET]: RS_INITIAL_STATE,
   [UPDATE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
   // data
   [APP_INSTALLS]: Map(),
@@ -124,10 +116,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case RESET_REQUEST_STATES: {
       return resetRequestStatesReducer(state, action);
-    }
-
-    case destroyTransportedOrganizationEntitySet.case(action.type): {
-      return destroyTransportedOrganizationEntitySetReducer(state, action);
     }
 
     case getDataSetMetadata.case(action.type): {
@@ -177,10 +165,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case promoteStagingTable.case(action.type): {
       return promoteStagingTableReducer(state, action);
-    }
-
-    case transportOrganizationEntitySet.case(action.type): {
-      return transportOrganizationEntitySetReducer(state, action);
     }
 
     case updateOrganizationDataSet.case(action.type): {
