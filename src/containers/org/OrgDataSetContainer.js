@@ -116,7 +116,7 @@ const OrgDataSetContainer = ({
     };
   }, [dispatch, dataSetId]);
 
-  const contacts :List<string> = dataSet.getIn([METADATA, CONTACTS]);
+  const contacts :List<string> = dataSet.getIn([METADATA, CONTACTS], List());
   const description :string = dataSet.getIn([METADATA, DESCRIPTION]);
   const name :string = dataSet.get(NAME);
   const title :string = dataSet.getIn([METADATA, TITLE]);
