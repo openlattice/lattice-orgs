@@ -12,7 +12,6 @@ import React, {
 import { faEllipsisV } from '@fortawesome/pro-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map } from 'immutable';
-import { Types } from 'lattice';
 import { DataSetsApiActions } from 'lattice-sagas';
 import { IconButton, Menu, MenuItem } from 'lattice-ui-kit';
 import { useGoToRoute, useRequestState } from 'lattice-utils';
@@ -20,7 +19,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import type { UUID } from 'lattice';
 import type { RequestState } from 'redux-reqseq';
 
-import AssembleMenuItem from './AssembleMenuItem';
 import PromoteTableModal from './PromoteTableModal';
 
 import {
@@ -28,7 +26,6 @@ import {
   EDIT_TITLE_DESCRIPTION_TAGS_DATA_SCHEMA as DATA_SCHEMA,
   EDIT_TITLE_DESCRIPTION_TAGS_UI_SCHEMA as UI_SCHEMA,
   EDM,
-  FLAGS,
   METADATA,
   NAME,
   OPENLATTICE,
@@ -39,7 +36,6 @@ import { isEntitySet } from '../../../../common/utils';
 import { UpdateMetaModal } from '../../../../components';
 import { UPDATE_ORGANIZATION_DATA_SET, updateOrganizationDataSet } from '../../../../core/edm/actions';
 import {
-  selectCurrentAuthorization,
   selectDataSetSchema,
   selectMyKeys,
   selectOrgDataSet,
@@ -47,7 +43,6 @@ import {
 import { Routes } from '../../../../core/router';
 
 const { getOrganizationDataSetSchema } = DataSetsApiActions;
-const { EntitySetFlagTypes, PermissionTypes } = Types;
 
 const CLOSE_DETAILS = 'CLOSE_DETAILS';
 const CLOSE_MENU = 'CLOSE_MENU';
@@ -118,7 +113,6 @@ const DataSetActionButton = ({
 
   const updateOrgDataSetRS :?RequestState = useRequestState([EDM, UPDATE_ORGANIZATION_DATA_SET]);
 
-  const hasMaterialize :boolean = useSelector(selectCurrentAuthorization(dataSetKey, PermissionTypes.MATERIALIZE));
   const dataSetSchema = useSelector(selectDataSetSchema(dataSetId));
 
   const myKeys :Set<List<UUID>> = useSelector(selectMyKeys());
@@ -127,12 +121,10 @@ const DataSetActionButton = ({
 
   const dataSet :Map = useSelector(selectOrgDataSet(organizationId, dataSetId));
   const dataSetDescription :string = dataSet.getIn([METADATA, DESCRIPTION]);
-  const dataSetFlags :List<string> = dataSet.getIn([METADATA, FLAGS], List());
   const metadataTags :List<string> = dataSet.getIn([METADATA, METADATA, TAGS], List());
   const dataSetName :string = dataSet.get(NAME);
   const dataSetTitle :string = dataSet.getIn([METADATA, TITLE]);
   const isAtlas :boolean = !isEntitySet(dataSet);
-  const isAssembled = isAtlas ? false : dataSetFlags.includes(EntitySetFlagTypes.TRANSPORTED);
   const isPromoted = dataSetSchema === OPENLATTICE;
 
   useEffect(() => {
@@ -242,15 +234,6 @@ const DataSetActionButton = ({
                   : 'Promote Data Set'
               }
             </MenuItem>
-          )
-        }
-        {
-          !isAtlas && (
-            <AssembleMenuItem
-                disabled={!hasMaterialize || isAtlas}
-                entitySetId={dataSetId}
-                isAssembled={isAssembled}
-                organizationId={organizationId} />
           )
         }
         {
