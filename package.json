@@ -46,7 +46,7 @@
     "lattice-utils": "~0.11.2",
     "lodash": "~4.17.21",
     "loglevel": "~1.7.0",
-    "luxon": "~1.28.0",
+    "luxon": "~2.1.1",
     "polished": "~4.1.3",
     "react": "~16.14.0",
     "react-dom": "~16.14.0",
