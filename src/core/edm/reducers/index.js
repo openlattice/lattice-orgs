@@ -20,7 +20,6 @@ import getOrgDataSetSizeReducer from './getOrgDataSetSizeReducer';
 import getOrganizationDataSetSchemaReducer from './getOrganizationDataSetSchemaReducer';
 import getOrganizationDataSetsMetadataReducer from './getOrganizationDataSetsMetadataReducer';
 import initializeOrganizationDataSetReducer from './initializeOrganizationDataSetReducer';
-import isAppInstalledReducer from './isAppInstalledReducer';
 import promoteStagingTableReducer from './promoteStagingTableReducer';
 import updateOrganizationDataSetReducer from './updateOrganizationDataSetReducer';
 
@@ -44,12 +43,10 @@ import {
   GET_EDM_TYPES,
   GET_ORG_DATA_SET_SIZE,
   INITIALIZE_ORGANIZATION_DATA_SET,
-  IS_APP_INSTALLED,
   UPDATE_ORGANIZATION_DATA_SET,
   getEntityDataModelTypes,
   getOrgDataSetSize,
   initializeOrganizationDataSet,
-  isAppInstalled,
   updateOrganizationDataSet,
 } from '../actions';
 
@@ -93,7 +90,6 @@ const INITIAL_STATE :Map = fromJS({
   [GET_ORGANIZATION_DATA_SET_SCHEMA]: RS_INITIAL_STATE,
   [GET_ORG_DATA_SET_SIZE]: RS_INITIAL_STATE,
   [INITIALIZE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
-  [IS_APP_INSTALLED]: RS_INITIAL_STATE,
   [PROMOTE_STAGING_TABLE]: RS_INITIAL_STATE,
   [UPDATE_ORGANIZATION_DATA_SET]: RS_INITIAL_STATE,
   // data
@@ -157,10 +153,6 @@ export default function reducer(state :Map = INITIAL_STATE, action :Object) {
 
     case initializeOrganizationDataSet.case(action.type): {
       return initializeOrganizationDataSetReducer(state, action);
-    }
-
-    case isAppInstalled.case(action.type): {
-      return isAppInstalledReducer(state, action);
     }
 
     case promoteStagingTable.case(action.type): {
