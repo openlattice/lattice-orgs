@@ -35,7 +35,6 @@ import { INITIALIZE_ORGANIZATION_DATA_SET, initializeOrganizationDataSet } from 
 import { resetRequestStates } from '../../core/redux/actions';
 import { Routes } from '../../core/router';
 import { SEARCH_DATA, SEARCH_ORGANIZATION_DATA_SETS, clearSearchState } from '../../core/search/actions';
-import { OrgAccessRequestsContainer } from '../requests';
 
 const {
   isFailure,
@@ -62,7 +61,6 @@ const OrgRouter = () => {
 
   const matchEntity = useRouteMatch(Routes.ENTITY);
   const matchOrganization = useRouteMatch(Routes.ORG);
-  const matchOrganizationAccessRequests = useRouteMatch(Routes.ORG_ACCESS_REQUESTS);
   const matchOrganizationDataSet = useRouteMatch(Routes.ORG_DATA_SET);
   const matchOrganizationDataSets = useRouteMatch(Routes.ORG_DATA_SETS);
   const matchOrganizationMember = useRouteMatch(Routes.ORG_MEMBER);
@@ -73,10 +71,7 @@ const OrgRouter = () => {
   const matchOrgDataSetObjectPermissions = useRouteMatch(Routes.ORG_DATA_SET_OBJECT_PERMISSIONS);
 
   // TODO: having to match each route is a pain. how do we avoid this pattern?
-  if (matchOrganizationAccessRequests) {
-    organizationId = getParamFromMatch(matchOrganizationAccessRequests, Routes.ORG_ID_PARAM);
-  }
-  else if (matchEntity) {
+  if (matchEntity) {
     dataSetId = getParamFromMatch(matchEntity, Routes.DATA_SET_ID_PARAM);
     entityKeyId = getParamFromMatch(matchEntity, Routes.ENTITY_KEY_ID_PARAM);
     organizationId = getParamFromMatch(matchEntity, Routes.ORG_ID_PARAM);
@@ -216,12 +211,6 @@ const OrgRouter = () => {
         : null
     );
 
-    const renderOrgAccessRequestsContainer = () => (
-      (organizationId)
-        ? <OrgAccessRequestsContainer organizationId={organizationId} organizationRoute={organizationRoute} />
-        : null
-    );
-
     const renderOrgDataSetContainer = () => (
       (organizationId && dataSetId)
         ? (
@@ -324,7 +313,6 @@ const OrgRouter = () => {
     return (
       <Switch>
         <Route path={Routes.ENTITY} render={renderEntityDataContainer} />
-        <Route path={Routes.ORG_ACCESS_REQUESTS} render={renderOrgAccessRequestsContainer} />
         <Route path={Routes.ORG_DATA_SET_OBJECT_PERMISSIONS} render={renderOrgDataSetObjectPermissionsContainer} />
         <Route path={Routes.ORG_DATA_SET} render={renderOrgDataSetContainer} />
         <Route path={Routes.ORG_MEMBER} render={renderOrgMemberContainer} />
