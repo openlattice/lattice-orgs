@@ -4,7 +4,7 @@
 
 import React, { useEffect, useMemo } from 'react';
 
-import { faFileContract, faUser } from '@fortawesome/pro-solid-svg-icons';
+import { faUser } from '@fortawesome/pro-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { List, Map, fromJS } from 'immutable';
 import { CollaborationsApiActions } from 'lattice-sagas';
@@ -34,7 +34,6 @@ import { DataSetSearchResultCard, OrgActionButton, SearchOrgDataSetsContainer } 
 
 import { BadgeCheckIcon } from '../../assets';
 import {
-  APPS,
   COLLABORATIONS,
   ORGANIZATIONS,
   PERMISSIONS,
@@ -47,11 +46,7 @@ import {
 } from '../../components';
 import { GET_ORG_OBJECT_PERMISSIONS, getOrgObjectPermissions } from '../../core/permissions/actions';
 import { resetRequestStates } from '../../core/redux/actions';
-import {
-  selectCollaborationsByOrgId,
-  selectIsAppInstalled,
-  selectOrganization,
-} from '../../core/redux/selectors';
+import { selectCollaborationsByOrgId, selectOrganization } from '../../core/redux/selectors';
 import { Routes } from '../../core/router';
 import { ORG, ORG_COLLABORATIONS, ORG_ID_PARAM } from '../../core/router/Routes';
 
@@ -73,7 +68,6 @@ const OrgContainer = ({
   const getCollabWithOrgRS :?RequestState = useRequestState([COLLABORATIONS, GET_COLLABORATIONS_WITH_ORGANIZATION]);
 
   const organization :?Organization = useSelector(selectOrganization(organizationId));
-  const isInstalled :boolean = useSelector(selectIsAppInstalled(APPS.ACCESS_REQUESTS, organizationId));
   const collaborationsByOrganizationId = useSelector(selectCollaborationsByOrgId(organizationId));
 
   const collaborationHref = ORG_COLLABORATIONS.replace(ORG_ID_PARAM, organizationId);
@@ -114,10 +108,6 @@ const OrgContainer = ({
     Routes.ORG_ROLES.replace(Routes.ORG_ID_PARAM, organizationId)
   ), [organizationId]);
 
-  const requestsPath = useMemo(() => (
-    Routes.ORG_ACCESS_REQUESTS.replace(Routes.ORG_ID_PARAM, organizationId)
-  ), [organizationId]);
-
   if (organization) {
     const rolesCount :number = organization.roles.length;
     const peopleCount :number = organization.members.length;
@@ -144,20 +134,6 @@ const OrgContainer = ({
                     <Typography color="primary">{`${rolesCount} Roles`}</Typography>
                   </GapGrid>
                 </CrumbLink>
-                {
-                  isInstalled && (
-                    <CrumbLink to={requestsPath}>
-                      <GapGrid gap={8}>
-                        <FontAwesomeIcon
-                            color={PURPLE.P300}
-                            fixedWidth
-                            icon={faFileContract}
-                            style={{ fontSize: '1.6em' }} />
-                        <Typography color="primary">Access Requests</Typography>
-                      </GapGrid>
-                    </CrumbLink>
-                  )
-                }
               </GapGrid>
               <OrgActionButton organization={organization} />
             </SpaceBetweenGrid>

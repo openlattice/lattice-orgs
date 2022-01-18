@@ -25,7 +25,6 @@ export { default as selectEntityNeighborsMap } from './selectEntityNeighborsMap'
 export { default as selectEntitySetEntityType } from './selectEntitySetEntityType';
 export { default as selectEntitySetPropertyTypes } from './selectEntitySetPropertyTypes';
 export { default as selectEntityType } from './selectEntityType';
-export { default as selectIsAppInstalled } from './selectIsAppInstalled';
 export { default as selectMyKeys } from './selectMyKeys';
 export { default as selectNewOrgId } from './selectNewOrgId';
 export { default as selectOrgDataSet } from './selectOrgDataSet';

@@ -38,12 +38,6 @@ const ORG :'/orgs/:organizationId' = `${ORGS}/${ORG_ID_PARAM}`;
 const ORG_COLLABORATIONS :'/orgs/:organizationId/collaborations' = `${ORGS}/${ORG_ID_PARAM}/collaborations`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ORG_ACCESS_REQUESTS :'/orgs/:organizationId/access' = `${ORG}/access`;
-
-// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
-const ORG_ACCESS_REQUEST :'/orgs/:organizationId/access/request/:requestId' = `${ORG_ACCESS_REQUESTS}/request/${REQUEST_ID_PARAM}`;
-
-// $FlowFixMe - ignoring flow because I prefer the code hints to show the value
 const ORG_DATA_SETS :'/orgs/:organizationId/dataSets' = `${ORG}/dataSets`;
 
 // $FlowFixMe - ignoring flow because I prefer the code hints to show the value
@@ -89,8 +83,6 @@ export {
   ENTITY,
   ORG,
   ORGS,
-  ORG_ACCESS_REQUEST,
-  ORG_ACCESS_REQUESTS,
   ORG_COLLABORATIONS,
   ORG_DATA_SET,
   ORG_DATA_SETS,
