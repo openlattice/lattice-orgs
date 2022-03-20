@@ -84,7 +84,7 @@ if (APP_ROOT_NODE) {
     <Provider store={reduxStore}>
       <>
         <ConnectedRouter history={routerHistory}>
-          <AuthRoute path={Routes.ROOT} component={AppContainer} redirectToLogin />
+          <AuthRoute path={Routes.ROOT} component={AppContainer} redirectToLogin={false} />
         </ConnectedRouter>
         <NormalizeCSS />
         <GlobalStyle />
